@@ -1,0 +1,12 @@
+/node_modules
+/public/js/ckfinder
+/public/uploads
+/storage/*.key
+/vendor
+.env
+.phpunit.result.cache
+/.idea
+/.vscode
+composer.lock
+.DS_Store
+*.map
