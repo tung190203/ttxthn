@@ -40,6 +40,7 @@ class HomeController extends Controller
     public function projects(Request $request)
     {
         $setting = Setting::getAllSetting();
+        $setting['menu_active'] = 'Dự án kêu gọi đầu tư';
 
         $banners = Widget::getByPosition('HOME_BANNER');
         $list_post_popular = Post::popular(4)->get();
@@ -59,6 +60,7 @@ class HomeController extends Controller
     public function projectDetail(Request $request)
     {
         $setting = Setting::getAllSetting();
+        $setting['menu_active'] = 'Dự án kêu gọi đầu tư';
 
         $banners = Widget::getByPosition('HOME_BANNER');
         $list_post_popular = Post::popular(4)->get();
@@ -97,6 +99,7 @@ class HomeController extends Controller
     public function news(Request $request)
     {
         $setting = Setting::getAllSetting();
+        $setting['menu_active'] = 'Tin tức';
 
         $banners = Widget::getByPosition('HOME_BANNER');
         $list_post_popular = Post::popular(4)->get();
@@ -116,6 +119,7 @@ class HomeController extends Controller
     public function newDetail(Request $request)
     {
         $setting = Setting::getAllSetting();
+        $setting['menu_active'] = 'Tin tức';
 
         $banners = Widget::getByPosition('HOME_BANNER');
         $list_post_popular = Post::popular(4)->get();

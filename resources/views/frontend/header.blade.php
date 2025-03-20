@@ -26,7 +26,8 @@
                             <div class="navbar__body">
                                 <ul class="menu menu-root">
                                     <li class="menu-item">
-                                        <a class="menu-link active" href="{{ route('home_page') }}">Trang chủ</a>
+                                        <a class="menu-link @if(empty($setting['menu_active'])) active @endif"
+                                           href="{{ route('home_page') }}">Trang chủ</a>
                                     </li>
                                     <li class="menu-item menu-item-group">
                                         <a class="menu-link" href="#!">Giới thiệu tiềm năng</a>
@@ -55,10 +56,13 @@
                                             </li>
                                         </ul>
                                     </li>
-                                    <li class="menu-item"><a class="menu-link" href="./projects.html">Dự án kêu gọi đầu
-                                            tư</a>
+                                    <li class="menu-item">
+                                        <a class="menu-link @if(($setting['menu_active']??'') == 'Dự án kêu gọi đầu tư' ) active @endif"
+                                           href="{{ route('projects') }}">Dự án kêu gọi đầu tư</a>
                                     </li>
-                                    <li class="menu-item"><a class="menu-link" href="./news.html">Tin tức</a>
+                                    <li class="menu-item"><a
+                                                class="menu-link @if(($setting['menu_active']??'') == 'Tin tức' ) active @endif"
+                                                href="{{ route('news') }}">Tin tức</a>
                                     </li>
                                 </ul>
                             </div>
@@ -77,8 +81,8 @@
                             <button class="h-btn ms-1" type="button"><i class="fal fa-fw fa-lg fa-user"></i></button>
                         </div>
                         <div class="h-dropdown__menu">
-                            <a class="h-dropdown__item" href="#!">Thông tin cá nhân</a>
-                            <a class="h-dropdown__item" href="#!">Dự án đã lưu</a>
+                            <a class="h-dropdown__item" href="{{ route('account') }}">Thông tin cá nhân</a>
+                            <a class="h-dropdown__item" href="{{ route('account') }}">Dự án đã lưu</a>
                             <a class="h-dropdown__item"
                                href="#!"
                                data-bs-toggle="modal"

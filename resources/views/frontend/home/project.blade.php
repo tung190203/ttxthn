@@ -91,246 +91,30 @@
                     </div>
                     <div class="col-lg-9">
                         <div class="row g-20">
-                            <div class="col-6 col-md-4 col-lg-6 col-xl-4">
-                                <div class="project"><a class="project__frame" href="#!"><img
-                                                src="./images/project-1.jpg" alt=""/></a>
-                                    <div class="project__body">
-                                        <h3 class="project__title"><a href="#!">Dự án Khu công nghệ cao Láng - Hoà
-                                                Lạc</a></h3>
-                                        <div class="project__overlay"><span>Dự án mới</span><a class="project__like"
-                                                                                               href="#!"><i
-                                                        class="fal fa-fw fa-lg fa-heart"></i></a></div>
-                                        <ul class="project__info">
-                                            <li><img class="me-2" src="./images/icon-map-marker.svg" alt=""/><span>Donec venenatis fringilla augue at ...</span>
-                                            </li>
-                                            <li><img class="me-2" src="./images/icon-dimension.svg"
-                                                     alt=""/><span>120 ha</span></li>
-                                            <li><img class="me-2" src="./images/icon-save-money.svg" alt=""/><span>Theo đề xuất</span>
-                                            </li>
-                                        </ul>
+                            @foreach(range(1,12) as $item)
+                                <div class="col-6 col-md-4 col-lg-6 col-xl-4">
+                                    <div class="project">
+                                        <a class="project__frame" href="{{ route('project_detail') }}">
+                                            <img src="./images/project-1.jpg" alt=""/></a>
+                                        <div class="project__body">
+                                            <h3 class="project__title"><a href="{{ route('project_detail') }}">Dự án Khu
+                                                    công nghệ cao Láng - Hoà
+                                                    Lạc</a></h3>
+                                            <div class="project__overlay"><span>Dự án mới</span><a class="project__like"
+                                                                                                   href="#!"><i
+                                                            class="fal fa-fw fa-lg fa-heart"></i></a></div>
+                                            <ul class="project__info">
+                                                <li><img class="me-2" src="./images/icon-map-marker.svg" alt=""/><span>Donec venenatis fringilla augue at ...</span>
+                                                </li>
+                                                <li><img class="me-2" src="./images/icon-dimension.svg"
+                                                         alt=""/><span>120 ha</span></li>
+                                                <li><img class="me-2" src="./images/icon-save-money.svg" alt=""/><span>Theo đề xuất</span>
+                                                </li>
+                                            </ul>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-6 col-md-4 col-lg-6 col-xl-4">
-                                <div class="project"><a class="project__frame" href="#!"><img
-                                                src="./images/project-1.jpg" alt=""/></a>
-                                    <div class="project__body">
-                                        <h3 class="project__title"><a href="#!">Dự án Khu công nghệ cao Láng - Hoà
-                                                Lạc</a></h3>
-                                        <div class="project__overlay"><span>Dự án mới</span><a class="project__like"
-                                                                                               href="#!"><i
-                                                        class="fal fa-fw fa-lg fa-heart"></i></a></div>
-                                        <ul class="project__info">
-                                            <li><img class="me-2" src="./images/icon-map-marker.svg" alt=""/><span>Donec venenatis fringilla augue at ...</span>
-                                            </li>
-                                            <li><img class="me-2" src="./images/icon-dimension.svg"
-                                                     alt=""/><span>120 ha</span></li>
-                                            <li><img class="me-2" src="./images/icon-save-money.svg" alt=""/><span>Theo đề xuất</span>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-6 col-md-4 col-lg-6 col-xl-4">
-                                <div class="project"><a class="project__frame" href="#!"><img
-                                                src="./images/project-1.jpg" alt=""/></a>
-                                    <div class="project__body">
-                                        <h3 class="project__title"><a href="#!">Dự án Khu công nghệ cao Láng - Hoà
-                                                Lạc</a></h3>
-                                        <div class="project__overlay"><span>Dự án mới</span><a class="project__like"
-                                                                                               href="#!"><i
-                                                        class="fal fa-fw fa-lg fa-heart"></i></a></div>
-                                        <ul class="project__info">
-                                            <li><img class="me-2" src="./images/icon-map-marker.svg" alt=""/><span>Donec venenatis fringilla augue at ...</span>
-                                            </li>
-                                            <li><img class="me-2" src="./images/icon-dimension.svg"
-                                                     alt=""/><span>120 ha</span></li>
-                                            <li><img class="me-2" src="./images/icon-save-money.svg" alt=""/><span>Theo đề xuất</span>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-6 col-md-4 col-lg-6 col-xl-4">
-                                <div class="project"><a class="project__frame" href="#!"><img
-                                                src="./images/project-1.jpg" alt=""/></a>
-                                    <div class="project__body">
-                                        <h3 class="project__title"><a href="#!">Dự án Khu công nghệ cao Láng - Hoà
-                                                Lạc</a></h3>
-                                        <div class="project__overlay"><span>Dự án mới</span><a class="project__like"
-                                                                                               href="#!"><i
-                                                        class="fal fa-fw fa-lg fa-heart"></i></a></div>
-                                        <ul class="project__info">
-                                            <li><img class="me-2" src="./images/icon-map-marker.svg" alt=""/><span>Donec venenatis fringilla augue at ...</span>
-                                            </li>
-                                            <li><img class="me-2" src="./images/icon-dimension.svg"
-                                                     alt=""/><span>120 ha</span></li>
-                                            <li><img class="me-2" src="./images/icon-save-money.svg" alt=""/><span>Theo đề xuất</span>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-6 col-md-4 col-lg-6 col-xl-4">
-                                <div class="project"><a class="project__frame" href="#!"><img
-                                                src="./images/project-1.jpg" alt=""/></a>
-                                    <div class="project__body">
-                                        <h3 class="project__title"><a href="#!">Dự án Khu công nghệ cao Láng - Hoà
-                                                Lạc</a></h3>
-                                        <div class="project__overlay"><span>Dự án mới</span><a class="project__like"
-                                                                                               href="#!"><i
-                                                        class="fal fa-fw fa-lg fa-heart"></i></a></div>
-                                        <ul class="project__info">
-                                            <li><img class="me-2" src="./images/icon-map-marker.svg" alt=""/><span>Donec venenatis fringilla augue at ...</span>
-                                            </li>
-                                            <li><img class="me-2" src="./images/icon-dimension.svg"
-                                                     alt=""/><span>120 ha</span></li>
-                                            <li><img class="me-2" src="./images/icon-save-money.svg" alt=""/><span>Theo đề xuất</span>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-6 col-md-4 col-lg-6 col-xl-4">
-                                <div class="project"><a class="project__frame" href="#!"><img
-                                                src="./images/project-1.jpg" alt=""/></a>
-                                    <div class="project__body">
-                                        <h3 class="project__title"><a href="#!">Dự án Khu công nghệ cao Láng - Hoà
-                                                Lạc</a></h3>
-                                        <div class="project__overlay"><span>Dự án mới</span><a class="project__like"
-                                                                                               href="#!"><i
-                                                        class="fal fa-fw fa-lg fa-heart"></i></a></div>
-                                        <ul class="project__info">
-                                            <li><img class="me-2" src="./images/icon-map-marker.svg" alt=""/><span>Donec venenatis fringilla augue at ...</span>
-                                            </li>
-                                            <li><img class="me-2" src="./images/icon-dimension.svg"
-                                                     alt=""/><span>120 ha</span></li>
-                                            <li><img class="me-2" src="./images/icon-save-money.svg" alt=""/><span>Theo đề xuất</span>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-6 col-md-4 col-lg-6 col-xl-4">
-                                <div class="project"><a class="project__frame" href="#!"><img
-                                                src="./images/project-1.jpg" alt=""/></a>
-                                    <div class="project__body">
-                                        <h3 class="project__title"><a href="#!">Dự án Khu công nghệ cao Láng - Hoà
-                                                Lạc</a></h3>
-                                        <div class="project__overlay"><span>Dự án mới</span><a class="project__like"
-                                                                                               href="#!"><i
-                                                        class="fal fa-fw fa-lg fa-heart"></i></a></div>
-                                        <ul class="project__info">
-                                            <li><img class="me-2" src="./images/icon-map-marker.svg" alt=""/><span>Donec venenatis fringilla augue at ...</span>
-                                            </li>
-                                            <li><img class="me-2" src="./images/icon-dimension.svg"
-                                                     alt=""/><span>120 ha</span></li>
-                                            <li><img class="me-2" src="./images/icon-save-money.svg" alt=""/><span>Theo đề xuất</span>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-6 col-md-4 col-lg-6 col-xl-4">
-                                <div class="project"><a class="project__frame" href="#!"><img
-                                                src="./images/project-1.jpg" alt=""/></a>
-                                    <div class="project__body">
-                                        <h3 class="project__title"><a href="#!">Dự án Khu công nghệ cao Láng - Hoà
-                                                Lạc</a></h3>
-                                        <div class="project__overlay"><span>Dự án mới</span><a class="project__like"
-                                                                                               href="#!"><i
-                                                        class="fal fa-fw fa-lg fa-heart"></i></a></div>
-                                        <ul class="project__info">
-                                            <li><img class="me-2" src="./images/icon-map-marker.svg" alt=""/><span>Donec venenatis fringilla augue at ...</span>
-                                            </li>
-                                            <li><img class="me-2" src="./images/icon-dimension.svg"
-                                                     alt=""/><span>120 ha</span></li>
-                                            <li><img class="me-2" src="./images/icon-save-money.svg" alt=""/><span>Theo đề xuất</span>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-6 col-md-4 col-lg-6 col-xl-4">
-                                <div class="project"><a class="project__frame" href="#!"><img
-                                                src="./images/project-1.jpg" alt=""/></a>
-                                    <div class="project__body">
-                                        <h3 class="project__title"><a href="#!">Dự án Khu công nghệ cao Láng - Hoà
-                                                Lạc</a></h3>
-                                        <div class="project__overlay"><span>Dự án mới</span><a class="project__like"
-                                                                                               href="#!"><i
-                                                        class="fal fa-fw fa-lg fa-heart"></i></a></div>
-                                        <ul class="project__info">
-                                            <li><img class="me-2" src="./images/icon-map-marker.svg" alt=""/><span>Donec venenatis fringilla augue at ...</span>
-                                            </li>
-                                            <li><img class="me-2" src="./images/icon-dimension.svg"
-                                                     alt=""/><span>120 ha</span></li>
-                                            <li><img class="me-2" src="./images/icon-save-money.svg" alt=""/><span>Theo đề xuất</span>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-6 col-md-4 col-lg-6 col-xl-4">
-                                <div class="project"><a class="project__frame" href="#!"><img
-                                                src="./images/project-1.jpg" alt=""/></a>
-                                    <div class="project__body">
-                                        <h3 class="project__title"><a href="#!">Dự án Khu công nghệ cao Láng - Hoà
-                                                Lạc</a></h3>
-                                        <div class="project__overlay"><span>Dự án mới</span><a class="project__like"
-                                                                                               href="#!"><i
-                                                        class="fal fa-fw fa-lg fa-heart"></i></a></div>
-                                        <ul class="project__info">
-                                            <li><img class="me-2" src="./images/icon-map-marker.svg" alt=""/><span>Donec venenatis fringilla augue at ...</span>
-                                            </li>
-                                            <li><img class="me-2" src="./images/icon-dimension.svg"
-                                                     alt=""/><span>120 ha</span></li>
-                                            <li><img class="me-2" src="./images/icon-save-money.svg" alt=""/><span>Theo đề xuất</span>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-6 col-md-4 col-lg-6 col-xl-4">
-                                <div class="project"><a class="project__frame" href="#!"><img
-                                                src="./images/project-1.jpg" alt=""/></a>
-                                    <div class="project__body">
-                                        <h3 class="project__title"><a href="#!">Dự án Khu công nghệ cao Láng - Hoà
-                                                Lạc</a></h3>
-                                        <div class="project__overlay"><span>Dự án mới</span><a class="project__like"
-                                                                                               href="#!"><i
-                                                        class="fal fa-fw fa-lg fa-heart"></i></a></div>
-                                        <ul class="project__info">
-                                            <li><img class="me-2" src="./images/icon-map-marker.svg" alt=""/><span>Donec venenatis fringilla augue at ...</span>
-                                            </li>
-                                            <li><img class="me-2" src="./images/icon-dimension.svg"
-                                                     alt=""/><span>120 ha</span></li>
-                                            <li><img class="me-2" src="./images/icon-save-money.svg" alt=""/><span>Theo đề xuất</span>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-6 col-md-4 col-lg-6 col-xl-4">
-                                <div class="project"><a class="project__frame" href="#!"><img
-                                                src="./images/project-1.jpg" alt=""/></a>
-                                    <div class="project__body">
-                                        <h3 class="project__title"><a href="#!">Dự án Khu công nghệ cao Láng - Hoà
-                                                Lạc</a></h3>
-                                        <div class="project__overlay"><span>Dự án mới</span><a class="project__like"
-                                                                                               href="#!"><i
-                                                        class="fal fa-fw fa-lg fa-heart"></i></a></div>
-                                        <ul class="project__info">
-                                            <li><img class="me-2" src="./images/icon-map-marker.svg" alt=""/><span>Donec venenatis fringilla augue at ...</span>
-                                            </li>
-                                            <li><img class="me-2" src="./images/icon-dimension.svg"
-                                                     alt=""/><span>120 ha</span></li>
-                                            <li><img class="me-2" src="./images/icon-save-money.svg" alt=""/><span>Theo đề xuất</span>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
+                            @endforeach
                         </div>
                         <nav class="d-flex justify-content-center mt-40 mt-lg-50">
                             <ul class="pagination">
