@@ -22,6 +22,11 @@ Route::localized(function () {
 
     Route::get('/', [HomeController::class, 'index'])->name('home_page');
     Route::get('/home', [HomeController::class, 'index']);
+    Route::get('/projects.html', [HomeController::class, 'projects'])->name('projects');
+    Route::get('/project-detail.html', [HomeController::class, 'projectDetail']);
+    Route::get('/account.html', [HomeController::class, 'account'])->name('account');
+    Route::get('/news.html', [HomeController::class, 'news'])->name('news');
+    Route::get('/new-detail.html', [HomeController::class, 'newDetail']);
     Route::get('/sitemap.xml', [HomeController::class, 'siteMap'])->name('site_map');
     Route::match(['get', 'post'], '/contact.html', [HomeController::class, 'contact'])->name('contact');
 

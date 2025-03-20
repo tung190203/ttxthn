@@ -1,7 +1,10 @@
 <header class="header">
     <div class="header__wrapper">
         <div class="container">
-            <div class="header__inner"><a class="header__logo" href="./index.html"><img src="./images/logo.png" alt=""/></a>
+            <div class="header__inner">
+                <a class="header__logo" href="{{ route('home_page') }}">
+                    <img src="./images/logo.png" alt=""/>
+                </a>
                 <div class="header__elements">
                     <div class="header__text">CÁC DỰ ÁN THU HÚT ĐẦU TƯ THÀNH PHỐ HÀ NỘI</div>
                 </div>
@@ -14,25 +17,33 @@
                     <section class="navbar js-navbar">
                         <div class="navbar__backdrop js-navbar-toggle"></div>
                         <div class="navbar__wrapper">
-                            <div class="navbar__header"><a class="navbar__logo" href="./index.html"><img
-                                            src="./images/logo.png" alt=""/></a>
+                            <div class="navbar__header">
+                                <a class="navbar__logo" href="./index.html">
+                                    <img src="./images/logo.png" alt=""/>
+                                </a>
                                 <button class="btn-toggle js-navbar-toggle ms-auto"></button>
                             </div>
                             <div class="navbar__body">
                                 <ul class="menu menu-root">
-                                    <li class="menu-item"><a class="menu-link active" href="./index.html">Trang chủ</a>
+                                    <li class="menu-item">
+                                        <a class="menu-link active" href="{{ route('home_page') }}">Trang chủ</a>
                                     </li>
-                                    <li class="menu-item menu-item-group"><a class="menu-link" href="#!">Giới thiệu tiềm
-                                            năng</a><span class="menu-toggle"></span>
+                                    <li class="menu-item menu-item-group">
+                                        <a class="menu-link" href="#!">Giới thiệu tiềm năng</a>
+                                        <span class="menu-toggle"></span>
                                         <ul class="menu menu-sub">
-                                            <li class="menu-item"><a class="menu-link" href="#!">Dropdown</a>
+                                            <li class="menu-item">
+                                                <a class="menu-link" href="#!">Dropdown</a>
                                             </li>
-                                            <li class="menu-item"><a class="menu-link" href="#!">Dropdown</a>
+                                            <li class="menu-item">
+                                                <a class="menu-link" href="#!">Dropdown</a>
                                             </li>
-                                            <li class="menu-item"><a class="menu-link" href="#!">Dropdown</a>
+                                            <li class="menu-item">
+                                                <a class="menu-link" href="#!">Dropdown</a>
                                             </li>
-                                            <li class="menu-item menu-item-group"><a class="menu-link" href="#!">Dropdown</a><span
-                                                        class="menu-toggle"></span>
+                                            <li class="menu-item menu-item-group">
+                                                <a class="menu-link" href="#!">Dropdown</a>
+                                                <span class="menu-toggle"></span>
                                                 <ul class="menu menu-sub menu-sub-2">
                                                     <li class="menu-item"><a class="menu-link" href="#!">Dropdown</a>
                                                     </li>
@@ -65,20 +76,26 @@
                         <div class="h-dropdown__toggle">
                             <button class="h-btn ms-1" type="button"><i class="fal fa-fw fa-lg fa-user"></i></button>
                         </div>
-                        <div class="h-dropdown__menu"><a class="h-dropdown__item" href="#!">Thông tin cá nhân</a><a
-                                    class="h-dropdown__item" href="#!">Dự án đã lưu</a><a class="h-dropdown__item"
-                                                                                          href="#!"
-                                                                                          data-bs-toggle="modal"
-                                                                                          data-bs-target="#md-sign-in">Đăng
-                                nhập</a></div>
+                        <div class="h-dropdown__menu">
+                            <a class="h-dropdown__item" href="#!">Thông tin cá nhân</a>
+                            <a class="h-dropdown__item" href="#!">Dự án đã lưu</a>
+                            <a class="h-dropdown__item"
+                               href="#!"
+                               data-bs-toggle="modal"
+                               data-bs-target="#md-sign-in">Đăng nhập</a></div>
                     </div>
                     <div class="h-dropdown ms-2">
-                        <div class="h-dropdown__toggle"><img src="./images/vn.svg" alt=""/><i
+                        <div class="h-dropdown__toggle">
+                            <img src="./images/vn.svg" alt=""/><i
                                     class="fal fa-fw fa-angle-down ms-1"></i></div>
-                        <div class="h-dropdown__menu"><a class="h-dropdown__item" href="#!"><img src="./images/vn.svg"
-                                                                                                 alt=""/><span>Tiếng Việt</span></a><a
-                                    class="h-dropdown__item" href="#!"><img src="./images/gb.svg"
-                                                                            alt=""/><span>English</span></a></div>
+                        <div class="h-dropdown__menu"><a class="h-dropdown__item" href="#!">
+                                <img src="./images/vn.svg"
+                                     alt=""/><span>Tiếng Việt</span></a>
+                            <a class="h-dropdown__item" href="#!">
+                                <img src="./images/gb.svg"
+                                     alt=""/><span>English</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>

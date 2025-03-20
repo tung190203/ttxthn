@@ -37,6 +37,101 @@ class HomeController extends Controller
         );
     }
 
+    public function projects(Request $request)
+    {
+        $setting = Setting::getAllSetting();
+
+        $banners = Widget::getByPosition('HOME_BANNER');
+        $list_post_popular = Post::popular(4)->get();
+        $all_category_coupons = Category::getAllMenuLink(0, Category::CATEGORY_TYPE_COUPON);
+        $all_category_coupons = array_chunk($all_category_coupons, 3);
+
+        return view('frontend.home.project',
+            compact(
+                'setting',
+                'banners',
+                'list_post_popular',
+                'all_category_coupons',
+            )
+        );
+    }
+
+    public function projectDetail(Request $request)
+    {
+        $setting = Setting::getAllSetting();
+
+        $banners = Widget::getByPosition('HOME_BANNER');
+        $list_post_popular = Post::popular(4)->get();
+        $all_category_coupons = Category::getAllMenuLink(0, Category::CATEGORY_TYPE_COUPON);
+        $all_category_coupons = array_chunk($all_category_coupons, 3);
+
+        return view('frontend.home.project_detail',
+            compact(
+                'setting',
+                'banners',
+                'list_post_popular',
+                'all_category_coupons',
+            )
+        );
+    }
+
+    public function account(Request $request)
+    {
+        $setting = Setting::getAllSetting();
+
+        $banners = Widget::getByPosition('HOME_BANNER');
+        $list_post_popular = Post::popular(4)->get();
+        $all_category_coupons = Category::getAllMenuLink(0, Category::CATEGORY_TYPE_COUPON);
+        $all_category_coupons = array_chunk($all_category_coupons, 3);
+
+        return view('frontend.home.account',
+            compact(
+                'setting',
+                'banners',
+                'list_post_popular',
+                'all_category_coupons',
+            )
+        );
+    }
+
+    public function news(Request $request)
+    {
+        $setting = Setting::getAllSetting();
+
+        $banners = Widget::getByPosition('HOME_BANNER');
+        $list_post_popular = Post::popular(4)->get();
+        $all_category_coupons = Category::getAllMenuLink(0, Category::CATEGORY_TYPE_COUPON);
+        $all_category_coupons = array_chunk($all_category_coupons, 3);
+
+        return view('frontend.home.news',
+            compact(
+                'setting',
+                'banners',
+                'list_post_popular',
+                'all_category_coupons',
+            )
+        );
+    }
+
+    public function newDetail(Request $request)
+    {
+        $setting = Setting::getAllSetting();
+
+        $banners = Widget::getByPosition('HOME_BANNER');
+        $list_post_popular = Post::popular(4)->get();
+        $all_category_coupons = Category::getAllMenuLink(0, Category::CATEGORY_TYPE_COUPON);
+        $all_category_coupons = array_chunk($all_category_coupons, 3);
+
+        return view('frontend.home.new_detail',
+            compact(
+                'setting',
+                'banners',
+                'list_post_popular',
+                'all_category_coupons',
+            )
+        );
+    }
+
     public function jobs(Request $request)
     {
         $setting = Setting::getAllSetting();
