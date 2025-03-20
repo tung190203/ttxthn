@@ -79,9 +79,9 @@ return [
     */
 
     'available_locales' => ['en', 'vn'],
-    'locale' => 'en',
-    'fallback_locale' => 'en',
-    'faker_locale' => 'en_US',
+    'locale' => 'vn',
+    'fallback_locale' => 'vn',
+    'faker_locale' => 'vi_VN',
 
     /*
     |--------------------------------------------------------------------------
