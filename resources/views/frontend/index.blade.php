@@ -59,6 +59,10 @@
     <link rel="stylesheet" type="text/css" href="{{ asset('css/libs.css') }}"/>
     <link rel="stylesheet" type="text/css" href="{{ asset('vendor/fontawesome-pro/css/all.min.css') }}"/>
     <link rel="stylesheet" type="text/css" href="{{ asset('css/app.css') }}"/>
+    <link rel="stylesheet" href="{{ asset('css/custom.css') }}"/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
     <!-- Scripts-->
     <script src="{{ asset('js/libs.js') }}" defer="defer"></script>
     <script src="{{ asset('js/app.js') }}" defer="defer"></script>
