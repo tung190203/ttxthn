@@ -1,0 +1,679 @@
+[
+  {
+    "id": 1,
+    "name": "Cầu Trần Hưng Đạo",
+    "lat": 21.0245,
+    "lng": 105.8614,
+    "districts": [
+      "Phường Hoàn Kiếm",
+      "Phường Hai Bà Trưng",
+      "Phường Long Biên"
+    ],
+    "type_number": 1,
+    "type": "Dự án hạ tầng",
+    "industry": "Hạ tầng giao thông",
+    "industry_number": 1,
+    "price": null,
+    "polygon": [],
+    "link": "https://example.com/project/1",
+    "location_description": ""
+  },
+  {
+    "id": 2,
+    "name": "Cầu Ngọc Hồi và đường dẫn 02 đầu cầu",
+    "lat": 20.9506,
+    "lng": 105.8765,
+    "districts": [
+      "Phường Ngọc Hồi"
+    ],
+    "type_number": 1,
+    "type": "Dự án hạ tầng",
+    "industry": "Hạ tầng giao thông",
+    "industry_number": 1,
+    "price": null,
+    "polygon": [],
+    "link": "https://example.com/project/2",
+    "location_description": ""
+  },
+  {
+    "id": 3,
+    "name": "Cầu Giang Biên và đường nối hai đầu cầu",
+    "lat": 21.0596,
+    "lng": 105.9313,
+    "districts": [
+      "Phường Phúc Lợi",
+      "Xã Dương Hà",
+      "Xã Đình Xuyên",
+      "Xã Ninh Hiệp"
+    ],
+    "type_number": 1,
+    "type": "Dự án hạ tầng",
+    "industry": "Hạ tầng giao thông",
+    "industry_number": 1,
+    "price": null,
+    "polygon": [],
+    "link": "https://example.com/project/3",
+    "location_description": ""
+  },
+  {
+    "id": 4,
+    "name": "Cảng Thượng Cát",
+    "lat": 21.0817,
+    "lng": 105.6927,
+    "districts": [
+      "Phường Thượng Cát"
+    ],
+    "type_number": 5,
+    "type": "Loại khác",
+    "industry": "Tàu cảng",
+    "industry_number": 2,
+    "price": null,
+    "polygon": [],
+    "link": "https://example.com/project/4",
+    "location_description": ""
+  },
+  {
+    "id": 5,
+    "name": "Cảng Chèm - Liên Mạc",
+    "lat": 21.0851,
+    "lng": 105.6921,
+    "districts": [
+      "Phường Thụy Phương",
+      "Phường Liên Mạc"
+    ],
+    "type_number": 5,
+    "type": "Loại khác",
+    "industry": "Tàu cảng",
+    "industry_number": 2,
+    "price": null,
+    "polygon": [],
+    "link": "https://example.com/project/5",
+    "location_description": ""
+  },
+  {
+    "id": 6,
+    "name": "Cảng thủy nội địa container Phù Đổng",
+    "lat": 21.0471,
+    "lng": 105.958,
+    "districts": [
+      "Xã Cổ Bi",
+      "Xã Đặng Xá"
+    ],
+    "type_number": 5,
+    "type": "Loại khác",
+    "industry": "Tàu cảng",
+    "industry_number": 2,
+    "price": 10000000,
+    "polygon": [],
+    "link": "https://example.com/project/6",
+    "location_description": ""
+  },
+  {
+    "id": 7,
+    "name": "Hệ thống thu gom & nhà máy XLNT Phú Đô",
+    "lat": 21.0124,
+    "lng": 105.7716,
+    "districts": [
+      "Phường Mễ trì"
+    ],
+    "type_number": 4,
+    "type": "Khu phức hợp",
+    "industry": "Môi trường đô thị",
+    "industry_number": 3,
+    "price": null,
+    "polygon": [],
+    "link": "https://example.com/project/7",
+    "location_description": ""
+  },
+  {
+    "id": 8,
+    "name": "Hệ thống thu gom, nhà máy XLNT An Lạc & Phúc Đồng",
+    "lat": 21.0244,
+    "lng": 105.91,
+    "districts": [
+      "Phường Cự Khối",
+      "Phường Thạch Bàn",
+      "Phường Phúc Đồng",
+      "Phường Việt Hưng"
+    ],
+    "type_number": 4,
+    "type": "Khu phức hợp",
+    "industry": "Môi trường đô thị",
+    "industry_number": 3,
+    "price": null,
+    "polygon": [],
+    "link": "https://example.com/project/8",
+    "location_description": ""
+  },
+  {
+    "id": 9,
+    "name": "Nhà máy XLNT Lại Yên giai đoạn I",
+    "lat": 21.049,
+    "lng": 105.7476,
+    "districts": [
+      "Xã Lại Yên"
+    ],
+    "type_number": 4,
+    "type": "Khu phức hợp",
+    "industry": "Môi trường đô thị",
+    "industry_number": 3,
+    "price": null,
+    "polygon": [],
+    "link": "https://example.com/project/9",
+    "location_description": ""
+  },
+  {
+    "id": 10,
+    "name": "Nhà máy XLNT Đại Áng giai đoạn I",
+    "lat": 20.9577,
+    "lng": 105.8386,
+    "districts": [
+      "Xã Đại Áng"
+    ],
+    "type_number": 4,
+    "type": "Khu phức hợp",
+    "industry": "Môi trường đô thị",
+    "industry_number": 3,
+    "price": null,
+    "polygon": [],
+    "link": "https://example.com/project/10",
+    "location_description": ""
+  },
+  {
+    "id": 11,
+    "name": "Nhà máy XLNT Tân Hội giai đoạn I",
+    "lat": 21.0895,
+    "lng": 105.675,
+    "districts": [
+      "Xã Tân Hội"
+    ],
+    "type_number": 4,
+    "type": "Khu phức hợp",
+    "industry": "Môi trường đô thị",
+    "industry_number": 3,
+    "price": null,
+    "polygon": [],
+    "link": "https://example.com/project/11",
+    "location_description": ""
+  },
+  {
+    "id": 12,
+    "name": "Khu chức năng đô thị Thượng Cát",
+    "lat": 21.09,
+    "lng": 105.7,
+    "districts": [
+      "Phường Thượng Cát",
+      "Phường Tây Tựu",
+      "Xã Tân Lập"
+    ],
+    "type_number": 2,
+    "type": "Dự án bất động sản",
+    "industry": "Hạ tầng đô thị",
+    "industry_number": 4,
+    "price": null,
+    "polygon": [],
+    "link": "https://example.com/project/12",
+    "location_description": ""
+  },
+  {
+    "id": 13,
+    "name": "Khu nhà ở xã hội tại Khu chức năng đô thị Tây Tựu",
+    "lat": 21.098,
+    "lng": 105.715,
+    "districts": [
+      "Phường Tây Tựu"
+    ],
+    "type_number": 2,
+    "type": "Dự án bất động sản",
+    "industry": "Hạ tầng đô thị",
+    "industry_number": 4,
+    "price": null,
+    "polygon": [],
+    "link": "https://example.com/project/13",
+    "location_description": ""
+  },
+  {
+    "id": 14,
+    "name": "Khu đô thị mới G3",
+    "lat": 21.154,
+    "lng": 105.791,
+    "districts": [
+      "Xã Kim Chung",
+      "Xã Đại Mạch"
+    ],
+    "type_number": 2,
+    "type": "Dự án bất động sản",
+    "industry": "Hạ tầng đô thị",
+    "industry_number": 4,
+    "price": null,
+    "polygon": [],
+    "link": "https://example.com/project/14",
+    "location_description": ""
+  },
+  {
+    "id": 15,
+    "name": "Khu đô thị mới G13",
+    "lat": 21.137,
+    "lng": 105.855,
+    "districts": [
+      "Xã Mai Lâm",
+      "Xã Đông Hội"
+    ],
+    "type_number": 2,
+    "type": "Dự án bất động sản",
+    "industry": "Hạ tầng đô thị",
+    "industry_number": 4,
+    "price": null,
+    "polygon": [],
+    "link": "https://example.com/project/15",
+    "location_description": ""
+  },
+  {
+    "id": 16,
+    "name": "Khu đô thị mới G8",
+    "lat": 21.154,
+    "lng": 105.791,
+    "districts": [
+      "Xã Kim Nỗ",
+      "Xã Kim Chung"
+    ],
+    "type_number": 2,
+    "type": "Dự án bất động sản",
+    "industry": "Hạ tầng đô thị",
+    "industry_number": 4,
+    "price": null,
+    "polygon": [],
+    "link": "https://example.com/project/16",
+    "location_description": ""
+  },
+  {
+    "id": 17,
+    "name": "Khu đô thị mới G17",
+    "lat": 21.187,
+    "lng": 105.8,
+    "districts": [
+      "Xã Nam Hồng"
+    ],
+    "type_number": 2,
+    "type": "Dự án bất động sản",
+    "industry": "Hạ tầng đô thị",
+    "industry_number": 4,
+    "price": null,
+    "polygon": [],
+    "link": "https://example.com/project/17",
+    "location_description": ""
+  },
+  {
+    "id": 18,
+    "name": "Khu đô thị mới Hữu Hòa",
+    "lat": 20.954,
+    "lng": 105.8,
+    "districts": [
+      "Xã Hữu Hòa"
+    ],
+    "type_number": 2,
+    "type": "Dự án bất động sản",
+    "industry": "Hạ tầng đô thị",
+    "industry_number": 4,
+    "price": null,
+    "polygon": [],
+    "link": "https://example.com/project/18",
+    "location_description": ""
+  },
+  {
+    "id": 19,
+    "name": "Khu đô thị mới xã Liên Ninh",
+    "lat": 20.949,
+    "lng": 105.826,
+    "districts": [
+      "Xã Liên Ninh"
+    ],
+    "type_number": 2,
+    "type": "Dự án bất động sản",
+    "industry": "Hạ tầng đô thị",
+    "industry_number": 4,
+    "price": null,
+    "polygon": [],
+    "link": "https://example.com/project/19",
+    "location_description": ""
+  },
+  {
+    "id": 20,
+    "name": "Khu đô thị mới C3-1",
+    "lat": 20.9577,
+    "lng": 105.8386,
+    "districts": [
+      "Xã Đại Áng"
+    ],
+    "type_number": 2,
+    "type": "Dự án bất động sản",
+    "industry": "Hạ tầng đô thị",
+    "industry_number": 4,
+    "price": null,
+    "polygon": [],
+    "link": "https://example.com/project/20",
+    "location_description": ""
+  },
+  {
+    "id": 21,
+    "name": "Khu đô thị mới Mê Linh",
+    "lat": 21.18,
+    "lng": 105.73,
+    "districts": [
+      "Xã Mê Linh",
+      "Xã Văn Khê"
+    ],
+    "type_number": 2,
+    "type": "Dự án bất động sản",
+    "industry": "Hạ tầng đô thị",
+    "industry_number": 4,
+    "price": null,
+    "polygon": [],
+    "link": "https://example.com/project/21",
+    "location_description": ""
+  },
+  {
+    "id": 22,
+    "name": "Khu đô thị Đại Thịnh",
+    "lat": 21.17,
+    "lng": 105.75,
+    "districts": [
+      "Xã Đại Thịnh",
+      "Xã Mê Linh"
+    ],
+    "type_number": 2,
+    "type": "Dự án bất động sản",
+    "industry": "Hạ tầng đô thị",
+    "industry_number": 4,
+    "price": null,
+    "polygon": [],
+    "link": "https://example.com/project/22",
+    "location_description": ""
+  },
+  {
+    "id": 23,
+    "name": "Khu đô thị mới Đan Phượng",
+    "lat": 21.097,
+    "lng": 105.675,
+    "districts": [
+      "Xã Hạ Mỗ",
+      "Xã Tân Hội",
+      "Xã Liên Hà"
+    ],
+    "type_number": 2,
+    "type": "Dự án bất động sản",
+    "industry": "Hạ tầng đô thị",
+    "industry_number": 4,
+    "price": null,
+    "polygon": [],
+    "link": "https://example.com/project/23",
+    "location_description": ""
+  },
+  {
+    "id": 24,
+    "name": "Khu đô thị mới – Nhà ở xã hội Star City Tiên Dương",
+    "lat": 21.159,
+    "lng": 105.828,
+    "districts": [
+      "Xã Tiên Dương"
+    ],
+    "type_number": 2,
+    "type": "Dự án bất động sản",
+    "industry": "Hạ tầng đô thị",
+    "industry_number": 4,
+    "price": null,
+    "polygon": [],
+    "link": "https://example.com/project/24",
+    "location_description": ""
+  },
+  {
+    "id": 25,
+    "name": "Khu Nhà ở xã hội Tiên Dương 2",
+    "lat": 21.161,
+    "lng": 105.824,
+    "districts": [
+      "Xã Tiên Dương"
+    ],
+    "type_number": 2,
+    "type": "Dự án bất động sản",
+    "industry": "Hạ tầng đô thị",
+    "industry_number": 4,
+    "price": null,
+    "polygon": [],
+    "link": "https://example.com/project/25",
+    "location_description": ""
+  },
+  {
+    "id": 26,
+    "name": "Khu đô thị mới – Nhà ở xã hội Green Home City",
+    "lat": 21.146,
+    "lng": 105.809,
+    "districts": [
+      "Xã Đại Mạch",
+      "Xã Tiền Phong"
+    ],
+    "type_number": 2,
+    "type": "Dự án bất động sản",
+    "industry": "Hạ tầng đô thị",
+    "industry_number": 4,
+    "price": null,
+    "polygon": [],
+    "link": "https://example.com/project/26",
+    "location_description": ""
+  },
+  {
+    "id": 27,
+    "name": "Khu đô thị mới – Nhà ở xã hội Green Innovation City",
+    "lat": 21.048,
+    "lng": 105.956,
+    "districts": [
+      "Xã Cổ Bi"
+    ],
+    "type_number": 2,
+    "type": "Dự án bất động sản",
+    "industry": "Hạ tầng đô thị",
+    "industry_number": 4,
+    "price": null,
+    "polygon": [],
+    "link": "https://example.com/project/27",
+    "location_description": ""
+  },
+  {
+    "id": 28,
+    "name": "Đầu tư xây dựng chợ Trát Cầu",
+    "lat": 20.92,
+    "lng": 105.877,
+    "districts": [
+      "Xã Tiền Phong"
+    ],
+    "type_number": 4,
+    "type": "Khu phức hợp",
+    "industry": "Hạ tầng dịch vụ",
+    "industry_number": 5,
+    "price": null,
+    "polygon": [],
+    "link": "https://example.com/project/28",
+    "location_description": ""
+  },
+  {
+    "id": 29,
+    "name": "Trung tâm mua sắm Outlet",
+    "lat": 21.186,
+    "lng": 105.805,
+    "districts": [
+      "Xã Vân Nội",
+      "Xã Tiên Dương"
+    ],
+    "type_number": 4,
+    "type": "Khu phức hợp",
+    "industry": "Hạ tầng dịch vụ",
+    "industry_number": 5,
+    "price": null,
+    "polygon": [],
+    "link": "https://example.com/project/29",
+    "location_description": ""
+  },
+  {
+    "id": 30,
+    "name": "Chợ đầu mối nông sản tổng hợp Mê Linh",
+    "lat": 21.22,
+    "lng": 105.73,
+    "districts": [
+      "Xã Kim Hoa",
+      "Xã Thanh Lâm"
+    ],
+    "type_number": 4,
+    "type": "Khu phức hợp",
+    "industry": "Hạ tầng dịch vụ",
+    "industry_number": 5,
+    "price": null,
+    "polygon": [],
+    "link": "https://example.com/project/30",
+    "location_description": ""
+  },
+  {
+    "id": 31,
+    "name": "Chợ đầu mối nông sản tổng hợp cấp vùng",
+    "lat": 21.086,
+    "lng": 105.963,
+    "districts": [
+      "Xã Yên Thường"
+    ],
+    "type_number": 4,
+    "type": "Khu phức hợp",
+    "industry": "Hạ tầng dịch vụ",
+    "industry_number": 5,
+    "price": null,
+    "polygon": [],
+    "link": "https://example.com/project/31",
+    "location_description": ""
+  },
+  {
+    "id": 32,
+    "name": "Xây dựng công trình thương mại dịch vụ",
+    "lat": 21.034,
+    "lng": 105.913,
+    "districts": [
+      "Phường Phúc Đồng",
+      "Phường Việt Hưng"
+    ],
+    "type_number": 4,
+    "type": "Khu phức hợp",
+    "industry": "Hạ tầng dịch vụ",
+    "industry_number": 5,
+    "price": null,
+    "polygon": [],
+    "link": "https://example.com/project/32",
+    "location_description": ""
+  },
+  {
+    "id": 33,
+    "name": "Xây dựng công trình công cộng, dịch vụ văn phòng cho thuê",
+    "lat": 21.045,
+    "lng": 105.879,
+    "districts": [
+      "Phường Bồ Đề"
+    ],
+    "type_number": 4,
+    "type": "Khu phức hợp",
+    "industry": "Hạ tầng dịch vụ",
+    "industry_number": 5,
+    "price": null,
+    "polygon": [],
+    "link": "https://example.com/project/33",
+    "location_description": ""
+  },
+  {
+    "id": 34,
+    "name": "Khách sạn 5 sao",
+    "lat": 21.032,
+    "lng": 105.841,
+    "districts": [
+      "Phường Điện Biên"
+    ],
+    "type_number": 4,
+    "type": "Khu phức hợp",
+    "industry": "Hạ tầng dịch vụ",
+    "industry_number": 5,
+    "price": null,
+    "polygon": [],
+    "link": "https://example.com/project/34",
+    "location_description": ""
+  },
+  {
+    "id": 35,
+    "name": "Công viên vui chơi giải trí quốc tế",
+    "lat": 21.013,
+    "lng": 105.93,
+    "districts": [
+      "Phường Cự Khối",
+      "Xã Đông Dư",
+      "Xã Đa Tốn",
+      "Thị trấn Trâu Quỳ"
+    ],
+    "type_number": 4,
+    "type": "Khu phức hợp",
+    "industry": "Hạ tầng dịch vụ",
+    "industry_number": 5,
+    "price": null,
+    "polygon": [],
+    "link": "https://example.com/project/35",
+    "location_description": ""
+  },
+  {
+    "id": 36,
+    "name": "Các dự án đầu tư vào Khu Công nghệ cao Hòa Lạc",
+    "lat": 21.03,
+    "lng": 105.53,
+    "districts": [
+      "Xã Tân Xã",
+      "Xã Bình Yên",
+      "Xã Hạ Bằng",
+      "Xã Phú Cát"
+    ],
+    "type_number": 4,
+    "type": "Khu phức hợp",
+    "industry": "Công nghệ cao",
+    "industry_number": 6,
+    "price": null,
+    "polygon": [],
+    "link": "https://example.com/project/36",
+    "location_description": ""
+  },
+  {
+    "id": 37,
+    "name": "Cụm Công nghiệp CN2",
+    "lat": 21.239,
+    "lng": 105.783,
+    "districts": [
+      "Xã Mai Đình"
+    ],
+    "type_number": 3,
+    "type": "Khu công nghiệp",
+    "industry": "Hạ tầng khu công nghiệp",
+    "industry_number": 7,
+    "price": null,
+    "polygon": [],
+    "link": "https://example.com/project/37",
+    "location_description": ""
+  },
+  {
+    "id": 38,
+    "name": "Khu Công nghiệp sạch Sóc Sơn",
+    "lat": 21.26,
+    "lng": 105.82,
+    "districts": [
+      "Xã Minh Trí",
+      "Xã Tân Dân",
+      "Xã Thanh Xuân"
+    ],
+    "type_number": 3,
+    "type": "Khu công nghiệp",
+    "industry": "Hạ tầng khu công nghiệp",
+    "industry_number": 7,
+    "price": null,
+    "polygon": [],
+    "link": "https://example.com/project/38",
+    "location_description": ""
+  }
+]

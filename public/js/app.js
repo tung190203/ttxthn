@@ -193,7 +193,7 @@ $(function () {
   $('.range-input__input').on('input', function () {
     const value = Number(this.value).toLocaleString('en-Us') + 'đ';
 
-    console.log('value: ', this.value, this.value.toLocaleString());
+    // console.log('value: ', this.value, this.value.toLocaleString());
     $('.range-input__price').text(value);
   });
 });
