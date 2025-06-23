@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\MapController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\StoreController;
@@ -22,6 +23,8 @@ Route::localized(function () {
 
     Route::get('/', [HomeController::class, 'index'])->name('home_page');
     Route::get('/home', [HomeController::class, 'index']);
+    Route::get('/map/data', [MapController::class, 'getProjects'])->name('map.data');
+    Route::get('/map/filter', [MapController::class, 'filter']);
     Route::get('/projects.html', [HomeController::class, 'projects'])->name('projects');
     Route::get('/project-detail.html', [HomeController::class, 'projectDetail'])->name('project_detail');
     Route::get('/account.html', [HomeController::class, 'account'])->name('account');

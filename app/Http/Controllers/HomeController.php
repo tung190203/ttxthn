@@ -8,7 +8,11 @@ use App\Models\Category;
 use App\Models\Post;
 use App\Models\Feedback;
 use App\Models\Page;
+use App\Models\Project;
+use App\Models\ProjectIndustries;
+use App\Models\ProjectType;
 use App\Models\Widget;
+use App\Transformers\ProjectTransformer;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\Setting;
@@ -26,13 +30,29 @@ class HomeController extends Controller
         $list_post_popular = Post::popular(4)->get();
         $all_category_coupons = Category::getAllMenuLink(0, Category::CATEGORY_TYPE_COUPON);
         $all_category_coupons = array_chunk($all_category_coupons, 3);
-
+        $rawProjects = Project::with(['type', 'industry', 'districts'])->get();
+        $projects = $rawProjects->map([ProjectTransformer::class, 'transform']);
+        $types = ProjectType::all()->map(function ($type) {
+            return [
+                'id' => $type->id,
+                'name' => $type->name,
+            ];
+        })->toArray();
+        $industries = ProjectIndustries::all()->map(function ($industry) {
+            return [
+                'id' => $industry->id,
+                'name' => $industry->name,
+            ];
+        })->toArray();
         return view('frontend.home.index',
             compact(
                 'setting',
                 'banners',
                 'list_post_popular',
                 'all_category_coupons',
+                'projects',
+                'types',
+                'industries',
             )
         );
     }
