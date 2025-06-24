@@ -38,23 +38,17 @@
                         <div class="pj-search__col">
                             <select class="form-select" id="typeFilter">
                                 <option value="all">Loại dự án</option>
-                                <option value="1">Dự án hạ tầng</option>
-                                <option value="2">Dự án bất động sản</option>
-                                <option value="3">Khu công nghiệp</option>
-                                <option value="4">Khu phức hợp</option>
-                                <option value="5">Loại khác</option>
+                                @foreach($types as $type)
+                                <option value="{{ $type['id'] }}">{{ $type['name'] }}</option>
+                                @endforeach
                             </select>
                         </div>
                         <div class="pj-search__col">
                             <select class="form-select" id="industryFilter">
                                 <option value="all">Ngành/Lĩnh vực</option>
-                                <option value="1">Hạ tầng giao thông</option>
-                                <option value="2">Tàu cảng</option>
-                                <option value="3">Môi trường đô thị</option>
-                                <option value="4">Hạ tầng đô thị</option>
-                                <option value="5">Hạ tầng dịch vụ</option>
-                                <option value="6">Công nghệ cao</option>
-                                <option value="7">Hạ tầng khu công nghiệp</option>
+                                @foreach($industries as $industry)
+                                    <option value="{{ $industry['id'] }}">{{ $industry['name'] }}</option>
+                                @endforeach
                             </select>
                         </div>
                         <div class="pj-search__col">
@@ -311,25 +305,59 @@
             map.addLayer(markersLayer);
         }
 
+        function drawDistrictBoundary(districtName) {
+            if (boundaryPolygon) map.removeLayer(boundaryPolygon);
+            if (districtName === "all") {
+                map.flyTo([21.0285, 105.8542], 12);
+                return;
+            }
+
+            if (boundaries[districtName]) {
+                boundaryPolygon = L.polygon(boundaries[districtName], {
+                color: "blue",
+                weight: 2,
+                dashArray: "5, 5",
+                fill: false
+                }).addTo(map);
+                map.flyToBounds(boundaryPolygon.getBounds(), {
+                duration: 0.5,
+                easeLinearity: 0.5
+                });
+            }
+        }
+
         function applyFilters() {
             const selectedType = $('#typeFilter').val();
             const selectedDistrict = $('#districtFilter').val();
-            const searchTerm = $('#searchInput').val().toLowerCase();
-            const priceRange = parseInt($('#priceRange').val());
+            const searchTerm = $('#searchInput').val();
+            const priceRange = $('#priceRange').val();
             const industryFilter = $('#industryFilter').val();
 
-            const filtered = locations.filter(loc => {
-                if (loc.lat === null || loc.lng === null) return false;
-                if (!Array.isArray(loc.districts) || loc.districts.length === 0) return false;
-                const typeMatch = selectedType === "all" || loc.type_number == selectedType;
-                const districtMatch = selectedDistrict === "" || loc.districts.includes(selectedDistrict);
-                const searchMatch = loc.name.toLowerCase().includes(searchTerm);
-                const industryMatch = industryFilter == "all" || loc.industry_number == industryFilter;
-                const priceMatch = (loc.price || 0) <= priceRange;
-                return typeMatch && searchMatch && priceMatch && industryMatch && districtMatch;
+            $.ajax({
+                url: '/map/filter',
+                method: 'GET',
+                data: {
+                    type: selectedType,
+                    district: selectedDistrict,
+                    search: searchTerm,
+                    price: priceRange,
+                    industry: industryFilter
+                },
+                success: function(filteredData) {
+                    loadMarkers(filteredData);
+                    if (selectedDistrict && selectedDistrict !== "all") {
+                        drawDistrictBoundary(selectedDistrict);
+                    } else {
+                        if (boundaryPolygon) {
+                            map.removeLayer(boundaryPolygon);
+                            boundaryPolygon = null;
+                        }
+                    }
+                },
+                error: function(err) {
+                    console.error("Lỗi khi lọc dữ liệu:", err);
+                }
             });
-
-            loadMarkers(filtered);
         }
 
         // --- SỰ KIỆN BỘ LỌC ---
@@ -403,14 +431,13 @@
         });
 
         // --- LOAD DỮ LIỆU BAN ĐẦU ---
-        $.getJSON("/json/du_an_ha_noi.json", function(data) {
+        $.getJSON("/map/data", function(data) {
             locations = data.filter(loc => loc.lat !== null && loc.lng !== null && Array.isArray(loc.districts) &&
                 loc.districts.length > 0);
             const districtSet = new Set();
             locations.forEach(loc => loc.districts.forEach(d => districtSet.add(d)));
 
             allDistricts = Array.from(districtSet).sort();
-            renderDistrictDropdown(allDistricts);
             loadMarkers(locations);
         });
     </script>
