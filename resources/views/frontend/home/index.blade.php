@@ -430,15 +430,30 @@
             }
         });
 
-        // --- LOAD DỮ LIỆU BAN ĐẦU ---
-        $.getJSON("/map/data", function(data) {
-            locations = data.filter(loc => loc.lat !== null && loc.lng !== null && Array.isArray(loc.districts) &&
+        function fetchProjectsInBounds(bounds) {
+            const url = `/map/bounds?minLat=${bounds.getSouth()}&maxLat=${bounds.getNorth()}&minLng=${bounds.getWest()}&maxLng=${bounds.getEast()}`;
+
+            $.getJSON(url, function (data) {
+                locations = data.filter(loc => loc.lat !== null && loc.lng !== null && Array.isArray(loc.districts) &&
                 loc.districts.length > 0);
             const districtSet = new Set();
             locations.forEach(loc => loc.districts.forEach(d => districtSet.add(d)));
 
             allDistricts = Array.from(districtSet).sort();
-            loadMarkers(locations);
+                loadMarkers(locations);
+            });
+        }
+
+        // Gọi API khi map load xong hoặc pan/zoom
+        map.on('load moveend zoomend', function () {
+            const bounds = map.getBounds();
+            fetchProjectsInBounds(bounds);
         });
+
+        map.whenReady(function () {
+            const bounds = map.getBounds();
+            fetchProjectsInBounds(bounds);
+        });
+
     </script>
 @endpush
