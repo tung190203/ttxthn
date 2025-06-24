@@ -7,29 +7,6 @@ use Illuminate\Http\Request;
 
 class MapController extends Controller
 {
-    public function getProjects(Request $request)
-    {
-        $projects = Project::with(['type', 'industry', 'districts'])->get();
-
-        $data = $projects->map(function ($project) {
-            return [
-                'id' => $project->id,
-                'name' => $project->name,
-                'lat' => $project->lat,
-                'lng' => $project->lng,
-                'type_number' => $project->type_number,
-                'type_name' => $project->type->name ?? null,
-                'industry_name' => $project->industry->name ?? null,
-                'industry_number' => $project->industry_number,
-                'price' => $project->price,
-                'link' => $project->link,
-                'districts' => $project->districts->pluck('name')->toArray(),
-            ];
-        });
-
-        return response()->json($data);
-    }
-
     public function filter(Request $request)
     {
         $query = Project::query()
@@ -80,5 +57,38 @@ class MapController extends Controller
         });
 
         return response()->json($projects);
+    }
+    public function getProjectsInBounds(Request $request)
+    {
+        $request->validate([
+            'minLat' => 'required|numeric',
+            'maxLat' => 'required|numeric',
+            'minLng' => 'required|numeric',
+            'maxLng' => 'required|numeric',
+        ]);
+
+        $query = Project::with(['type', 'industry', 'districts'])
+            ->whereBetween('lat', [$request->minLat, $request->maxLat])
+            ->whereBetween('lng', [$request->minLng, $request->maxLng]);
+
+        $projects = $query->get();
+
+        $data = $projects->map(function ($project) {
+            return [
+                'id' => $project->id,
+                'name' => $project->name,
+                'lat' => $project->lat,
+                'lng' => $project->lng,
+                'type_number' => $project->type_number,
+                'type_name' => $project->type->name ?? null,
+                'industry_name' => $project->industry->name ?? null,
+                'industry_number' => $project->industry_number,
+                'price' => $project->price,
+                'link' => $project->link,
+                'districts' => $project->districts->pluck('name')->toArray(),
+            ];
+        });
+
+        return response()->json($data);
     }
 }
