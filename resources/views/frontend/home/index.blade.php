@@ -38,15 +38,15 @@
                         <div class="pj-search__col">
                             <select class="form-select" id="typeFilter">
                                 <option value="all">Loại dự án</option>
-                                @foreach($types as $type)
-                                <option value="{{ $type['id'] }}">{{ $type['name'] }}</option>
+                                @foreach ($types as $type)
+                                    <option value="{{ $type['id'] }}">{{ $type['name'] }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="pj-search__col">
                             <select class="form-select" id="industryFilter">
                                 <option value="all">Ngành/Lĩnh vực</option>
-                                @foreach($industries as $industry)
+                                @foreach ($industries as $industry)
                                     <option value="{{ $industry['id'] }}">{{ $industry['name'] }}</option>
                                 @endforeach
                             </select>
@@ -258,10 +258,9 @@
         L.control.layers(baseLayers).addTo(map);
 
         let markersLayer = L.markerClusterGroup();
-        let allMarkers = [];
-        let boundaryPolygon = null;
-        let locations = [];
         let allDistricts = [];
+        let boundaryPolygon = null;
+        let currentDistrict = null;
 
         function getTypeName(typeNumber) {
             const types = {
@@ -282,85 +281,102 @@
                 'Chưa có giá';
 
             marker.bindPopup(`
-    <a href="${detailUrl}" target="_blank" style="text-decoration: none; color: inherit;">
-      <div class='info-box'>
-        <strong>${loc.name}</strong><br>
-        Loại: ${getTypeName(loc.type_number)}<br>
-        Khu vực: ${districtText}<br>
-        Quy mô vốn đầu tư: ${priceText}<br>
-        <em>→ Click để xem chi tiết</em>
-      </div>
-    </a>
-  `);
+                <a href="${detailUrl}" target="_blank" style="text-decoration: none; color: inherit;">
+                  <div class='info-box'>
+                    <strong>${loc.name}</strong><br>
+                    Loại: ${getTypeName(loc.type_number)}<br>
+                    Khu vực: ${districtText}<br>
+                    Quy mô vốn đầu tư: ${priceText}<br>
+                    <em>→ Click để xem chi tiết</em>
+                  </div>
+                </a>
+            `);
             return marker;
         }
 
         function loadMarkers(data) {
             markersLayer.clearLayers();
-            allMarkers = data
-                .filter(loc => loc.lat !== null && loc.lng !== null && Array.isArray(loc.districts) && loc.districts
-                    .length > 0)
-                .map(loc => createMarker(loc));
-            markersLayer.addLayers(allMarkers);
+            const filtered = data.filter(loc => loc.lat && loc.lng && Array.isArray(loc.districts) && loc.districts.length >
+                0);
+            const markers = filtered.map(loc => createMarker(loc));
+            markersLayer.addLayers(markers);
             map.addLayer(markersLayer);
         }
 
         function drawDistrictBoundary(districtName) {
-            if (boundaryPolygon) map.removeLayer(boundaryPolygon);
-            if (districtName === "all") {
-                map.flyTo([21.0285, 105.8542], 12);
-                return;
+            if (boundaryPolygon) {
+                map.removeLayer(boundaryPolygon);
+                boundaryPolygon = null;
             }
 
-            if (boundaries[districtName]) {
-                boundaryPolygon = L.polygon(boundaries[districtName], {
+            if (districtName === "all" || !boundaries[districtName]) return;
+
+            boundaryPolygon = L.polygon(boundaries[districtName], {
                 color: "blue",
                 weight: 2,
                 dashArray: "5, 5",
                 fill: false
-                }).addTo(map);
-                map.flyToBounds(boundaryPolygon.getBounds(), {
+            }).addTo(map);
+
+            map.flyToBounds(boundaryPolygon.getBounds(), {
                 duration: 0.5,
                 easeLinearity: 0.5
-                });
-            }
+            });
         }
 
-        function applyFilters() {
+        function applyFiltersWithBounds() {
+            const bounds = map.getBounds();
             const selectedType = $('#typeFilter').val();
             const selectedDistrict = $('#districtFilter').val();
             const searchTerm = $('#searchInput').val();
             const priceRange = $('#priceRange').val();
             const industryFilter = $('#industryFilter').val();
 
+            const params = {
+                minLat: bounds.getSouth(),
+                maxLat: bounds.getNorth(),
+                minLng: bounds.getWest(),
+                maxLng: bounds.getEast(),
+                type: selectedType,
+                district: selectedDistrict,
+                search: searchTerm,
+                price: priceRange,
+                industry: industryFilter
+            };
+
             $.ajax({
-                url: '/map/filter',
+                url: '/map/bounds',
                 method: 'GET',
-                data: {
-                    type: selectedType,
-                    district: selectedDistrict,
-                    search: searchTerm,
-                    price: priceRange,
-                    industry: industryFilter
-                },
-                success: function(filteredData) {
-                    loadMarkers(filteredData);
+                data: params,
+                success: function(data) {
+                    loadMarkers(data);
+
+                    // Update districts
+                    const districtSet = new Set();
+                    data.forEach(loc => loc.districts.forEach(d => districtSet.add(d)));
+                    allDistricts = Array.from(districtSet).sort();
+
+                    // Only draw boundary if district changed
                     if (selectedDistrict && selectedDistrict !== "all") {
-                        drawDistrictBoundary(selectedDistrict);
+                        if (selectedDistrict !== currentDistrict) {
+                            drawDistrictBoundary(selectedDistrict);
+                            currentDistrict = selectedDistrict;
+                        }
                     } else {
                         if (boundaryPolygon) {
                             map.removeLayer(boundaryPolygon);
                             boundaryPolygon = null;
                         }
+                        currentDistrict = null;
                     }
                 },
                 error: function(err) {
-                    console.error("Lỗi khi lọc dữ liệu:", err);
+                    console.error("Lỗi khi tải dữ liệu:", err);
                 }
             });
         }
 
-        // --- SỰ KIỆN BỘ LỌC ---
+        // PRICE RANGE
         $('#priceRange').on("input", function() {
             $('#priceValue').text(parseInt($(this).val()).toLocaleString('vi-VN') + " VND");
         });
@@ -368,13 +384,13 @@
         let priceTimeout = null;
         $('#priceRange').on("change", function() {
             clearTimeout(priceTimeout);
-            priceTimeout = setTimeout(applyFilters, 500);
+            priceTimeout = setTimeout(applyFiltersWithBounds, 500);
         });
 
-        $('#typeFilter, #districtFilter, #industryFilter').on("change", applyFilters);
-        $('#applyBtn').on("click", applyFilters);
+        $('#typeFilter, #districtFilter, #industryFilter').on("change", applyFiltersWithBounds);
+        $('#applyBtn').on("click", applyFiltersWithBounds);
 
-        // --- DROPDOWN ĐỊA ĐIỂM TUỲ CHỈNH ---
+        // --- DROPDOWN QUẬN ---
         function renderDistrictDropdown(filtered = []) {
             const dropdown = $('#districtDropdown');
             dropdown.empty();
@@ -385,75 +401,50 @@
             }
 
             filtered.forEach(d => {
-                dropdown.append(
-                    `<div class="px-3 py-2 hover-options" data-value="${d}">${d}</div>`
-                );
+                dropdown.append(`<div class="px-3 py-2 hover-options" data-value="${d}">${d}</div>`);
             });
             dropdown.show();
         }
 
-        // Gõ để tìm kiếm
         $('#districtFilter').on('input', function() {
             const keyword = $(this).val().toLowerCase();
             const filtered = allDistricts.filter(d => d.toLowerCase().includes(keyword));
             renderDistrictDropdown(filtered);
         });
 
-        // Click vào icon để toggle dropdown
         $('#openDropdown').on('click', function() {
             const dropdown = $('#districtDropdown');
-            if (dropdown.is(':visible')) {
-                dropdown.hide();
-            } else {
-                renderDistrictDropdown(allDistricts);
-                dropdown.show();
-            }
+            dropdown.is(':visible') ? dropdown.hide() : renderDistrictDropdown(allDistricts);
         });
 
-        // Click chọn district
         $(document).on('click', '#districtDropdown div', function() {
             const val = $(this).data('value');
             $('#districtFilter').val(val);
             $('#districtDropdown').hide();
-            applyFilters();
+            applyFiltersWithBounds();
         });
 
-        // Hide dropdown on page load
         $(document).ready(function() {
             $('#districtDropdown').hide();
         });
 
-        // Click ra ngoài ẩn dropdown
         $(document).on('click', function(e) {
             if (!$(e.target).closest('.pj-search__col').length) {
                 $('#districtDropdown').hide();
             }
         });
 
-        function fetchProjectsInBounds(bounds) {
-            const url = `/map/bounds?minLat=${bounds.getSouth()}&maxLat=${bounds.getNorth()}&minLng=${bounds.getWest()}&maxLng=${bounds.getEast()}`;
-
-            $.getJSON(url, function (data) {
-                locations = data.filter(loc => loc.lat !== null && loc.lng !== null && Array.isArray(loc.districts) &&
-                loc.districts.length > 0);
-            const districtSet = new Set();
-            locations.forEach(loc => loc.districts.forEach(d => districtSet.add(d)));
-
-            allDistricts = Array.from(districtSet).sort();
-                loadMarkers(locations);
-            });
-        }
-
-        // Gọi API khi map load xong hoặc pan/zoom
-        map.on('load moveend zoomend', function () {
-            const bounds = map.getBounds();
-            fetchProjectsInBounds(bounds);
+        // --- GỌI API KHI PAN/ZOOM MAP ---
+        let mapMoveTimeout = null;
+        map.on('moveend zoomend', function() {
+            clearTimeout(mapMoveTimeout);
+            mapMoveTimeout = setTimeout(() => {
+                applyFiltersWithBounds();
+            }, 500);
         });
 
-        map.whenReady(function () {
-            const bounds = map.getBounds();
-            fetchProjectsInBounds(bounds);
+        map.whenReady(function() {
+            applyFiltersWithBounds();
         });
-
     </script>
 @endpush
