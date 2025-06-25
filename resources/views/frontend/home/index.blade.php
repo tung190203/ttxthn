@@ -10,7 +10,8 @@
         </section>
         <div class="pj-search">
             <div class="container">
-                <div class="pj-search__body">
+                <!-- FORM: TÌM KIẾM DỰ ÁN -->
+                <div class="pj-search__body custom_body tab-content active" id="projectTabContent">
                     <div class="pj-search__top">
                         <div class="pj-search__col">
                             <div class="input-group">
@@ -23,16 +24,16 @@
                         </div>
                     </div>
                     <div class="pj-search__bottom">
-                        <div class="pj-search__col custom-select">
+                        <div class="pj-search__col custom-select" style="position: relative;">
                             <div class="input-group">
-                                <input class="form-control" type="text" id="districtFilter" placeholder="Địa điểm"
-                                    autocomplete="off">
+                                <input class="form-control" type="text" id="districtFilter" placeholder="Địa điểm" autocomplete="off">
                                 <div class="input-group-text cursor-pointer" id="openDropdown">
                                     <i class="fal fa-lg fa-map-marker-alt cursor-pointer"></i>
                                 </div>
                             </div>
-                            <div id="districtDropdown" class="z-50 mt-1 bg-white border border-gray-300 rounded shadow">
-
+                            <div id="districtDropdown" class="mt-1 bg-white border border-gray-300 rounded shadow"
+                                 style="position: absolute; z-index: 999;">
+                                <!-- Nội dung dropdown -->
                             </div>
                         </div>
                         <div class="pj-search__col">
@@ -63,8 +64,71 @@
                         </div>
                     </div>
                 </div>
+        
+                <!-- FORM: SP KHU CÔNG NGHIỆP -->
+                <div class="pj-search__body custom_body tab-content orange-theme" id="industrialTabContent" style="display: none">
+                    <div class="pj-search__top">
+                        <div class="pj-search__col">
+                            <div class="input-group">
+                                <input class="form-control" type="text" id="searchInput" placeholder="Nhập tên dự án">
+                                <div class="input-group-text"><i class="fal fa-lg fa-search"></i></div>
+                            </div>
+                        </div>
+                        <div class="pj-search__col">
+                            <button class="pj-search__btn orange-btn" id="applyBtn" type="button">Tìm kiếm</button>
+                        </div>
+                    </div>
+                    <div class="pj-search__bottom">
+                        <div class="pj-search__col custom-select" style="position: relative;">
+                            <div class="input-group">
+                                <input class="form-control" type="text" id="districtFilter" placeholder="Địa điểm" autocomplete="off">
+                                <div class="input-group-text cursor-pointer" id="openDropdown">
+                                    <i class="fal fa-lg fa-map-marker-alt cursor-pointer"></i>
+                                </div>
+                            </div>
+                            <div id="districtDropdown" class="mt-1 bg-white border border-gray-300 rounded shadow"
+                                 style="position: absolute; z-index: 999;">
+                                <!-- Nội dung dropdown -->
+                            </div>
+                        </div>
+                        <div class="pj-search__col">
+                            <select class="form-select" id="typeFilter">
+                                <option value="all">Loại dự án</option>
+                                @foreach ($types as $type)
+                                    <option value="{{ $type['id'] }}">{{ $type['name'] }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="pj-search__col">
+                            <select class="form-select" id="industryFilter">
+                                <option value="all">Ngành/Lĩnh vực</option>
+                                @foreach ($industries as $industry)
+                                    <option value="{{ $industry['id'] }}">{{ $industry['name'] }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="pj-search__col">
+                            <div class="range-input">
+                                <div class="range-input__content">
+                                    <div class="range-input__label text-white">Giá thuê</div>
+                                    <div class="range-input__price1 text-white">0đ</div>
+                                </div>
+                                <input class="white-range" id="priceRange" type="range" value="0"
+                                    min="0" max="100000000" step="1000000">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        
+                <!-- Tabs dưới form -->
+                <div class="custom_tabs">
+                    <button class="custom-btn active" id="projectTab" onclick="showTab('project')">TÌM KIẾM DỰ ÁN</button>
+                    <button class="custom-btn" id="industrialTab" onclick="showTab('industrial')">SP KHU CÔNG NGHIỆP</button>
+                </div>
             </div>
         </div>
+        
+                
         <section class="section">
             <div class="container">
                 <h2 class="section__title mb-3">Danh mục đầu tư</h2>
@@ -412,9 +476,23 @@
             renderDistrictDropdown(filtered);
         });
 
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest('.pj-search__col').length) {
+                $('#districtDropdown').hide();
+                $('.custom_tabs').removeClass('position-custom');
+            }
+        });
         $('#openDropdown').on('click', function() {
             const dropdown = $('#districtDropdown');
-            dropdown.is(':visible') ? dropdown.hide() : renderDistrictDropdown(allDistricts);
+            const customTabs = $('.custom_tabs');
+
+            if (dropdown.is(':visible')) {
+                dropdown.hide();
+                customTabs.removeClass('position-custom');
+            } else {
+                renderDistrictDropdown(allDistricts);
+                customTabs.addClass('position-custom');
+            }
         });
 
         $(document).on('click', '#districtDropdown div', function() {
@@ -447,4 +525,24 @@
             applyFiltersWithBounds();
         });
     </script>
+    <script>
+        function showTab(tab) {
+            // Nút
+            document.getElementById('projectTab').classList.remove('active');
+            document.getElementById('industrialTab').classList.remove('active');
+        
+            // Nội dung
+            document.getElementById('projectTabContent').style.display = 'none';
+            document.getElementById('industrialTabContent').style.display = 'none';
+        
+            if (tab === 'project') {
+                document.getElementById('projectTab').classList.add('active');
+                document.getElementById('projectTabContent').style.display = 'block';
+            } else {
+                document.getElementById('industrialTab').classList.add('active');
+                document.getElementById('industrialTabContent').style.display = 'block';
+            }
+        }
+        </script>
+        
 @endpush
