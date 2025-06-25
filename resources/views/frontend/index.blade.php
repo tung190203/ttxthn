@@ -87,7 +87,7 @@
                 <button class="md-form__close" type="button" data-bs-dismiss="modal"><i class="far fa-lg fa-times"></i>
                 </button>
                 <div class="md-form__banner"><img src="./images/banner-login.jpg" alt=""/></div>
-                <div class="md-form__content"><a class="md-form__logo" href="#!"><img src="./images/logo.png"
+                <div class="md-form__content"><a class="md-form__logo" href="#!"><img src="./images/logo_sce.png"
                                                                                       alt=""/></a>
                     <div class="md-form__title">Đăng nhập</div>
                     <div class="md-form__group">
@@ -125,7 +125,7 @@
                 <button class="md-form__close" type="button" data-bs-dismiss="modal"><i class="far fa-lg fa-times"></i>
                 </button>
                 <div class="md-form__banner"><img src="./images/banner-login.jpg" alt=""/></div>
-                <div class="md-form__content"><a class="md-form__logo" href="#!"><img src="./images/logo.png"
+                <div class="md-form__content"><a class="md-form__logo" href="#!"><img src="./images/logo_sce.png"
                                                                                       alt=""/></a>
                     <div class="md-form__title">Đăng ký tài khoản</div>
                     <div class="md-form__desc">Tài khoản dùng thử hoàn toàn miễn phí</div>
