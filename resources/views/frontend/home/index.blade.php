@@ -473,6 +473,7 @@
         $('#districtFilter').on('input', function() {
             const keyword = $(this).val().toLowerCase();
             const filtered = allDistricts.filter(d => d.toLowerCase().includes(keyword));
+            $('.custom_tabs').addClass('position-custom');
             renderDistrictDropdown(filtered);
         });
 
@@ -499,6 +500,7 @@
             const val = $(this).data('value');
             $('#districtFilter').val(val);
             $('#districtDropdown').hide();
+            $('.custom_tabs').removeClass('position-custom');
             applyFiltersWithBounds();
         });
 
