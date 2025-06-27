@@ -10,7 +10,8 @@
         </section>
         <div class="pj-search">
             <div class="container">
-                <div class="pj-search__body">
+                <!-- FORM: TÌM KIẾM DỰ ÁN -->
+                <div class="pj-search__body custom_body tab-content active" id="projectTabContent">
                     <div class="pj-search__top">
                         <div class="pj-search__col">
                             <div class="input-group">
@@ -23,30 +24,30 @@
                         </div>
                     </div>
                     <div class="pj-search__bottom">
-                        <div class="pj-search__col custom-select">
+                        <div class="pj-search__col custom-select" style="position: relative;">
                             <div class="input-group">
-                                <input class="form-control" type="text" id="districtFilter" placeholder="Địa điểm"
-                                    autocomplete="off">
+                                <input class="form-control" type="text" id="districtFilter" placeholder="Địa điểm" autocomplete="off">
                                 <div class="input-group-text cursor-pointer" id="openDropdown">
                                     <i class="fal fa-lg fa-map-marker-alt cursor-pointer"></i>
                                 </div>
                             </div>
-                            <div id="districtDropdown" class="z-50 mt-1 bg-white border border-gray-300 rounded shadow">
-
+                            <div id="districtDropdown" class="mt-1 bg-white border border-gray-300 rounded shadow"
+                                 style="position: absolute; z-index: 999;">
+                                <!-- Nội dung dropdown -->
                             </div>
                         </div>
                         <div class="pj-search__col">
                             <select class="form-select" id="typeFilter">
                                 <option value="all">Loại dự án</option>
-                                @foreach($types as $type)
-                                <option value="{{ $type['id'] }}">{{ $type['name'] }}</option>
+                                @foreach ($types as $type)
+                                    <option value="{{ $type['id'] }}">{{ $type['name'] }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="pj-search__col">
                             <select class="form-select" id="industryFilter">
                                 <option value="all">Ngành/Lĩnh vực</option>
-                                @foreach($industries as $industry)
+                                @foreach ($industries as $industry)
                                     <option value="{{ $industry['id'] }}">{{ $industry['name'] }}</option>
                                 @endforeach
                             </select>
@@ -63,8 +64,71 @@
                         </div>
                     </div>
                 </div>
+        
+                <!-- FORM: SP KHU CÔNG NGHIỆP -->
+                <div class="pj-search__body custom_body tab-content orange-theme" id="industrialTabContent" style="display: none">
+                    <div class="pj-search__top">
+                        <div class="pj-search__col">
+                            <div class="input-group">
+                                <input class="form-control" type="text" id="searchInput" placeholder="Nhập tên dự án">
+                                <div class="input-group-text"><i class="fal fa-lg fa-search"></i></div>
+                            </div>
+                        </div>
+                        <div class="pj-search__col">
+                            <button class="pj-search__btn orange-btn" id="applyBtn" type="button">Tìm kiếm</button>
+                        </div>
+                    </div>
+                    <div class="pj-search__bottom">
+                        <div class="pj-search__col custom-select" style="position: relative;">
+                            <div class="input-group">
+                                <input class="form-control" type="text" id="districtFilter" placeholder="Địa điểm" autocomplete="off">
+                                <div class="input-group-text cursor-pointer" id="openDropdown">
+                                    <i class="fal fa-lg fa-map-marker-alt cursor-pointer"></i>
+                                </div>
+                            </div>
+                            <div id="districtDropdown" class="mt-1 bg-white border border-gray-300 rounded shadow"
+                                 style="position: absolute; z-index: 999;">
+                                <!-- Nội dung dropdown -->
+                            </div>
+                        </div>
+                        <div class="pj-search__col">
+                            <select class="form-select" id="typeFilter">
+                                <option value="all">Loại dự án</option>
+                                @foreach ($types as $type)
+                                    <option value="{{ $type['id'] }}">{{ $type['name'] }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="pj-search__col">
+                            <select class="form-select" id="industryFilter">
+                                <option value="all">Ngành/Lĩnh vực</option>
+                                @foreach ($industries as $industry)
+                                    <option value="{{ $industry['id'] }}">{{ $industry['name'] }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="pj-search__col">
+                            <div class="range-input">
+                                <div class="range-input__content">
+                                    <div class="range-input__label text-white">Giá thuê</div>
+                                    <div class="range-input__price1 text-white">0đ</div>
+                                </div>
+                                <input class="white-range" id="priceRange" type="range" value="0"
+                                    min="0" max="100000000" step="1000000">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        
+                <!-- Tabs dưới form -->
+                <div class="custom_tabs">
+                    <button class="custom-btn active" id="projectTab" onclick="showTab('project')">TÌM KIẾM DỰ ÁN</button>
+                    <button class="custom-btn" id="industrialTab" onclick="showTab('industrial')">SP KHU CÔNG NGHIỆP</button>
+                </div>
             </div>
         </div>
+        
+                
         <section class="section">
             <div class="container">
                 <h2 class="section__title mb-3">Danh mục đầu tư</h2>
@@ -258,10 +322,9 @@
         L.control.layers(baseLayers).addTo(map);
 
         let markersLayer = L.markerClusterGroup();
-        let allMarkers = [];
-        let boundaryPolygon = null;
-        let locations = [];
         let allDistricts = [];
+        let boundaryPolygon = null;
+        let currentDistrict = null;
 
         function getTypeName(typeNumber) {
             const types = {
@@ -282,85 +345,102 @@
                 'Chưa có giá';
 
             marker.bindPopup(`
-    <a href="${detailUrl}" target="_blank" style="text-decoration: none; color: inherit;">
-      <div class='info-box'>
-        <strong>${loc.name}</strong><br>
-        Loại: ${getTypeName(loc.type_number)}<br>
-        Khu vực: ${districtText}<br>
-        Quy mô vốn đầu tư: ${priceText}<br>
-        <em>→ Click để xem chi tiết</em>
-      </div>
-    </a>
-  `);
+                <a href="${detailUrl}" target="_blank" style="text-decoration: none; color: inherit;">
+                  <div class='info-box'>
+                    <strong>${loc.name}</strong><br>
+                    Loại: ${getTypeName(loc.type_number)}<br>
+                    Khu vực: ${districtText}<br>
+                    Quy mô vốn đầu tư: ${priceText}<br>
+                    <em>→ Click để xem chi tiết</em>
+                  </div>
+                </a>
+            `);
             return marker;
         }
 
         function loadMarkers(data) {
             markersLayer.clearLayers();
-            allMarkers = data
-                .filter(loc => loc.lat !== null && loc.lng !== null && Array.isArray(loc.districts) && loc.districts
-                    .length > 0)
-                .map(loc => createMarker(loc));
-            markersLayer.addLayers(allMarkers);
+            const filtered = data.filter(loc => loc.lat && loc.lng && Array.isArray(loc.districts) && loc.districts.length >
+                0);
+            const markers = filtered.map(loc => createMarker(loc));
+            markersLayer.addLayers(markers);
             map.addLayer(markersLayer);
         }
 
         function drawDistrictBoundary(districtName) {
-            if (boundaryPolygon) map.removeLayer(boundaryPolygon);
-            if (districtName === "all") {
-                map.flyTo([21.0285, 105.8542], 12);
-                return;
+            if (boundaryPolygon) {
+                map.removeLayer(boundaryPolygon);
+                boundaryPolygon = null;
             }
 
-            if (boundaries[districtName]) {
-                boundaryPolygon = L.polygon(boundaries[districtName], {
+            if (districtName === "all" || !boundaries[districtName]) return;
+
+            boundaryPolygon = L.polygon(boundaries[districtName], {
                 color: "blue",
                 weight: 2,
                 dashArray: "5, 5",
                 fill: false
-                }).addTo(map);
-                map.flyToBounds(boundaryPolygon.getBounds(), {
+            }).addTo(map);
+
+            map.flyToBounds(boundaryPolygon.getBounds(), {
                 duration: 0.5,
                 easeLinearity: 0.5
-                });
-            }
+            });
         }
 
-        function applyFilters() {
+        function applyFiltersWithBounds() {
+            const bounds = map.getBounds();
             const selectedType = $('#typeFilter').val();
             const selectedDistrict = $('#districtFilter').val();
             const searchTerm = $('#searchInput').val();
             const priceRange = $('#priceRange').val();
             const industryFilter = $('#industryFilter').val();
 
+            const params = {
+                minLat: bounds.getSouth(),
+                maxLat: bounds.getNorth(),
+                minLng: bounds.getWest(),
+                maxLng: bounds.getEast(),
+                type: selectedType,
+                district: selectedDistrict,
+                search: searchTerm,
+                price: priceRange,
+                industry: industryFilter
+            };
+
             $.ajax({
-                url: '/map/filter',
+                url: '/map/bounds',
                 method: 'GET',
-                data: {
-                    type: selectedType,
-                    district: selectedDistrict,
-                    search: searchTerm,
-                    price: priceRange,
-                    industry: industryFilter
-                },
-                success: function(filteredData) {
-                    loadMarkers(filteredData);
+                data: params,
+                success: function(data) {
+                    loadMarkers(data);
+
+                    // Update districts
+                    const districtSet = new Set();
+                    data.forEach(loc => loc.districts.forEach(d => districtSet.add(d)));
+                    allDistricts = Array.from(districtSet).sort();
+
+                    // Only draw boundary if district changed
                     if (selectedDistrict && selectedDistrict !== "all") {
-                        drawDistrictBoundary(selectedDistrict);
+                        if (selectedDistrict !== currentDistrict) {
+                            drawDistrictBoundary(selectedDistrict);
+                            currentDistrict = selectedDistrict;
+                        }
                     } else {
                         if (boundaryPolygon) {
                             map.removeLayer(boundaryPolygon);
                             boundaryPolygon = null;
                         }
+                        currentDistrict = null;
                     }
                 },
                 error: function(err) {
-                    console.error("Lỗi khi lọc dữ liệu:", err);
+                    console.error("Lỗi khi tải dữ liệu:", err);
                 }
             });
         }
 
-        // --- SỰ KIỆN BỘ LỌC ---
+        // PRICE RANGE
         $('#priceRange').on("input", function() {
             $('#priceValue').text(parseInt($(this).val()).toLocaleString('vi-VN') + " VND");
         });
@@ -368,13 +448,13 @@
         let priceTimeout = null;
         $('#priceRange').on("change", function() {
             clearTimeout(priceTimeout);
-            priceTimeout = setTimeout(applyFilters, 500);
+            priceTimeout = setTimeout(applyFiltersWithBounds, 500);
         });
 
-        $('#typeFilter, #districtFilter, #industryFilter').on("change", applyFilters);
-        $('#applyBtn').on("click", applyFilters);
+        $('#typeFilter, #districtFilter, #industryFilter').on("change", applyFiltersWithBounds);
+        $('#applyBtn').on("click", applyFiltersWithBounds);
 
-        // --- DROPDOWN ĐỊA ĐIỂM TUỲ CHỈNH ---
+        // --- DROPDOWN QUẬN ---
         function renderDistrictDropdown(filtered = []) {
             const dropdown = $('#districtDropdown');
             dropdown.empty();
@@ -385,75 +465,86 @@
             }
 
             filtered.forEach(d => {
-                dropdown.append(
-                    `<div class="px-3 py-2 hover-options" data-value="${d}">${d}</div>`
-                );
+                dropdown.append(`<div class="px-3 py-2 hover-options" data-value="${d}">${d}</div>`);
             });
             dropdown.show();
         }
 
-        // Gõ để tìm kiếm
         $('#districtFilter').on('input', function() {
             const keyword = $(this).val().toLowerCase();
             const filtered = allDistricts.filter(d => d.toLowerCase().includes(keyword));
+            $('.custom_tabs').addClass('position-custom');
             renderDistrictDropdown(filtered);
         });
 
-        // Click vào icon để toggle dropdown
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest('.pj-search__col').length) {
+                $('#districtDropdown').hide();
+                $('.custom_tabs').removeClass('position-custom');
+            }
+        });
         $('#openDropdown').on('click', function() {
             const dropdown = $('#districtDropdown');
+            const customTabs = $('.custom_tabs');
+
             if (dropdown.is(':visible')) {
                 dropdown.hide();
+                customTabs.removeClass('position-custom');
             } else {
                 renderDistrictDropdown(allDistricts);
-                dropdown.show();
+                customTabs.addClass('position-custom');
             }
         });
 
-        // Click chọn district
         $(document).on('click', '#districtDropdown div', function() {
             const val = $(this).data('value');
             $('#districtFilter').val(val);
             $('#districtDropdown').hide();
-            applyFilters();
+            $('.custom_tabs').removeClass('position-custom');
+            applyFiltersWithBounds();
         });
 
-        // Hide dropdown on page load
         $(document).ready(function() {
             $('#districtDropdown').hide();
         });
 
-        // Click ra ngoài ẩn dropdown
         $(document).on('click', function(e) {
             if (!$(e.target).closest('.pj-search__col').length) {
                 $('#districtDropdown').hide();
             }
         });
 
-        function fetchProjectsInBounds(bounds) {
-            const url = `/map/bounds?minLat=${bounds.getSouth()}&maxLat=${bounds.getNorth()}&minLng=${bounds.getWest()}&maxLng=${bounds.getEast()}`;
-
-            $.getJSON(url, function (data) {
-                locations = data.filter(loc => loc.lat !== null && loc.lng !== null && Array.isArray(loc.districts) &&
-                loc.districts.length > 0);
-            const districtSet = new Set();
-            locations.forEach(loc => loc.districts.forEach(d => districtSet.add(d)));
-
-            allDistricts = Array.from(districtSet).sort();
-                loadMarkers(locations);
-            });
-        }
-
-        // Gọi API khi map load xong hoặc pan/zoom
-        map.on('load moveend zoomend', function () {
-            const bounds = map.getBounds();
-            fetchProjectsInBounds(bounds);
+        // --- GỌI API KHI PAN/ZOOM MAP ---
+        let mapMoveTimeout = null;
+        map.on('moveend zoomend', function() {
+            clearTimeout(mapMoveTimeout);
+            mapMoveTimeout = setTimeout(() => {
+                applyFiltersWithBounds();
+            }, 500);
         });
 
-        map.whenReady(function () {
-            const bounds = map.getBounds();
-            fetchProjectsInBounds(bounds);
+        map.whenReady(function() {
+            applyFiltersWithBounds();
         });
-
     </script>
+    <script>
+        function showTab(tab) {
+            // Nút
+            document.getElementById('projectTab').classList.remove('active');
+            document.getElementById('industrialTab').classList.remove('active');
+        
+            // Nội dung
+            document.getElementById('projectTabContent').style.display = 'none';
+            document.getElementById('industrialTabContent').style.display = 'none';
+        
+            if (tab === 'project') {
+                document.getElementById('projectTab').classList.add('active');
+                document.getElementById('projectTabContent').style.display = 'block';
+            } else {
+                document.getElementById('industrialTab').classList.add('active');
+                document.getElementById('industrialTabContent').style.display = 'block';
+            }
+        }
+        </script>
+        
 @endpush

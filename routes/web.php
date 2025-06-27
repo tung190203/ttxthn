@@ -27,6 +27,7 @@ Route::localized(function () {
     Route::get('/map/bounds', [MapController::class, 'getProjectsInBounds']);
     Route::get('/projects.html', [HomeController::class, 'projects'])->name('projects');
     Route::get('/project-detail.html', [HomeController::class, 'projectDetail'])->name('project_detail');
+    Route::get('/project-detail_cn2.html', [HomeController::class, 'projectDetailCN2'])->name('project_detail_cn2');
     Route::get('/account.html', [HomeController::class, 'account'])->name('account');
     Route::get('/news.html', [HomeController::class, 'news'])->name('news');
     Route::get('/new-detail.html', [HomeController::class, 'newDetail'])->name('new_detail');

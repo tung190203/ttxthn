@@ -9,19 +9,19 @@
                                                                                                    src="./images/texture-5.png"
                                                                                                    alt=""/><img
                 class="footer__bg-3" src="./images/texture-6.png" alt=""/>
-        <div class="container"><a class="footer__logo mb-2" href="#!"><img src="./images/logo.png" alt=""/></a>
+        <div class="container"><a class="footer__logo mb-2" href="#!"><img src="./images/logo_sce.png" alt=""/></a>
             <div class="row">
                 <div class="col-lg-7 mb-40 mb-lg-0">
-                    <div class="footer__title">TRUNG TÂM XÚC TIẾN ĐẦU TƯ, THƯƠNG MẠI,<br/>DU LỊCH THÀNH PHỐ HÀ NỘI</div>
+                    <div class="footer__title">TRUNG TÂM XÚC TIẾN ĐẦU TƯ<br/>VÀ HỖ TRỢ DOANH NGHIỆP HÀ NỘI</div>
                     <ul class="f-contact mt-4">
-                        <li><i class="fal fa-fw fa-envelope me-2"></i><span>Cơ sở 1: Số 10, Trịnh Hoài Đức, Cát Linh, Đống Đa, Hà Nội</span>
+                        <li><i class="fal fa-fw fa-map-marker-alt me-2"></i><span>Cơ sở 1: Số 10, Trịnh Hoài Đức, Cát Linh, Đống Đa, Hà Nội</span>
                         </li>
-                        <li><i class="fal fa-fw fa-envelope me-2"></i><span>Cơ sở 2: Số 35 Tạ Quang Bửu, Bách Khoa, Hai Bà Trưng, Hà Nội</span>
+                        <li><i class="fal fa-fw fa-map-marker-alt me-2"></i><span>Cơ sở 2: Số 35 Tạ Quang Bửu, Bách Khoa, Hai Bà Trưng, Hà Nội</span>
                         </li>
                         <li><i class="fal fa-fw fa-envelope me-2"></i><a
                                     href="mailto:hpa@hanoi.gov.vn">hpa@hanoi.gov.vn</a></li>
-                        <li><i class="fal fa-fw fa-phone me-2"></i><a href="tel:024.37757979">024.37757979</a></li>
-                        <li><i class="fal fa-fw fa-phone me-2"></i><a href="tel:024.38319666">024.38319666</a></li>
+                        <li><i class="fal fa-fw fa-phone me-2" style="transform: rotate(-270deg);"></i><a href="tel:024.37757979">024.37757979</a></li>
+                        <li><i class="fal fa-fw fa-phone me-2" style="transform: rotate(-270deg);"></i><a href="tel:024.38319666">024.38319666</a></li>
                     </ul>
                     <div class="footer__content mt-4">
                         <p>Ghi rõ nguồn: <a href="http:/www.hpa.hanoi.gov.vn">“http:/www.hpa.hanoi.gov.vn"</a>. Khi phát

@@ -3,7 +3,7 @@
         <div class="container">
             <div class="header__inner">
                 <a class="header__logo" href="{{ route('home_page') }}">
-                    <img src="./images/logo.png" alt=""/>
+                    <img src="./images/logo_sce.png" alt=""/>
                 </a>
                 <div class="header__elements">
                     <div class="header__text">CÁC DỰ ÁN THU HÚT ĐẦU TƯ THÀNH PHỐ HÀ NỘI</div>
@@ -19,7 +19,7 @@
                         <div class="navbar__wrapper">
                             <div class="navbar__header">
                                 <a class="navbar__logo" href="./index.html">
-                                    <img src="./images/logo.png" alt=""/>
+                                    <img src="./images/logo_sce.png" alt=""/>
                                 </a>
                                 <button class="btn-toggle js-navbar-toggle ms-auto"></button>
                             </div>

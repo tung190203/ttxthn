@@ -196,6 +196,12 @@ $(function () {
     // console.log('value: ', this.value, this.value.toLocaleString());
     $('.range-input__price').text(value);
   });
+  $('.white-range').on('input', function () {
+    const value = Number(this.value).toLocaleString('en-Us') + 'đ';
+
+    // console.log('value: ', this.value, this.value.toLocaleString());
+    $('.range-input__price1').text(value);
+  });
 });
 
 $(function () {
