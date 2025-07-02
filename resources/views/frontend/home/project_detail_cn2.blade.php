@@ -7,7 +7,7 @@
             <nav>
                 <div class="container">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a class="link-unstyled" href="#!"><i
+                        <li class="breadcrumb-item"><a class="link-unstyled" href="/"><i
                                         class="fal fa-home me-2"></i><span>Trang chủ</span></a></li>
                         <li class="breadcrumb-item active">Danh mục dự án đầu tư</li>
                     </ol>
@@ -27,17 +27,17 @@
         <nav class="project-nav">
             <div class="container">
                 <ul class="project-nav__list">
-                    <li><a class="active" href="#!">Thông tin chung</a></li>
-                    <li><a href="#!">Vị trí</a></li>
-                    <li><a href="#!">Lợi thế nổi bật</a></li>
-                    <li><a href="#!">Sa bàn ảo</a></li>
-                    <li><a href="#!">Thiết kế & mặt bằng</a></li>
-                    <li><a href="#!">Pháp lý</a></li>
-                    <li><a href="#!">Tin tức</a></li>
+                    <li><a class="active" href="#thong-tin-chung">Thông tin chung</a></li>
+                    <li><a href="#vi-tri">Vị trí</a></li>
+                    <li><a href="#loi-the-noi-bat">Lợi thế nổi bật</a></li>
+                    <li><a href="#sa-ban-ao">Sa bàn ảo</a></li>
+                    <li><a href="#thiet-ke-va-mat-bang">Thiết kế & mặt bằng</a></li>
+                    <li><a href="#phap-ly">Pháp lý</a></li>
+                    <li><a href="#tin-tuc">Tin tức</a></li>
                 </ul>
             </div>
         </nav>
-        <section class="section"><img class="section__bg" src="./images/achitect-bg.png" alt="">
+        <section class="section" id="thong-tin-chung"><img class="section__bg" src="./images/achitect-bg.png" alt="">
             <div class="container">
                 <h2 class="section__title">Thông tin chung</h2>
                 <div class="mx-auto" style="max-width: 800px;">
@@ -69,12 +69,12 @@
                 </div>
             </div>
         </section>
-        <section class="section pb-0">
+        <section class="section pb-0" id="vi-tri">
             <div class="container">
                 <h2 class="section__title">Vị trí</h2><img class="w-100" src="./images/position_cn2.png" alt="">
             </div>
         </section>
-        <section class="section section--light-blue">
+        <section class="section section--light-blue" id="loi-the-noi-bat">
             <div class="container">
                 <h2 class="section__title">Lợi thế nổi bật</h2>
                 <div>
@@ -116,7 +116,7 @@
                 </div>
             </div>
         </section>
-        <section class="position-relative">
+        <section class="position-relative" id="sa-ban-ao">
             <div class="section section--overlay">
                 <div class="container">
                     <h2 class="section__title text-white">Sa bàn ảo</h2>
@@ -129,7 +129,7 @@
                 <h2 class="section__title text-white">Sa bàn ảo</h2>
             </div>
         </section>
-        <section class="section">
+        <section class="section" id="thiet-ke-va-mat-bang">
             <div class="container">
                 <h2 class="section__title">Thiết kế & mặt bằng</h2>
                 <div class="section__desc">Phương án quy hoạch CN2 được xây dựng đồng bộ, hiện đại, phù hợp định hướng phát triển công nghiệp xanh – công nghệ cao của Hà Nội, đảm <br> bảo hạ tầng hoàn chỉnh, kết nối thuận tiện và khả năng khai thác hiệu quả.
@@ -245,7 +245,7 @@
                 </div>
             </div>
         </section>
-        <section class="section section--light-blue">
+        <section class="section section--light-blue" id="phap-ly">
             <div class="container">
                 <h2 class="section__title">Pháp lý</h2>
                 <div class="section__desc">Dưới đây là một số quyết định pháp lý quan trọng liên quan đến cụm dự án CN2
@@ -302,7 +302,7 @@
                 <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="#!">Xem thêm</a></nav>
             </div>
         </section>
-        <section class="section"><img class="texture-1" src="./images/texture-1.png" alt=""><img class="texture-2"
+        <section class="section" id="tin-tuc"><img class="texture-1" src="./images/texture-1.png" alt=""><img class="texture-2"
                                                                                                  src="./images/texture-2.png"
                                                                                                  alt="">
             <div class="container">
@@ -432,5 +432,13 @@
 @endsection
 
 @push('bottom')
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+        $('.project-nav__list a').click(function () {
+            $('.project-nav__list a').removeClass('active');
+            $(this).addClass('active');
+        });
+        });
+    </script>
 @endpush
