@@ -63,6 +63,19 @@ class MapController extends Controller
         return response()->json($data);
     }
 
+    public function getDistricts()
+    {
+        $districts = Project::with('districts')
+            ->get()
+            ->pluck('districts')
+            ->flatten()
+            ->unique('name')
+            ->sortBy('name')
+            ->values();
+
+        return response()->json($districts->pluck('name'));
+    }
+
     private function returnData($projects)
     {
         return $projects->map(function ($project) {

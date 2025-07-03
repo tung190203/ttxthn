@@ -323,6 +323,7 @@
 
         let markersLayer = L.markerClusterGroup();
         let allDistricts = [];
+        let allDistrictsLoaded = false;
         let boundaryPolygon = null;
         let currentDistrict = null;
 
@@ -415,12 +416,6 @@
                 success: function(data) {
                     loadMarkers(data);
 
-                    // Update districts
-                    const districtSet = new Set();
-                    data.forEach(loc => loc.districts.forEach(d => districtSet.add(d)));
-                    allDistricts = Array.from(districtSet).sort();
-
-                    // Only draw boundary if district changed
                     if (selectedDistrict && selectedDistrict !== "all") {
                         if (selectedDistrict !== currentDistrict) {
                             drawDistrictBoundary(selectedDistrict);
@@ -440,6 +435,19 @@
             });
         }
 
+        function loadAllDistricts() {
+            $.ajax({
+                url: '/api/districts',
+                method: 'GET',
+                success: function(res) {
+                    allDistricts = res.sort();
+                    allDistrictsLoaded = true;
+                },
+                error: function(err) {
+                    console.error("Lỗi khi tải danh sách quận:", err);
+                }
+            });
+        }
         // PRICE RANGE
         $('#priceRange').on("input", function() {
             $('#priceValue').text(parseInt($(this).val()).toLocaleString('vi-VN') + " VND");
@@ -459,6 +467,11 @@
             const dropdown = $('#districtDropdown');
             dropdown.empty();
 
+            if (!allDistrictsLoaded) {
+                dropdown.append('<div class="px-3 py-2 text-gray-400 italic">Đang tải...</div>');
+                return;
+            }
+
             if (filtered.length === 0) {
                 dropdown.append('<div class="px-3 py-2 text-gray-500">Không có kết quả</div>');
                 return;
@@ -477,26 +490,7 @@
             renderDistrictDropdown(filtered);
         });
 
-        $(document).on('click', function(e) {
-            if (!$(e.target).closest('.pj-search__col').length) {
-                $('#districtDropdown').hide();
-                $('.custom_tabs').removeClass('position-custom');
-            }
-        });
-        $('#openDropdown').on('click', function() {
-            const dropdown = $('#districtDropdown');
-            const customTabs = $('.custom_tabs');
-
-            if (dropdown.is(':visible')) {
-                dropdown.hide();
-                customTabs.removeClass('position-custom');
-            } else {
-                renderDistrictDropdown(allDistricts);
-                customTabs.addClass('position-custom');
-            }
-        });
-
-        $(document).on('click', '#districtDropdown div', function() {
+        $(document).on('click', '#districtDropdown div', function () {
             const val = $(this).data('value');
             $('#districtFilter').val(val);
             $('#districtDropdown').hide();
@@ -504,27 +498,36 @@
             applyFiltersWithBounds();
         });
 
-        $(document).ready(function() {
-            $('#districtDropdown').hide();
-        });
-
         $(document).on('click', function(e) {
             if (!$(e.target).closest('.pj-search__col').length) {
                 $('#districtDropdown').hide();
+                $('.custom_tabs').removeClass('position-custom');
             }
         });
 
-        // --- GỌI API KHI PAN/ZOOM MAP ---
+        // MAP MOVE
         let mapMoveTimeout = null;
-        map.on('moveend zoomend', function() {
+        map.on('moveend zoomend', function () {
             clearTimeout(mapMoveTimeout);
-            mapMoveTimeout = setTimeout(() => {
-                applyFiltersWithBounds();
-            }, 500);
+            mapMoveTimeout = setTimeout(applyFiltersWithBounds, 500);
         });
 
-        map.whenReady(function() {
-            applyFiltersWithBounds();
+        map.whenReady(function () {
+            loadAllDistricts(); // tải districts ngay khi map load
+            applyFiltersWithBounds(); // tải marker ngay từ đầu
+    
+            $('#openDropdown').on('click', function() {
+                const dropdown = $('#districtDropdown');
+                const customTabs = $('.custom_tabs');
+
+                if (dropdown.is(':visible')) {
+                    dropdown.hide();
+                    customTabs.removeClass('position-custom');
+                } else {
+                    renderDistrictDropdown(allDistricts);
+                    customTabs.addClass('position-custom');
+                }
+            });
         });
     </script>
     <script>

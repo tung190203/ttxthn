@@ -34,10 +34,10 @@
                                         <span class="menu-toggle"></span>
                                         <ul class="menu menu-sub">
                                             <li class="menu-item">
-                                                <a class="menu-link" href="#!">Dropdown</a>
+                                                <a class="menu-link" href="project-detail.html">Cầu Trần Hưng Đạo</a>
                                             </li>
                                             <li class="menu-item">
-                                                <a class="menu-link" href="#!">Dropdown</a>
+                                                <a class="menu-link" href="project-detail_cn2.html">Cụm công nghiệp CN2</a>
                                             </li>
                                             <li class="menu-item">
                                                 <a class="menu-link" href="#!">Dropdown</a>
