@@ -92,8 +92,8 @@
                     <div class="advantage mt-20"><a class="advantage__frame" href="#!"><img
                                     src="./images/advantage-1.jpg" alt=""/></a>
                         <div class="advantage__body">
-                            <div class="advantage__index">0.1</div>
-                            <div class="advantage__index-bg">0.1</div>
+                            <div class="advantage__index">1</div>
+                            <div class="advantage__index-bg">1</div>
                             <div class="advantage__title">Kết nối giao thông</div>
                             <div class="advantage__desc">
                                 <p>Cầu Trần Hưng Đạo sau khi hoàn thành sẽ giúp kết nối các quận Hoàn Kiếm, Hai Bà Trưng
@@ -108,8 +108,8 @@
                     <div class="advantage mt-20"><a class="advantage__frame" href="#!"><img
                                     src="./images/advantage-2.jpg" alt=""/></a>
                         <div class="advantage__body">
-                            <div class="advantage__index">0.2</div>
-                            <div class="advantage__index-bg">0.2</div>
+                            <div class="advantage__index">2</div>
+                            <div class="advantage__index-bg">2</div>
                             <div class="advantage__title">Biểu tượng văn hoá</div>
                             <div class="advantage__desc">
                                 <p>Thiết kế của cầu mang tên “Infinity Hanoi” với hình ảnh những đường cong uốn lượn,
@@ -121,8 +121,8 @@
                     <div class="advantage mt-20"><a class="advantage__frame" href="#!"><img
                                     src="./images/advantage-3.jpg" alt=""/></a>
                         <div class="advantage__body">
-                            <div class="advantage__index">0.3</div>
-                            <div class="advantage__index-bg">0.3</div>
+                            <div class="advantage__index">3</div>
+                            <div class="advantage__index-bg">3</div>
                             <div class="advantage__title">Thúc đẩy du lịch thủ đô</div>
                             <div class="advantage__desc">
                                 <p>Với các làn đường dành cho xe đạp và người đi bộ, cầu Trần Hưng Đạo hứa hẹn sẽ trở

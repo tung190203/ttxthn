@@ -81,8 +81,8 @@
                     <div class="advantage mt-20"><a class="advantage__frame" href="#!"><img
                                     src="./images/advantage-1_cn2.png" alt=""/></a>
                         <div class="advantage__body">
-                            <div class="advantage__index">0.1</div>
-                            <div class="advantage__index-bg">0.1</div>
+                            <div class="advantage__index">1</div>
+                            <div class="advantage__index-bg">1</div>
                             <div class="advantage__title">Kết nối giao thông</div>
                             <div class="advantage__desc">
                                 <p>Cụm công nghiệp CN2 nằm gần sân bay quốc tế Nội Bài (chỉ 5 phút di chuyển), cách trung tâm Hà Nội 30km và cách cảng Hải Phòng khoảng 120km qua QL5 và cao tốc 5B. Dự án kết nối thuận tiện với các tuyến giao thông trọng điểm như tỉnh lộ 131, QL3, QL18, cao tốc Nội Bài – Lào Cai, Nội Bài – Thái Nguyên và Nội Bài – Bắc Ninh – Hạ Long. Từ đây, chỉ mất khoảng 30 phút để đến các khu công nghiệp lớn như Samsung Thái Nguyên và Samsung Bắc Ninh.</p>
@@ -92,8 +92,8 @@
                     <div class="advantage mt-20"><a class="advantage__frame" href="#!"><img
                                     src="./images/advantage-2_cn2.png" alt=""/></a>
                         <div class="advantage__body">
-                            <div class="advantage__index">0.2</div>
-                            <div class="advantage__index-bg">0.2</div>
+                            <div class="advantage__index">2</div>
+                            <div class="advantage__index-bg">2</div>
                             <div class="advantage__title">Thuộc quy hoạch Phân khu đô thị Sóc Sơn</div>
                             <div class="advantage__desc">
                                 <p>Quy mô nghiên cứu quy hoạch trên diện tích khoảng 561,31 ha với dân số dự kiến đến năm 2030 là 21.150 người;</p>
@@ -105,8 +105,8 @@
                     <div class="advantage mt-20"><a class="advantage__frame" href="#!"><img
                                     src="./images/advantage-3_cn2.png" alt=""/></a>
                         <div class="advantage__body">
-                            <div class="advantage__index">0.3</div>
-                            <div class="advantage__index-bg">0.3</div>
+                            <div class="advantage__index">3</div>
+                            <div class="advantage__index-bg">3</div>
                             <div class="advantage__title">Hạ tầng kỹ thuật và Tiện ích</div>
                             <div class="advantage__desc">
                                 <p>Cụm công nghiệp CN2 được đầu tư hạ tầng hiện đại, đồng bộ. Dự án cấp điện từ trạm 110kV Nội Bài (18.000 kVA), cấp nước từ nguồn thành phố với trạm bơm tăng áp công suất 2.022 m³/ngày.đêm. Hệ thống xử lý nước thải đạt tiêu chuẩn A, công suất 1.250 m³/ngày.đêm. Viễn thông kết nối đến từng lô đất. Tiện ích đi kèm gồm văn phòng cho thuê, bãi đỗ xe, khu giao dịch ngân hàng, trưng bày sản phẩm và dịch vụ hỗ trợ cho chuyên gia, quản lý, công nhân.</p>
@@ -123,7 +123,7 @@
                 </div>
             </div>
             <div class="ratio ratio-2x1">
-                <iframe src="https://momento360.com/e/u/a9b53aa8f8b0403ba7a4e18243aabc66"></iframe>
+                <iframe src="https://momento360.com/e/u/600d379d5a514ce9b62319f4af501db1"></iframe>
             </div>
             <div class="container">
                 <h2 class="section__title text-white">Sa bàn ảo</h2>
@@ -138,7 +138,7 @@
                     <div class="design-slider__container swiper-container">
                         <div class="swiper-wrapper">
                             <div class="design-slider__slide swiper-slide">
-                                <div class="design-slider__frame"><img src="./images/design-1_cn2.png" alt=""/></div>
+                                <div class="design-slider__frame"><img src="./images/design-1_cn2.jpg" alt=""/></div>
                                 <div class="design-slider__overlay">
                                     <div class="design-slider__content">Ý tưởng phát triển được hình thành trên cơ sở khảo sát thực tiễn, nhu cầu thị trường và 
                                     bài toán kết nối hạ tầng liên vùng, nhằm tối ưu hiệu quả sử dụng đất và thu hút đầu tư bền vững.
@@ -146,7 +146,7 @@
                                 </div>
                             </div>
                             <div class="design-slider__slide swiper-slide">
-                                <div class="design-slider__frame"><img src="./images/design-2.jpg" alt=""/></div>
+                                <div class="design-slider__frame"><img src="./images/design-2_cn2.jpg" alt=""/></div>
                                 <div class="design-slider__overlay">
                                     <div class="design-slider__content">Ý tưởng "Hà Nội bất tận" lấy cảm hứng từ không
                                         gian mênh mông của dòng sông Hồng, với hình ảnh sóng lượn liên tục nối từ hai
@@ -155,7 +155,7 @@
                                 </div>
                             </div>
                             <div class="design-slider__slide swiper-slide">
-                                <div class="design-slider__frame"><img src="./images/design-3.jpg" alt=""/></div>
+                                <div class="design-slider__frame"><img src="./images/design-3_cn2.jpg" alt=""/></div>
                                 <div class="design-slider__overlay">
                                     <div class="design-slider__content">Ý tưởng "Hà Nội bất tận" lấy cảm hứng từ không
                                         gian mênh mông của dòng sông Hồng, với hình ảnh sóng lượn liên tục nối từ hai
@@ -164,7 +164,7 @@
                                 </div>
                             </div>
                             <div class="design-slider__slide swiper-slide">
-                                <div class="design-slider__frame"><img src="./images/design-4.jpg" alt=""/></div>
+                                <div class="design-slider__frame"><img src="./images/design-4_cn2.jpg" alt=""/></div>
                                 <div class="design-slider__overlay">
                                     <div class="design-slider__content">Ý tưởng "Hà Nội bất tận" lấy cảm hứng từ không
                                         gian mênh mông của dòng sông Hồng, với hình ảnh sóng lượn liên tục nối từ hai
@@ -173,34 +173,7 @@
                                 </div>
                             </div>
                             <div class="design-slider__slide swiper-slide">
-                                <div class="design-slider__frame"><img src="./images/design-5.jpg" alt=""/></div>
-                                <div class="design-slider__overlay">
-                                    <div class="design-slider__content">Ý tưởng "Hà Nội bất tận" lấy cảm hứng từ không
-                                        gian mênh mông của dòng sông Hồng, với hình ảnh sóng lượn liên tục nối từ hai
-                                        bờ, tạo ra biểu tượng vô cực
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="design-slider__slide swiper-slide">
-                                <div class="design-slider__frame"><img src="./images/design-1.jpg" alt=""/></div>
-                                <div class="design-slider__overlay">
-                                    <div class="design-slider__content">Ý tưởng "Hà Nội bất tận" lấy cảm hứng từ không
-                                        gian mênh mông của dòng sông Hồng, với hình ảnh sóng lượn liên tục nối từ hai
-                                        bờ, tạo ra biểu tượng vô cực
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="design-slider__slide swiper-slide">
-                                <div class="design-slider__frame"><img src="./images/design-2.jpg" alt=""/></div>
-                                <div class="design-slider__overlay">
-                                    <div class="design-slider__content">Ý tưởng "Hà Nội bất tận" lấy cảm hứng từ không
-                                        gian mênh mông của dòng sông Hồng, với hình ảnh sóng lượn liên tục nối từ hai
-                                        bờ, tạo ra biểu tượng vô cực
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="design-slider__slide swiper-slide">
-                                <div class="design-slider__frame"><img src="./images/design-3.jpg" alt=""/></div>
+                                <div class="design-slider__frame"><img src="./images/design-5_cn2.jpg" alt=""/></div>
                                 <div class="design-slider__overlay">
                                     <div class="design-slider__content">Ý tưởng "Hà Nội bất tận" lấy cảm hứng từ không
                                         gian mênh mông của dòng sông Hồng, với hình ảnh sóng lượn liên tục nối từ hai
@@ -217,28 +190,19 @@
                     <div class="design-thumb-slider__container swiper-container">
                         <div class="swiper-wrapper">
                             <div class="swiper-slide">
-                                <div class="design-thumb-slider__frame"><img src="./images/design-1.jpg" alt=""/></div>
+                                <div class="design-thumb-slider__frame"><img src="./images/design-1_cn2.jpg" alt=""/></div>
                             </div>
                             <div class="swiper-slide">
-                                <div class="design-thumb-slider__frame"><img src="./images/design-2.jpg" alt=""/></div>
+                                <div class="design-thumb-slider__frame"><img src="./images/design-2_cn2.jpg" alt=""/></div>
                             </div>
                             <div class="swiper-slide">
-                                <div class="design-thumb-slider__frame"><img src="./images/design-3.jpg" alt=""/></div>
+                                <div class="design-thumb-slider__frame"><img src="./images/design-3_cn2.jpg" alt=""/></div>
                             </div>
                             <div class="swiper-slide">
-                                <div class="design-thumb-slider__frame"><img src="./images/design-4.jpg" alt=""/></div>
+                                <div class="design-thumb-slider__frame"><img src="./images/design-4_cn2.jpg" alt=""/></div>
                             </div>
                             <div class="swiper-slide">
-                                <div class="design-thumb-slider__frame"><img src="./images/design-5.jpg" alt=""/></div>
-                            </div>
-                            <div class="swiper-slide">
-                                <div class="design-thumb-slider__frame"><img src="./images/design-1.jpg" alt=""/></div>
-                            </div>
-                            <div class="swiper-slide">
-                                <div class="design-thumb-slider__frame"><img src="./images/design-2.jpg" alt=""/></div>
-                            </div>
-                            <div class="swiper-slide">
-                                <div class="design-thumb-slider__frame"><img src="./images/design-3.jpg" alt=""/></div>
+                                <div class="design-thumb-slider__frame"><img src="./images/design-5_cn2.jpg" alt=""/></div>
                             </div>
                         </div>
                     </div>
@@ -438,6 +402,16 @@
             $('.project-nav__list a').removeClass('active');
             $(this).addClass('active');
         });
+        });
+        // Ẩn phần tử có id "sa-ban-ao" nếu tham số "hide" trong URL là "saban"
+        $(document).ready(function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const hide = urlParams.get("hide");
+
+            if (hide === "saban") {
+            const sabanEl = $("#sa-ban-ao");
+            if (sabanEl.length) sabanEl.hide();
+            }
         });
     </script>
 @endpush
