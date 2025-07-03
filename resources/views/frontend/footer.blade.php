@@ -22,8 +22,7 @@
                     </ul>
                     <div class="footer__content mt-4">
                         <p>Ghi rõ nguồn: <a href="https://hotrodoanhnghiep.hanoi.gov.vn">“https://hotrodoanhnghiep.hanoi.gov.vn"</a>. Khi phát
-                            hành lại thông tin từ website này<br />Giấy phép thiết lặp trang tin điện tử tổng hợp số:
-                            5591/GP-TTĐT ngày 13/12/2017<br />Người chịu trách nhiệm về nội dung:Giám đốc trung tâm</p>
+                            hành lại thông tin từ website này<br />Người chịu trách nhiệm về nội dung: Giám đốc trung tâm</p>
                     </div>
                 </div>
                 <div class="col-lg-5">
@@ -38,6 +37,6 @@
         </div>
     </div>
     <div class="footer__copyright">
-        <div class="container">© 2025. Trung tâm Xúc tiến đầu tư và Hỗ trợ doanh nghiệp Hà Nộ</div>
+        <div class="container">© 2025. Trung tâm Xúc tiến đầu tư và Hỗ trợ doanh nghiệp Hà Nội</div>
     </div>
 </footer>
