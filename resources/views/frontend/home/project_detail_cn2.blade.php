@@ -18,9 +18,9 @@
                 <div class="container">
                     <div class="pj-banner__subtitle text-end">Dự án</div>
                     <div class="pj-banner__title text-end">Cụm công nghiệp CN2</div>
-                    <div class="custom_desc">Cụm công nghiệp CN2 (50,5ha), tọa lạc tại xã Mai Đình, huyện Sóc Sơn, Hà Nội,<br>
-                         có thời hạn thuê đất đến 50 năm. Dự án ưu tiên thu hút các doanh nghiệp<br> công nghệ cao, sản xuất hiện đại, thân thiện môi trường và các công ty trong <br> lĩnh vực hàng không, dịch vụ sân bay.
-                    </div>
+                    <div class="custom_desc">Cụm công nghiệp CN2 (50,5ha), tọa lạc tại xã Mai Đình, huyện Sóc Sơn, Hà Nội,
+                        có thời hạn thuê đất đến 50 năm. Dự án ưu tiên thu hút các doanh nghiệp công nghệ cao, sản xuất hiện đại, thân thiện môi trường và các công ty trong lĩnh vực hàng không, dịch vụ sân bay.
+                   </div>
                 </div>
             </div>
         </section>
@@ -432,7 +432,6 @@
 @endsection
 
 @push('bottom')
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function () {
         $('.project-nav__list a').click(function () {
