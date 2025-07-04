@@ -29,8 +29,12 @@
                                         <a class="menu-link @if(empty($setting['menu_active'])) active @endif"
                                            href="{{ route('home_page') }}">Trang chủ</a>
                                     </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link @if(($setting['menu_active']??'') == 'Dự án kêu gọi đầu tư' ) active @endif"
+                                           href="{{ route('introduce_potential') }}">Giới thiệu tiềm năng</a>
+                                    </li>
                                     <li class="menu-item menu-item-group">
-                                        <a class="menu-link" href="#!">Giới thiệu tiềm năng</a>
+                                        <a class="menu-link" href="{{ route('projects') }}">Dự án kêu gọi đầu tư</a>
                                         <span class="menu-toggle"></span>
                                         <ul class="menu menu-sub">
                                             <li class="menu-item">
@@ -55,10 +59,6 @@
                                                 </ul>
                                             </li>
                                         </ul>
-                                    </li>
-                                    <li class="menu-item">
-                                        <a class="menu-link @if(($setting['menu_active']??'') == 'Dự án kêu gọi đầu tư' ) active @endif"
-                                           href="{{ route('projects') }}">Dự án kêu gọi đầu tư</a>
                                     </li>
                                     <li class="menu-item"><a
                                                 class="menu-link @if(($setting['menu_active']??'') == 'Tin tức' ) active @endif"

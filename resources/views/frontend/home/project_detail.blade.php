@@ -8,7 +8,7 @@
                 <div class="container">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a class="link-unstyled" href="/"><i
-                                        class="fal fa-home me-2"></i><span>Trang chủ</span></a></li>
+                                    class="fal fa-home me-2"></i><span>Trang chủ</span></a></li>
                         <li class="breadcrumb-item active">Danh mục dự án đầu tư</li>
                     </ol>
                 </div>
@@ -90,7 +90,7 @@
                 <h2 class="section__title">Lợi thế nổi bật</h2>
                 <div>
                     <div class="advantage mt-20"><a class="advantage__frame" href="#!"><img
-                                    src="./images/advantage-1.jpg" alt=""/></a>
+                                src="./images/advantage-1.jpg" alt="" /></a>
                         <div class="advantage__body">
                             <div class="advantage__index">1</div>
                             <div class="advantage__index-bg">1</div>
@@ -106,7 +106,7 @@
                         </div>
                     </div>
                     <div class="advantage mt-20"><a class="advantage__frame" href="#!"><img
-                                    src="./images/advantage-2.jpg" alt=""/></a>
+                                src="./images/advantage-2.jpg" alt="" /></a>
                         <div class="advantage__body">
                             <div class="advantage__index">2</div>
                             <div class="advantage__index-bg">2</div>
@@ -119,7 +119,7 @@
                         </div>
                     </div>
                     <div class="advantage mt-20"><a class="advantage__frame" href="#!"><img
-                                    src="./images/advantage-3.jpg" alt=""/></a>
+                                src="./images/advantage-3.jpg" alt="" /></a>
                         <div class="advantage__body">
                             <div class="advantage__index">3</div>
                             <div class="advantage__index-bg">3</div>
@@ -138,6 +138,11 @@
             <div class="section section--overlay">
                 <div class="container">
                     <h2 class="section__title text-white">Sa bàn ảo</h2>
+                    <div class="mt-3">
+                        <a href="https://fir-tour2.web.app/cautranhungdao/" class="btn btn-warning text-white custom-btn-vrtour" target="_blank" rel="noopener noreferrer">
+                            Xem VR Tour
+                        </a>
+                    </div>
                 </div>
             </div>
             <div class="ratio ratio-2x1">
@@ -157,7 +162,7 @@
                     <div class="design-slider__container swiper-container">
                         <div class="swiper-wrapper">
                             <div class="design-slider__slide swiper-slide">
-                                <div class="design-slider__frame"><img src="./images/design-1.jpg" alt=""/></div>
+                                <div class="design-slider__frame"><img src="./images/design-1.jpg" alt="" /></div>
                                 <div class="design-slider__overlay">
                                     <div class="design-slider__content">Ý tưởng "Hà Nội bất tận" lấy cảm hứng từ không
                                         gian mênh mông của dòng sông Hồng, với hình ảnh sóng lượn liên tục nối từ hai
@@ -166,7 +171,8 @@
                                 </div>
                             </div>
                             <div class="design-slider__slide swiper-slide">
-                                <div class="design-slider__frame"><img src="./images/design-2.jpg" alt=""/></div>
+                                <div class="design-slider__frame"><img src="./images/design-2.jpg" alt="" />
+                                </div>
                                 <div class="design-slider__overlay">
                                     <div class="design-slider__content">Ý tưởng "Hà Nội bất tận" lấy cảm hứng từ không
                                         gian mênh mông của dòng sông Hồng, với hình ảnh sóng lượn liên tục nối từ hai
@@ -175,7 +181,8 @@
                                 </div>
                             </div>
                             <div class="design-slider__slide swiper-slide">
-                                <div class="design-slider__frame"><img src="./images/design-3.jpg" alt=""/></div>
+                                <div class="design-slider__frame"><img src="./images/design-3.jpg" alt="" />
+                                </div>
                                 <div class="design-slider__overlay">
                                     <div class="design-slider__content">Ý tưởng "Hà Nội bất tận" lấy cảm hứng từ không
                                         gian mênh mông của dòng sông Hồng, với hình ảnh sóng lượn liên tục nối từ hai
@@ -184,7 +191,8 @@
                                 </div>
                             </div>
                             <div class="design-slider__slide swiper-slide">
-                                <div class="design-slider__frame"><img src="./images/design-4.jpg" alt=""/></div>
+                                <div class="design-slider__frame"><img src="./images/design-4.jpg" alt="" />
+                                </div>
                                 <div class="design-slider__overlay">
                                     <div class="design-slider__content">Ý tưởng "Hà Nội bất tận" lấy cảm hứng từ không
                                         gian mênh mông của dòng sông Hồng, với hình ảnh sóng lượn liên tục nối từ hai
@@ -193,7 +201,8 @@
                                 </div>
                             </div>
                             <div class="design-slider__slide swiper-slide">
-                                <div class="design-slider__frame"><img src="./images/design-5.jpg" alt=""/></div>
+                                <div class="design-slider__frame"><img src="./images/design-5.jpg" alt="" />
+                                </div>
                                 <div class="design-slider__overlay">
                                     <div class="design-slider__content">Ý tưởng "Hà Nội bất tận" lấy cảm hứng từ không
                                         gian mênh mông của dòng sông Hồng, với hình ảnh sóng lượn liên tục nối từ hai
@@ -202,7 +211,8 @@
                                 </div>
                             </div>
                             <div class="design-slider__slide swiper-slide">
-                                <div class="design-slider__frame"><img src="./images/design-1.jpg" alt=""/></div>
+                                <div class="design-slider__frame"><img src="./images/design-1.jpg" alt="" />
+                                </div>
                                 <div class="design-slider__overlay">
                                     <div class="design-slider__content">Ý tưởng "Hà Nội bất tận" lấy cảm hứng từ không
                                         gian mênh mông của dòng sông Hồng, với hình ảnh sóng lượn liên tục nối từ hai
@@ -211,7 +221,8 @@
                                 </div>
                             </div>
                             <div class="design-slider__slide swiper-slide">
-                                <div class="design-slider__frame"><img src="./images/design-2.jpg" alt=""/></div>
+                                <div class="design-slider__frame"><img src="./images/design-2.jpg" alt="" />
+                                </div>
                                 <div class="design-slider__overlay">
                                     <div class="design-slider__content">Ý tưởng "Hà Nội bất tận" lấy cảm hứng từ không
                                         gian mênh mông của dòng sông Hồng, với hình ảnh sóng lượn liên tục nối từ hai
@@ -220,7 +231,8 @@
                                 </div>
                             </div>
                             <div class="design-slider__slide swiper-slide">
-                                <div class="design-slider__frame"><img src="./images/design-3.jpg" alt=""/></div>
+                                <div class="design-slider__frame"><img src="./images/design-3.jpg" alt="" />
+                                </div>
                                 <div class="design-slider__overlay">
                                     <div class="design-slider__content">Ý tưởng "Hà Nội bất tận" lấy cảm hứng từ không
                                         gian mênh mông của dòng sông Hồng, với hình ảnh sóng lượn liên tục nối từ hai
@@ -237,28 +249,36 @@
                     <div class="design-thumb-slider__container swiper-container">
                         <div class="swiper-wrapper">
                             <div class="swiper-slide">
-                                <div class="design-thumb-slider__frame"><img src="./images/design-1.jpg" alt=""/></div>
+                                <div class="design-thumb-slider__frame"><img src="./images/design-1.jpg"
+                                        alt="" /></div>
                             </div>
                             <div class="swiper-slide">
-                                <div class="design-thumb-slider__frame"><img src="./images/design-2.jpg" alt=""/></div>
+                                <div class="design-thumb-slider__frame"><img src="./images/design-2.jpg"
+                                        alt="" /></div>
                             </div>
                             <div class="swiper-slide">
-                                <div class="design-thumb-slider__frame"><img src="./images/design-3.jpg" alt=""/></div>
+                                <div class="design-thumb-slider__frame"><img src="./images/design-3.jpg"
+                                        alt="" /></div>
                             </div>
                             <div class="swiper-slide">
-                                <div class="design-thumb-slider__frame"><img src="./images/design-4.jpg" alt=""/></div>
+                                <div class="design-thumb-slider__frame"><img src="./images/design-4.jpg"
+                                        alt="" /></div>
                             </div>
                             <div class="swiper-slide">
-                                <div class="design-thumb-slider__frame"><img src="./images/design-5.jpg" alt=""/></div>
+                                <div class="design-thumb-slider__frame"><img src="./images/design-5.jpg"
+                                        alt="" /></div>
                             </div>
                             <div class="swiper-slide">
-                                <div class="design-thumb-slider__frame"><img src="./images/design-1.jpg" alt=""/></div>
+                                <div class="design-thumb-slider__frame"><img src="./images/design-1.jpg"
+                                        alt="" /></div>
                             </div>
                             <div class="swiper-slide">
-                                <div class="design-thumb-slider__frame"><img src="./images/design-2.jpg" alt=""/></div>
+                                <div class="design-thumb-slider__frame"><img src="./images/design-2.jpg"
+                                        alt="" /></div>
                             </div>
                             <div class="swiper-slide">
-                                <div class="design-thumb-slider__frame"><img src="./images/design-3.jpg" alt=""/></div>
+                                <div class="design-thumb-slider__frame"><img src="./images/design-3.jpg"
+                                        alt="" /></div>
                             </div>
                         </div>
                     </div>
@@ -271,48 +291,55 @@
                 <div class="section__desc">Dưới đây là một số quyết định pháp lý quan trọng liên quan đến dự án cầu Trần
                     Hưng Đạo
                 </div>
-                <div class="legal-grid"><a class="legal" href="#!"><img class="legal__icon" src="./images/icon-pdf.svg"
-                                                                        alt=""/>
+                <div class="legal-grid"><a class="legal" href="#!"><img class="legal__icon"
+                            src="./images/icon-pdf.svg" alt="" />
                         <div class="legal__body">
                             <div class="legal__title">Quyết định phê duyệt chủ trương đầu tư đã được UBND Thành phố Hà
                                 Nội phê duyệt
                             </div>
                         </div>
-                    </a><a class="legal" href="#!"><img class="legal__icon" src="./images/icon-doc.svg" alt=""/>
+                    </a><a class="legal" href="#!"><img class="legal__icon" src="./images/icon-doc.svg"
+                            alt="" />
                         <div class="legal__body">
                             <div class="legal__title">Quyết định phê duyệt chủ trương đầu tư đã được UBND Thành phố Hà
                                 Nội phê duyệt
                             </div>
                         </div>
-                    </a><a class="legal" href="#!"><img class="legal__icon" src="./images/icon-excel.svg" alt=""/>
+                    </a><a class="legal" href="#!"><img class="legal__icon" src="./images/icon-excel.svg"
+                            alt="" />
                         <div class="legal__body">
                             <div class="legal__title">Quyết định phê duyệt chủ trương đầu tư đã được UBND Thành phố Hà
                                 Nội phê duyệt
                             </div>
                         </div>
-                    </a><a class="legal" href="#!"><img class="legal__icon" src="./images/icon-pdf.svg" alt=""/>
+                    </a><a class="legal" href="#!"><img class="legal__icon" src="./images/icon-pdf.svg"
+                            alt="" />
                         <div class="legal__body">
                             <div class="legal__title">Phê duyệt phương án kiến trúc đã được UBND Thành phố Hà Nội phê
                                 duyệt
                             </div>
                         </div>
-                    </a><a class="legal" href="#!"><img class="legal__icon" src="./images/icon-doc.svg" alt=""/>
+                    </a><a class="legal" href="#!"><img class="legal__icon" src="./images/icon-doc.svg"
+                            alt="" />
                         <div class="legal__body">
                             <div class="legal__title">Quyết định phê duyệt chủ trương đầu tư đã được UBND Thành phố Hà
                                 Nội phê duyệt
                             </div>
                         </div>
-                    </a><a class="legal" href="#!"><img class="legal__icon" src="./images/icon-excel.svg" alt=""/>
+                    </a><a class="legal" href="#!"><img class="legal__icon" src="./images/icon-excel.svg"
+                            alt="" />
                         <div class="legal__body">
                             <div class="legal__title">Quyết định số 768/QĐ-TTg ngày 06/5/2016 của Thủ tướng Chính phủ
                                 phê duyệt điều chỉnh
                             </div>
                         </div>
-                    </a><a class="legal" href="#!"><img class="legal__icon" src="./images/icon-pdf.svg" alt=""/>
+                    </a><a class="legal" href="#!"><img class="legal__icon" src="./images/icon-pdf.svg"
+                            alt="" />
                         <div class="legal__body">
                             <div class="legal__title">Kế hoạch khởi công đã được UBND Thành phố Hà Nội phê duyệt</div>
                         </div>
-                    </a><a class="legal" href="#!"><img class="legal__icon" src="./images/icon-doc.svg" alt=""/>
+                    </a><a class="legal" href="#!"><img class="legal__icon" src="./images/icon-doc.svg"
+                            alt="" />
                         <div class="legal__body">
                             <div class="legal__title">Quyết định số 355/QĐ-TTg ngày 25/02/2013 của Thủ tướng Chính phủ
                                 về phê duyệt điều chỉnh ...
@@ -320,12 +347,12 @@
                         </div>
                     </a>
                 </div>
-                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="#!">Xem thêm</a></nav>
+                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="#!">Xem thêm</a>
+                </nav>
             </div>
         </section>
-        <section class="section" id="tin-tuc"><img class="texture-1" src="./images/texture-1.png" alt=""><img class="texture-2"
-                                                                                                 src="./images/texture-2.png"
-                                                                                                 alt="">
+        <section class="section" id="tin-tuc"><img class="texture-1" src="./images/texture-1.png" alt=""><img
+                class="texture-2" src="./images/texture-2.png" alt="">
             <div class="container">
                 <h2 class="section__title">Tin tức</h2>
                 <div class="news-slider">
@@ -335,118 +362,31 @@
                     </div>
                     <div class="news-slider__container swiper-container">
                         <div class="swiper-wrapper">
-                            <div class="swiper-slide">
-                                <div class="news"><a class="news__frame" href="#!"><img src="./images/news-1.jpg"
-                                                                                        alt=""/></a>
-                                    <div class="news__body">
-                                        <div class="news__info">
-                                            <div class="news__time"><i
-                                                        class="fal fa-clock me-2"></i><span>15/04/2024</span></div>
-                                            <div class="news__like"><i class="fal fa-fw fa-heart"></i></div>
-                                        </div>
-                                        <h3 class="news__title"><a href="#!">Tin tức thủ đô mới của Malaysia chuyển về
-                                                Kuala Lumper</a></h3>
-                                        <div class="news__desc">Mỗi một nhiệm vụ cụ thể phải được phân tích, mô tả chi
-                                            tiết, rõ ràng; Kế hoạch triển khai phù hợp với phương pháp luận và tiến độ
-                                            công việc cũ ...
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="swiper-slide">
-                                <div class="news"><a class="news__frame" href="#!"><img src="./images/news-1.jpg"
-                                                                                        alt=""/></a>
-                                    <div class="news__body">
-                                        <div class="news__info">
-                                            <div class="news__time"><i
-                                                        class="fal fa-clock me-2"></i><span>15/04/2024</span></div>
-                                            <div class="news__like"><i class="fal fa-fw fa-heart"></i></div>
-                                        </div>
-                                        <h3 class="news__title"><a href="#!">Tin tức thủ đô mới của Malaysia chuyển về
-                                                Kuala Lumper</a></h3>
-                                        <div class="news__desc">Mỗi một nhiệm vụ cụ thể phải được phân tích, mô tả chi
-                                            tiết, rõ ràng; Kế hoạch triển khai phù hợp với phương pháp luận và tiến độ
-                                            công việc cũ ...
+                            @foreach ($posts as $item)
+                                <div class="swiper-slide">
+                                    <div class="news"><a class="news__frame"
+                                            href="{{ route('new_detail', ['id' => $item->id]) }}"><img
+                                                src="./images/news/new-{{ $loop->iteration }}.jpg" alt="" /></a>
+                                        <div class="news__body">
+                                            <div class="news__info">
+                                                <div class="news__time"><i
+                                                        class="fal fa-clock me-2"></i><span>{{ $item->created_at->format('d/m/Y H:i') }}</span>
+                                                </div>
+                                                <div class="news__like"><i class="fal fa-fw fa-heart"></i></div>
+                                            </div>
+                                            <h3 class="news__title  custom-desc"><a
+                                                    href="{{ route('new_detail', ['id' => $item->id]) }}">{{ $item->name }}</a>
+                                            </h3>
+                                            <div class="news__desc">{{ $item->description }}</div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="swiper-slide">
-                                <div class="news"><a class="news__frame" href="#!"><img src="./images/news-1.jpg"
-                                                                                        alt=""/></a>
-                                    <div class="news__body">
-                                        <div class="news__info">
-                                            <div class="news__time"><i
-                                                        class="fal fa-clock me-2"></i><span>15/04/2024</span></div>
-                                            <div class="news__like"><i class="fal fa-fw fa-heart"></i></div>
-                                        </div>
-                                        <h3 class="news__title"><a href="#!">Tin tức thủ đô mới của Malaysia chuyển về
-                                                Kuala Lumper</a></h3>
-                                        <div class="news__desc">Mỗi một nhiệm vụ cụ thể phải được phân tích, mô tả chi
-                                            tiết, rõ ràng; Kế hoạch triển khai phù hợp với phương pháp luận và tiến độ
-                                            công việc cũ ...
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="swiper-slide">
-                                <div class="news"><a class="news__frame" href="#!"><img src="./images/news-1.jpg"
-                                                                                        alt=""/></a>
-                                    <div class="news__body">
-                                        <div class="news__info">
-                                            <div class="news__time"><i
-                                                        class="fal fa-clock me-2"></i><span>15/04/2024</span></div>
-                                            <div class="news__like"><i class="fal fa-fw fa-heart"></i></div>
-                                        </div>
-                                        <h3 class="news__title"><a href="#!">Tin tức thủ đô mới của Malaysia chuyển về
-                                                Kuala Lumper</a></h3>
-                                        <div class="news__desc">Mỗi một nhiệm vụ cụ thể phải được phân tích, mô tả chi
-                                            tiết, rõ ràng; Kế hoạch triển khai phù hợp với phương pháp luận và tiến độ
-                                            công việc cũ ...
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="swiper-slide">
-                                <div class="news"><a class="news__frame" href="#!"><img src="./images/news-1.jpg"
-                                                                                        alt=""/></a>
-                                    <div class="news__body">
-                                        <div class="news__info">
-                                            <div class="news__time"><i
-                                                        class="fal fa-clock me-2"></i><span>15/04/2024</span></div>
-                                            <div class="news__like"><i class="fal fa-fw fa-heart"></i></div>
-                                        </div>
-                                        <h3 class="news__title"><a href="#!">Tin tức thủ đô mới của Malaysia chuyển về
-                                                Kuala Lumper</a></h3>
-                                        <div class="news__desc">Mỗi một nhiệm vụ cụ thể phải được phân tích, mô tả chi
-                                            tiết, rõ ràng; Kế hoạch triển khai phù hợp với phương pháp luận và tiến độ
-                                            công việc cũ ...
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="swiper-slide">
-                                <div class="news"><a class="news__frame" href="#!"><img src="./images/news-1.jpg"
-                                                                                        alt=""/></a>
-                                    <div class="news__body">
-                                        <div class="news__info">
-                                            <div class="news__time"><i
-                                                        class="fal fa-clock me-2"></i><span>15/04/2024</span></div>
-                                            <div class="news__like"><i class="fal fa-fw fa-heart"></i></div>
-                                        </div>
-                                        <h3 class="news__title"><a href="#!">Tin tức thủ đô mới của Malaysia chuyển về
-                                                Kuala Lumper</a></h3>
-                                        <div class="news__desc">Mỗi một nhiệm vụ cụ thể phải được phân tích, mô tả chi
-                                            tiết, rõ ràng; Kế hoạch triển khai phù hợp với phương pháp luận và tiến độ
-                                            công việc cũ ...
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            @endforeach
                         </div>
                     </div>
                 </div>
-                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="#!">Xem thêm</a></nav>
+                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="#!">Xem thêm</a>
+                </nav>
             </div>
         </section>
     </div>
@@ -454,19 +394,19 @@
 
 @push('bottom')
     <script>
-        $(document).ready(function () {
-        $('.project-nav__list a').click(function () {
-            $('.project-nav__list a').removeClass('active');
-            $(this).addClass('active');
+        $(document).ready(function() {
+            $('.project-nav__list a').click(function() {
+                $('.project-nav__list a').removeClass('active');
+                $(this).addClass('active');
+            });
         });
-        });
-        $(document).ready(function () {
+        $(document).ready(function() {
             const urlParams = new URLSearchParams(window.location.search);
             const hide = urlParams.get("hide");
 
             if (hide === "saban") {
-            const sabanEl = $("#sa-ban-ao");
-            if (sabanEl.length) sabanEl.hide();
+                const sabanEl = $("#sa-ban-ao");
+                if (sabanEl.length) sabanEl.hide();
             }
         });
     </script>

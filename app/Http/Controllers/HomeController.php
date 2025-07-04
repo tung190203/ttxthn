@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Post;
 use App\Models\Feedback;
 use App\Models\Page;
+use App\Models\ProductType;
 use App\Models\Project;
 use App\Models\ProjectIndustries;
 use App\Models\ProjectType;
@@ -44,6 +45,19 @@ class HomeController extends Controller
                 'name' => $industry->name,
             ];
         })->toArray();
+        $list_projects = Project::all()->map(function ($project) {
+            return [
+                'id' => $project->id,
+                'name' => $project->name,
+            ];
+        })->toArray();
+        $product_types = ProductType::all()->map(function ($productType) {
+            return [
+                'id' => $productType->id,
+                'name' => $productType->name,
+            ];
+        })->toArray();
+        $posts = Post::where('cat_id',2)->get();
         return view('frontend.home.index',
             compact(
                 'setting',
@@ -53,6 +67,9 @@ class HomeController extends Controller
                 'projects',
                 'types',
                 'industries',
+                'list_projects',
+                'product_types',
+                'posts',
             )
         );
     }
@@ -86,6 +103,7 @@ class HomeController extends Controller
         $list_post_popular = Post::popular(4)->get();
         $all_category_coupons = Category::getAllMenuLink(0, Category::CATEGORY_TYPE_COUPON);
         $all_category_coupons = array_chunk($all_category_coupons, 3);
+        $posts = Post::where('cat_id',2)->get();
 
         return view('frontend.home.project_detail',
             compact(
@@ -93,6 +111,7 @@ class HomeController extends Controller
                 'banners',
                 'list_post_popular',
                 'all_category_coupons',
+                'posts',
             )
         );
     }
@@ -106,6 +125,7 @@ class HomeController extends Controller
         $list_post_popular = Post::popular(4)->get();
         $all_category_coupons = Category::getAllMenuLink(0, Category::CATEGORY_TYPE_COUPON);
         $all_category_coupons = array_chunk($all_category_coupons, 3);
+        $posts = Post::where('cat_id',2)->get();
 
         return view('frontend.home.project_detail_cn2',
             compact(
@@ -113,6 +133,7 @@ class HomeController extends Controller
                 'banners',
                 'list_post_popular',
                 'all_category_coupons',
+                'posts',
             )
         );
     }
@@ -140,42 +161,42 @@ class HomeController extends Controller
     {
         $setting = Setting::getAllSetting();
         $setting['menu_active'] = 'Tin tức';
-
-        $banners = Widget::getByPosition('HOME_BANNER');
-        $list_post_popular = Post::popular(4)->get();
-        $all_category_coupons = Category::getAllMenuLink(0, Category::CATEGORY_TYPE_COUPON);
-        $all_category_coupons = array_chunk($all_category_coupons, 3);
+        $list_post_popular = Post::where('cat_id', 2)->get();
 
         return view('frontend.home.news',
             compact(
                 'setting',
-                'banners',
                 'list_post_popular',
-                'all_category_coupons',
+            )
+        );
+    }
+
+    public function introducePotential(Request $request)
+    {
+        $setting = Setting::getAllSetting();
+        $banners = Widget::getByPosition('HOME_BANNER');
+        $setting['menu_active'] = 'Giới thiệu tiềm năng';
+        $list_post_potential = Post::where('cat_id', 24)->get();
+
+        return view('frontend.home.introduce_potential',
+            compact(
+                'banners',
+                'setting',
+                'list_post_potential',
             )
         );
     }
 
     public function newDetail(Request $request)
     {
+        $id = $request->get('id');
+        $post = Post::findOrFail($id);
+    
         $setting = Setting::getAllSetting();
         $setting['menu_active'] = 'Tin tức';
-
-        $banners = Widget::getByPosition('HOME_BANNER');
-        $list_post_popular = Post::popular(4)->get();
-        $all_category_coupons = Category::getAllMenuLink(0, Category::CATEGORY_TYPE_COUPON);
-        $all_category_coupons = array_chunk($all_category_coupons, 3);
-
-        return view('frontend.home.new_detail',
-            compact(
-                'setting',
-                'banners',
-                'list_post_popular',
-                'all_category_coupons',
-            )
-        );
-    }
-
+    
+        return view('frontend.home.new_detail', compact('setting', 'post'));
+    }    
     public function jobs(Request $request)
     {
         $setting = Setting::getAllSetting();

@@ -13,25 +13,27 @@
                     </div>
                 </nav>
             </div>
-            <img class="banner__bg" src="./images/banner-news.jpg" alt=""/>
-            <div class="banner__title">Tin tức</div>
+            <img class="banner__bg" src="./images/banner-news.jpg" alt="" />
+            <div class="banner__title">Giới thiệu tiềm năng</div>
         </article>
         <section class="section">
             <div class="container">
                 <div class="row g-3 g-sm-4">
-                    @foreach($list_post_popular as $item)
+                    @foreach ($list_post_potential as $item)
                         <div class="col-6 col-lg-4">
-                            <div class="news"><a class="news__frame" href="{{ route('new_detail',['id'=> $item->id]) }}"><img
-                                            src="./images/news/new-{{$loop->iteration}}.jpg"
-                                            alt=""/></a>
+                            <div class="news"><a class="news__frame"
+                                    href="{{ route('new_detail', ['id' => $item->id]) }}"><img
+                                        src="./images/news/potential-{{ $loop->iteration }}.jpg" alt="" /></a>
                                 <div class="news__body">
                                     <div class="news__info">
-                                        <div class="news__time"><i class="fal fa-clock me-2"></i><span>{{$item->created_at->format('d/m/Y H:i')}}</span>
+                                        <div class="news__time"><i
+                                                class="fal fa-clock me-2"></i><span>{{ $item->created_at->format('d/m/Y H:i') }}</span>
                                         </div>
                                         <div class="news__like"><i class="fal fa-fw fa-heart"></i></div>
                                     </div>
-                                    <h3 class="news__title"><a href="{{ route('new_detail',['id'=> $item->id]) }}">{{$item->name}}</a></h3>
-                                    <div class="news__desc">{{$item->description}}</div>
+                                    <h3 class="news__title"><a
+                                            href="{{ route('new_detail', ['id' => $item->id]) }}">{{ $item->name }}</a></h3>
+                                    <div class="news__desc">{{ $item->description }}</div>
                                 </div>
                             </div>
                         </div>
@@ -55,5 +57,4 @@
 @endsection
 
 @push('bottom')
-
 @endpush

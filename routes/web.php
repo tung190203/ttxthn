@@ -30,8 +30,9 @@ Route::localized(function () {
     Route::get('/project-detail.html', [HomeController::class, 'projectDetail'])->name('project_detail');
     Route::get('/project-detail_cn2.html', [HomeController::class, 'projectDetailCN2'])->name('project_detail_cn2');
     Route::get('/account.html', [HomeController::class, 'account'])->name('account');
-    Route::get('/news.html', [HomeController::class, 'news'])->name('news');
-    Route::get('/new-detail.html', [HomeController::class, 'newDetail'])->name('new_detail');
+    Route::get('/news', [HomeController::class, 'news'])->name('news');
+    Route::get('/introduce-potential', [HomeController::class, 'introducePotential'])->name('introduce_potential');
+    Route::get('/new-detail', [HomeController::class, 'newDetail'])->name('new_detail');
     Route::get('/sitemap.xml', [HomeController::class, 'siteMap'])->name('site_map');
     Route::match(['get', 'post'], '/contact.html', [HomeController::class, 'contact'])->name('contact');
 
