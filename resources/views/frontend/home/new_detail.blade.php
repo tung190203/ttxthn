@@ -16,99 +16,22 @@
         </div>
         <article class="section post">
             <div class="container">
-                <h1 class="section__title fw-700">Lorem ipsum dolor sit amet</h1>
+                <h1 class="section__title fw-700">{{ $post->name }}</h1>
+            
+                @if (!empty($post->description))
+                    <h2 class="section__subtitle text-muted mb-4" style="font-weight: normal; font-size: 16px;">
+                        {{ $post->description }}
+                    </h2>
+                @endif
+            
                 <div class="post__content">
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis volutpat tellus non nibh tristique
-                        semper. Proin vel pulvinar turpis. Aliquam a eros sem. Ut vel tincidunt nunc, ac placerat ex.
-                        Donec magna nibh, sagittis sit amet efficitur sed, tristique non enim. Ut vehicula, mi ac
-                        lobortis lacinia, est velit mollis magna, ac facilisis mauris massa ac eros. Vestibulum sit amet
-                        eros imperdiet, aliquet velit eget, finibus augue. Donec at rhoncus ligula, vitae varius libero.
-                        Vivamus at purus consectetur nisl dignissim blandit.</p>
-                    <p>Ut vel tincidunt nunc, ac placerat ex. Donec magna nibh, sagittis sit amet efficitur sed,
-                        tristique non enim. Ut vehicula, mi ac lobortis lacinia, est velit mollis magna, ac facilisis
-                        mauris massa ac eros. Vestibulum sit amet eros imperdiet, aliquet velit eget, finibus augue.
-                        Donec at rhoncus ligula, vitae varius libero. Vivamus at purus consectetur nisl dignissim
-                        blandit. Ut vel tincidunt nunc, ac placerat ex. Donec magna nibh, sagittis sit amet efficitur
-                        sed, tristique non enim. Ut vehicula, mi ac lobortis lacinia, est velit mollis magna, ac
-                        facilisis mauris massa ac eros. Vestibulum sit amet eros imperdiet, aliquet velit eget, finibus
-                        augue. Donec at rhoncus ligula, vitae varius libero. Vivamus at purus consectetur nisl dignissim
-                        blandit.</p>
-                    <div class="row g-4">
-                        <div class="col-12"><img class="w-100 rounded" src="./images/news-1.jpg" alt=""></div>
-                        <div class="col-lg-4"><img class="w-100 rounded" src="./images/news-2.jpg" alt=""></div>
-                        <div class="col-lg-4"><img class="w-100 rounded" src="./images/news-3.jpg" alt=""></div>
-                        <div class="col-lg-4"><img class="w-100 rounded" src="./images/news-4.jpg" alt=""></div>
-                        <div class="col-lg-6"><img class="w-100 rounded" src="./images/news-5.jpg" alt=""></div>
-                        <div class="col-lg-6">
-                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis volutpat tellus non nibh
-                                tristique semper. Proin vel pulvinar turpis. Aliquam a eros sem. Ut vel tincidunt nunc,
-                                ac placerat ex. Donec magna nibh, sagittis sit amet efficitur sed, tristique non enim.
-                                Ut vehicula, mi ac lobortis lacinia, est velit mollis magna, ac facilisis mauris massa
-                                ac eros. Vestibulum sit amet eros imperdiet, aliquet velit eget, finibus augue. Donec at
-                                rhoncus ligula, vitae varius libero. Vivamus at purus consectetur nisl dignissim
-                                blandit.</p>
-                            <p>Ut vel tincidunt nunc, ac placerat ex. Donec magna nibh, sagittis sit amet efficitur sed,
-                                tristique non enim. Ut vehicula, mi ac lobortis lacinia, est velit mollis magna, ac
-                                facilisis mauris massa ac eros. Vestibulum sit amet eros imperdiet, aliquet velit eget,
-                                finibus augue. Donec at rhoncus ligula, vitae varius libero. Vivamus at purus
-                                consectetur nisl dignissim blandit. Ut vel tincidunt nunc, ac placerat ex. Donec magna
-                                nibh, sagittis sit amet efficitur sed, tristique non enim. Ut vehicula, mi ac lobortis
-                                lacinia, est velit mollis magna, ac facilisis mauris massa ac eros. Vestibulum sit amet
-                                eros imperdiet, aliquet velit eget, finibus augue. Donec at rhoncus ligula, vitae varius
-                                libero. Vivamus at purus consectetur nisl dignissim blandit.</p>
-                        </div>
-                        <div class="col-lg-6">
-                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis volutpat tellus non nibh
-                                tristique semper. Proin vel pulvinar turpis. Aliquam a eros sem. Ut vel tincidunt nunc,
-                                ac placerat ex. Donec magna nibh, sagittis sit amet efficitur sed, tristique non enim.
-                                Ut vehicula, mi ac lobortis lacinia, est velit mollis magna, ac facilisis mauris massa
-                                ac eros. Vestibulum sit amet eros imperdiet, aliquet velit eget, finibus augue. Donec at
-                                rhoncus ligula, vitae varius libero. Vivamus at purus consectetur nisl dignissim
-                                blandit.</p>
-                            <p>Ut vel tincidunt nunc, ac placerat ex. Donec magna nibh, sagittis sit amet efficitur sed,
-                                tristique non enim. Ut vehicula, mi ac lobortis lacinia, est velit mollis magna, ac
-                                facilisis mauris massa ac eros. Vestibulum sit amet eros imperdiet, aliquet velit eget,
-                                finibus augue. Donec at rhoncus ligula, vitae varius libero. Vivamus at purus
-                                consectetur nisl dignissim blandit. Ut vel tincidunt nunc, ac placerat ex. Donec magna
-                                nibh, sagittis sit amet efficitur sed, tristique non enim. Ut vehicula, mi ac lobortis
-                                lacinia, est velit mollis magna, ac facilisis mauris massa ac eros. Vestibulum sit amet
-                                eros imperdiet, aliquet velit eget, finibus augue. Donec at rhoncus ligula, vitae varius
-                                libero. Vivamus at purus consectetur nisl dignissim blandit.</p>
-                        </div>
-                        <div class="col-lg-6"><img class="w-100 rounded" src="./images/news-6.jpg" alt=""></div>
-                    </div>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis volutpat tellus non nibh tristique
-                        semper. Proin vel pulvinar turpis. Aliquam a eros sem. Ut vel tincidunt nunc, ac placerat ex.
-                        Donec magna nibh, sagittis sit amet efficitur sed, tristique non enim. Ut vehicula, mi ac
-                        lobortis lacinia, est velit mollis magna, ac facilisis mauris massa ac eros. Vestibulum sit amet
-                        eros imperdiet, aliquet velit eget, finibus augue. Donec at rhoncus ligula, vitae varius libero.
-                        Vivamus at purus consectetur nisl dignissim blandit.</p>
-                    <p>Ut vel tincidunt nunc, ac placerat ex. Donec magna nibh, sagittis sit amet efficitur sed,
-                        tristique non enim. Ut vehicula, mi ac lobortis lacinia, est velit mollis magna, ac facilisis
-                        mauris massa ac eros. Vestibulum sit amet eros imperdiet, aliquet velit eget, finibus augue.
-                        Donec at rhoncus ligula, vitae varius libero. Vivamus at purus consectetur nisl dignissim
-                        blandit. Ut vel tincidunt nunc, ac placerat ex. Donec magna nibh, sagittis sit amet efficitur
-                        sed, tristique non enim. Ut vehicula, mi ac lobortis lacinia, est velit mollis magna, ac
-                        facilisis mauris massa ac eros. Vestibulum sit amet eros imperdiet, aliquet velit eget, finibus
-                        augue. Donec at rhoncus ligula, vitae varius libero. Vivamus at purus consectetur nisl dignissim
-                        blandit.</p>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis volutpat tellus non nibh tristique
-                        semper. Proin vel pulvinar turpis. Aliquam a eros sem. Ut vel tincidunt nunc, ac placerat ex.
-                        Donec magna nibh, sagittis sit amet efficitur sed, tristique non enim. Ut vehicula, mi ac
-                        lobortis lacinia, est velit mollis magna, ac facilisis mauris massa ac eros. Vestibulum sit amet
-                        eros imperdiet, aliquet velit eget, finibus augue. Donec at rhoncus ligula, vitae varius libero.
-                        Vivamus at purus consectetur nisl dignissim blandit.</p>
-                    <p>Ut vel tincidunt nunc, ac placerat ex. Donec magna nibh, sagittis sit amet efficitur sed,
-                        tristique non enim. Ut vehicula, mi ac lobortis lacinia, est velit mollis magna, ac facilisis
-                        mauris massa ac eros. Vestibulum sit amet eros imperdiet, aliquet velit eget, finibus augue.
-                        Donec at rhoncus ligula, vitae varius libero. Vivamus at purus consectetur nisl dignissim
-                        blandit. Ut vel tincidunt nunc, ac placerat ex. Donec magna nibh, sagittis sit amet efficitur
-                        sed, tristique non enim. Ut vehicula, mi ac lobortis lacinia, est velit mollis magna, ac
-                        facilisis mauris massa ac eros. Vestibulum sit amet eros imperdiet, aliquet velit eget, finibus
-                        augue. Donec at rhoncus ligula, vitae varius libero. Vivamus at purus consectetur nisl dignissim
-                        blandit.</p>
+                    {!! $post->content !!}
                 </div>
-                <div class="post__footer"><span class="post__time me-4"><i class="fal fa-clock me-2"></i><span>15/04/2024</span></span><span>Tác giả: Admin</span>
+            
+                <div class="post__footer">
+                    <span class="post__time me-4">
+                        <i class="fal fa-clock me-2"></i><span>{{$post->created_at->format('d/m/Y H:i')}}</span>
+                    </span>
                 </div>
             </div>
         </article>
@@ -124,7 +47,7 @@
                     </div>
                     <div class="news-slider__container swiper-container">
                         <div class="swiper-wrapper">
-                            @foreach(range(1,6) as $item)
+                            {{-- @foreach(range(1,6) as $item)
                                 <div class="swiper-slide">
                                     <div class="news"><a class="news__frame" href="{{ route('new_detail') }}"><img
                                                     src="./images/news-1.jpg"
@@ -148,7 +71,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            @endforeach
+                            @endforeach --}}
                         </div>
                     </div>
                 </div>

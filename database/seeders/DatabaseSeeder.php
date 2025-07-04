@@ -2,9 +2,13 @@
 
 namespace Database\Seeders;
 
+use App\Models\IndustrialProject;
+use App\Models\News;
+use App\Models\ProductType;
 use App\Models\ProjectIndustries;
 use App\Models\ProjectType;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
@@ -20,6 +24,8 @@ class DatabaseSeeder extends Seeder
         DB::table('districts')->truncate();
         DB::table('project_industries')->truncate();
         DB::table('project_types')->truncate();
+        DB::table('product_types')->truncate();
+        DB::table('industrial_projects')->truncate();
 
         // --- SEED LOẠI DỰ ÁN ---
         $types = [
@@ -47,6 +53,18 @@ class DatabaseSeeder extends Seeder
 
         foreach ($industries as $industry) {
             ProjectIndustries::factory()->create(['name' => $industry]);
+        }
+
+        $product_types = [
+            1 => "Đất công nghiệp",
+            2 => "Nhà xưởng",
+            3 => "Kho",
+            4 => "Đất dịch vụ",
+            5 => "Dịch vụ khác"
+        ];
+
+        foreach ($product_types as $type) {
+            ProductType::factory()->create(['name' => $type]);
         }
 
         // --- ĐỌC DỮ LIỆU JSON ---
@@ -94,6 +112,20 @@ class DatabaseSeeder extends Seeder
                     'updated_at' => now(),
                 ]);
             }
+        }
+        $jsonPath = database_path('seeders/data/industrial_projects.json');
+        $data = json_decode(File::get($jsonPath), true);
+    
+        // Ghi vào DB
+        foreach ($data as $item) {
+            IndustrialProject::create($item);
+        }
+
+        $newsPath = database_path('seeders/data/news.json');
+        $newsData = json_decode(File::get($newsPath), true);
+
+        foreach ($newsData as $newsItem) {
+           News::create($newsItem);
         }
     }
 }

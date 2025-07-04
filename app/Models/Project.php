@@ -34,4 +34,9 @@ class Project extends Model
     {
         return $this->belongsToMany(District::class, 'project_district');
     }
+
+    public function industrialProjects()
+    {
+        return $this->hasMany(IndustrialProject::class);
+    }
 }

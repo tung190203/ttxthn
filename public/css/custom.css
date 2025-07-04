@@ -60,18 +60,24 @@
 .custom_tabs {
   margin: 0 auto;
   max-width: 1000px;
-  transform: translateY(calc(100% - 105px));
+  transform: translateY(calc(100% - 132px));
 }
 
 @media (max-width: 1199px) {
   .custom_tabs {
-    transform: translateY(calc(100% - 131px));
+    transform: translateY(calc(100% - 158px));
+  }
+  .custom-text-footer {
+    font-size: 12px !important;
   }
 }
 @media (max-width: 425px) {
   .custom-btn {
     width: 140px !important;
     max-width: unset;
+    font-size: 10px !important;
+  }
+  .custom-text-footer {
     font-size: 10px !important;
   }
   .custom_tabs {
@@ -146,6 +152,101 @@
 .position-custom {
   position: relative;
   z-index: -1;
+}
+
+#filterResultModal .modal-content {
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+#filterResultModal .modal-header {
+  background-color: #D15A2A;
+  border-bottom: 1px solid #dee2e6;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  color: #ffffff;
+  padding: 1rem 1.5rem;
+}
+#filterResultModal .modal-header .modal-title {
+  font-weight: 600;
+  font-size: 1.25rem;
+}
+#filterResultModal .modal-body {
+  background-color: #ffffff;
+  padding: 20px;
+}
+#filterResultModal .modal-body .list-group {
+  margin: 0;
+  padding: 0;
+}
+#filterResultModal .modal-body .list-group .list-group-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 10px;
+  margin-bottom: 8px;
+  background-color: #f6f8fa;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+#filterResultModal .modal-body .list-group .list-group-item:hover {
+  background-color: #e9ecef;
+}
+#filterResultModal .modal-body .list-group .list-group-item a.btn {
+  border-radius: 6px;
+  font-size: 0.875rem;
+  padding: 6px 12px;
+}
+#filterResultModal .modal-body .list-group .list-group-item .custom-btn {
+  color: #fff;
+  background-color: #D15A2A;
+  border: 1px solid #D15A2A;
+}
+#filterResultModal .modal-body .list-group .list-group-item .custom-btn:hover {
+  background-color: #fff;
+  color: #D15A2A;
+  border: 1px solid #D15A2A;
+}
+#filterResultModal .modal-body .pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+#filterResultModal .modal-body .pagination .page-item {
+  margin: 0 5px;
+}
+#filterResultModal .modal-body .pagination .page-item .page-link {
+  color: #D15A2A;
+  border: 1px solid #D15A2A;
+  border-radius: 6px;
+}
+#filterResultModal .modal-body .pagination .page-item .page-link:hover {
+  background-color: #D15A2A;
+  color: #fff;
+}
+#filterResultModal .modal-body .pagination .page-item.active .page-link {
+  background-color: #D15A2A;
+  color: #fff;
+  border: 1px solid #D15A2A;
+}
+
+.custom-desc {
+  font-size: 16px;
+  line-height: 1.5;
+  max-height: 3em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.custom-btn-vrtour {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 /*# sourceMappingURL=custom.css.map */
