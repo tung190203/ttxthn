@@ -9,9 +9,9 @@ use App\Http\Controllers\SlugController;
 use App\Http\Controllers\AjaxController;
 use Illuminate\Support\Facades\Route;
 
-// require __DIR__ . '/auth.php';
-// require __DIR__ . '/backend.php';
-// require __DIR__ . '/member.php';
+require __DIR__ . '/auth.php';
+require __DIR__ . '/backend.php';
+require __DIR__ . '/member.php';
 
 Route::localized(function () {
     Route::group(['prefix' => 'ajax'], function () {
