@@ -91,32 +91,50 @@
                     </div>
                     <div class="col-lg-9">
                         <div class="row g-20">
-                            @foreach(range(1,12) as $item)
+                            {{-- @foreach(range(1,12) as $item) --}}
                                 <div class="col-6 col-md-4 col-lg-6 col-xl-4">
                                     <div class="project">
                                         <a class="project__frame" href="{{ route('project_detail') }}">
                                             <img src="./images/project-1.jpg" alt=""/></a>
                                         <div class="project__body">
-                                            <h3 class="project__title"><a href="{{ route('project_detail') }}">Dự án Khu
-                                                    công nghệ cao Láng - Hoà
-                                                    Lạc</a></h3>
+                                            <h3 class="project__title"><a href="{{ route('project_detail') }}">Dự án đầu tư xây dựng cầu Trần Hưng Đạo</a></h3>
                                             <div class="project__overlay"><span>Dự án mới</span><a class="project__like"
                                                                                                    href="#!"><i
                                                             class="fal fa-fw fa-lg fa-heart"></i></a></div>
                                             <ul class="project__info">
-                                                <li><img class="me-2" src="./images/icon-map-marker.svg" alt=""/><span>Donec venenatis fringilla augue at ...</span>
+                                                <li><img class="me-2" src="./images/icon-map-marker.svg" alt=""/><span>Dự án nằm trên địa bàn các quận Hoàn Kiếm (phường Phan Chu Trinh, Chương Dương Độ), quận Hai Bà Trưng (phường Bạch Đằng) và quận Long Biên (phường Long Biên, Bồ Đề), thành phố Hà Nội</span>
                                                 </li>
                                                 <li><img class="me-2" src="./images/icon-dimension.svg"
-                                                         alt=""/><span>120 ha</span></li>
+                                                         alt=""/><span>75,5 ha</span></li>
                                                 <li><img class="me-2" src="./images/icon-save-money.svg" alt=""/><span>Theo đề xuất</span>
                                                 </li>
                                             </ul>
                                         </div>
                                     </div>
                                 </div>
-                            @endforeach
+                                <div class="col-6 col-md-4 col-lg-6 col-xl-4">
+                                    <div class="project">
+                                        <a class="project__frame" href="{{ route('project_detail_cn2') }}">
+                                            <img src="./images/design-1_cn2.jpg" alt=""/></a>
+                                        <div class="project__body">
+                                            <h3 class="project__title"><a href="{{ route('project_detail') }}">Dự án Cụm công nghiệp CN2</a></h3>
+                                            <div class="project__overlay"><span>Dự án mới</span><a class="project__like"
+                                                                                                   href="#!"><i
+                                                            class="fal fa-fw fa-lg fa-heart"></i></a></div>
+                                            <ul class="project__info">
+                                                <li><img class="me-2" src="./images/icon-map-marker.svg" alt=""/><span>Xã Mai Đình, huyện Sóc Sơn, TP. Hà Nội</span>
+                                                </li>
+                                                <li><img class="me-2" src="./images/icon-dimension.svg"
+                                                         alt=""/><span>50,5 ha</span></li>
+                                                <li><img class="me-2" src="./images/icon-save-money.svg" alt=""/><span>Theo đề xuất</span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            {{-- @endforeach --}}
                         </div>
-                        <nav class="d-flex justify-content-center mt-40 mt-lg-50">
+                        {{-- <nav class="d-flex justify-content-center mt-40 mt-lg-50">
                             <ul class="pagination">
                                 <li class="page-item disabled"><a class="page-link" href="#!"><i
                                                 class="fal fa-angle-left"></i></a></li>
@@ -128,7 +146,7 @@
                                 <li class="page-item"><a class="page-link" href="#!"><i class="fal fa-angle-right"></i></a>
                                 </li>
                             </ul>
-                        </nav>
+                        </nav> --}}
                     </div>
                 </div>
             </div>

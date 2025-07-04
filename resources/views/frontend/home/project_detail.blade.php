@@ -141,7 +141,7 @@
                 </div>
             </div>
             <div class="ratio ratio-2x1">
-                <iframe src="https://momento360.com/e/u/a9b53aa8f8b0403ba7a4e18243aabc66"></iframe>
+                <iframe src="https://momento360.com/e/u/eea7eddb80274947824d87036567169c"></iframe>
             </div>
             <div class="container">
                 <h2 class="section__title text-white">Sa bàn ảo</h2>
@@ -459,6 +459,15 @@
             $('.project-nav__list a').removeClass('active');
             $(this).addClass('active');
         });
+        });
+        $(document).ready(function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const hide = urlParams.get("hide");
+
+            if (hide === "saban") {
+            const sabanEl = $("#sa-ban-ao");
+            if (sabanEl.length) sabanEl.hide();
+            }
         });
     </script>
 @endpush
