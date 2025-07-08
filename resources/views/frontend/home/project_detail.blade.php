@@ -73,8 +73,7 @@
                         <li><strong>Hình thức lựa chọn nhà đầu tư</strong>: Đấu thầu rộng rãi trong nước để lựa chọn nhà
                             đầu tư thực hiện các dự án
                         </li>
-                        <li><strong>Hình thức đầu tư</strong>: Hình thức PPP, loại hợp đồng BOT</li>
-                        <li><strong>Đơn vị đề xuất</strong>: Công ty Cổ phần Him Lam</li>
+                        <li><strong>Hình thức đầu tư</strong>: Hình thức đầu tư công</li>
                         <li><strong>Tọa độ</strong>: 21.054458467615497, 105.85733473128039 (liên kết)</li>
                     </ul>
                 </div>

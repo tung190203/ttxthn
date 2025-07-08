@@ -19,25 +19,31 @@
         <section class="section">
             <div class="container">
                 <div class="row g-3 g-sm-4">
-                    @foreach ($list_post_potential as $item)
-                        <div class="col-6 col-lg-4">
-                            <div class="news"><a class="news__frame"
-                                    href="{{ route('new_detail', ['id' => $item->id]) }}"><img
-                                        src="./images/news/potential-{{ $loop->iteration }}.jpg" alt="" /></a>
-                                <div class="news__body">
-                                    <div class="news__info">
-                                        <div class="news__time"><i
-                                                class="fal fa-clock me-2"></i><span>{{ $item->created_at->format('d/m/Y H:i') }}</span>
+                    @if ($list_post_potential->isEmpty())
+                        <div class="col-12">
+                            <p class="text-center fs-2">Chưa có dự án tiềm năng</p>
+                        </div>
+                    @else
+                        @foreach ($list_post_potential as $item)
+                            <div class="col-6 col-lg-4">
+                                <div class="news"><a class="news__frame"
+                                        href="{{ route('new_detail', ['id' => $item->id]) }}"><img
+                                            src="./images/news/potential-{{ $loop->iteration }}.jpg" alt="" /></a>
+                                    <div class="news__body">
+                                        <div class="news__info">
+                                            <div class="news__time"><i
+                                                    class="fal fa-clock me-2"></i><span>{{ $item->created_at->format('d/m/Y H:i') }}</span>
+                                            </div>
+                                            <div class="news__like"><i class="fal fa-fw fa-heart"></i></div>
                                         </div>
-                                        <div class="news__like"><i class="fal fa-fw fa-heart"></i></div>
+                                        <h3 class="news__title"><a
+                                                href="{{ route('new_detail', ['id' => $item->id]) }}">{{ $item->name }}</a></h3>
+                                        <div class="news__desc">{{ $item->description }}</div>
                                     </div>
-                                    <h3 class="news__title"><a
-                                            href="{{ route('new_detail', ['id' => $item->id]) }}">{{ $item->name }}</a></h3>
-                                    <div class="news__desc">{{ $item->description }}</div>
                                 </div>
                             </div>
-                        </div>
-                    @endforeach
+                        @endforeach
+                    @endif
                 </div>
                 {{-- <nav class="d-flex justify-content-center mt-40 mt-xl-60">
                     <ul class="pagination">
