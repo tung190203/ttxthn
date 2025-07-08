@@ -20,30 +20,40 @@ class MapController extends Controller
             'tab' => 'required|in:project,industrial',
         ]);
 
+        $hasFilters = $request->filled('search') ||
+            ($request->filled('project_id') && $request->project_id !== 'all') ||
+            ($request->filled('product_type') && $request->product_type !== 'all') ||
+            ($request->has('price') && (int)$request->price > 0) ||
+            ($request->filled('type') && $request->type !== 'all') ||
+            ($request->filled('industry') && $request->industry !== 'all') ||
+            $request->filled('district');
+
         if ($request->tab === 'project') {
-            $query = Project::with(['type', 'industry', 'districts'])
-                ->inBounds($request->minLat, $request->maxLat, $request->minLng, $request->maxLng)
-                ->filterByRequest($request);
+            $query = Project::with(['type', 'industry', 'districts']);
+
+            if (!$hasFilters) {
+                $query->inBounds($request->minLat, $request->maxLat, $request->minLng, $request->maxLng);
+            }
+
+            $query->filterByRequest($request);
         } else {
-            $query = Project::with(['type', 'industry', 'districts'])
-                ->when(
-                    $request->filled('district'),
-                    fn($q) =>
-                    $q->whereHas(
-                        'districts',
-                        fn($q2) =>
-                        $q2->where('name', $request->district)
-                    )
-                );
-
-            $hasFilters = $request->filled('search') ||
-                ($request->filled('project_id') && $request->project_id !== 'all') ||
-                ($request->filled('product_type') && $request->product_type !== 'all') ||
-                ($request->has('price') && (int)$request->price > 0);
-
-            if ($hasFilters) {
+            if (!$hasFilters) {
+                $query = Project::with(['type', 'industry', 'districts', 'industrialProjects']);
+            } else {
                 $projectIds = IndustrialProject::filterProjectIds($request);
-                $query->whereIn('id', $projectIds);
+
+                if ($projectIds->isEmpty()) {
+                    return response()->json([]);
+                }
+
+                $query = Project::with([
+                    'type',
+                    'industry',
+                    'districts',
+                    'industrialProjects' => fn($q) => $q->filterByRequest($request)
+                ])
+                    ->whereIn('id', $projectIds)
+                    ->whereHas('industrialProjects', fn($q) => $q->filterByRequest($request));
             }
         }
 

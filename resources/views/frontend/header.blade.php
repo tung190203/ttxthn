@@ -43,7 +43,7 @@
                                             <li class="menu-item">
                                                 <a class="menu-link" href="project-detail_cn2.html">Cụm công nghiệp CN2</a>
                                             </li>
-                                            <li class="menu-item">
+                                            {{-- <li class="menu-item">
                                                 <a class="menu-link" href="#!">Dropdown</a>
                                             </li>
                                             <li class="menu-item menu-item-group">
@@ -57,7 +57,7 @@
                                                     <li class="menu-item"><a class="menu-link" href="#!">Dropdown</a>
                                                     </li>
                                                 </ul>
-                                            </li>
+                                            </li> --}}
                                         </ul>
                                     </li>
                                     <li class="menu-item"><a

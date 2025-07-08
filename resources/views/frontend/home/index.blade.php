@@ -67,7 +67,7 @@
                     <button onclick="resetMap()" class="pj-search__btn" style="max-width: 150px; margin-top: 10px;">
                         <i class="fas fa-redo-alt"></i> Reset Map
                     </button>
-                    
+
                 </div>
 
                 <!-- FORM: SP KHU CÔNG NGHIỆP -->
@@ -126,7 +126,8 @@
                             </div>
                         </div>
                     </div>
-                    <button onclick="resetMap()" class="pj-search__btn orange-btn" style="max-width: 150px; margin-top: 10px;">
+                    <button onclick="resetMap()" class="pj-search__btn orange-btn"
+                        style="max-width: 150px; margin-top: 10px;">
                         <i class="fas fa-redo-alt"></i> Reset Map
                     </button>
                 </div>
@@ -399,6 +400,8 @@
         });
 
         function resetMap() {
+            resetProjectTab();
+            resetIndustrialTab();
             map.setView(defaultCenter, defaultZoom);
             isMapTriggered = true;
             applyFiltersWithBounds();
@@ -445,13 +448,36 @@
             return marker;
         }
 
-        function loadMarkers(data) {
+        function loadMarkers(data, triggeredBySearch = false) {
             markersLayer.clearLayers();
+
             const filtered = data.filter(loc => loc.lat && loc.lng && Array.isArray(loc.districts) && loc.districts.length >
                 0);
             const markers = filtered.map(loc => createMarker(loc));
+
+            if (markers.length === 0) return;
+
             markersLayer.addLayers(markers);
             map.addLayer(markersLayer);
+            if (!triggeredBySearch) return;
+
+            if (markers.length === 1) {
+                const latLng = markers[0].getLatLng();
+                map.flyTo(latLng, 16); // hoặc 15 tuỳ layout
+            } else {
+                const group = new L.featureGroup(markers);
+                const bounds = group.getBounds();
+
+                if (!map.getBounds().contains(bounds)) {
+                    map.fitBounds(bounds, {
+                        padding: [50, 50],
+                        maxZoom: 16
+                    });
+                } else {
+                    // Nếu đã nằm trong màn hình, chỉ pan nhẹ đến giữa
+                    map.panTo(bounds.getCenter());
+                }
+            }
         }
 
         function drawDistrictBoundary(districtName) {
@@ -478,54 +504,61 @@
         function applyFiltersWithBounds() {
             const triggeredByMap = isMapTriggered;
             isMapTriggered = false;
-            const bounds = map.getBounds();
-            const selectedType = $('#typeFilter').val();
-            const selectedDistrict = $('#projectTabContent').css('display') === 'none' ?
-                $('#districtFilterSp').val() :
-                $('#districtFilter').val();
-            const searchTerm = $('#searchInput').val();
-            const priceRange = $('#priceRange').val();
-            const industryFilter = $('#industryFilter').val();
-            const activeTab = $('#projectTabContent').css('display') === 'none' ? 'industrial' : 'project';
 
-            let params = {
+            const bounds = map.getBounds();
+            const activeTab = $('#projectTabContent').css('display') === 'none' ? 'industrial' : 'project';
+            const selectedDistrict = activeTab === 'industrial' ? $('#districtFilterSp').val() : $('#districtFilter').val();
+            const searchTerm = activeTab === 'industrial' ? $('#searchInputSp').val() : $('#searchInput').val();
+            const priceRange = activeTab === 'industrial' ? $('#priceRangeSp').val() : $('#priceRange').val();
+            const projectId = $('#project_id').val();
+            const productType = $('#product_type').val();
+            const selectedType = $('#typeFilter').val();
+            const industryFilter = $('#industryFilter').val();
+
+            if (activeTab === 'industrial') {
+                const hasFilters = [
+                    selectedDistrict,
+                    searchTerm,
+                    projectId !== "all" ? true : null,
+                    parseInt(priceRange) > 0 ? true : null,
+                    productType !== "all" ? true : null
+                ].some(val => val && val !== "");
+
+                if (!hasFilters && !triggeredByMap) {
+                    return;
+                }
+            }
+
+            const params = {
                 minLat: bounds.getSouth(),
                 maxLat: bounds.getNorth(),
                 minLng: bounds.getWest(),
                 maxLng: bounds.getEast(),
-                tab: activeTab
-            };
-
-            if (activeTab === 'industrial') {
-                Object.assign(params, {
-                    district: $('#districtFilterSp').val(),
-                    search: $('#searchInputSp').val(),
-                    project_id: $('#project_id').val(),
-                    price: $('#priceRangeSp').val(),
-                    product_type: $('#product_type').val()
-                });
-            } else {
-                Object.assign(params, {
+                tab: activeTab,
+                ...(activeTab === 'industrial' ? {
+                    district: selectedDistrict,
+                    search: searchTerm,
+                    project_id: projectId,
+                    price: priceRange,
+                    product_type: productType
+                } : {
                     type: selectedType,
                     district: selectedDistrict,
                     search: searchTerm,
                     price: priceRange,
                     industry: industryFilter
-                });
-            }
+                })
+            };
 
             $.ajax({
                 url: '/map/bounds',
                 method: 'GET',
                 data: params,
                 success: function(data) {
-                    loadMarkers(data);
-
-                    // Rút trích danh sách industrial
+                    loadMarkers(data, !triggeredByMap);
                     const allIndustrial = [];
                     data.forEach(project => {
                         (project.industrial || []).forEach(item => {
-                            console.log(item);
                             allIndustrial.push({
                                 ...item,
                                 project_name: project.name,
@@ -536,20 +569,19 @@
 
                     window.industrialResults = allIndustrial;
                     renderList(1);
+
                     if (activeTab === "industrial" && !triggeredByMap) {
                         $('#filterResultModal').modal('show');
                     }
-                    // Xử lý boundary
+
                     if (selectedDistrict && selectedDistrict !== "all") {
                         if (selectedDistrict !== currentDistrict) {
                             drawDistrictBoundary(selectedDistrict);
                             currentDistrict = selectedDistrict;
                         }
-                    } else {
-                        if (boundaryPolygon) {
-                            map.removeLayer(boundaryPolygon);
-                            boundaryPolygon = null;
-                        }
+                    } else if (boundaryPolygon) {
+                        map.removeLayer(boundaryPolygon);
+                        boundaryPolygon = null;
                         currentDistrict = null;
                     }
                 },
@@ -778,8 +810,7 @@
                 }
             });
         });
-    </script>
-    <script>
+        // Reset các tab
         function resetProjectTab() {
             $('#searchInput').val('');
             $('#districtFilter').val('');
@@ -808,11 +839,11 @@
             $('#industrialTabContent').hide();
 
             if (tab === 'project') {
-                resetIndustrialTab();
+                resetMap();
                 $('#projectTab').addClass('active');
                 $('#projectTabContent').show();
             } else {
-                resetProjectTab();
+                resetMap();
                 $('#industrialTab').addClass('active');
                 $('#industrialTabContent').show();
             }
