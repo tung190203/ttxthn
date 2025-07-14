@@ -175,7 +175,7 @@ class HomeController extends Controller
     {
         $setting = Setting::getAllSetting();
         $banners = Widget::getByPosition('HOME_BANNER');
-        $setting['menu_active'] = 'Giới thiệu tiềm năng';
+        $setting['menu_active'] = 'Cẩm nang đầu tư';
         $list_post_potential = Post::where('cat_id', 24)->get();
 
         return view('frontend.home.introduce_potential',
@@ -194,8 +194,9 @@ class HomeController extends Controller
     
         $setting = Setting::getAllSetting();
         $setting['menu_active'] = 'Tin tức';
+        $list_post_popular = Post::where('cat_id', 2)->get();
     
-        return view('frontend.home.new_detail', compact('setting', 'post'));
+        return view('frontend.home.new_detail', compact('setting', 'post', 'list_post_popular'));
     }    
     public function jobs(Request $request)
     {

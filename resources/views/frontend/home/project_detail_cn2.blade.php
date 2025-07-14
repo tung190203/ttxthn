@@ -153,7 +153,7 @@
                 </div>
             </div>
             <div class="ratio ratio-2x1">
-                <iframe src="https://momento360.com/e/u/600d379d5a514ce9b62319f4af501db1"></iframe>
+                <iframe src="https://momento360.com/e/u/600d379d5a514ce9b62319f4af501db1" frameborder="0" allowfullscreen allow="fullscreen"></iframe>
             </div>
             <div class="container">
                 <h2 class="section__title text-white">Sa bàn ảo</h2>

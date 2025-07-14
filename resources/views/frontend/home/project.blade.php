@@ -32,10 +32,10 @@
                             <div class="mb-4">
                                 <div class="fw-600 text-uppercase mb-2">Loại dự án</div>
                                 <select class="form-select">
-                                    <option>Chọn Huyện/Thị xã/Thành phố</option>
-                                    <option>Chọn Huyện/Thị xã/Thành phố</option>
-                                    <option>Chọn Huyện/Thị xã/Thành phố</option>
-                                    <option>Chọn Huyện/Thị xã/Thành phố</option>
+                                    <option>Toàn bộ</option>
+                                    <option>PPP</option>
+                                    <option>ODA</option>
+                                    <option>Đầu tư công</option>
                                 </select>
                             </div>
                             <div class="mb-4">
@@ -73,12 +73,6 @@
                             </div>
                             <div class="mb-4">
                                 <div class="fw-600 text-uppercase mb-2">Địa điểm</div>
-                                <select class="form-select mb-12">
-                                    <option>Chọn Huyện/Thị xã/Thành phố</option>
-                                    <option>Chọn Huyện/Thị xã/Thành phố</option>
-                                    <option>Chọn Huyện/Thị xã/Thành phố</option>
-                                    <option>Chọn Huyện/Thị xã/Thành phố</option>
-                                </select>
                                 <select class="form-select">
                                     <option>Chọn Phường/Xã/Thị trấn</option>
                                     <option>Chọn Phường/Xã/Thị trấn</option>
@@ -86,7 +80,7 @@
                                     <option>Chọn Phường/Xã/Thị trấn</option>
                                 </select>
                             </div>
-                            <button class="button button--block" type="submit">Áp dụng</button>
+                            <button class="button button--block" type="submit">Tìm kiếm</button>
                         </form>
                     </div>
                     <div class="col-lg-9">
@@ -117,7 +111,7 @@
                                         <a class="project__frame" href="{{ route('project_detail_cn2') }}">
                                             <img src="./images/design-1_cn2.jpg" alt=""/></a>
                                         <div class="project__body">
-                                            <h3 class="project__title"><a href="{{ route('project_detail') }}">Dự án Cụm công nghiệp CN2</a></h3>
+                                            <h3 class="project__title"><a href="{{ route('project_detail_cn2') }}">Dự án Cụm công nghiệp CN2</a></h3>
                                             <div class="project__overlay"><span>Dự án mới</span><a class="project__like"
                                                                                                    href="#!"><i
                                                             class="fal fa-fw fa-lg fa-heart"></i></a></div>

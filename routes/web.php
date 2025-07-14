@@ -26,15 +26,16 @@ Route::localized(function () {
     Route::get('/map/filter', [MapController::class, 'filter']);
     Route::get('/map/bounds', [MapController::class, 'getProjectsInBounds']);
     Route::get('/api/districts', [MapController::class, 'getDistricts'])->name('api_districts');
-    Route::get('/projects.html', [HomeController::class, 'projects'])->name('projects');
-    Route::get('/project-detail.html', [HomeController::class, 'projectDetail'])->name('project_detail');
-    Route::get('/project-detail_cn2.html', [HomeController::class, 'projectDetailCN2'])->name('project_detail_cn2');
+    Route::get('/projects', [HomeController::class, 'projects'])->name('projects');
+    Route::get('/project-detail', [HomeController::class, 'projectDetail'])->name('project_detail');
+    Route::get('/project-detail_cn2', [HomeController::class, 'projectDetailCN2'])->name('project_detail_cn2');
     Route::get('/account.html', [HomeController::class, 'account'])->name('account');
     Route::get('/news', [HomeController::class, 'news'])->name('news');
     Route::get('/introduce-potential', [HomeController::class, 'introducePotential'])->name('introduce_potential');
+    Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
     Route::get('/new-detail', [HomeController::class, 'newDetail'])->name('new_detail');
     Route::get('/sitemap.xml', [HomeController::class, 'siteMap'])->name('site_map');
-    Route::match(['get', 'post'], '/contact.html', [HomeController::class, 'contact'])->name('contact');
+    // Route::match(['get', 'post'], '/contact.html', [HomeController::class, 'contact'])->name('contact');
 
 //    Route::post('/subscriber', [HomeController::class, 'subscriber'])->name('subscriber');
     Route::get('/page/{slug}.html', [HomeController::class, 'page'])->where(['slug' => '[a-z0-9\-]+'])->name('page_content');

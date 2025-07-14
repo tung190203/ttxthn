@@ -385,7 +385,7 @@
 
         const baseLayers = {
             "Bản đồ mặc định": defaults,
-            "Bản đồ đường xá": streets,
+            "Bản đồ giao thông": streets,
             "Bản đồ vệ tinh": satellite,
             "Bản đồ địa hình": topo
         };
@@ -393,10 +393,21 @@
         const defaultCenter = [21.0285, 105.8542];
         const defaultZoom = 12;
 
-        let map = L.map('map', {
-            center: defaultCenter,
-            zoom: defaultZoom,
-            layers: [defaults]
+        // Toạ độ giới hạn vùng Hà Nội (tương đối chính xác)
+        const bounds = L.latLngBounds(
+        [20.8, 105.4], // Góc dưới bên trái (SW)
+        [21.3, 106.0]  // Góc trên bên phải (NE)
+        );
+
+        // Tạo bản đồ và giới hạn vùng
+        const map = L.map('map', {
+        center: defaultCenter,
+        zoom: defaultZoom,
+        layers: [defaults],
+        maxBounds: bounds,           // Giới hạn không cho pan ra khỏi vùng này
+        maxBoundsViscosity: 1.0,     // 1.0 = không bao giờ cho kéo ra ngoài
+        minZoom: 10,                 // Không cho zoom out thấp hơn mức này
+        maxZoom: 18                  // Không cho zoom in quá mức này
         });
 
         function resetMap() {

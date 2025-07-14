@@ -27,14 +27,14 @@
                         <li><i class="fal fa-fw fa-globe me-2"></i>Website: <a
                                 href="https://hotrodoanhnghiep.hanoi.gov.vn"
                                 target="_blank">https://hotrodoanhnghiep.hanoi.gov.vn</a></li>
-                        <li><i class="fal fa-fw fa-phone me-2" style="transform: rotate(-270deg);"></i><a
-                                href="tel:024.37757979">SĐT: (024 ) 23223666</a></li>
+                        <li><i class="fal fa-fw fa-phone me-2" style="transform: rotate(-270deg);"></i>SĐT: <a
+                                href="tel:024.37757979">(024 ) 23223666</a></li>
                     </ul>
                     <div class="footer__content mt-4">
                         <p>Ghi rõ nguồn: <a
-                                href="https://hotrodoanhnghiep.hanoi.gov.vn">“https://hotrodoanhnghiep.hanoi.gov.vn"</a>.
-                            Khi phát
-                            hành lại thông tin từ website này<br />Người chịu trách nhiệm về nội dung: Giám đốc trung
+                                href="https://hotrodoanhnghiep.hanoi.gov.vn">“https://hotrodoanhnghiep.hanoi.gov.vn"</a>
+                            khi phát
+                            hành lại thông tin từ website này<br />Người chịu trách nhiệm về nội dung: Giám đốc Trung
                             tâm</p>
                     </div>
                 </div>

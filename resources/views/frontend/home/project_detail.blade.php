@@ -50,9 +50,7 @@
                     <ul>
                         <li><strong>Tên dự án</strong>: Dự án đầu tư xây dựng cầu Trần Hưng Đạo</li>
                         <li><strong>Ngành/Lĩnh vực</strong>: Giao thông</li>
-                        <li><strong>Địa điểm</strong>: Dự án nằm trên địa bàn các quận Hoàn Kiếm (phường Phan Chu Trinh,
-                            Chương Dương Độ), quận Hai Bà Trưng (phường Bạch Đằng) và quận Long Biên (phường Long Biên,
-                            Bồ Đề), thành phố Hà Nội
+                        <li><strong>Địa điểm</strong>: Dự án nằm trên địa bàn các phường Phan Chu Trinh, Chương Dương Độ, Bạch Đằng, Long Biên, Bồ Đề, thành phố Hà Nội.
                         </li>
                         <li><strong>Diện tích</strong>: 75,5 ha - <strong>Diện tích xây dựng</strong>: 75,5ha - <strong>Mật
                                 độ xây dựng</strong>: ...
@@ -74,6 +72,7 @@
                             đầu tư thực hiện các dự án
                         </li>
                         <li><strong>Hình thức đầu tư</strong>: Hình thức đầu tư công</li>
+                        <li><strong>Chủ đầu tư</strong>: Ban Quản lý dự án đầu tư xây dựng công trình giao thông thành phố Hà Nội</li>
                         <li><strong>Tọa độ</strong>: 21.054458467615497, 105.85733473128039 (liên kết)</li>
                     </ul>
                 </div>
@@ -145,7 +144,7 @@
                 </div>
             </div>
             <div class="ratio ratio-2x1">
-                <iframe src="https://momento360.com/e/u/eea7eddb80274947824d87036567169c"></iframe>
+                <iframe src="https://momento360.com/e/u/eea7eddb80274947824d87036567169c" frameborder="0" allowfullscreen allow="fullscreen"></iframe>
             </div>
             <div class="container">
                 <h2 class="section__title text-white">Sa bàn ảo</h2>

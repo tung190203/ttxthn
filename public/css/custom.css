@@ -247,6 +247,44 @@
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
+  padding: 16px 32px;
+  font-size: 1.25rem;
+  font-weight: bold;
+  border-radius: 12px;
+  background-color: #f39c12;
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  z-index: 1000;
+  white-space: nowrap;
+}
+.custom-btn-vrtour:hover {
+  background-color: #e67e22;
+  transform: translateX(-50%) scale(1.05);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+@media (max-width: 768px) {
+  .custom-btn-vrtour {
+    padding: 12px 24px;
+    font-size: 1rem;
+  }
+}
+@media (max-width: 480px) {
+  .custom-btn-vrtour {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+}
+
+.custom-text-bold {
+  font-weight: bold !important;
+}
+
+.custom-news {
+  max-width: 794px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem 1rem;
 }
 
 /*# sourceMappingURL=custom.css.map */

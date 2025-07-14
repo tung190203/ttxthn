@@ -22,16 +22,6 @@ return [
                     'route' => 'backend_post',
                     'title' => 'Tin tức',
                 ],
-                'store' => [
-                    'icon' => 'fas fa-store',
-                    'route' => 'backend_store',
-                    'title' => 'Store',
-                ],
-                'coupon' => [
-                    'icon' => 'fas fa-tags',
-                    'route' => 'backend_coupon',
-                    'title' => 'Coupon',
-                ],
                 'widget' => [
                     'icon' => 'fas fa-puzzle-piece',
                     'route' => 'backend_widget',
