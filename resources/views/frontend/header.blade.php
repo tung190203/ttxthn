@@ -36,7 +36,7 @@
                                     <li class="menu-item menu-item-group">
                                         <a class="menu-link" href="{{ route('projects') }}">Dự án kêu gọi đầu tư
                                             <span
-                                        class="badge bg-danger ms-2">{{ count($projectSubMenu ?? [1,2]) }}</span>
+                                        class="badge bg-danger ms-2">{{ count($projectSubMenu ?? [1,2,3]) }}</span>
                                         </a>
                                         <span class="menu-toggle"></span>
                                         <ul class="menu menu-sub">
@@ -45,6 +45,9 @@
                                             </li>
                                             <li class="menu-item">
                                                 <a class="menu-link" href="project-detail_cn2">Cụm công nghiệp CN2</a>
+                                            </li>
+                                            <li class="menu-item">
+                                                <a class="menu-link" href="project-detail_tien_duong">Tiên dương</a>
                                             </li>
                                             {{-- <li class="menu-item">
                                                 <a class="menu-link" href="#!">Dropdown</a>

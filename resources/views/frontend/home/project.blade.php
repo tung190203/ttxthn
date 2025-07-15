@@ -126,6 +126,27 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="col-6 col-md-4 col-lg-6 col-xl-4">
+                                    <div class="project">
+                                        <a class="project__frame" href="{{ route('project_detail_tien_duong') }}">
+                                            <img src="./images/tienduong.jpg" alt=""/></a>
+                                        <div class="project__body">
+                                            <h3 class="project__title"><a href="{{ route('project_detail_tien_duong') }}">Dự án đầu tư xây dựng Khu
+                                                nhà ở xã hội Tiên Dương 1</a></h3>
+                                            <div class="project__overlay"><span>Dự án mới</span><a class="project__like"
+                                                                                                   href="#!"><i
+                                                            class="fal fa-fw fa-lg fa-heart"></i></a></div>
+                                            <ul class="project__info">
+                                                <li><img class="me-2" src="./images/icon-map-marker.svg" alt=""/><span>Xã Tiên Dương, huyện Đông Anh, thành phố Hà Nội.</span>
+                                                </li>
+                                                <li><img class="me-2" src="./images/icon-dimension.svg"
+                                                         alt=""/><span>44,5 ha</span></li>
+                                                <li><img class="me-2" src="./images/icon-save-money.svg" alt=""/><span>Theo đề xuất</span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
                             {{-- @endforeach --}}
                         </div>
                         {{-- <nav class="d-flex justify-content-center mt-40 mt-lg-50">

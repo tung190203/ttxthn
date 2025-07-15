@@ -137,6 +137,27 @@ class HomeController extends Controller
             )
         );
     }
+    public function projectDetailTienDuong(Request $request)
+    {
+        $setting = Setting::getAllSetting();
+        $setting['menu_active'] = 'Dự án kêu gọi đầu tư';
+
+        $banners = Widget::getByPosition('HOME_BANNER');
+        $list_post_popular = Post::popular(4)->get();
+        $all_category_coupons = Category::getAllMenuLink(0, Category::CATEGORY_TYPE_COUPON);
+        $all_category_coupons = array_chunk($all_category_coupons, 3);
+        $posts = Post::where('cat_id',2)->get();
+
+        return view('frontend.home.project_detail_tien_duong',
+            compact(
+                'setting',
+                'banners',
+                'list_post_popular',
+                'all_category_coupons',
+                'posts',
+            )
+        );
+    }
 
     public function account(Request $request)
     {
