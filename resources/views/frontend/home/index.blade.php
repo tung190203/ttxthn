@@ -9,7 +9,7 @@
             </div>
         </section>
         <div class="pj-search">
-            <div class="container">
+            <div class="container py-3">
                 <!-- FORM: TÌM KIẾM DỰ ÁN -->
                 <div class="pj-search__body custom_body tab-content active" id="projectTabContent">
                     <div class="pj-search__top">
@@ -64,9 +64,9 @@
                             </div>
                         </div>
                     </div>
-                    <button onclick="resetMap()" class="pj-search__btn" style="max-width: 150px; margin-top: 10px;">
-                        <i class="fas fa-redo-alt"></i> Reset Map
-                    </button>
+                    {{-- <button onclick="resetMap()" class="pj-search__btn" style="max-width: 50px; margin-top: 10px;">
+                        <i class="fas fa-redo-alt"></i>
+                    </button> --}}
 
                 </div>
 
@@ -126,10 +126,10 @@
                             </div>
                         </div>
                     </div>
-                    <button onclick="resetMap()" class="pj-search__btn orange-btn"
-                        style="max-width: 150px; margin-top: 10px;">
-                        <i class="fas fa-redo-alt"></i> Reset Map
-                    </button>
+                    {{-- <button onclick="resetMap()" class="pj-search__btn orange-btn"
+                        style="max-width: 50px; margin-top: 10px;">
+                        <i class="fas fa-redo-alt"></i>
+                    </button> --}}
                 </div>
 
                 <!-- Tabs dưới form -->
@@ -340,13 +340,33 @@
         </section>
         <section class="section section--medium-blue">
             <div class="container">
-                <h2 class="section__title text-white">Đối tác</h2>
+                <h2 class="section__title text-white">Liên kết</h2>
                 <div class="partners">
-                    <div class="partners__item"><img src="./images/partner-1.png" alt=""></div>
-                    <div class="partners__item"><img src="./images/partner-1.png" alt=""></div>
-                    <div class="partners__item"><img src="./images/partner-1.png" alt=""></div>
-                    <div class="partners__item"><img src="./images/partner-1.png" alt=""></div>
-                    <div class="partners__item"><img src="./images/partner-1.png" alt=""></div>
+                    <div class="partners__item">
+                        <a href="https://sotaichinh.hanoi.gov.vn/" target="_blank">
+                            <img src="./images/partner-1.png" alt="">
+                        </a>
+                    </div>
+                    <div class="partners__item">
+                        <a href="https://sotaichinh.hanoi.gov.vn/" target="_blank">
+                            <img src="./images/partner-1.png" alt="">
+                        </a>
+                    </div>
+                    <div class="partners__item">
+                        <a href="https://sotaichinh.hanoi.gov.vn/" target="_blank">
+                            <img src="./images/partner-1.png" alt="">
+                        </a>
+                    </div>
+                    <div class="partners__item">
+                        <a href="https://sotaichinh.hanoi.gov.vn/" target="_blank">
+                            <img src="./images/partner-1.png" alt="">
+                        </a>
+                    </div>
+                    <div class="partners__item">
+                        <a href="https://sotaichinh.hanoi.gov.vn/" target="_blank">
+                            <img src="./images/partner-1.png" alt="">
+                        </a>
+                    </div>
                 </div>
             </div>
         </section>
@@ -377,7 +397,8 @@
 
     <script>
         // Tile layers
-        const defaults = L.tileLayer('https://api.maptiler.com/maps/basic-v2/{z}/{x}/{y}.png?key=HjvBAK2MHmvwf84ZIhtt');
+        const defaults = L.tileLayer('https://api.maptiler.com/maps/outdoor-v2/{z}/{x}/{y}.png?key=HjvBAK2MHmvwf84ZIhtt');
+        // const defaults = L.tileLayer('https://api.maptiler.com/maps/basic-v2/{z}/{x}/{y}.png?key=HjvBAK2MHmvwf84ZIhtt');
         const streets = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
         const satellite = L.tileLayer(
             'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}');
@@ -407,8 +428,37 @@
         maxBounds: bounds,           // Giới hạn không cho pan ra khỏi vùng này
         maxBoundsViscosity: 1.0,     // 1.0 = không bao giờ cho kéo ra ngoài
         minZoom: 10,                 // Không cho zoom out thấp hơn mức này
-        maxZoom: 18                  // Không cho zoom in quá mức này
+        maxZoom: 18,                  // Không cho zoom in quá mức này
+        attributionControl: false
         });
+
+        // Thêm nút reset bản đồ
+        const resetControl = L.control({ position: 'bottomright' });
+
+        resetControl.onAdd = function (map) {
+            const btn = L.DomUtil.create('button', 'leaflet-bar leaflet-control leaflet-control-custom');
+            btn.innerHTML = '<i class="fas fa-redo-alt"></i>';
+            btn.title = 'Reset bản đồ';
+
+            btn.style.backgroundColor = 'white';
+            btn.style.width = '40px';
+            btn.style.height = '40px';
+            btn.style.cursor = 'pointer';
+            btn.style.fontSize = '18px';
+            btn.style.lineHeight = '30px';
+            btn.style.textAlign = 'center';
+            btn.style.margin = '10px'; // Thêm khoảng cách khỏi mép dưới/phải
+
+            L.DomEvent.disableClickPropagation(btn);
+
+            btn.onclick = function () {
+                resetMap();
+            };
+
+            return btn;
+        };
+
+        resetControl.addTo(map);
 
         function resetMap() {
             resetProjectTab();

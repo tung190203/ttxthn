@@ -3,7 +3,7 @@
         <div class="container">
             <div class="header__inner">
                 <a class="header__logo" href="{{ route('home_page') }}">
-                    <img src="./images/logo_sce.png" alt="" />
+                    <img src="./images/logo-new.png" alt=""/>
                 </a>
                 <div class="header__elements">
                     <div class="header__text">CÁC DỰ ÁN THU HÚT ĐẦU TƯ THÀNH PHỐ HÀ NỘI</div>
@@ -19,65 +19,70 @@
                         <div class="navbar__wrapper">
                             <div class="navbar__header">
                                 <a class="navbar__logo" href="./index.html">
-                                    <img src="./images/logo_sce.png" alt="" />
+                                    <img src="./images/logo-new.png" alt=""/>
                                 </a>
                                 <button class="btn-toggle js-navbar-toggle ms-auto"></button>
                             </div>
                             <div class="navbar__body">
                                 <ul class="menu menu-root">
-                                    @foreach ($share['main_menu'] as $main_menu)
-                                        @php
-                                            $isActive =
-                                                ($setting['menu_active'] ?? '') == $main_menu['name'] ||
-                                                (empty($setting['menu_active']) && $main_menu['name'] == 'Trang chủ');
-                                        @endphp
-
-                                        @if (!empty($main_menu['children']))
-                                            <li
-                                                class="menu-item menu-item-group @if ($isActive) active @endif">
-                                                <a class="menu-link d-flex align-items-center justify-content-between"
-                                                    href="{{ $main_menu['href'] }}">
-                                                    <span>{{ $main_menu['name'] }}</span>
-
-                                                    {{-- Hiển thị số lượng nếu là menu Dự án kêu gọi đầu tư --}}
-                                                    @if ($main_menu['name'] == 'Dự án kêu gọi đầu tư')
-                                                        <span
-                                                            class="badge bg-danger ms-2">{{ count($projectSubMenu ?? $main_menu['children']) }}</span>
-                                                    @endif
-                                                </a>
-                                                <span class="menu-toggle"></span>
-                                                <ul class="menu menu-sub">
-                                                    @foreach ($main_menu['children'] as $submenu)
-                                                        <li class="menu-item">
-                                                            <a class="menu-link" href="{{ $submenu['href'] }}">
-                                                                {{ $submenu['name'] }}
-                                                            </a>
-                                                        </li>
-                                                    @endforeach
-                                                </ul>
-                                            </li>
-                                        @else
+                                    <li class="menu-item">
+                                        <a class="menu-link @if(empty($setting['menu_active'])) active @endif"
+                                           href="{{ route('home_page') }}">Trang chủ</a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link @if(($setting['menu_active']??'') == 'Cẩm nang đầu tư' ) active @endif"
+                                           href="{{ route('introduce_potential') }}">Cẩm nang đầu tư</a>
+                                    </li>
+                                    <li class="menu-item menu-item-group">
+                                        <a class="menu-link" href="{{ route('projects') }}">Dự án kêu gọi đầu tư
+                                            <span
+                                        class="badge bg-danger ms-2">{{ count($projectSubMenu ?? [1,2]) }}</span>
+                                        </a>
+                                        <span class="menu-toggle"></span>
+                                        <ul class="menu menu-sub">
                                             <li class="menu-item">
-                                                <a class="menu-link @if ($isActive) active @endif"
-                                                    href="{{ $main_menu['href'] }}">
-                                                    {{ $main_menu['name'] }}
-                                                </a>
+                                                <a class="menu-link" href="project-detail">Cầu Trần Hưng Đạo</a>
                                             </li>
-                                        @endif
-                                    @endforeach
+                                            <li class="menu-item">
+                                                <a class="menu-link" href="project-detail_cn2">Cụm công nghiệp CN2</a>
+                                            </li>
+                                            {{-- <li class="menu-item">
+                                                <a class="menu-link" href="#!">Dropdown</a>
+                                            </li>
+                                            <li class="menu-item menu-item-group">
+                                                <a class="menu-link" href="#!">Dropdown</a>
+                                                <span class="menu-toggle"></span>
+                                                <ul class="menu menu-sub menu-sub-2">
+                                                    <li class="menu-item"><a class="menu-link" href="#!">Dropdown</a>
+                                                    </li>
+                                                    <li class="menu-item"><a class="menu-link" href="#!">Dropdown</a>
+                                                    </li>
+                                                    <li class="menu-item"><a class="menu-link" href="#!">Dropdown</a>
+                                                    </li>
+                                                </ul>
+                                            </li> --}}
+                                        </ul>
+                                    </li>
+                                    <li class="menu-item"><a
+                                                class="menu-link @if(($setting['menu_active']??'') == 'Tin tức' ) active @endif"
+                                                href="{{ route('news') }}">Tin tức</a>
+                                    </li>
+                                    <li class="menu-item"><a
+                                        class="menu-link @if(($setting['menu_active']??'') == 'Liên hệ' ) active @endif"
+                                        href="{{ route('contact') }}">Liên hệ</a>
+                            </li>
                                 </ul>
-
                             </div>
                         </div>
                     </section>
                     <form class="search">
                         <div class="input-group">
-                            <input class="form-control" type="text" placeholder="Tìm kiếm..." size="1" />
+                            <input class="form-control" type="text" placeholder="Tìm kiếm..." size="1"/>
                             <button class="input-group-text"><i class="far fa-search"></i></button>
                         </div>
                     </form>
                     <button class="h-btn d-none d-xl-flex ms-1 js-search-btn" type="button"><i
-                            class="fal fa-fw fa-lg fa-search"></i></button>
+                                class="fal fa-fw fa-lg fa-search"></i></button>
                     <div class="h-dropdown">
                         <div class="h-dropdown__toggle">
                             <button class="h-btn ms-1" type="button"><i class="fal fa-fw fa-lg fa-user"></i></button>
@@ -85,18 +90,21 @@
                         <div class="h-dropdown__menu">
                             <a class="h-dropdown__item" href="{{ route('account') }}">Thông tin cá nhân</a>
                             <a class="h-dropdown__item" href="{{ route('account') }}">Dự án đã lưu</a>
-                            <a class="h-dropdown__item" href="#!" data-bs-toggle="modal"
-                                data-bs-target="#md-sign-in">Đăng nhập</a>
-                        </div>
+                            <a class="h-dropdown__item"
+                               href="#!"
+                               data-bs-toggle="modal"
+                               data-bs-target="#md-sign-in">Đăng nhập</a></div>
                     </div>
                     <div class="h-dropdown ms-2">
                         <div class="h-dropdown__toggle">
-                            <img src="./images/vn.svg" alt="" /><i class="fal fa-fw fa-angle-down ms-1"></i>
-                        </div>
+                            <img src="./images/vn.svg" alt=""/><i
+                                    class="fal fa-fw fa-angle-down ms-1"></i></div>
                         <div class="h-dropdown__menu"><a class="h-dropdown__item" href="#!">
-                                <img src="./images/vn.svg" alt="" /><span>Tiếng Việt</span></a>
+                                <img src="./images/vn.svg"
+                                     alt=""/><span>Tiếng Việt</span></a>
                             <a class="h-dropdown__item" href="#!">
-                                <img src="./images/gb.svg" alt="" /><span>English</span>
+                                <img src="./images/gb.svg"
+                                     alt=""/><span>English</span>
                             </a>
                         </div>
                     </div>

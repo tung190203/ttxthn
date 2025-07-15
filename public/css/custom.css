@@ -60,13 +60,9 @@
 .custom_tabs {
   margin: 0 auto;
   max-width: 1000px;
-  transform: translateY(calc(100% - 132px));
 }
 
 @media (max-width: 1199px) {
-  .custom_tabs {
-    transform: translateY(calc(100% - 158px));
-  }
   .custom-text-footer {
     font-size: 12px !important;
   }
@@ -79,9 +75,6 @@
   }
   .custom-text-footer {
     font-size: 10px !important;
-  }
-  .custom_tabs {
-    transform: translateY(calc(100% - 75px));
   }
 }
 .custom-btn {

@@ -135,6 +135,10 @@
                         <input class="form-control" type="text"/>
                     </div>
                     <div class="md-form__group">
+                        <label class="form-label mb-0">VNeID / Passport</label>
+                        <input class="form-control" type="text"/>
+                    </div>
+                    <div class="md-form__group">
                         <label class="form-label mb-0">Địa chỉ Email</label>
                         <input class="form-control" type="email"/>
                     </div>

@@ -69,7 +69,7 @@
 
 @media (prefers-reduced-motion:no-preference) {
     :root {
-        scroll-behavior: smooth
+        /* scroll-behavior: smooth */
     }
 }
 
@@ -22200,7 +22200,7 @@ a.ratio {
 
 .header__logo img,
 .navbar__logo img {
-    height: 40px;
+    height: 60px;
     -webkit-transition: .2s;
     transition: .2s;
     -o-object-fit: contain;
@@ -22271,8 +22271,7 @@ a.ratio {
 
     .header__logo img,
     .navbar__logo img {
-        width: 97px;
-        height: 66px;
+        height: 105px;
         -o-object-fit: contain;
         object-fit: contain;
         -o-object-position: 50% 50%;
@@ -22411,7 +22410,7 @@ a.ratio {
 
 .header.is-sticky .header__logo img,
 .header.is-sticky .navbar__logo img {
-    height: 36px
+    height: 38px
 }
 
 .footer__inner {
@@ -22756,8 +22755,8 @@ a.ratio {
     padding: 20px;
     margin: 0 auto;
     max-width: 1000px;
-    -webkit-transform: translateY(-50%);
-    transform: translateY(-50%);
+    /* -webkit-transform: translateY(-50%);
+    transform: translateY(-50%); */
     -webkit-box-shadow: 0 1px 10px rgba(0, 0, 0, .2);
     box-shadow: 0 1px 10px rgba(0, 0, 0, .2)
 }
@@ -22834,10 +22833,10 @@ a.ratio {
 }
 
 @media (max-width:575.98px) {
-    .pj-search__body {
+    /* .pj-search__body {
         -webkit-transform: translateY(-40px);
         transform: translateY(-40px)
-    }
+    } */
 
     .pj-search__top {
         grid-template-columns: 1fr 100px

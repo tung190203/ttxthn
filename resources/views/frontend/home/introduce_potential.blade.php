@@ -14,14 +14,36 @@
                 </nav>
             </div>
             <img class="banner__bg" src="./images/banner-news.jpg" alt="" />
-            <div class="banner__title">Giới thiệu tiềm năng</div>
+            <div class="banner__title">Cẩm nang đầu tư</div>
         </article>
-        <section class="section">
+        <section class="section pt-40">
             <div class="container">
-                <div class="row g-3 g-sm-4">
-                    @if ($list_post_potential->isEmpty())
+                <div class="row g-20">
+                    <div class="col-lg-3">
+                        <form class="aside-form" action="#!">
+                            <div class="mb-4">
+                                <div class="input-group">
+                                    <input class="form-control" type="text" placeholder="Tìm kiếm">
+                                    <div class="input-group-text"><i class="fal fa-fw fa-search"></i></div>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <div class="fw-600 text-uppercase mb-2">Bộ lọc</div>
+                                <select class="form-select">
+                                    <option>Toàn bộ</option>
+                                    <option>Giới thiệu tiềm năng</option>
+                                    <option>Chính sách, ưu đãi đầu tư</option>
+                                    <option>Thủ tục, quy trình đầu tư</option>
+                                </select>
+                            </div>
+                            <button class="button button--block" type="submit">Tìm kiếm</button>
+                        </form>
+                    </div>
+                    <div class="col-lg-9">
+                        <div class="row g-20">
+                            @if ($list_post_potential->isEmpty())
                         <div class="col-12">
-                            <p class="text-center fs-2">Chưa có dự án tiềm năng</p>
+                            <p class="text-center fs-2">Chưa có cẩm nang đầu tư</p>
                         </div>
                     @else
                         @foreach ($list_post_potential as $item)
@@ -44,19 +66,22 @@
                             </div>
                         @endforeach
                     @endif
+                        </div>
+                        {{-- <nav class="d-flex justify-content-center mt-40 mt-lg-50">
+                            <ul class="pagination">
+                                <li class="page-item disabled"><a class="page-link" href="#!"><i
+                                                class="fal fa-angle-left"></i></a></li>
+                                <li class="page-item active"><a class="page-link" href="#!">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#!">2</a></li>
+                                <li class="page-item"><a class="page-link" href="#!">3</a></li>
+                                <li class="page-item"><a class="page-link" href="#!">4</a></li>
+                                <li class="page-item"><a class="page-link" href="#!">5</a></li>
+                                <li class="page-item"><a class="page-link" href="#!"><i class="fal fa-angle-right"></i></a>
+                                </li>
+                            </ul>
+                        </nav> --}}
+                    </div>
                 </div>
-                {{-- <nav class="d-flex justify-content-center mt-40 mt-xl-60">
-                    <ul class="pagination">
-                        <li class="page-item disabled"><a class="page-link" href="#!"><i class="fal fa-angle-left"></i></a>
-                        </li>
-                        <li class="page-item active"><a class="page-link" href="#!">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#!">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#!">3</a></li>
-                        <li class="page-item"><a class="page-link" href="#!">4</a></li>
-                        <li class="page-item"><a class="page-link" href="#!">5</a></li>
-                        <li class="page-item"><a class="page-link" href="#!"><i class="fal fa-angle-right"></i></a></li>
-                    </ul>
-                </nav> --}}
             </div>
         </section>
     </div>
