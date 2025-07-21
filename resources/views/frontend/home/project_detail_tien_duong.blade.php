@@ -13,7 +13,7 @@
                     </ol>
                 </div>
             </nav>
-            <img class="pj-banner__bg" src="./images/project_detail_cn2.png" alt="">
+            <img class="pj-banner__bg" src="./images/tienduong.jpg" alt="">
             <div class="pj-banner__wrapper custom-wrapper">
                 <div class="container">
                     <div class="pj-banner__subtitle text-start">Dự án</div>
@@ -92,7 +92,7 @@
                 <h2 class="section__title">Lợi thế nổi bật</h2>
                 <div>
                     <div class="advantage mt-20"><a class="advantage__frame" href="#!"><img
-                        src="./images/advantage-1_cn2.png" alt="" /></a>
+                        src="./images/tienduong.jpg" alt="" /></a>
                 <div class="advantage__body">
                     <div class="advantage__index">1</div>
                     <div class="advantage__index-bg">1</div>
@@ -159,7 +159,7 @@
                     <div class="design-slider__container swiper-container">
                         <div class="swiper-wrapper">
                             <div class="design-slider__slide swiper-slide">
-                                <div class="design-slider__frame"><img src="./images/design-1_cn2.jpg" alt="" />
+                                <div class="design-slider__frame"><img src="./images/tienduong.jpg" alt="" />
                                 </div>
                                 <div class="design-slider__overlay">
                                     <div class="design-slider__content">Ý tưởng phát triển được hình thành trên cơ sở khảo
@@ -170,7 +170,7 @@
                                 </div>
                             </div>
                             <div class="design-slider__slide swiper-slide">
-                                <div class="design-slider__frame"><img src="./images/design-2_cn2.jpg" alt="" />
+                                <div class="design-slider__frame"><img src="./images/tienduong-1.png" alt="" />
                                 </div>
                                 <div class="design-slider__overlay">
                                     <div class="design-slider__content">Ý tưởng "Hà Nội bất tận" lấy cảm hứng từ không
@@ -180,7 +180,7 @@
                                 </div>
                             </div>
                             <div class="design-slider__slide swiper-slide">
-                                <div class="design-slider__frame"><img src="./images/design-3_cn2.jpg" alt="" />
+                                <div class="design-slider__frame"><img src="./images/tienduong-2.png" alt="" />
                                 </div>
                                 <div class="design-slider__overlay">
                                     <div class="design-slider__content">Ý tưởng "Hà Nội bất tận" lấy cảm hứng từ không
@@ -200,7 +200,7 @@
                                 </div>
                             </div>
                             <div class="design-slider__slide swiper-slide">
-                                <div class="design-slider__frame"><img src="./images/design-5_cn2.jpg" alt="" />
+                                <div class="design-slider__frame"><img src="./images/advantage-2_cn2.png" alt="" />
                                 </div>
                                 <div class="design-slider__overlay">
                                     <div class="design-slider__content">Ý tưởng "Hà Nội bất tận" lấy cảm hứng từ không
@@ -218,15 +218,15 @@
                     <div class="design-thumb-slider__container swiper-container">
                         <div class="swiper-wrapper">
                             <div class="swiper-slide">
-                                <div class="design-thumb-slider__frame"><img src="./images/design-1_cn2.jpg"
+                                <div class="design-thumb-slider__frame"><img src="./images/tienduong.jpg"
                                         alt="" /></div>
                             </div>
                             <div class="swiper-slide">
-                                <div class="design-thumb-slider__frame"><img src="./images/design-2_cn2.jpg"
+                                <div class="design-thumb-slider__frame"><img src="./images/tienduong-1.png"
                                         alt="" /></div>
                             </div>
                             <div class="swiper-slide">
-                                <div class="design-thumb-slider__frame"><img src="./images/design-3_cn2.jpg"
+                                <div class="design-thumb-slider__frame"><img src="./images/tienduong-2.png"
                                         alt="" /></div>
                             </div>
                             <div class="swiper-slide">
@@ -234,7 +234,7 @@
                                         alt="" /></div>
                             </div>
                             <div class="swiper-slide">
-                                <div class="design-thumb-slider__frame"><img src="./images/design-5_cn2.jpg"
+                                <div class="design-thumb-slider__frame"><img src="./images/advantage-2_cn2.png"
                                         alt="" /></div>
                             </div>
                         </div>
@@ -245,7 +245,7 @@
         <section class="section section--light-blue" id="phap-ly">
             <div class="container">
                 <h2 class="section__title">Pháp lý</h2>
-                <div class="section__desc">Dưới đây là một số quyết định pháp lý quan trọng liên quan đến cụm dự án CN2
+                <div class="section__desc">Dưới đây là một số quyết định pháp lý quan trọng liên quan đến cụm dự án Khu nhà ở xã hội Tiên Dương 1
                 </div>
                 <div class="legal-grid"><a class="legal" href="#!"><img class="legal__icon"
                             src="./images/icon-pdf.svg" alt="" />
