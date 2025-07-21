@@ -30,8 +30,8 @@
                                            href="{{ route('home_page') }}">Trang chủ</a>
                                     </li>
                                     <li class="menu-item">
-                                        <a class="menu-link @if(($setting['menu_active']??'') == 'Cẩm nang đầu tư' ) active @endif"
-                                           href="{{ route('introduce_potential') }}">Cẩm nang đầu tư</a>
+                                        <a class="menu-link @if(($setting['menu_active']??'') == 'cam-nang-dau-tu' ) active @endif"
+                                           href="{{ route('category',['slug' => 'cam-nang-dau-tu']) }}">Cẩm nang đầu tư</a>
                                     </li>
                                     <li class="menu-item menu-item-group">
                                         <a class="menu-link" href="{{ route('projects') }}">Dự án kêu gọi đầu tư
@@ -67,8 +67,8 @@
                                         </ul>
                                     </li>
                                     <li class="menu-item"><a
-                                                class="menu-link @if(($setting['menu_active']??'') == 'Tin tức' ) active @endif"
-                                                href="{{ route('news') }}">Tin tức</a>
+                                                class="menu-link @if(($setting['menu_active']??'') == 'tin-tuc' ) active @endif"
+                                                href="{{ route('category',['slug'=> 'tin-tuc']) }}">Tin tức</a>
                                     </li>
                                     <li class="menu-item"><a
                                         class="menu-link @if(($setting['menu_active']??'') == 'Liên hệ' ) active @endif"

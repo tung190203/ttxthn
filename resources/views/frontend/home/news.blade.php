@@ -19,36 +19,40 @@
         <section class="section">
             <div class="container">
                 <div class="row g-3 g-sm-4">
-                    @foreach($list_post_popular as $item)
+                    @forelse($posts as $item)
                         <div class="col-6 col-lg-4">
-                            <div class="news"><a class="news__frame" href="{{ route('new_detail',['id'=> $item->id]) }}"><img
-                                            src="./images/news/new-{{$loop->iteration}}.jpg"
-                                            alt=""/></a>
+                            <div class="news">
+                                <a class="news__frame" href="{{ route('post_detail',['id' => $item->id, 'slug' => $item->slug]) }}">
+                                    <img src="{{$item->image}}" alt=""/>
+                                </a>
                                 <div class="news__body">
                                     <div class="news__info">
-                                        <div class="news__time"><i class="fal fa-clock me-2"></i><span>{{$item->created_at->format('d/m/Y H:i')}}</span>
+                                        <div class="news__time">
+                                            <i class="fal fa-clock me-2"></i>
+                                            <span>{{ $item->created_at->format('d/m/Y H:i') }}</span>
                                         </div>
-                                        <div class="news__like"><i class="fal fa-fw fa-heart"></i></div>
+                                        <div class="news__like">
+                                            <i class="fal fa-fw fa-heart"></i>
+                                        </div>
                                     </div>
-                                    <h3 class="news__title custom-desc"><a href="{{ route('new_detail',['id'=> $item->id]) }}">{{$item->name}}</a></h3>
-                                    <div class="news__desc">{{$item->description}}</div>
+                                    <h3 class="news__title custom-desc">
+                                        <a href="{{ route('post_detail',['id' => $item->id, 'slug' => $item->slug]) }}">
+                                            {{ $item->name }}
+                                        </a>
+                                    </h3>
+                                    <div class="news__desc">{{ $item->description }}</div>
                                 </div>
                             </div>
                         </div>
-                    @endforeach
+                    @empty
+                        <div class="col-12 text-center py-5">
+                            <p class="text-muted">Không có tin tức nào để hiển thị.</p>
+                        </div>
+                    @endforelse
                 </div>
-                {{-- <nav class="d-flex justify-content-center mt-40 mt-xl-60">
-                    <ul class="pagination">
-                        <li class="page-item disabled"><a class="page-link" href="#!"><i class="fal fa-angle-left"></i></a>
-                        </li>
-                        <li class="page-item active"><a class="page-link" href="#!">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#!">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#!">3</a></li>
-                        <li class="page-item"><a class="page-link" href="#!">4</a></li>
-                        <li class="page-item"><a class="page-link" href="#!">5</a></li>
-                        <li class="page-item"><a class="page-link" href="#!"><i class="fal fa-angle-right"></i></a></li>
-                    </ul>
-                </nav> --}}
+                <nav class="d-flex justify-content-center mt-40 mt-lg-50" aria-label="Pagination navigation">
+                    {{ $posts->onEachSide(1)->links('pagination::bootstrap-4') }}
+                </nav>
             </div>
         </section>
     </div>

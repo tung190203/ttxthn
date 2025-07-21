@@ -19,14 +19,13 @@ class PostController extends Controller
         $cat_ids = $clsCategory->getAllCatStr($category->id);
         $cat_ids[] = (int)$category->id;
 
-        $paginate = 15;
         $query_post = Post::with('category')
-            ->where('status', 1)
+            ->where('status', Post::STATUS_ACTIVE)
             ->where('language', $language)
             ->whereIn('cat_id', $cat_ids)
             ->orderBy('priority')
             ->orderBy('id', 'desc');
-        $posts = $query_post->paginate($paginate);
+        $posts = $query_post->paginate(Post::POSTS_PER_PAGE);
 
         $children_category = $category->getChildrenCategories();
         $parent_category = $category->getParentCategory();
@@ -35,8 +34,9 @@ class PostController extends Controller
         $setting['meta_title'] = ($category->meta_title) ?: $category->name;
         $setting['meta_keywords'] = ($category->meta_keywords) ?: $setting['meta_keywords'];
         $setting['meta_description'] = ($category->meta_description) ?: $setting['meta_description'];
+        $setting['menu_active'] = $category->slug;
 
-        return view('frontend.post.index',
+        return view('frontend.home.news',
             compact(
                 'category',
                 'posts',
@@ -55,14 +55,13 @@ class PostController extends Controller
 
         $key = $request->get('key');
 
-        $paginate = 8;
         $query_post = Post::with('category')
-            ->where('status', 1)
+            ->where('status', Post::STATUS_ACTIVE)
             ->where('language', $language)
             ->where('name', 'like', '%' . $key . '%')
             ->orderBy('priority')
             ->orderBy('id', 'desc');
-        $posts = $query_post->paginate($paginate);
+        $posts = $query_post->paginate(Post::POSTS_PER_PAGE);
 
         $category->name = 'Kết quả tìm kiếm cho từ khóa "' . $key . '"';
         $children_category = $category->getChildrenCategories();
@@ -87,7 +86,7 @@ class PostController extends Controller
     public function detail(Request $request, $slug, $id)
     {
         /* @var $post Post */
-        $post = Post::where('status', 1)
+        $post = Post::where('status', Post::STATUS_ACTIVE)
             ->where('language', App::getLocale())
             ->where('id', $id)->firstOrFail();
 
@@ -101,12 +100,18 @@ class PostController extends Controller
         $setting['meta_keywords'] = ($post->meta_keywords) ?: $setting['meta_keywords'];
         $setting['meta_description'] = ($post->meta_description) ?: $setting['meta_description'];
         $setting['og_image'] = ($post->image) ?: ($setting['og_image'] ?? '');
+        $list_post_popular = Post::where('status', Post::STATUS_ACTIVE)
+            ->where('language', App::getLocale())
+            ->orderBy('view_num', 'desc')
+            ->take(Post::POSTS_TAKE)
+            ->get();
 
-        return view('frontend.post.detail',
+        return view('frontend.home.new_detail',
             compact(
                 'setting',
                 'post',
                 'category',
+                'list_post_popular'
             )
         );
     }

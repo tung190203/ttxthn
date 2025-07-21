@@ -10,9 +10,9 @@ class Feedback extends Model
     protected $table = 'feedbacks';
     protected $fillable = ['state'];
 
-    const int TYPE_SUBSCRIBER = 0;
-    const int TYPE_BOOKING = 1;
-    const int TYPE_FEEDBACK = 2;
+    const TYPE_SUBSCRIBER = 0;
+    const TYPE_BOOKING = 1;
+    const TYPE_FEEDBACK = 2;
 
     public static function getFeedbackNotSeen()
     {

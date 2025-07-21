@@ -31,20 +31,13 @@ Route::localized(function () {
     Route::get('/project-detail_cn2', [HomeController::class, 'projectDetailCN2'])->name('project_detail_cn2');
     Route::get('/project-detail_tien_duong', [HomeController::class, 'projectDetailTienDuong'])->name('project_detail_tien_duong');
     Route::get('/account.html', [HomeController::class, 'account'])->name('account');
-    Route::get('/news', [HomeController::class, 'news'])->name('news');
-    Route::get('/introduce-potential', [HomeController::class, 'introducePotential'])->name('introduce_potential');
     Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
-    Route::get('/new-detail', [HomeController::class, 'newDetail'])->name('new_detail');
     Route::get('/sitemap.xml', [HomeController::class, 'siteMap'])->name('site_map');
     // Route::match(['get', 'post'], '/contact.html', [HomeController::class, 'contact'])->name('contact');
 
 //    Route::post('/subscriber', [HomeController::class, 'subscriber'])->name('subscriber');
     Route::get('/page/{slug}.html', [HomeController::class, 'page'])->where(['slug' => '[a-z0-9\-]+'])->name('page_content');
 //    Route::post('contact-post', [HomeController::class, 'contactPost'])->name('contact_post');
-
-    Route::get('categories', [CouponController::class, 'categories'])->name('category_coupons');
-    Route::get('stores', [StoreController::class, 'all'])->name('store_all');
-    Route::get('stores/{slug}', [StoreController::class, 'detail'])->where(['slug' => '[a-z0-9\-]+'])->name('store_detail');
 
     Route::get('{slug}-n{id}.html', [PostController::class, 'detail'])->where(['slug' => '[a-z0-9\-]+', 'id' => '[0-9]+'])->name('post_detail');
 

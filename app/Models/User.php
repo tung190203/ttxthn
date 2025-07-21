@@ -47,8 +47,8 @@ class User extends Authenticatable
         ];
     }
 
-    const int ROOT_ADMIN_ID = 1;
-    const array PATTERN_PASSWORD = [
+    const ROOT_ADMIN_ID = 1;
+    const PATTERN_PASSWORD = [
         'PATTERN' => '/^(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).+$/',
         'MESSAGE' => 'Mật khẩu phải lớn hơn 8 ký tự và chứa ít nhất 1 chữ viết hoa, 1 ký tự đặc biệt'
     ];

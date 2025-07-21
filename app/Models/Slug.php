@@ -7,7 +7,7 @@ use Mockery\Exception;
 
 class Slug extends Model
 {
-    const array MODULE = [
+    const MODULE = [
         'CATEGORY' => 'category',
         'POST' => 'post',
         'PAGE' => 'page'

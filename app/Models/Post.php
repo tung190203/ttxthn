@@ -17,10 +17,17 @@ class Post extends Model
 
     protected $dates = ['created_at', 'updated_at', 'deleted_at'];
 
-    const array STATUS_ARRAY = [
-        0 => 'Chưa duyệt',
-        1 => 'Đã duyệt',
-        2 => 'Đã xóa',
+    const POSTS_PER_PAGE = 10;
+    const POSTS_TAKE = 10;
+
+    const STATUS_ACTIVE = 1;
+    const STATUS_INACTIVE = 0;
+    const STATUS_DELETED = 2;
+
+    const STATUS_ARRAY = [
+        self::STATUS_ACTIVE => 'Kích hoạt',
+        self::STATUS_INACTIVE => 'Chưa kích hoạt',
+        self::STATUS_DELETED => 'Đã xóa',
     ];
 
     protected static function boot()

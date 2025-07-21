@@ -29,8 +29,6 @@ class HomeController extends Controller
 
         $banners = Widget::getByPosition('HOME_BANNER');
         $list_post_popular = Post::popular(4)->get();
-        $all_category_coupons = Category::getAllMenuLink(0, Category::CATEGORY_TYPE_COUPON);
-        $all_category_coupons = array_chunk($all_category_coupons, 3);
         $rawProjects = Project::with(['type', 'industry', 'districts'])->get();
         $projects = $rawProjects->map([ProjectTransformer::class, 'transform']);
         $types = ProjectType::all()->map(function ($type) {
@@ -63,7 +61,6 @@ class HomeController extends Controller
                 'setting',
                 'banners',
                 'list_post_popular',
-                'all_category_coupons',
                 'projects',
                 'types',
                 'industries',
@@ -77,19 +74,16 @@ class HomeController extends Controller
     public function projects(Request $request)
     {
         $setting = Setting::getAllSetting();
-        $setting['menu_active'] = 'Dự án kêu gọi đầu tư';
+        $setting['menu_active'] = 'du-an-keu-goi-dau-tu';
 
         $banners = Widget::getByPosition('HOME_BANNER');
-        $list_post_popular = Post::popular(4)->get();
-        $all_category_coupons = Category::getAllMenuLink(0, Category::CATEGORY_TYPE_COUPON);
-        $all_category_coupons = array_chunk($all_category_coupons, 3);
+        $list_post_popular = Post::popular(Post::POSTS_TAKE)->get();
 
         return view('frontend.home.project',
             compact(
                 'setting',
                 'banners',
                 'list_post_popular',
-                'all_category_coupons',
             )
         );
     }
@@ -97,20 +91,17 @@ class HomeController extends Controller
     public function projectDetail(Request $request)
     {
         $setting = Setting::getAllSetting();
-        $setting['menu_active'] = 'Dự án kêu gọi đầu tư';
+        $setting['menu_active'] = 'du-an-keu-goi-dau-tu';
 
         $banners = Widget::getByPosition('HOME_BANNER');
-        $list_post_popular = Post::popular(4)->get();
-        $all_category_coupons = Category::getAllMenuLink(0, Category::CATEGORY_TYPE_COUPON);
-        $all_category_coupons = array_chunk($all_category_coupons, 3);
-        $posts = Post::where('cat_id',2)->get();
+        $list_post_popular = Post::popular(Post::POSTS_TAKE)->get();
+        $posts = Post::where('cat_id',Category::CATEGORY_TYPE_POST)->get();
 
         return view('frontend.home.project_detail',
             compact(
                 'setting',
                 'banners',
                 'list_post_popular',
-                'all_category_coupons',
                 'posts',
             )
         );
@@ -119,20 +110,17 @@ class HomeController extends Controller
     public function projectDetailCN2(Request $request)
     {
         $setting = Setting::getAllSetting();
-        $setting['menu_active'] = 'Dự án kêu gọi đầu tư';
+        $setting['menu_active'] = 'du-an-keu-goi-dau-tu';
 
         $banners = Widget::getByPosition('HOME_BANNER');
-        $list_post_popular = Post::popular(4)->get();
-        $all_category_coupons = Category::getAllMenuLink(0, Category::CATEGORY_TYPE_COUPON);
-        $all_category_coupons = array_chunk($all_category_coupons, 3);
-        $posts = Post::where('cat_id',2)->get();
+        $list_post_popular = Post::popular(Post::POSTS_TAKE)->get();
+        $posts = Post::where('cat_id',Category::CATEGORY_TYPE_POST)->get();
 
         return view('frontend.home.project_detail_cn2',
             compact(
                 'setting',
                 'banners',
                 'list_post_popular',
-                'all_category_coupons',
                 'posts',
             )
         );
@@ -140,20 +128,17 @@ class HomeController extends Controller
     public function projectDetailTienDuong(Request $request)
     {
         $setting = Setting::getAllSetting();
-        $setting['menu_active'] = 'Dự án kêu gọi đầu tư';
+        $setting['menu_active'] = 'du-an-keu-goi-dau-tu';
 
         $banners = Widget::getByPosition('HOME_BANNER');
-        $list_post_popular = Post::popular(4)->get();
-        $all_category_coupons = Category::getAllMenuLink(0, Category::CATEGORY_TYPE_COUPON);
-        $all_category_coupons = array_chunk($all_category_coupons, 3);
-        $posts = Post::where('cat_id',2)->get();
+        $list_post_popular = Post::popular(Post::POSTS_TAKE)->get();
+        $posts = Post::where('cat_id',Category::CATEGORY_TYPE_POST)->get();
 
         return view('frontend.home.project_detail_tien_duong',
             compact(
                 'setting',
                 'banners',
                 'list_post_popular',
-                'all_category_coupons',
                 'posts',
             )
         );
@@ -165,28 +150,11 @@ class HomeController extends Controller
 
         $banners = Widget::getByPosition('HOME_BANNER');
         $list_post_popular = Post::popular(4)->get();
-        $all_category_coupons = Category::getAllMenuLink(0, Category::CATEGORY_TYPE_COUPON);
-        $all_category_coupons = array_chunk($all_category_coupons, 3);
 
         return view('frontend.home.account',
             compact(
                 'setting',
                 'banners',
-                'list_post_popular',
-                'all_category_coupons',
-            )
-        );
-    }
-
-    public function news(Request $request)
-    {
-        $setting = Setting::getAllSetting();
-        $setting['menu_active'] = 'Tin tức';
-        $list_post_popular = Post::where('cat_id', 2)->get();
-
-        return view('frontend.home.news',
-            compact(
-                'setting',
                 'list_post_popular',
             )
         );
@@ -196,29 +164,42 @@ class HomeController extends Controller
     {
         $setting = Setting::getAllSetting();
         $banners = Widget::getByPosition('HOME_BANNER');
-        $setting['menu_active'] = 'Cẩm nang đầu tư';
-        $list_post_potential = Post::where('cat_id', 24)->get();
+        $setting['menu_active'] = 'cam-nang-dau-tu';
+        $parentCategory = Category::where('slug', $setting['menu_active'])
+            ->where('type', Category::CATEGORY_TYPE_INVESTMENT_HANDBOOK)
+            ->firstOrFail();
 
+        $subQuery = Category::where('parent_id', $parentCategory->id);
+
+        $subCategories = $subQuery->pluck('id')->toArray();
+
+        $allCatIds = array_merge([$parentCategory->id], $subCategories);
+
+        $selectedCatId = $request->get('cat_id');
+        $catIds = ($selectedCatId && in_array($selectedCatId, $allCatIds)) ? [$selectedCatId] : $allCatIds;
+    
+        $query = Post::whereIn('cat_id', $catIds)
+            ->where('status', Post::STATUS_ACTIVE);
+    
+        if ($request->filled('keyword')) {
+            $query->where('name', 'like', '%' . $request->keyword . '%');
+        }
+    
+        $list_post_potential = $query->latest()->paginate(Post::POSTS_PER_PAGE);
+
+        $childCategories = $subQuery->pluck('name', 'id');
+    
         return view('frontend.home.introduce_potential',
             compact(
                 'banners',
                 'setting',
                 'list_post_potential',
+                'childCategories',
+                'selectedCatId'
             )
         );
     }
 
-    public function newDetail(Request $request)
-    {
-        $id = $request->get('id');
-        $post = Post::findOrFail($id);
-    
-        $setting = Setting::getAllSetting();
-        $setting['menu_active'] = 'Tin tức';
-        $list_post_popular = Post::where('cat_id', 2)->get();
-    
-        return view('frontend.home.new_detail', compact('setting', 'post', 'list_post_popular'));
-    }    
     public function jobs(Request $request)
     {
         $setting = Setting::getAllSetting();

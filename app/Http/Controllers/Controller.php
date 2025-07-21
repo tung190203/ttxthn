@@ -14,7 +14,7 @@ abstract class Controller
     use AuthorizesRequests;
 
     protected string $selectedMainMenu = '';
-    const string MESSAGE_UNAUTHORIZED = 'This action is unauthorized.';
+    const MESSAGE_UNAUTHORIZED = 'This action is unauthorized.';
 
     public function __construct()
     {

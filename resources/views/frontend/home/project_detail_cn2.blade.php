@@ -332,7 +332,7 @@
                             @foreach ($posts as $item)
                                 <div class="swiper-slide">
                                     <div class="news"><a class="news__frame"
-                                            href="{{ route('new_detail', ['id' => $item->id]) }}"><img
+                                            href="{{ route('post_detail',['id' => $item->id, 'slug' => $item->slug]) }}"><img
                                                 src="./images/news/new-{{ $loop->iteration }}.jpg" alt="" /></a>
                                         <div class="news__body">
                                             <div class="news__info">
@@ -342,7 +342,7 @@
                                                 <div class="news__like"><i class="fal fa-fw fa-heart"></i></div>
                                             </div>
                                             <h3 class="news__title  custom-desc"><a
-                                                    href="{{ route('new_detail', ['id' => $item->id]) }}">{{ $item->name }}</a>
+                                                    href="{{ route('post_detail',['id' => $item->id, 'slug' => $item->slug]) }}">{{ $item->name }}</a>
                                             </h3>
                                             <div class="news__desc">{{ $item->description }}</div>
                                         </div>

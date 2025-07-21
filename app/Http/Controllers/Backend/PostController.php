@@ -99,7 +99,7 @@ class PostController extends Controller
             abort(403, self::MESSAGE_UNAUTHORIZED);
         }
 
-        $option_categories = Category::makeListCategory(0, Category::CATEGORY_TYPE_POST, $post->cat_id);
+        $option_categories = Category::makeListCategory(0, '', $post->cat_id);
         return view('backend.post.create', compact('post', 'option_categories'));
     }
 

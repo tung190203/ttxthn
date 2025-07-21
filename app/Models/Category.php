@@ -13,14 +13,14 @@ class Category extends Model
     protected $table = "categories";
     public array $parents = [];
 
-    const int CATEGORY_TYPE_POST = 0;
-    const int CATEGORY_TYPE_COUPON = 1;
+    const CATEGORY_TYPE_POST = 1;
+    const CATEGORY_TYPE_INVESTMENT_HANDBOOK = 2;
 
     protected $fillable = ['slug', 'name', 'type'];
 
-    const array OPTIONS_CATEGORY = [
+    const OPTIONS_CATEGORY = [
         self::CATEGORY_TYPE_POST => 'Danh mục bài viết',
-        self::CATEGORY_TYPE_COUPON => 'Danh mục coupon',
+        self::CATEGORY_TYPE_INVESTMENT_HANDBOOK => 'Danh mục cẩm nang đầu tư'
     ];
 
     protected static function boot()

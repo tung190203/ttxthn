@@ -18,9 +18,9 @@ class SlugController extends Controller
             case Category::CATEGORY_TYPE_POST:
                 $controller = new PostController();
                 return $controller->index($request, $category);
-            case Category::CATEGORY_TYPE_COUPON:
-                $controller = new CouponController();
-                return $controller->index($request, $category);
+            case Category::CATEGORY_TYPE_INVESTMENT_HANDBOOK:
+                $controller = new HomeController();
+                return $controller->introducePotential($request);
             default :
                 return view('errors.404');
         }
