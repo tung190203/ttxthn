@@ -33,51 +33,29 @@
                                 <div class="fw-600 text-uppercase mb-2">Loại dự án</div>
                                 <select class="form-select">
                                     <option>Toàn bộ</option>
-                                    <option>PPP</option>
-                                    <option>ODA</option>
-                                    <option>Đầu tư công</option>
+                                    @foreach ($list_types as $item )
+                                        <option value="{{ $item['id'] }}">{{ $item['name'] }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                             <div class="mb-4">
                                 <div class="fw-600 text-uppercase mb-2">Ngành / Lĩnh vực</div>
-                                <div class="mt-2">
-                                    <label class="checkbox-styled">
-                                        <input class="checkbox-styled__input" type="checkbox" name="checkbox"/><span
-                                                class="checkbox-styled__icon"></span><span>Tất cả</span>
-                                    </label>
-                                </div>
-                                <div class="mt-2">
-                                    <label class="checkbox-styled">
-                                        <input class="checkbox-styled__input" type="checkbox" name="checkbox"/><span
-                                                class="checkbox-styled__icon"></span><span>Cơ sở hạ tầng giao thông</span>
-                                    </label>
-                                </div>
-                                <div class="mt-2">
-                                    <label class="checkbox-styled">
-                                        <input class="checkbox-styled__input" type="checkbox" name="checkbox"/><span
-                                                class="checkbox-styled__icon"></span><span>Bất động sản dân dụng</span>
-                                    </label>
-                                </div>
-                                <div class="mt-2">
-                                    <label class="checkbox-styled">
-                                        <input class="checkbox-styled__input" type="checkbox" name="checkbox"/><span
-                                                class="checkbox-styled__icon"></span><span>Công trình công cộng</span>
-                                    </label>
-                                </div>
-                                <div class="mt-2">
-                                    <label class="checkbox-styled">
-                                        <input class="checkbox-styled__input" type="checkbox" name="checkbox"/><span
-                                                class="checkbox-styled__icon"></span><span>Công trình thương mại</span>
-                                    </label>
-                                </div>
+                                @foreach ($list_industries as $industry)
+                                    <div class="mt-2">
+                                        <label class="checkbox-styled">
+                                            <input class="checkbox-styled__input" type="checkbox" name="industries[]" value="{{ $industry['id'] }}"/><span
+                                                    class="checkbox-styled__icon"></span><span>{{ $industry['name'] }}</span>
+                                        </label>
+                                    </div>
+                                @endforeach
                             </div>
                             <div class="mb-4">
                                 <div class="fw-600 text-uppercase mb-2">Địa điểm</div>
                                 <select class="form-select">
                                     <option>Chọn Phường/Xã/Thị trấn</option>
-                                    <option>Chọn Phường/Xã/Thị trấn</option>
-                                    <option>Chọn Phường/Xã/Thị trấn</option>
-                                    <option>Chọn Phường/Xã/Thị trấn</option>
+                                    @foreach ($list_districts as $item )
+                                        <option value="{{ $item['id'] }}">{{ $item['name'] }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                             <button class="button button--block" type="submit">Tìm kiếm</button>

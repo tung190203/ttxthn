@@ -5,13 +5,13 @@
     "lat": 21.0245,
     "lng": 105.8614,
     "districts": [
-      "Phường Hoàn Kiếm",
+      "Phường Cửa Nam",
       "Phường Hai Bà Trưng",
-      "Phường Long Biên"
+      "Phường Bồ Đề"
     ],
-    "type_number": 1,
-    "type": "Dự án hạ tầng",
-    "industry": "Hạ tầng giao thông",
+    "type_number": 0,
+    "type": "",
+    "industry": "Cầu đường",
     "industry_number": 1,
     "price": null,
     "polygon": [],
@@ -24,15 +24,17 @@
     "lat": 20.9506,
     "lng": 105.8765,
     "districts": [
-      "Phường Ngọc Hồi"
+      "Xã Thanh Trì",
+      "Xã Nam Phù",
+      "Xã Gia Lâm"
     ],
-    "type_number": 1,
-    "type": "Dự án hạ tầng",
-    "industry": "Hạ tầng giao thông",
+    "type_number": 0,
+    "type": "",
+    "industry": "Cầu đường",
     "industry_number": 1,
     "price": null,
     "polygon": [],
-    "link": "https://example.com/project/2",
+    "link": "https://fir-tour2.web.app/cầungọchồivàđườngdẫn02đầucầu/",
     "location_description": ""
   },
   {
@@ -41,18 +43,16 @@
     "lat": 21.0596,
     "lng": 105.9313,
     "districts": [
-      "Phường Phúc Lợi",
-      "Xã Dương Hà",
-      "Xã Đình Xuyên",
-      "Xã Ninh Hiệp"
+      "Phường Việt Hưng",
+      "Xã Phù Đổng"
     ],
-    "type_number": 1,
-    "type": "Dự án hạ tầng",
-    "industry": "Hạ tầng giao thông",
+    "type_number": 0,
+    "type": "",
+    "industry": "Cầu đường",
     "industry_number": 1,
     "price": null,
     "polygon": [],
-    "link": "https://example.com/project/3",
+    "link": "https://fir-tour2.web.app/cầugiangbiênvàđườngnốihaiđầucầu/",
     "location_description": ""
   },
   {
@@ -63,13 +63,13 @@
     "districts": [
       "Phường Thượng Cát"
     ],
-    "type_number": 5,
-    "type": "Loại khác",
-    "industry": "Tàu cảng",
+    "type_number": 2,
+    "type": "NNS",
+    "industry": "Cảng thủy nội địa, cảng cạn",
     "industry_number": 2,
     "price": null,
     "polygon": [],
-    "link": "https://example.com/project/4",
+    "link": "https://fir-tour2.web.app/cảngthượngcát/",
     "location_description": ""
   },
   {
@@ -78,34 +78,30 @@
     "lat": 21.0851,
     "lng": 105.6921,
     "districts": [
-      "Phường Thụy Phương",
-      "Phường Liên Mạc"
+      "Phường Thượng Cát"
     ],
-    "type_number": 5,
-    "type": "Loại khác",
-    "industry": "Tàu cảng",
+    "type_number": 2,
+    "type": "NNS",
+    "industry": "Cảng thủy nội địa, cảng cạn",
     "industry_number": 2,
     "price": null,
     "polygon": [],
-    "link": "https://example.com/project/5",
+    "link": "https://fir-tour2.web.app/cảngchèmliênmạc/",
     "location_description": ""
   },
   {
     "id": 6,
     "name": "Cảng thủy nội địa container Phù Đổng",
-    "lat": 21.0471,
-    "lng": 105.958,
-    "districts": [
-      "Xã Cổ Bi",
-      "Xã Đặng Xá"
-    ],
-    "type_number": 5,
-    "type": "Loại khác",
-    "industry": "Tàu cảng",
+    "lat": null,
+    "lng": null,
+    "districts": [],
+    "type_number": 2,
+    "type": "NNS",
+    "industry": "Cảng thủy nội địa, cảng cạn",
     "industry_number": 2,
-    "price": 10000000,
+    "price": null,
     "polygon": [],
-    "link": "https://example.com/project/6",
+    "link": "https://fir-tour2.web.app/cảngthủynộiđịacontainerphùđổng/",
     "location_description": ""
   },
   {
@@ -114,15 +110,15 @@
     "lat": 21.0124,
     "lng": 105.7716,
     "districts": [
-      "Phường Mễ trì"
+      "Phường Từ Liêm"
     ],
-    "type_number": 4,
-    "type": "Khu phức hợp",
-    "industry": "Môi trường đô thị",
+    "type_number": 1,
+    "type": "PPP",
+    "industry": "Cấp nước, thoát nước, xử lý nước thải, chất thải, công viên cây xanh…",
     "industry_number": 3,
     "price": null,
     "polygon": [],
-    "link": "https://example.com/project/7",
+    "link": "https://fir-tour2.web.app/hệthốngthugom&nhàmáyxlntphúđô/",
     "location_description": ""
   },
   {
@@ -131,18 +127,17 @@
     "lat": 21.0244,
     "lng": 105.91,
     "districts": [
-      "Phường Cự Khối",
-      "Phường Thạch Bàn",
-      "Phường Phúc Đồng",
-      "Phường Việt Hưng"
+      "Phường Phúc Lợi",
+      "Phường Việt Hưng",
+      "Phường Long Biên"
     ],
-    "type_number": 4,
-    "type": "Khu phức hợp",
-    "industry": "Môi trường đô thị",
+    "type_number": 1,
+    "type": "PPP",
+    "industry": "Cấp nước, thoát nước, xử lý nước thải, chất thải, công viên cây xanh…",
     "industry_number": 3,
     "price": null,
     "polygon": [],
-    "link": "https://example.com/project/8",
+    "link": "https://fir-tour2.web.app/hệthốngthugom,nhàmáyxlntanlạc&phúcđồng/",
     "location_description": ""
   },
   {
@@ -151,15 +146,15 @@
     "lat": 21.049,
     "lng": 105.7476,
     "districts": [
-      "Xã Lại Yên"
+      "Xã Sơn Đồng"
     ],
-    "type_number": 4,
-    "type": "Khu phức hợp",
-    "industry": "Môi trường đô thị",
+    "type_number": 1,
+    "type": "PPP",
+    "industry": "Cấp nước, thoát nước, xử lý nước thải, chất thải, công viên cây xanh…",
     "industry_number": 3,
     "price": null,
     "polygon": [],
-    "link": "https://example.com/project/9",
+    "link": "https://fir-tour2.web.app/nhàmáyxlntlạiyêngiaiđoạni/",
     "location_description": ""
   },
   {
@@ -168,15 +163,15 @@
     "lat": 20.9577,
     "lng": 105.8386,
     "districts": [
-      "Xã Đại Áng"
+      "Xã Ngọc Hồi"
     ],
-    "type_number": 4,
-    "type": "Khu phức hợp",
-    "industry": "Môi trường đô thị",
+    "type_number": 1,
+    "type": "PPP",
+    "industry": "Cấp nước, thoát nước, xử lý nước thải, chất thải, công viên cây xanh…",
     "industry_number": 3,
     "price": null,
     "polygon": [],
-    "link": "https://example.com/project/10",
+    "link": "https://fir-tour2.web.app/nhàmáyxlntđạiánggiaiđoạni/",
     "location_description": ""
   },
   {
@@ -185,15 +180,15 @@
     "lat": 21.0895,
     "lng": 105.675,
     "districts": [
-      "Xã Tân Hội"
+      "Xã Ô Diên"
     ],
-    "type_number": 4,
-    "type": "Khu phức hợp",
-    "industry": "Môi trường đô thị",
+    "type_number": 1,
+    "type": "PPP",
+    "industry": "Cấp nước, thoát nước, xử lý nước thải, chất thải, công viên cây xanh…",
     "industry_number": 3,
     "price": null,
     "polygon": [],
-    "link": "https://example.com/project/11",
+    "link": "https://fir-tour2.web.app/nhàmáyxlnttânhộigiaiđoạni/",
     "location_description": ""
   },
   {
@@ -204,15 +199,16 @@
     "districts": [
       "Phường Thượng Cát",
       "Phường Tây Tựu",
-      "Xã Tân Lập"
+      "Xã Hoài Đức",
+      "Xã Ô Diên"
     ],
     "type_number": 2,
-    "type": "Dự án bất động sản",
-    "industry": "Hạ tầng đô thị",
+    "type": "NNS",
+    "industry": "Khu đô thị, Nhà ở",
     "industry_number": 4,
     "price": null,
     "polygon": [],
-    "link": "https://example.com/project/12",
+    "link": "https://fir-tour2.web.app/khuchứcnăngđôthịthượngcát/",
     "location_description": ""
   },
   {
@@ -224,83 +220,72 @@
       "Phường Tây Tựu"
     ],
     "type_number": 2,
-    "type": "Dự án bất động sản",
-    "industry": "Hạ tầng đô thị",
+    "type": "NNS",
+    "industry": "Khu đô thị, Nhà ở",
     "industry_number": 4,
     "price": null,
     "polygon": [],
-    "link": "https://example.com/project/13",
+    "link": "https://fir-tour2.web.app/khunhàởxãhộitạikhuchứcnăngđôthịtâytựu/",
     "location_description": ""
   },
   {
     "id": 14,
     "name": "Khu đô thị mới G3",
-    "lat": 21.154,
-    "lng": 105.791,
-    "districts": [
-      "Xã Kim Chung",
-      "Xã Đại Mạch"
-    ],
+    "lat": null,
+    "lng": null,
+    "districts": [],
     "type_number": 2,
-    "type": "Dự án bất động sản",
-    "industry": "Hạ tầng đô thị",
+    "type": "NNS",
+    "industry": "Khu đô thị, Nhà ở",
     "industry_number": 4,
     "price": null,
     "polygon": [],
-    "link": "https://example.com/project/14",
+    "link": "https://fir-tour2.web.app/khuđôthịmớig3/",
     "location_description": ""
   },
   {
     "id": 15,
     "name": "Khu đô thị mới G13",
-    "lat": 21.137,
-    "lng": 105.855,
-    "districts": [
-      "Xã Mai Lâm",
-      "Xã Đông Hội"
-    ],
+    "lat": null,
+    "lng": null,
+    "districts": [],
     "type_number": 2,
-    "type": "Dự án bất động sản",
-    "industry": "Hạ tầng đô thị",
+    "type": "NNS",
+    "industry": "Khu đô thị, Nhà ở",
     "industry_number": 4,
     "price": null,
     "polygon": [],
-    "link": "https://example.com/project/15",
+    "link": "https://fir-tour2.web.app/khuđôthịmớig13/",
     "location_description": ""
   },
   {
     "id": 16,
     "name": "Khu đô thị mới G8",
-    "lat": 21.154,
-    "lng": 105.791,
-    "districts": [
-      "Xã Kim Nỗ",
-      "Xã Kim Chung"
-    ],
+    "lat": null,
+    "lng": null,
+    "districts": [],
     "type_number": 2,
-    "type": "Dự án bất động sản",
-    "industry": "Hạ tầng đô thị",
+    "type": "NNS",
+    "industry": "Khu đô thị, Nhà ở",
     "industry_number": 4,
     "price": null,
     "polygon": [],
-    "link": "https://example.com/project/16",
+    "link": "https://fir-tour2.web.app/khuđôthịmớig8/",
     "location_description": ""
   },
   {
     "id": 17,
     "name": "Khu đô thị mới G17",
-    "lat": 21.187,
-    "lng": 105.8,
-    "districts": [
-      "Xã Nam Hồng"
-    ],
+    "lat": null,
+    "lng": null,
+    "districts": [],
     "type_number": 2,
-    "type": "Dự án bất động sản",
-    "industry": "Hạ tầng đô thị",
+    "type": "NNS",
+    "industry": "Khu đô thị, Nhà ở",
     "industry_number": 4,
     "price": null,
     "polygon": [],
-    "link": "https://example.com/project/17",
+    "link": "https://fir-tour2.web.app/khuđôthịmớig17/",
     "location_description": ""
   },
   {
@@ -309,15 +294,15 @@
     "lat": 20.954,
     "lng": 105.8,
     "districts": [
-      "Xã Hữu Hòa"
+      "Phường Phú Lương"
     ],
     "type_number": 2,
-    "type": "Dự án bất động sản",
-    "industry": "Hạ tầng đô thị",
+    "type": "NNS",
+    "industry": "Khu đô thị, Nhà ở",
     "industry_number": 4,
     "price": null,
     "polygon": [],
-    "link": "https://example.com/project/18",
+    "link": "https://fir-tour2.web.app/khuđôthịmớihữuhòa/",
     "location_description": ""
   },
   {
@@ -326,15 +311,16 @@
     "lat": 20.949,
     "lng": 105.826,
     "districts": [
-      "Xã Liên Ninh"
+      "Xã Ngọc Hồi",
+      "Xã Nam Phù"
     ],
     "type_number": 2,
-    "type": "Dự án bất động sản",
-    "industry": "Hạ tầng đô thị",
+    "type": "NNS",
+    "industry": "Khu đô thị, Nhà ở",
     "industry_number": 4,
     "price": null,
     "polygon": [],
-    "link": "https://example.com/project/19",
+    "link": "https://fir-tour2.web.app/khuđôthịmớixãliênninh/",
     "location_description": ""
   },
   {
@@ -343,15 +329,15 @@
     "lat": 20.9577,
     "lng": 105.8386,
     "districts": [
-      "Xã Đại Áng"
+      "Xã Ngọc Hồi"
     ],
     "type_number": 2,
-    "type": "Dự án bất động sản",
-    "industry": "Hạ tầng đô thị",
+    "type": "NNS",
+    "industry": "Khu đô thị, Nhà ở",
     "industry_number": 4,
     "price": null,
     "polygon": [],
-    "link": "https://example.com/project/20",
+    "link": "https://fir-tour2.web.app/khuđôthịmớic31/",
     "location_description": ""
   },
   {
@@ -361,15 +347,19 @@
     "lng": 105.73,
     "districts": [
       "Xã Mê Linh",
-      "Xã Văn Khê"
+      "Xã Quang Minh",
+      "Phường Hà Đông",
+      "Xã Ô Diên",
+      "Xã Liên Minh",
+      "Xã Tiến Thắng"
     ],
     "type_number": 2,
-    "type": "Dự án bất động sản",
-    "industry": "Hạ tầng đô thị",
+    "type": "NNS",
+    "industry": "Khu đô thị, Nhà ở",
     "industry_number": 4,
     "price": null,
     "polygon": [],
-    "link": "https://example.com/project/21",
+    "link": "https://fir-tour2.web.app/khuđôthịmớimêlinh/",
     "location_description": ""
   },
   {
@@ -378,16 +368,17 @@
     "lat": 21.17,
     "lng": 105.75,
     "districts": [
-      "Xã Đại Thịnh",
-      "Xã Mê Linh"
+      "Xã Mê Linh",
+      "Xã Tiến Thắng",
+      "Xã Quang Minh"
     ],
     "type_number": 2,
-    "type": "Dự án bất động sản",
-    "industry": "Hạ tầng đô thị",
+    "type": "NNS",
+    "industry": "Khu đô thị, Nhà ở",
     "industry_number": 4,
     "price": null,
     "polygon": [],
-    "link": "https://example.com/project/22",
+    "link": "https://fir-tour2.web.app/khuđôthịđạithịnh/",
     "location_description": ""
   },
   {
@@ -396,17 +387,15 @@
     "lat": 21.097,
     "lng": 105.675,
     "districts": [
-      "Xã Hạ Mỗ",
-      "Xã Tân Hội",
-      "Xã Liên Hà"
+      "Xã Ô Diên"
     ],
     "type_number": 2,
-    "type": "Dự án bất động sản",
-    "industry": "Hạ tầng đô thị",
+    "type": "NNS",
+    "industry": "Khu đô thị, Nhà ở",
     "industry_number": 4,
     "price": null,
     "polygon": [],
-    "link": "https://example.com/project/23",
+    "link": "https://fir-tour2.web.app/khuđôthịmớiđanphượng/",
     "location_description": ""
   },
   {
@@ -415,15 +404,16 @@
     "lat": 21.159,
     "lng": 105.828,
     "districts": [
-      "Xã Tiên Dương"
+      "Xã Đông Anh",
+      "Xã Phúc Thịnh"
     ],
     "type_number": 2,
-    "type": "Dự án bất động sản",
-    "industry": "Hạ tầng đô thị",
+    "type": "NNS",
+    "industry": "Khu đô thị, Nhà ở",
     "industry_number": 4,
     "price": null,
     "polygon": [],
-    "link": "https://example.com/project/24",
+    "link": "https://fir-tour2.web.app/tienduong1/",
     "location_description": ""
   },
   {
@@ -432,15 +422,16 @@
     "lat": 21.161,
     "lng": 105.824,
     "districts": [
-      "Xã Tiên Dương"
+      "Xã Đông Anh",
+      "Xã Phúc Thịnh"
     ],
     "type_number": 2,
-    "type": "Dự án bất động sản",
-    "industry": "Hạ tầng đô thị",
+    "type": "NNS",
+    "industry": "Khu đô thị, Nhà ở",
     "industry_number": 4,
     "price": null,
     "polygon": [],
-    "link": "https://example.com/project/25",
+    "link": "https://fir-tour2.web.app/khunhàởxãhộitiêndương2/",
     "location_description": ""
   },
   {
@@ -449,16 +440,16 @@
     "lat": 21.146,
     "lng": 105.809,
     "districts": [
-      "Xã Đại Mạch",
-      "Xã Tiền Phong"
+      "Xã Thiên Lộc",
+      "Xã Mê Linh"
     ],
     "type_number": 2,
-    "type": "Dự án bất động sản",
-    "industry": "Hạ tầng đô thị",
+    "type": "NNS",
+    "industry": "Khu đô thị, Nhà ở",
     "industry_number": 4,
     "price": null,
     "polygon": [],
-    "link": "https://example.com/project/26",
+    "link": "https://fir-tour2.web.app/khuđôthịmớinhàởxãhộigreenhomecity/",
     "location_description": ""
   },
   {
@@ -467,50 +458,47 @@
     "lat": 21.048,
     "lng": 105.956,
     "districts": [
-      "Xã Cổ Bi"
+      "Xã Phù Đổng",
+      "Xã Gia Lâm",
+      "Phường Phúc Lợi"
     ],
     "type_number": 2,
-    "type": "Dự án bất động sản",
-    "industry": "Hạ tầng đô thị",
+    "type": "NNS",
+    "industry": "Khu đô thị, Nhà ở",
     "industry_number": 4,
     "price": null,
     "polygon": [],
-    "link": "https://example.com/project/27",
+    "link": "https://fir-tour2.web.app/khuđôthịmớinhàởxãhộigreeninnovationcity/",
     "location_description": ""
   },
   {
     "id": 28,
     "name": "Đầu tư xây dựng chợ Trát Cầu",
-    "lat": 20.92,
-    "lng": 105.877,
-    "districts": [
-      "Xã Tiền Phong"
-    ],
-    "type_number": 4,
-    "type": "Khu phức hợp",
-    "industry": "Hạ tầng dịch vụ",
+    "lat": null,
+    "lng": null,
+    "districts": [],
+    "type_number": 3,
+    "type": "Đầu tư kinh doanh",
+    "industry": "Thương mại",
     "industry_number": 5,
     "price": null,
     "polygon": [],
-    "link": "https://example.com/project/28",
+    "link": "https://fir-tour2.web.app/đầutưxâydựngchợtrátcầu/",
     "location_description": ""
   },
   {
     "id": 29,
     "name": "Trung tâm mua sắm Outlet",
-    "lat": 21.186,
-    "lng": 105.805,
-    "districts": [
-      "Xã Vân Nội",
-      "Xã Tiên Dương"
-    ],
-    "type_number": 4,
-    "type": "Khu phức hợp",
-    "industry": "Hạ tầng dịch vụ",
+    "lat": null,
+    "lng": null,
+    "districts": [],
+    "type_number": 3,
+    "type": "Đầu tư kinh doanh",
+    "industry": "Thương mại",
     "industry_number": 5,
     "price": null,
     "polygon": [],
-    "link": "https://example.com/project/29",
+    "link": "https://fir-tour2.web.app/trungtâmmuasắmoutlet/",
     "location_description": ""
   },
   {
@@ -519,16 +507,16 @@
     "lat": 21.22,
     "lng": 105.73,
     "districts": [
-      "Xã Kim Hoa",
-      "Xã Thanh Lâm"
+      "Xã Tiến Thắng",
+      "Xã Quang Minh"
     ],
-    "type_number": 4,
-    "type": "Khu phức hợp",
-    "industry": "Hạ tầng dịch vụ",
+    "type_number": 3,
+    "type": "Đầu tư kinh doanh",
+    "industry": "Thương mại",
     "industry_number": 5,
     "price": null,
     "polygon": [],
-    "link": "https://example.com/project/30",
+    "link": "https://fir-tour2.web.app/chợđầumốinôngsảntổnghợpmêlinh/",
     "location_description": ""
   },
   {
@@ -536,16 +524,14 @@
     "name": "Chợ đầu mối nông sản tổng hợp cấp vùng",
     "lat": 21.086,
     "lng": 105.963,
-    "districts": [
-      "Xã Yên Thường"
-    ],
-    "type_number": 4,
-    "type": "Khu phức hợp",
-    "industry": "Hạ tầng dịch vụ",
+    "districts": [],
+    "type_number": 3,
+    "type": "Đầu tư kinh doanh",
+    "industry": "Thương mại",
     "industry_number": 5,
     "price": null,
     "polygon": [],
-    "link": "https://example.com/project/31",
+    "link": "https://fir-tour2.web.app/chợđầumốinôngsảntổnghợpcấpvùng/",
     "location_description": ""
   },
   {
@@ -554,16 +540,15 @@
     "lat": 21.034,
     "lng": 105.913,
     "districts": [
-      "Phường Phúc Đồng",
       "Phường Việt Hưng"
     ],
-    "type_number": 4,
-    "type": "Khu phức hợp",
-    "industry": "Hạ tầng dịch vụ",
+    "type_number": 3,
+    "type": "Đầu tư kinh doanh",
+    "industry": "Thương mại",
     "industry_number": 5,
     "price": null,
     "polygon": [],
-    "link": "https://example.com/project/32",
+    "link": "https://fir-tour2.web.app/xâydựngcôngtrìnhthươngmạidịchvụ/",
     "location_description": ""
   },
   {
@@ -572,15 +557,16 @@
     "lat": 21.045,
     "lng": 105.879,
     "districts": [
+      "Phường Việt Hưng",
       "Phường Bồ Đề"
     ],
-    "type_number": 4,
-    "type": "Khu phức hợp",
-    "industry": "Hạ tầng dịch vụ",
+    "type_number": 3,
+    "type": "Đầu tư kinh doanh",
+    "industry": "Thương mại",
     "industry_number": 5,
     "price": null,
     "polygon": [],
-    "link": "https://example.com/project/33",
+    "link": "https://fir-tour2.web.app/xâydựngcôngtrìnhcôngcộng,dịchvụvănphòngchothuê/",
     "location_description": ""
   },
   {
@@ -589,35 +575,30 @@
     "lat": 21.032,
     "lng": 105.841,
     "districts": [
-      "Phường Điện Biên"
+      "Phường Văn Miếu - Quốc Tử Giám"
     ],
-    "type_number": 4,
-    "type": "Khu phức hợp",
-    "industry": "Hạ tầng dịch vụ",
+    "type_number": 3,
+    "type": "Đầu tư kinh doanh",
+    "industry": "Thương mại",
     "industry_number": 5,
     "price": null,
     "polygon": [],
-    "link": "https://example.com/project/34",
+    "link": "https://fir-tour2.web.app/kháchsạn5sao/",
     "location_description": ""
   },
   {
     "id": 35,
     "name": "Công viên vui chơi giải trí quốc tế",
-    "lat": 21.013,
-    "lng": 105.93,
-    "districts": [
-      "Phường Cự Khối",
-      "Xã Đông Dư",
-      "Xã Đa Tốn",
-      "Thị trấn Trâu Quỳ"
-    ],
-    "type_number": 4,
-    "type": "Khu phức hợp",
-    "industry": "Hạ tầng dịch vụ",
+    "lat": null,
+    "lng": null,
+    "districts": [],
+    "type_number": 3,
+    "type": "Đầu tư kinh doanh",
+    "industry": "Thương mại",
     "industry_number": 5,
     "price": null,
     "polygon": [],
-    "link": "https://example.com/project/35",
+    "link": "https://fir-tour2.web.app/côngviênvuichơigiảitríquốctế/",
     "location_description": ""
   },
   {
@@ -626,18 +607,15 @@
     "lat": 21.03,
     "lng": 105.53,
     "districts": [
-      "Xã Tân Xã",
-      "Xã Bình Yên",
-      "Xã Hạ Bằng",
-      "Xã Phú Cát"
+      "Xã Hòa Lạc"
     ],
-    "type_number": 4,
-    "type": "Khu phức hợp",
-    "industry": "Công nghệ cao",
-    "industry_number": 6,
+    "type_number": 0,
+    "type": "",
+    "industry": "Thương mại",
+    "industry_number": 5,
     "price": null,
     "polygon": [],
-    "link": "https://example.com/project/36",
+    "link": "https://fir-tour2.web.app/cácdựánđầutưvàokhucôngnghệcaohòalạc/",
     "location_description": ""
   },
   {
@@ -646,12 +624,12 @@
     "lat": 21.239,
     "lng": 105.783,
     "districts": [
-      "Xã Mai Đình"
+      "Xã Sóc Sơn"
     ],
-    "type_number": 3,
-    "type": "Khu công nghiệp",
-    "industry": "Hạ tầng khu công nghiệp",
-    "industry_number": 7,
+    "type_number": 0,
+    "type": "",
+    "industry": "Công nghiệp",
+    "industry_number": 6,
     "price": null,
     "polygon": [],
     "link": "https://fir-tour2.web.app/cn2/",
@@ -663,17 +641,15 @@
     "lat": 21.26,
     "lng": 105.82,
     "districts": [
-      "Xã Minh Trí",
-      "Xã Tân Dân",
-      "Xã Thanh Xuân"
+      "Xã Sóc Sơn"
     ],
-    "type_number": 3,
-    "type": "Khu công nghiệp",
-    "industry": "Hạ tầng khu công nghiệp",
-    "industry_number": 7,
+    "type_number": 0,
+    "type": "",
+    "industry": "Công nghiệp",
+    "industry_number": 6,
     "price": null,
     "polygon": [],
-    "link": "https://example.com/project/38",
+    "link": "https://fir-tour2.web.app/khucôngnghiệpsạchsócsơn/",
     "location_description": ""
   }
 ]

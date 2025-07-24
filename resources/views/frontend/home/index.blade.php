@@ -252,7 +252,7 @@
                                 <a class="project__frame" href="{{ route('project_detail_cn2') }}">
                                     <img src="./images/design-1_cn2.jpg" alt="" /></a>
                                 <div class="project__body">
-                                    <h3 class="project__title"><a href="{{ route('project_detail') }}">Dự án Cụm công
+                                    <h3 class="project__title"><a href="{{ route('project_detail_cn2') }}">Dự án Cụm công
                                             nghiệp CN2</a></h3>
                                     <div class="project__overlay"><span>Dự án mới</span><a class="project__like"
                                             href="#!"><i class="fal fa-fw fa-lg fa-heart"></i></a></div>
@@ -262,6 +262,30 @@
                                         </li>
                                         <li><img class="me-2" src="./images/icon-dimension.svg"
                                                 alt="" /><span>50,5 ha</span></li>
+                                        <li><img class="me-2" src="./images/icon-save-money.svg"
+                                                alt="" /><span>Theo đề xuất</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4 col-lg-6 col-xl-4">
+                            <div class="project">
+                                <a class="project__frame" href="{{ route('project_detail_tien_duong') }}">
+                                    <img src="./images/tienduong.jpg" alt="" /></a>
+                                <div class="project__body">
+                                    <h3 class="project__title"><a href="{{ route('project_detail_tien_duong') }}">Dự án
+                                            đầu tư xây dựng Khu
+                                            nhà ở xã hội Tiên Dương 1</a></h3>
+                                    <div class="project__overlay"><span>Dự án mới</span><a class="project__like"
+                                            href="#!"><i class="fal fa-fw fa-lg fa-heart"></i></a></div>
+                                    <ul class="project__info">
+                                        <li><img class="me-2" src="./images/icon-map-marker.svg"
+                                                alt="" /><span>Xã Tiên Dương, huyện Đông Anh, thành phố Hà
+                                                Nội.</span>
+                                        </li>
+                                        <li><img class="me-2" src="./images/icon-dimension.svg"
+                                                alt="" /><span>44,5 ha</span></li>
                                         <li><img class="me-2" src="./images/icon-save-money.svg"
                                                 alt="" /><span>Theo đề xuất</span>
                                         </li>
@@ -314,7 +338,7 @@
                             @foreach ($posts as $item)
                                 <div class="swiper-slide">
                                     <div class="news"><a class="news__frame"
-                                            href="{{ route('post_detail',['id' => $item->id, 'slug' => $item->slug]) }}"><img
+                                            href="{{ route('post_detail', ['id' => $item->id, 'slug' => $item->slug]) }}"><img
                                                 src="./images/news/new-{{ $loop->iteration }}.jpg" alt="" /></a>
                                         <div class="news__body">
                                             <div class="news__info">
@@ -324,7 +348,7 @@
                                                 <div class="news__like"><i class="fal fa-fw fa-heart"></i></div>
                                             </div>
                                             <h3 class="news__title  custom-desc"><a
-                                                    href="{{ route('post_detail',['id' => $item->id, 'slug' => $item->slug]) }}">{{ $item->name }}</a>
+                                                    href="{{ route('post_detail', ['id' => $item->id, 'slug' => $item->slug]) }}">{{ $item->name }}</a>
                                             </h3>
                                             <div class="news__desc">{{ $item->description }}</div>
                                         </div>
@@ -344,27 +368,27 @@
                 <div class="partners">
                     <div class="partners__item">
                         <a href="https://sotaichinh.hanoi.gov.vn/" target="_blank">
-                            <img src="./images/partner-1.png" alt="">
+                            <img src="./images/logo_so_tai_chinh.png" alt="">
                         </a>
                     </div>
                     <div class="partners__item">
                         <a href="https://sotaichinh.hanoi.gov.vn/" target="_blank">
-                            <img src="./images/partner-1.png" alt="">
+                            <img src="./images/logo_so_tai_chinh.png" alt="">
                         </a>
                     </div>
                     <div class="partners__item">
                         <a href="https://sotaichinh.hanoi.gov.vn/" target="_blank">
-                            <img src="./images/partner-1.png" alt="">
+                            <img src="./images/logo_so_tai_chinh.png" alt="">
                         </a>
                     </div>
                     <div class="partners__item">
                         <a href="https://sotaichinh.hanoi.gov.vn/" target="_blank">
-                            <img src="./images/partner-1.png" alt="">
+                            <img src="./images/logo_so_tai_chinh.png" alt="">
                         </a>
                     </div>
                     <div class="partners__item">
                         <a href="https://sotaichinh.hanoi.gov.vn/" target="_blank">
-                            <img src="./images/partner-1.png" alt="">
+                            <img src="./images/logo_so_tai_chinh.png" alt="">
                         </a>
                     </div>
                 </div>
@@ -416,26 +440,40 @@
 
         // Toạ độ giới hạn vùng Hà Nội (tương đối chính xác)
         const bounds = L.latLngBounds(
-        [20.8, 105.4], // Góc dưới bên trái (SW)
-        [21.3, 106.0]  // Góc trên bên phải (NE)
+            [20.8, 105.4], // Góc dưới bên trái (SW)
+            [21.3, 106.0] // Góc trên bên phải (NE)
         );
 
         // Tạo bản đồ và giới hạn vùng
         const map = L.map('map', {
-        center: defaultCenter,
-        zoom: defaultZoom,
-        layers: [defaults],
-        maxBounds: bounds,           // Giới hạn không cho pan ra khỏi vùng này
-        maxBoundsViscosity: 1.0,     // 1.0 = không bao giờ cho kéo ra ngoài
-        minZoom: 10,                 // Không cho zoom out thấp hơn mức này
-        maxZoom: 18,                  // Không cho zoom in quá mức này
-        attributionControl: false
+            center: defaultCenter,
+            zoom: defaultZoom,
+            layers: [defaults],
+            maxBounds: bounds, // Giới hạn không cho pan ra khỏi vùng này
+            maxBoundsViscosity: 1.0, // 1.0 = không bao giờ cho kéo ra ngoài
+            minZoom: 10, // Không cho zoom out thấp hơn mức này
+            maxZoom: 18, // Không cho zoom in quá mức này
+            attributionControl: false
+        });
+        const redIcon = new L.Icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
         });
 
-        // Thêm nút reset bản đồ
-        const resetControl = L.control({ position: 'bottomright' });
 
-        resetControl.onAdd = function (map) {
+        // Thêm nút reset bản đồ
+        const resetControl = L.control({
+            position: 'bottomright'
+        });
+        const currentLocation = L.control({
+            position: 'bottomright'
+        });
+
+        resetControl.onAdd = function(map) {
             const btn = L.DomUtil.create('button', 'leaflet-bar leaflet-control leaflet-control-custom');
             btn.innerHTML = '<i class="fas fa-redo-alt"></i>';
             btn.title = 'Reset bản đồ';
@@ -451,7 +489,7 @@
 
             L.DomEvent.disableClickPropagation(btn);
 
-            btn.onclick = function () {
+            btn.onclick = function() {
                 resetMap();
             };
 
@@ -460,9 +498,60 @@
 
         resetControl.addTo(map);
 
+        currentLocation.onAdd = function(map) {
+            const btn = L.DomUtil.create('button', 'leaflet-bar leaflet-control leaflet-control-custom');
+            btn.innerHTML = '<i class="fas fa-crosshairs"></i>';
+            btn.title = 'Vị trí hiện tại';
+
+            btn.style.backgroundColor = 'white';
+            btn.style.width = '40px';
+            btn.style.height = '40px';
+            btn.style.margin = '0px';
+            btn.style.cursor = 'pointer';
+            btn.style.fontSize = '18px';
+            btn.style.lineHeight = '30px';
+            btn.style.textAlign = 'center';
+            btn.style.margin = '10px';
+
+            L.DomEvent.disableClickPropagation(btn);
+
+            btn.onclick = function() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        const latLng = [position.coords.latitude, position.coords.longitude];
+                        map.setView(latLng, 16);
+
+                        if (map._currentLocationMarker) {
+                            map.removeLayer(map._currentLocationMarker);
+                        }
+                        map._currentLocationMarker = L.marker(latLng, {
+                                icon: redIcon
+                            }).addTo(map)
+                            .bindPopup("Vị trí hiện tại")
+                            .openPopup();
+
+                    }, function() {
+                        alert('Không thể lấy vị trí hiện tại.');
+                    });
+                } else {
+                    alert('Trình duyệt không hỗ trợ Geolocation.');
+                }
+            };
+
+
+            return btn;
+        };
+
+        currentLocation.addTo(map);
+
+
         function resetMap() {
             resetProjectTab();
             resetIndustrialTab();
+            if (map._currentLocationMarker) {
+                map.removeLayer(map._currentLocationMarker);
+                map._currentLocationMarker = null;
+            }
             map.setView(defaultCenter, defaultZoom);
             isMapTriggered = true;
             applyFiltersWithBounds();
@@ -479,11 +568,9 @@
 
         function getTypeName(typeNumber) {
             const types = {
-                1: "Dự án hạ tầng",
-                2: "Dự án bất động sản",
-                3: "Khu công nghiệp",
-                4: "Khu phức hợp",
-                5: "Loại khác",
+                1: "PPP",
+                2: "NNS",
+                3: "Đầu tư kinh doanh"
             };
             return types[typeNumber] || "Không rõ";
         }

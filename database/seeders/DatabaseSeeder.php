@@ -27,13 +27,10 @@ class DatabaseSeeder extends Seeder
         DB::table('product_types')->truncate();
         DB::table('industrial_projects')->truncate();
 
-        // --- SEED LOẠI DỰ ÁN ---
         $types = [
-            1 => "Dự án hạ tầng",
-            2 => "Dự án bất động sản",
-            3 => "Khu công nghiệp",
-            4 => "Khu phức hợp",
-            5 => "Loại khác",
+            1 => "PPP",
+            2 => "NNS",
+            3 => "Đầu tư kinh doanh",
         ];
 
         foreach ($types as $type) {
@@ -42,13 +39,18 @@ class DatabaseSeeder extends Seeder
 
         // --- SEED NGÀNH/LĨNH VỰC ---
         $industries = [
-            1 => "Hạ tầng giao thông",
-            2 => "Tàu cảng",
-            3 => "Môi trường đô thị",
-            4 => "Hạ tầng đô thị",
-            5 => "Hạ tầng dịch vụ",
-            6 => "Công nghệ cao",
-            7 => "Hạ tầng khu công nghiệp",
+            1 => "Cầu đường",
+            2 => "Cảng thuỷ nội địa, cảng cạn",
+            3 => "Cấp nước, thoát nước, xử lý nước thải, chất thải, công viên cây xanh…",
+            4 => "Khu đô thị, Nhà ở",
+            5 => "Thương mại",
+            6 => "Công nghiệp",
+            7 => "Đường sắt đô thị",
+            8 => "Du lịch",
+            9 => "Nông nghiệp",
+            10 => "CNTT và chuyển đổi số",
+            11 => "Giáo dục",
+            12 => "Bến xe",
         ];
 
         foreach ($industries as $industry) {
@@ -72,22 +74,19 @@ class DatabaseSeeder extends Seeder
         $projectsData = json_decode($json, true);
 
         // --- LẤY DANH SÁCH QUẬN/HUYỆN DUY NHẤT ---
-        $allDistricts = collect($projectsData)
-            ->pluck('districts')
-            ->flatten()
-            ->unique()
-            ->values();
+        $districtsJson = file_get_contents(database_path('seeders/data/districts_ha_noi.json'));
+        $districtsData = json_decode($districtsJson, true);
 
         $districtIdMap = [];
 
         // --- SEED BẢNG `districts` ---
-        foreach ($allDistricts as $districtName) {
+        foreach ($districtsData as $districtName) {
             $id = DB::table('districts')->insertGetId([
-                'name' => $districtName,
+                'name' => $districtName['name'],
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
-            $districtIdMap[$districtName] = $id;
+            $districtIdMap[$districtName['name']] = $id;
         }
 
         // --- SEED `projects` + bảng trung gian ---
@@ -119,13 +118,6 @@ class DatabaseSeeder extends Seeder
         // Ghi vào DB
         foreach ($data as $item) {
             IndustrialProject::create($item);
-        }
-
-        $newsPath = database_path('seeders/data/news.json');
-        $newsData = json_decode(File::get($newsPath), true);
-
-        foreach ($newsData as $newsItem) {
-           News::create($newsItem);
         }
     }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Libs\Util;
 use App\Libs\Validate;
 use App\Models\Category;
+use App\Models\District;
 use App\Models\Post;
 use App\Models\Feedback;
 use App\Models\Page;
@@ -43,7 +44,7 @@ class HomeController extends Controller
                 'name' => $industry->name,
             ];
         })->toArray();
-        $list_projects = Project::all()->map(function ($project) {
+        $list_projects = Project::where('industry_number', 6)->get()->map(function ($project) {
             return [
                 'id' => $project->id,
                 'name' => $project->name,
@@ -78,12 +79,35 @@ class HomeController extends Controller
 
         $banners = Widget::getByPosition('HOME_BANNER');
         $list_post_popular = Post::popular(Post::POSTS_TAKE)->get();
+        $list_types = ProjectType::all()->map(function ($type) {
+            return [
+                'id' => $type->id,
+                'name' => $type->name,
+            ];
+        })->toArray();
+
+        $list_districts =District::all()->map(function ($district) {
+            return [
+                'id' => $district->id,
+                'name' => $district->name,
+            ];
+        })->toArray();
+
+        $list_industries = ProjectIndustries::all()->map(function ($industry) {
+            return [
+                'id' => $industry->id,
+                'name' => $industry->name,
+            ];
+        })->toArray();
 
         return view('frontend.home.project',
             compact(
                 'setting',
                 'banners',
                 'list_post_popular',
+                'list_districts',
+                'list_types',
+                'list_industries',
             )
         );
     }
@@ -307,8 +331,8 @@ class HomeController extends Controller
         }
 
         //SEO MOZ Cấu hình SEO
-        $setting['meta_title'] = 'お問合せ';
-        $setting['menu_active'] = 'お問合せ';
+        $setting['meta_title'] = 'Liên hệ với chúng tôi';
+        $setting['menu_active'] = 'lien-he';
 
         return view('frontend.home.contact', compact('setting'));
 

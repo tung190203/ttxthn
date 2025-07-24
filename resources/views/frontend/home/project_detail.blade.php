@@ -34,7 +34,7 @@
                     <li><a href="#loi-the-noi-bat">Lợi thế nổi bật</a></li>
                     <li><a href="#sa-ban-ao">Sa bàn ảo</a></li>
                     <li><a href="#thiet-ke-va-mat-bang">Thiết kế & mặt bằng</a></li>
-                    <li><a href="#phap-ly">Pháp lý</a></li>
+                    <li><a href="#phap-ly">Văn bản pháp quy</a></li>
                     <li><a href="#tin-tuc">Tin tức</a></li>
                 </ul>
             </div>
@@ -285,7 +285,7 @@
         </section>
         <section class="section section--light-blue" id="phap-ly">
             <div class="container">
-                <h2 class="section__title">Pháp lý</h2>
+                <h2 class="section__title">Văn bản pháp quy</h2>
                 <div class="section__desc">Dưới đây là một số quyết định pháp lý quan trọng liên quan đến dự án cầu Trần
                     Hưng Đạo
                 </div>

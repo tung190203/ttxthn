@@ -47,7 +47,7 @@
                                                 <a class="menu-link" href="project-detail_cn2">Cụm công nghiệp CN2</a>
                                             </li>
                                             <li class="menu-item">
-                                                <a class="menu-link" href="project-detail_tien_duong">Tiên dương</a>
+                                                <a class="menu-link" href="project-detail_tien_duong">Khu nhà ở xã hội Tiên Dương 1</a>
                                             </li>
                                             {{-- <li class="menu-item">
                                                 <a class="menu-link" href="#!">Dropdown</a>
@@ -71,7 +71,7 @@
                                                 href="{{ route('category',['slug'=> 'tin-tuc']) }}">Tin tức</a>
                                     </li>
                                     <li class="menu-item"><a
-                                        class="menu-link @if(($setting['menu_active']??'') == 'Liên hệ' ) active @endif"
+                                        class="menu-link @if(($setting['menu_active']??'') == 'lien-he' ) active @endif"
                                         href="{{ route('contact') }}">Liên hệ</a>
                             </li>
                                 </ul>

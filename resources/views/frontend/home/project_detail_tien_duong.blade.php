@@ -33,7 +33,7 @@
                     <li><a href="#loi-the-noi-bat">Lợi thế nổi bật</a></li>
                     <li><a href="#sa-ban-ao">Sa bàn ảo</a></li>
                     <li><a href="#thiet-ke-va-mat-bang">Thiết kế & mặt bằng</a></li>
-                    <li><a href="#phap-ly">Pháp lý</a></li>
+                    <li><a href="#phap-ly">Văn bản pháp quy</a></li>
                     <li><a href="#tin-tuc">Tin tức</a></li>
                 </ul>
             </div>
@@ -135,14 +135,14 @@
                 <div class="container">
                     <h2 class="section__title text-white">Sa bàn ảo</h2>
                     <div class="mt-3">
-                        <a href="https://fir-tour2.web.app/cn2/" class="btn btn-warning text-white custom-btn-vrtour" target="_blank" rel="noopener noreferrer">
+                        <a href="https://fir-tour2.web.app/tienduong1/" class="btn btn-warning text-white custom-btn-vrtour" target="_blank" rel="noopener noreferrer">
                             Xem VR Tour
                         </a>
                     </div>
                 </div>
             </div>
             <div class="ratio ratio-2x1">
-                <iframe src="https://momento360.com/e/u/52c80192fe8f4698af6af88234ed673c" frameborder="0" allowfullscreen allow="fullscreen"></iframe>
+                <iframe src="https://momento360.com/e/u/2c3fad90774140b4bff99310cb9a749c" frameborder="0" allowfullscreen allow="fullscreen"></iframe>
             </div>
             <div class="container">
                 <h2 class="section__title text-white">Sa bàn ảo</h2>
@@ -244,7 +244,7 @@
         </section>
         <section class="section section--light-blue" id="phap-ly">
             <div class="container">
-                <h2 class="section__title">Pháp lý</h2>
+                <h2 class="section__title">Văn bản pháp quy</h2>
                 <div class="section__desc">Dưới đây là một số quyết định pháp lý quan trọng liên quan đến cụm dự án Khu nhà ở xã hội Tiên Dương 1
                 </div>
                 <div class="legal-grid"><a class="legal" href="#!"><img class="legal__icon"

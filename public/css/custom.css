@@ -1,3 +1,4 @@
+@charset "UTF-8";
 .pb-10px {
   padding-bottom: 10px;
 }
@@ -278,6 +279,29 @@
   width: 100%;
   margin: 0 auto;
   padding: 2rem 1rem;
+}
+
+.checkbox-styled {
+  display: flex;
+  align-items: center;
+  max-width: 100%; /* hoặc đặt cố định: 300px, 400px tùy layout */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.checkbox-styled__icon {
+  flex-shrink: 0;
+  margin-right: 6px;
+}
+
+.checkbox-styled span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  vertical-align: middle;
+  max-width: 100%;
 }
 
 /*# sourceMappingURL=custom.css.map */
