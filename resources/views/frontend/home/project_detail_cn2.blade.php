@@ -51,7 +51,7 @@
                     <ul>
                         <li><strong>Tên dự án</strong>: Cụm công nghiệp CN2</li>
                         <li><strong>Ngành/Lĩnh vực</strong>: Công nghiệp - Công nghệ cao - Dịch vụ logistics/hàng không</li>
-                        <li><strong>Địa điểm</strong>: Xã Mai Đình, huyện Sóc Sơn, TP. Hà Nội
+                        <li><strong>Địa điểm</strong>: Xã Sóc Sơn, TP. Hà Nội
                         </li>
                         <li><strong>Tổng diện tích</strong>: 50,5 ha
                         </li>
@@ -95,7 +95,7 @@
                             <div class="advantage__index">1</div>
                             <div class="advantage__index-bg">1</div>
                             <div class="advantage__title">Kết nối giao thông</div>
-                            <div class="advantage__desc">
+                            <div class="advantage__desc text-justify">
                                 <p>Cụm công nghiệp CN2 nằm gần sân bay quốc tế Nội Bài (chỉ 5 phút di chuyển), cách trung
                                     tâm Hà Nội 30km và cách cảng Hải Phòng khoảng 120km qua QL5 và cao tốc 5B. Dự án kết nối
                                     thuận tiện với các tuyến giao thông trọng điểm như tỉnh lộ 131, QL3, QL18, cao tốc Nội
@@ -111,7 +111,7 @@
                             <div class="advantage__index">2</div>
                             <div class="advantage__index-bg">2</div>
                             <div class="advantage__title">Thuộc quy hoạch Phân khu đô thị Sóc Sơn</div>
-                            <div class="advantage__desc">
+                            <div class="advantage__desc text-justify">
                                 <p>Quy mô nghiên cứu quy hoạch trên diện tích khoảng 561,31 ha với dân số dự kiến đến năm
                                     2030 là 21.150 người;</p>
 
@@ -128,7 +128,7 @@
                             <div class="advantage__index">3</div>
                             <div class="advantage__index-bg">3</div>
                             <div class="advantage__title">Hạ tầng kỹ thuật và Tiện ích</div>
-                            <div class="advantage__desc">
+                            <div class="advantage__desc text-justify">
                                 <p>Cụm công nghiệp CN2 được đầu tư hạ tầng hiện đại, đồng bộ. Dự án cấp điện từ trạm 110kV
                                     Nội Bài (18.000 kVA), cấp nước từ nguồn thành phố với trạm bơm tăng áp công suất 2.022
                                     m³/ngày.đêm. Hệ thống xử lý nước thải đạt tiêu chuẩn A, công suất 1.250 m³/ngày.đêm.
@@ -333,7 +333,7 @@
                                 <div class="swiper-slide">
                                     <div class="news"><a class="news__frame"
                                             href="{{ route('post_detail',['id' => $item->id, 'slug' => $item->slug]) }}"><img
-                                                src="./images/news/new-{{ $loop->iteration }}.jpg" alt="" /></a>
+                                                src="{{ $item->image }}" alt="" /></a>
                                         <div class="news__body">
                                             <div class="news__info">
                                                 <div class="news__time"><i

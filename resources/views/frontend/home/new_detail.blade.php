@@ -15,8 +15,8 @@
             </nav>
         </div>
         <article class="section post custom-news">
-            <div class="container">
-                <h1 class="section__title fw-700">{{ $post->name }}</h1>
+            <div class="container text-justify">
+                <h1 class="section__title fw-700 text-justify">{{ $post->name }}</h1>
             
                 @if (!empty($post->description))
                     <h2 class="section__subtitle custom-text-bold mb-4" style="font-weight: normal; font-size: 16px;">
@@ -50,7 +50,7 @@
                             @foreach($list_post_popular as $item)
                                 <div class="swiper-slide">
                                     <div class="news"><a class="news__frame" href="{{ route('post_detail',['id' => $item->id, 'slug' => $item->slug]) }}"><img
-                                                    src="./images/news/new-{{$loop->iteration}}.jpg"
+                                                    src="{{ $item->image }}"
                                                     alt=""/></a>
                                         <div class="news__body">
                                             <div class="news__info">

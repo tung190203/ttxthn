@@ -319,7 +319,7 @@
                     <div class="counter__item">
                         <div class="counter__icon"><img src="./images/counter-4.svg" alt="" /></div>
                         <div class="counter__number">20</div>
-                        <div class="counter__title">Tổng số nhà đầu tư</div>
+                        <div class="counter__title">Chủ trương đầu tư</div>
                     </div>
                 </div>
             </div>

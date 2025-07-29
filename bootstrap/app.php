@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\BasePasswordMiddleware;
 use App\Http\Middleware\MemberAuth;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -16,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
 //        $middleware->append(MemberAuth::class);
         $middleware->alias([
             'member_auth' => MemberAuth::class,
+            'base_auth' => BasePasswordMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

@@ -26,6 +26,7 @@
                 </div>
             </div>
         </section>
+        {{-- {{$project}} --}}
         <nav class="project-nav">
             <div class="container">
                 <ul class="project-nav__list">
@@ -50,7 +51,7 @@
                     <ul>
                         <li><strong>Tên dự án</strong>: Dự án đầu tư xây dựng cầu Trần Hưng Đạo</li>
                         <li><strong>Ngành/Lĩnh vực</strong>: Giao thông</li>
-                        <li><strong>Địa điểm</strong>: Dự án nằm trên địa bàn các phường Phan Chu Trinh, Chương Dương Độ, Bạch Đằng, Long Biên, Bồ Đề, thành phố Hà Nội.
+                        <li><strong>Địa điểm</strong>: Dự án nằm trên địa bàn các Phường Cửa Nam, Phường Hai Bà Trưng, Phường Bồ Đề, thành phố Hà Nội.
                         </li>
                         <li><strong>Diện tích</strong>: 75,5 ha - <strong>Diện tích xây dựng</strong>: 75,5ha - <strong>Mật
                                 độ xây dựng</strong>: ...
@@ -93,7 +94,7 @@
                             <div class="advantage__index">1</div>
                             <div class="advantage__index-bg">1</div>
                             <div class="advantage__title">Kết nối giao thông</div>
-                            <div class="advantage__desc">
+                            <div class="advantage__desc text-justify">
                                 <p>Cầu Trần Hưng Đạo sau khi hoàn thành sẽ giúp kết nối các quận Hoàn Kiếm, Hai Bà Trưng
                                     với Long Biên, giảm ùn tắc giao thông và cải thiện hạ tầng giao thông của thành
                                     phố.</p>
@@ -109,7 +110,7 @@
                             <div class="advantage__index">2</div>
                             <div class="advantage__index-bg">2</div>
                             <div class="advantage__title">Biểu tượng văn hoá</div>
-                            <div class="advantage__desc">
+                            <div class="advantage__desc text-justify">
                                 <p>Thiết kế của cầu mang tên “Infinity Hanoi” với hình ảnh những đường cong uốn lượn,
                                     biểu tượng cho sự nhiệt huyết và kết nối giữa lịch sử, hiện tại và tương lai của Hà
                                     Nội.</p>
@@ -122,7 +123,7 @@
                             <div class="advantage__index">3</div>
                             <div class="advantage__index-bg">3</div>
                             <div class="advantage__title">Thúc đẩy du lịch thủ đô</div>
-                            <div class="advantage__desc">
+                            <div class="advantage__desc text-justify">
                                 <p>Với các làn đường dành cho xe đạp và người đi bộ, cầu Trần Hưng Đạo hứa hẹn sẽ trở
                                     thành một điểm đến hấp dẫn cho du khách, tạo điều kiện cho các hoạt động du lịch và
                                     giải trí trong nội đô và ngoại thành Hà Nội</p>
@@ -364,7 +365,7 @@
                                 <div class="swiper-slide">
                                     <div class="news"><a class="news__frame"
                                             href="{{ route('post_detail',['id' => $item->id, 'slug' => $item->slug]) }}"><img
-                                                src="./images/news/new-{{ $loop->iteration }}.jpg" alt="" /></a>
+                                                src="{{ $item->image }}" alt="" /></a>
                                         <div class="news__body">
                                             <div class="news__info">
                                                 <div class="news__time"><i

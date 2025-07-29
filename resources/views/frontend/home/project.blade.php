@@ -74,7 +74,7 @@
                                                                                                    href="#!"><i
                                                             class="fal fa-fw fa-lg fa-heart"></i></a></div>
                                             <ul class="project__info">
-                                                <li><img class="me-2" src="./images/icon-map-marker.svg" alt=""/><span>Dự án nằm trên địa bàn các quận Hoàn Kiếm (phường Phan Chu Trinh, Chương Dương Độ), quận Hai Bà Trưng (phường Bạch Đằng) và quận Long Biên (phường Long Biên, Bồ Đề), thành phố Hà Nội</span>
+                                                <li><img class="me-2" src="./images/icon-map-marker.svg" alt=""/><span>Dự án nằm trên địa bàn Phường Cửa Nam, Phường Hai Bà Trưng, Phường Bồ Đề, thành phố Hà Nội</span>
                                                 </li>
                                                 <li><img class="me-2" src="./images/icon-dimension.svg"
                                                          alt=""/><span>75,5 ha</span></li>
@@ -94,7 +94,7 @@
                                                                                                    href="#!"><i
                                                             class="fal fa-fw fa-lg fa-heart"></i></a></div>
                                             <ul class="project__info">
-                                                <li><img class="me-2" src="./images/icon-map-marker.svg" alt=""/><span>Xã Mai Đình, huyện Sóc Sơn, TP. Hà Nội</span>
+                                                <li><img class="me-2" src="./images/icon-map-marker.svg" alt=""/><span>Xã Sóc Sơn, TP. Hà Nội</span>
                                                 </li>
                                                 <li><img class="me-2" src="./images/icon-dimension.svg"
                                                          alt=""/><span>50,5 ha</span></li>
@@ -115,7 +115,7 @@
                                                                                                    href="#!"><i
                                                             class="fal fa-fw fa-lg fa-heart"></i></a></div>
                                             <ul class="project__info">
-                                                <li><img class="me-2" src="./images/icon-map-marker.svg" alt=""/><span>Xã Tiên Dương, huyện Đông Anh, thành phố Hà Nội.</span>
+                                                <li><img class="me-2" src="./images/icon-map-marker.svg" alt=""/><span>Xã Đông Anh, Xã Phúc Thịnh, thành phố Hà Nội.</span>
                                                 </li>
                                                 <li><img class="me-2" src="./images/icon-dimension.svg"
                                                          alt=""/><span>44,5 ha</span></li>

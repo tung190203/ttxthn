@@ -19,7 +19,7 @@
                     <div class="pj-banner__subtitle text-start">Dự án</div>
                     <div class="pj-banner__title text-start">Khu nhà ở xã hội Tiên Dương 1</div>
                     <div class="d-flex justify-content-end">
-                        <div class="custom_desc">Khu nhà ở xã hội Tiên Dương 1 tọa lạc tại xã Tiên Dương, huyện Đông Anh, Hà Nội, có quy mô khoảng 44,59 ha, được quy hoạch đồng bộ hạ tầng kỹ thuật và xã hội. Dự án nhằm hiện thực hóa mục tiêu xây dựng 1 triệu căn nhà ở xã hội, cung cấp khoảng 3.530 căn hộ chung cư và 99 căn thấp tầng, phục vụ người thu nhập thấp, công nhân khu công nghiệp, góp phần phát triển đô thị và kinh tế khu vực phía Bắc Thủ đô.
+                        <div class="custom_desc">Khu nhà ở xã hội Tiên Dương 1 tọa lạc tại Xã Đông Anh, Xã Phúc Thịnh, Hà Nội, có quy mô khoảng 44,59 ha, được quy hoạch đồng bộ hạ tầng kỹ thuật và xã hội. Dự án nhằm hiện thực hóa mục tiêu xây dựng 1 triệu căn nhà ở xã hội, cung cấp khoảng 3.530 căn hộ chung cư và 99 căn thấp tầng, phục vụ người thu nhập thấp, công nhân khu công nghiệp, góp phần phát triển đô thị và kinh tế khu vực phía Bắc Thủ đô.
                         </div>
                     </div>
                 </div>
@@ -46,7 +46,7 @@
                         <ul>
                             <li><strong>Tên dự án</strong>: Khu nhà ở xã hội Tiên Dương 1</li>
                             <li><strong>Ngành/Lĩnh vực</strong>: Nhà ở xã hội, đô thị, thương mại – dịch vụ</li>
-                            <li><strong>Địa điểm</strong>: Xã Tiên Dương, huyện Đông Anh, Hà Nội</li>
+                            <li><strong>Địa điểm</strong>: Xã Đông Anh, Xã Phúc Thịnh, Hà Nội</li>
                             <li><strong>Tổng diện tích</strong>: 44,59 ha (tương đương 445.886 m², không bao gồm 1.359 m² đất nhà ở hiện có)</li>
                             <li><strong>Quy mô xây dựng</strong>: 
                                 <ul>
@@ -76,7 +76,6 @@
                                     <li>Chi phí bồi thường, giải phóng mặt bằng: khoảng 616,996 tỷ đồng</li>
                                 </ul>
                             </li>
-                            <li><strong>Cơ quan quản lý</strong>: UBND Thành phố Hà Nội, Sở Xây dựng Hà Nội, Sở Kế hoạch và Đầu tư Hà Nội</li>
                         </ul>
                     </div>
                 </div>
@@ -97,8 +96,8 @@
                     <div class="advantage__index">1</div>
                     <div class="advantage__index-bg">1</div>
                     <div class="advantage__title">Vị trí kết nối thuận tiện</div>
-                    <div class="advantage__desc">
-                        <p>Dự án nằm tại xã Tiên Dương, huyện Đông Anh – khu vực đang phát triển mạnh về hạ tầng và đô thị, kết nối dễ dàng với trung tâm Hà Nội qua cầu Nhật Tân và đường Võ Nguyên Giáp. Gần các tuyến giao thông huyết mạch như QL3, cao tốc Nhật Tân – Nội Bài, thuận tiện di chuyển đến sân bay, các khu công nghiệp lớn và trung tâm hành chính mới của Thành phố.</p>
+                    <div class="advantage__desc text-justify">
+                        <p class="text-justify">Dự án nằm tại Xã Đông Anh, Xã Phúc Thịnh – khu vực đang phát triển mạnh về hạ tầng và đô thị, kết nối dễ dàng với trung tâm Hà Nội qua cầu Nhật Tân và đường Võ Nguyên Giáp. Gần các tuyến giao thông huyết mạch như QL3, cao tốc Nhật Tân – Nội Bài, thuận tiện di chuyển đến sân bay, các khu công nghiệp lớn và trung tâm hành chính mới của Thành phố.</p>
                     </div>
                 </div>
             </div>
@@ -109,7 +108,7 @@
             <div class="advantage__index">2</div>
             <div class="advantage__index-bg">2</div>
             <div class="advantage__title">Phù hợp quy hoạch phát triển Thủ đô</div>
-            <div class="advantage__desc">
+            <div class="advantage__desc text-justify">
                 <p>Dự án là một trong những mô hình thí điểm khu nhà ở xã hội tập trung theo Quy hoạch chi tiết tỷ lệ 1/500 đã được UBND Thành phố phê duyệt. Đây là bước cụ thể hóa Đề án phát triển 1 triệu căn nhà ở xã hội giai đoạn 2021–2030, góp phần hoàn thiện mạng lưới đô thị, cải thiện chất lượng sống và đảm bảo an sinh xã hội tại khu vực cửa ngõ phía Bắc Hà Nội.</p>
             </div>
         </div>
@@ -121,7 +120,7 @@
     <div class="advantage__index">3</div>
     <div class="advantage__index-bg">3</div>
     <div class="advantage__title">Hạ tầng đồng bộ, đầy đủ tiện ích</div>
-    <div class="advantage__desc">
+    <div class="advantage__desc text-justify">
         <p>Dự án được quy hoạch đồng bộ với hệ thống giao thông nội bộ, trường học các cấp (mầm non, tiểu học, THCS), công viên cây xanh, trạm xử lý nước thải, bãi đỗ xe, cùng các công trình thương mại – dịch vụ phục vụ cư dân. Sau khi hoàn thành, toàn bộ hạ tầng kỹ thuật sẽ được bàn giao cho thành phố quản lý theo đúng quy định.</p>
     </div>
 </div>
@@ -322,7 +321,7 @@
                                 <div class="swiper-slide">
                                     <div class="news"><a class="news__frame"
                                             href="{{ route('post_detail',['id' => $item->id, 'slug' => $item->slug]) }}"><img
-                                                src="./images/news/new-{{ $loop->iteration }}.jpg" alt="" /></a>
+                                                src="{{ $item->image }}" alt="" /></a>
                                         <div class="news__body">
                                             <div class="news__info">
                                                 <div class="news__time"><i

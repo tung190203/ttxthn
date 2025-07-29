@@ -34,7 +34,7 @@
                                            href="{{ route('category',['slug' => 'cam-nang-dau-tu']) }}">Cẩm nang đầu tư</a>
                                     </li>
                                     <li class="menu-item menu-item-group">
-                                        <a class="menu-link" href="{{ route('projects') }}">Dự án kêu gọi đầu tư
+                                        <a class="menu-link @if(($setting['menu_active']??'') == 'du-an-keu-goi-dau-tu' ) active @endif" href="{{ route('projects') }}">Dự án kêu gọi đầu tư
                                             <span
                                         class="badge bg-danger ms-2">{{ count($projectSubMenu ?? [1,2,3]) }}</span>
                                         </a>
