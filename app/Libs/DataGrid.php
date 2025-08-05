@@ -32,7 +32,7 @@ class DataGrid
         $this->link_edit = $link_edit;
     }
 
-    public function addColumnLabel($col_name, $col_title = '', $attrs = "align='left'", $decode = 1, $format = ''): void
+    public function addColumnLabel($col_name, $col_title = '', $attrs = "align='left'", $decode = 1, $format = '', $func = null): void
     {
         if ($col_title == '') {
             $col_title = $col_name;
@@ -43,7 +43,8 @@ class DataGrid
             'col_type' => 'label',
             'attrs' => $attrs,
             'decode' => $decode,
-            'format' => $format
+            'format' => $format,
+            'func' => $func,
         ];
         $this->totalCols++;
     }
@@ -349,13 +350,13 @@ class DataGrid
                         if ($k == 0 && $this->showEditLink == 1) {
                             $href = route($this->link_edit, $id);
                             $html .= '<td ' . $v['attrs'] . ' class="' . $row_class . '"><a href="' . $href . '" target="' . $this->link_target . '">' .
-                                $this->showColumn($v, $val->$col_name, '', $val) . '</a></td>';
+                            $this->showColumn($v, data_get($val, $col_name), '', $val)
+                            . '</a></td>';
 
                         } else {
-                            $column_value = $this->showColumn($v, $val->$col_name, $val->id, $val);
-
+                            $column_value = $this->showColumn($v, data_get($val, $col_name), $val->id, $val);
                             if ($column_value == "") {
-                                $column_value = " & nbsp;";
+                                $column_value = "&nbsp;";
                             }
 
 

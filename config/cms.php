@@ -32,6 +32,11 @@ return [
                     'route' => 'backend_menu',
                     'title' => 'Navigation',
                 ],
+                'project' => [
+                    'icon' => 'fas fa-project-diagram',
+                    'route' => 'backend_project',
+                    'title' => 'Dự án',
+                ],
 //                'member' => [
 //                    'icon' => 'fas fa-motorcycle',
 //                    'route' => 'backend_member',
@@ -41,11 +46,6 @@ return [
                     'icon' => 'far fa-file',
                     'route' => 'backend_page',
                     'title' => 'Trang nội dung',
-                ],
-                'feedback' => [
-                    'icon' => 'fas fa-comment',
-                    'route' => 'backend_feedback',
-                    'title' => 'Feedback',
                 ],
 //                'landing_page' => [
 //                    'icon' => 'fas fa-palette',

@@ -3,10 +3,10 @@
 namespace Database\Seeders;
 
 use App\Models\IndustrialProject;
-use App\Models\News;
 use App\Models\ProductType;
 use App\Models\ProjectIndustries;
 use App\Models\ProjectType;
+use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\DB;
@@ -93,6 +93,7 @@ class DatabaseSeeder extends Seeder
         foreach ($projectsData as $project) {
             $projectId = DB::table('projects')->insertGetId([
                 'name' => $project['name'],
+                'slug' => Str::slug($project['name']),
                 'lat' => $project['lat'],
                 'lng' => $project['lng'],
                 'link' => $project['link'] ?? null,

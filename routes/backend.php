@@ -6,8 +6,6 @@ use App\Http\Controllers\Backend\MenuController;
 use App\Http\Controllers\Backend\PageController;
 use App\Http\Controllers\Backend\MemberController;
 use App\Http\Controllers\Backend\PostController;
-use App\Http\Controllers\Backend\StoreController;
-use App\Http\Controllers\Backend\CouponController;
 use App\Http\Controllers\Backend\FeedbackController;
 use App\Http\Controllers\Backend\FileManagerController;
 use App\Http\Controllers\Backend\LandingPageController;
@@ -76,32 +74,6 @@ Route::localized(function () {
             Route::get('clone/{post}', [PostController::class, 'clone'])->name('backend_post_clone');
             Route::get('restore/{id}', [PostController::class, 'restore'])->name('backend_post_restore');
             Route::get('force-delete/{id}', [PostController::class, 'forceDelete'])->name('backend_post_force_delete');
-        });
-
-        Route::prefix('store')->group(function () {
-            Route::get('/', [StoreController::class, 'index'])->name('backend_store');
-            Route::post('/', [StoreController::class, 'saveDataIndex'])->name('backend_store_save_data_index');
-            Route::get('create', [StoreController::class, 'edit'])->name('backend_store_create');
-            Route::get('edit/{store}', [StoreController::class, 'edit'])->name('backend_store_edit');
-            Route::post('save/{store?}', [StoreController::class, 'save'])->name('backend_store_save');
-            Route::get('delete/{id}', [StoreController::class, 'delete'])->name('backend_store_delete');
-            Route::post('bulk_delete', [StoreController::class, 'bulkDelete'])->name('backend_store_bulk_delete');
-            Route::get('clone/{store}', [StoreController::class, 'clone'])->name('backend_store_clone');
-            Route::get('restore/{id}', [StoreController::class, 'restore'])->name('backend_store_restore');
-            Route::get('force-delete/{id}', [StoreController::class, 'forceDelete'])->name('backend_store_force_delete');
-        });
-
-        Route::prefix('coupon')->group(function () {
-            Route::get('/', [CouponController::class, 'index'])->name('backend_coupon');
-            Route::post('/', [CouponController::class, 'saveDataIndex'])->name('backend_coupon_save_data_index');
-            Route::get('create', [CouponController::class, 'edit'])->name('backend_coupon_create');
-            Route::get('edit/{coupon}', [CouponController::class, 'edit'])->name('backend_coupon_edit');
-            Route::post('save/{coupon?}', [CouponController::class, 'save'])->name('backend_coupon_save');
-            Route::get('delete/{id}', [CouponController::class, 'delete'])->name('backend_coupon_delete');
-            Route::post('bulk_delete', [CouponController::class, 'bulkDelete'])->name('backend_coupon_bulk_delete');
-            Route::get('clone/{coupon}', [CouponController::class, 'clone'])->name('backend_coupon_clone');
-            Route::get('restore/{id}', [CouponController::class, 'restore'])->name('backend_coupon_restore');
-            Route::get('force-delete/{id}', [CouponController::class, 'forceDelete'])->name('backend_coupon_force_delete');
         });
 
         Route::prefix('feedback')->group(function () {

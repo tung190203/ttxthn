@@ -21,23 +21,6 @@ return [
             'clone' => 'Nhân bản',
         ]
     ],
-    'store' => [
-        'label' => 'Store',
-        'items' => [
-            'add' => 'Thêm',
-            'edit' => 'Sửa',
-            'delete' => 'Xóa',
-            'clone' => 'Nhân bản',
-        ]
-    ],
-    'coupon' => [
-        'label' => 'Coupon',
-        'items' => [
-            'add' => 'Thêm',
-            'edit' => 'Sửa',
-            'delete' => 'Xóa',
-        ]
-    ],
     'page' => [
         'label' => 'Trang nội dung',
         'items' => [
@@ -63,6 +46,15 @@ return [
             'delete' => 'Xóa',
         ]
     ],
+    'project' => [
+        'label' => 'Dự án',
+        'items' => [
+            'add' => 'Thêm',
+            'edit' => 'Sửa',
+            'delete' => 'Xóa',
+            'clone' => 'Nhân bản',
+        ]
+    ],
 //    'member' => [
 //        'label' => 'Đại lý/cửa hàng',
 //        'items' => [
@@ -71,14 +63,6 @@ return [
 //            'delete' => 'Xóa',
 //        ]
 //    ],
-    'feedback' => [
-        'label' => 'Feedback',
-        'items' => [
-            'add' => 'Thêm',
-            'edit' => 'Sửa',
-            'delete' => 'Xóa',
-        ]
-    ],
 //    'lading_page' => [
 //        'label' => 'Lading page',
 //        'items' => [

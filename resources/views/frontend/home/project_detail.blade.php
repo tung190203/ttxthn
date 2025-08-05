@@ -26,7 +26,6 @@
                 </div>
             </div>
         </section>
-        {{-- {{$project}} --}}
         <nav class="project-nav">
             <div class="container">
                 <ul class="project-nav__list">

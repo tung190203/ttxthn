@@ -339,7 +339,7 @@
                                 <div class="swiper-slide">
                                     <div class="news"><a class="news__frame"
                                             href="{{ route('post_detail', ['id' => $item->id, 'slug' => $item->slug]) }}"><img
-                                                src="./images/news/new-{{ $loop->iteration }}.jpg" alt="" /></a>
+                                                src="{{ $item->image }}" alt="" /></a>
                                         <div class="news__body">
                                             <div class="news__info">
                                                 <div class="news__time"><i
