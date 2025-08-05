@@ -27,41 +27,6 @@ function selectFileWithCKFinder(elementId, preview_image = '') {
     });
 }
 
-function selectMultiFileWithCKFinder(elementId, preview_image) {
-    CKFinder.popup({
-        chooseFiles: true,
-        width: 800,
-        height: 600,
-        onInit: function (finder) {
-            finder.on('files:choose', function (evt) {
-                var file = evt.data.files.first();
-                var output = document.getElementById(elementId);
-                output.value = file.getUrl();
-            });
-
-            finder.on('file:choose:resizedImage', function (evt) {
-                var output = document.getElementById(elementId);
-                output.value = evt.data.resizedUrl;
-            });
-
-            finder.on('files:choose', function (evt) {
-                var files = evt.data.files;
-                var html = '';
-                var arr_file = [];
-                files.each(function (index) {
-                    html += "<img src='" + index.getUrl() + "'/>";
-                    arr_file.push(index.getUrl());
-                });
-
-                var element_preview_image = document.getElementById(preview_image);
-                var output = document.getElementById(elementId);
-                element_preview_image.innerHTML = html;
-                output.value = arr_file.join(';');
-            });
-        }
-    });
-}
-
 function changeNameToSlug(id_name, id_slug, flag_update) {
     let slug = to_slug($('#' + id_name).val());
     let $elm_slug = $('#' + id_slug);

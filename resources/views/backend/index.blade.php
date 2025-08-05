@@ -6,6 +6,7 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta name="robots" content="noindex"/>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <link href="{{ asset('backend_assets/vendor/fontawesome/all.min.css') }}" rel="stylesheet">
     {{--    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">--}}

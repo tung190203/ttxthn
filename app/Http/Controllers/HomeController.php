@@ -112,24 +112,29 @@ class HomeController extends Controller
         );
     }
 
-    public function projectDetail(Request $request)
+    public function projectDetail(Request $request, $slug = null)
     {
         $setting = Setting::getAllSetting();
         $setting['menu_active'] = 'du-an-keu-goi-dau-tu';
-
+    
         $banners = Widget::getByPosition('HOME_BANNER');
         $list_post_popular = Post::popular(Post::POSTS_TAKE)->get();
-        $posts = Post::where('cat_id',Category::CATEGORY_TYPE_POST)->get();
-
+        $posts = Post::where('cat_id', Category::CATEGORY_TYPE_POST)->get();
+    
+        $project = Project::with(['type', 'industry', 'districts'])
+            ->where('slug', $slug)
+            ->firstOrFail();
+    
         return view('frontend.home.project_detail',
             compact(
                 'setting',
                 'banners',
                 'list_post_popular',
                 'posts',
+                'project',
             )
         );
-    }
+    }    
 
     public function projectDetailCN2(Request $request)
     {
@@ -256,56 +261,6 @@ class HomeController extends Controller
 
         return view('frontend.home.page', compact('page', 'setting'));
 
-    }
-
-    public function contactPost(Request $request)
-    {
-        $member_id = Auth::guard('member')->id();
-
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'phone' => 'required|regex:/^[0-9]{10}$/',
-            'address' => 'required|string|min:5|max:255',
-            'dealer_id' => 'required|numeric',
-            'motorcycle_type' => 'required|string',
-        ], [
-            'name.required' => 'Vui lòng nhập họ tên.',
-            'name.*' => 'Họ và tên không hợp lệ.',
-            'phone.*' => 'Số điện thoại không đúng.',
-            'address.*' => 'Vui lòng nhập địa chỉ chính xác.',
-            'dealer_id.*' => 'Đại lý không tồn tại.',
-            'motorcycle_type.*' => 'Loại xe không tồn tại.',
-        ]);
-
-        if ($validator->fails()) {
-
-            $list_error = $validator->errors()->toArray();
-            return response()->json([
-                'success' => false,
-                'message' => array_pop($list_error)[0],
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-        try {
-
-            $feedback = new Feedback();
-            $feedback->name = trim(strip_tags($request->get('name')));
-            $feedback->phone = trim(strip_tags($request->get('phone')));
-            $feedback->address = trim(strip_tags($request->get('address')));
-            $feedback->dealer_id = intval($request->get('dealer_id'));
-            $feedback->motorcycle_type = trim(strip_tags($request->get('motorcycle_type')));
-            $feedback->content = trim(strip_tags($request->get('content')));
-            $feedback->save();
-
-        } catch (\Exception $ex) {
-            return response()->json([
-                'success' => false,
-                'message' => $ex->getMessage(),
-                'errors' => ['error' => 'Đã xảy ra lỗi, Vui lòng thử lại sau'],
-            ], 422);
-        }
-
-        return response()->json(['success' => true, 'message' => 'Lưu thông tin thành công!'], 201);
     }
 
     protected function validateCustomAttributes(Request $request, $validator): void

@@ -9,6 +9,7 @@ use App\Http\Controllers\Backend\PostController;
 use App\Http\Controllers\Backend\FeedbackController;
 use App\Http\Controllers\Backend\FileManagerController;
 use App\Http\Controllers\Backend\LandingPageController;
+use App\Http\Controllers\Backend\ProjectController;
 use App\Http\Controllers\Backend\SettingController;
 use App\Http\Controllers\Backend\WidgetController;
 use App\Http\Controllers\Backend\UserController;
@@ -76,16 +77,6 @@ Route::localized(function () {
             Route::get('force-delete/{id}', [PostController::class, 'forceDelete'])->name('backend_post_force_delete');
         });
 
-        Route::prefix('feedback')->group(function () {
-            Route::get('/', [FeedbackController::class, 'index'])->name('backend_feedback');
-            Route::post('/', [FeedbackController::class, 'saveDataIndex'])->name('backend_feedback_save_data_index');
-            Route::get('/create', [FeedbackController::class, 'edit'])->name('backend_feedback_create');
-            Route::get('/edit/{feedback}', [FeedbackController::class, 'edit'])->name('backend_feedback_edit');
-            Route::post('/save/{feedback?}', [FeedbackController::class, 'save'])->name('backend_feedback_save');
-            Route::get('/delete/{id}', [FeedbackController::class, 'delete'])->name('backend_feedback_delete');
-            Route::post('/bulk_delete', [FeedbackController::class, 'bulkDelete'])->name('backend_feedback_bulk_delete');
-        });
-
         Route::get('file-manager', [FileManagerController::class, 'index'])->name('backend_file_manager');
 
         Route::prefix('lading-page')->group(function () {
@@ -129,6 +120,15 @@ Route::localized(function () {
             Route::get('delete/{id}', [WidgetController::class, 'delete'])->name('backend_widget_delete');
             Route::get('clone/{widget}', [WidgetController::class, 'clone'])->name('backend_widget_clone');
             Route::post('bulk_delete', [WidgetController::class, 'bulkDelete'])->name('backend_widget_bulk_delete');
+        });
+        Route::prefix('project')->group(function () {
+            Route::get('/', [ProjectController::class, 'index'])->name('backend_project');
+            Route::post('/', [ProjectController::class, 'saveDataIndex'])->name('backend_project_save_data_index');
+            Route::get('create', [ProjectController::class, 'edit'])->name('backend_project_create');
+            Route::get('edit/{project}', [ProjectController::class, 'edit'])->name('backend_project_edit');
+            Route::post('save/{project?}', [ProjectController::class, 'save'])->name('backend_project_save');
+            Route::get('delete/{id}', [ProjectController::class, 'delete'])->name('backend_project_delete');
+            Route::post('bulk_delete', [ProjectController::class, 'bulkDelete'])->name('backend_project_bulk_delete');
         });
     });
 });

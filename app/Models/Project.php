@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Gate;
 
 class Project extends Model
 {
@@ -13,14 +16,33 @@ class Project extends Model
 
     protected $fillable = [
         'name',
+        'slug',
+        'short_desc',
+        'description',
         'lat',
         'lng',
         'type_number',
         'industry_number',
         'price',
         'link',
-        'image',
-        'description',
+        'banner_image',
+        'location_image',
+        'advantage_images',
+        'advantage_titles',
+        'advantage_descriptions',
+        'link_vrtour',
+        'design_short_desc',
+        'design_images',
+        'design_description',
+        'legal_short_desc',
+        'legal_description',
+        'layout_id',
+    ];
+
+    const LAYOUTS = [
+        1 => 'Layout 1',
+        2 => 'Layout 2',
+        3 => 'Layout 3',
     ];
 
     public function type()
@@ -72,5 +94,117 @@ class Project extends Model
                 $request->filled('district'),
                 fn($q) => $q->whereHas('districts', fn($q2) => $q2->where('name', $request->district))
             );
+    }
+
+    protected static function booted()
+    {
+        static::creating(function ($project) {
+            // Chỉ tạo slug nếu chưa có
+            if (empty($project->slug) && !empty($project->name)) {
+                $project->slug = Str::slug($project->name);
+            }
+        });
+
+        static::updating(function ($project) {
+            // Ví dụ nếu muốn cập nhật lại slug khi đổi name
+            if ($project->isDirty('name')) {
+                $project->slug = Str::slug($project->name);
+            }
+        });
+    }
+
+    public static function makeOptionColumnButton(): array
+    {
+        $options = [
+            'view' => [
+                'route' => 'project_detail',
+            ]
+        ];
+
+        foreach (['edit', 'delete'] as $action) {
+            if (Gate::allows('post/' . $action)) {
+                $options[$action] = [
+                    'route' => 'backend_project_' . $action,
+                ];
+            }
+        }
+
+        return $options;
+    }
+    public static function makeListType($selected = null, $include_default = false)
+    {
+        $types = ProjectType::all();
+        $html = '';
+    
+        // Nếu cần hiển thị option mặc định
+        if ($include_default || $selected === null) {
+            $isSelected = ($selected === null) ? 'selected' : '';
+            $html .= "<option value=\"\" {$isSelected}>-- Chọn loại dự án --</option>";
+        }
+    
+        foreach ($types as $type) {
+            $isSelected = ($type->id == $selected) ? 'selected' : '';
+            $html .= "<option value=\"{$type->id}\" {$isSelected}>{$type->name}</option>";
+        }
+    
+        // Trường hợp giá trị $selected không nằm trong danh sách, hiển thị "Khác"
+        if (
+            $selected !== null &&
+            $selected != 0 &&
+            !$types->pluck('id')->contains($selected)
+        ) {
+            $html .= "<option value=\"{$selected}\" selected>Khác</option>";
+        }
+    
+        return $html;
+    }
+    public static function makeListIndustry($selected = null, $include_default = false)
+    {
+        $industries = ProjectIndustries::all();
+        $html = '';
+    
+        if ($include_default || $selected === null) {
+            $isSelected = ($selected === null) ? 'selected' : '';
+            $html .= "<option value=\"\" {$isSelected}>-- Chọn Ngành / Lĩnh vực --</option>";
+        }
+    
+        foreach ($industries as $industry) {
+            $isSelected = ($industry->id == $selected) ? 'selected' : '';
+            $html .= "<option value=\"{$industry->id}\" {$isSelected}>{$industry->name}</option>";
+        }
+
+        if (
+            $selected !== null &&
+            $selected != 0 &&
+            !$industries->pluck('id')->contains($selected)
+        ) {
+            $html .= "<option value=\"{$selected}\" selected>Khác</option>";
+        }
+    
+        return $html;
+    }
+
+    public static function makeListDistricts()
+    {
+       return District::pluck('name', 'id')->toArray();
+    }
+
+    public static function makeListLayout($selected = null, $include_default = false)
+    {
+        $layouts = self::LAYOUTS;
+    
+        $html = '';
+    
+        if ($include_default || $selected === null) {
+            $isSelected = ($selected === null) ? 'selected' : '';
+            $html .= "<option value=\"\" {$isSelected}>-- Chọn Layout --</option>";
+        }
+    
+        foreach ($layouts as $id => $name) {
+            $isSelected = ($id == $selected) ? 'selected' : '';
+            $html .= "<option value=\"{$id}\" {$isSelected}>{$name}</option>";
+        }
+    
+        return $html;
     }
 }

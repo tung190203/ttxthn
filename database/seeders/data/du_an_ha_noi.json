@@ -9,7 +9,7 @@
       "Phường Hai Bà Trưng",
       "Phường Bồ Đề"
     ],
-    "type_number": 0,
+    "type_number": null,
     "type": "",
     "industry": "Cầu đường",
     "industry_number": 1,
@@ -28,7 +28,7 @@
       "Xã Nam Phù",
       "Xã Gia Lâm"
     ],
-    "type_number": 0,
+    "type_number": null,
     "type": "",
     "industry": "Cầu đường",
     "industry_number": 1,
@@ -46,7 +46,7 @@
       "Phường Việt Hưng",
       "Xã Phù Đổng"
     ],
-    "type_number": 0,
+    "type_number": null,
     "type": "",
     "industry": "Cầu đường",
     "industry_number": 1,
@@ -609,7 +609,7 @@
     "districts": [
       "Xã Hòa Lạc"
     ],
-    "type_number": 0,
+    "type_number": null,
     "type": "",
     "industry": "Thương mại",
     "industry_number": 5,
@@ -626,7 +626,7 @@
     "districts": [
       "Xã Sóc Sơn"
     ],
-    "type_number": 0,
+    "type_number": null,
     "type": "",
     "industry": "Công nghiệp",
     "industry_number": 6,
@@ -643,7 +643,7 @@
     "districts": [
       "Xã Sóc Sơn"
     ],
-    "type_number": 0,
+    "type_number": null,
     "type": "",
     "industry": "Công nghiệp",
     "industry_number": 6,

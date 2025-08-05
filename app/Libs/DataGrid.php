@@ -367,7 +367,7 @@ class DataGrid
                 $html .= '</tr>' . "\n";
             }
             if ($has_row == 0) {
-                $html .= '<tr><td colspan=' . ($this->totalCols + 2) . " > " . "<span class = 'text-danger' > No data !</span > " . '</td></tr>' . "\n";
+                $html .= '<tr><td colspan=' . ($this->totalCols + 2) . " class = 'text-center' > " . "<span class = 'text-danger' > No data !</span > " . '</td></tr>' . "\n";
             }
         }
         $html .= '</table>' . "\n";
