@@ -19,6 +19,7 @@ return new class extends Migration
             $table->text('description')->nullable()->comment('Project Description');
             $table->double('lat')->nullable()->comment('Latitude');
             $table->double('lng')->nullable()->comment('Longitude');
+            $table->double('area')->nullable()->comment('Area in square meters');
             $table->unsignedBigInteger('type_number')->nullable()->comment('Type of Project');
             $table->unsignedBigInteger('industry_number')->nullable()->comment('Industry of Project');
             $table->bigInteger('price')->nullable()->comment('Price in VND');
@@ -29,6 +30,7 @@ return new class extends Migration
             $table->text('advantage_titles')->nullable()->comment('Advantage Texts');
             $table->text('advantage_descriptions')->nullable()->comment('Advantage Descriptions');
             $table->string('link_vrtour')->nullable()->comment('Virtual Tour Link');
+            $table->string('link_sand_table')->nullable()->comment('Link to Sand Table');
             $table->text('design_short_desc')->nullable()->comment('Design Short Description');
             $table->text('design_images')->nullable()->comment('Design Images');
             $table->text('design_description')->nullable()->comment('Design Description');

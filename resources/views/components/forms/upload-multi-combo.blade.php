@@ -1,4 +1,4 @@
-@props(['name', 'value' => [], 'label' => '', 'messages' => [], 'help' => ''])
+@props(['name', 'value' => [], 'label' => '', 'messages' => [], 'help' => '', 'editor' => false])
 
 @php
     $hasTitles = array_key_exists('titles', $value);
@@ -24,20 +24,31 @@
                                 style="max-width:200px; object-fit: cover;">
                             <button type="button"
                                 class="btn btn-sm btn-danger rounded-circle btn-close-custom position-absolute top-0 end-0 mt-0 ml-1"
-                                onclick="this.closest('.upload-combo-item').remove()">
+                                onclick="removeUploadComboItem(this)">
                                 &times;
                             </button>
                             <input type="hidden" name="{{ $name }}_images[]" value="{{ $img }}">
                         </div>
 
                         @if ($hasTitles)
-                            <input type="text" name="{{ $name }}_titles[]" class="form-control mt-2"
+                            <input type="text" name="{{ $name }}_titles[]" class="form-control mt-2 mb-2"
                                 placeholder="Tiêu đề" value="{{ $titles[$index] ?? '' }}">
                         @endif
 
                         @if ($hasDescs)
-                            <textarea name="{{ $name }}_descs[]" class="form-control mt-2" rows="4"
+                            @php
+                                $descId = $name . '_desc_' . $index;
+                            @endphp
+                            <textarea name="{{ $name }}_descs[]" id="{{ $descId }}" class="form-control mt-2" rows="4"
                                 placeholder="Mô tả">{{ $descs[$index] ?? '' }}</textarea>
+
+                            @if ($editor)
+                                <script>
+                                    if (typeof CKEDITOR !== 'undefined') {
+                                        CKEDITOR.replace('{{ $descId }}');
+                                    }
+                                </script>
+                            @endif
                         @endif
                     </div>
                 @endforeach
@@ -46,7 +57,7 @@
             <!-- Nút thêm ảnh -->
             <div class="d-flex justify-content-start">
                 <div id="{{ $name }}_add" class="upload-combo-add text-muted"
-                    onclick="selectFilesWithCKFinder('{{ $name }}', {{ $hasTitles ? 'true' : 'false' }}, {{ $hasDescs ? 'true' : 'false' }})">
+                    onclick="selectFilesWithCKFinder('{{ $name }}', {{ $hasTitles ? 'true' : 'false' }}, {{ $hasDescs ? 'true' : 'false' }}, {{ $editor ? 'true' : 'false' }})">
                     +
                 </div>
             </div>
@@ -105,7 +116,7 @@
 </style>
 
 <script>
-    function selectFilesWithCKFinder(name, hasTitles = true, hasDescs = true) {
+    function selectFilesWithCKFinder(name, hasTitles = true, hasDescs = true, useEditor = false) {
         CKFinder.modal({
             chooseFiles: true,
             width: 800,
@@ -114,18 +125,21 @@
                 finder.on('files:choose', function(evt) {
                     const files = evt.data.files.models;
                     const list = document.querySelector(`#${name}_wrapper .upload-combo-list`);
+                    let index = list.querySelectorAll('.upload-combo-item').length;
 
                     files.forEach(function(file) {
                         const url = file.getUrl();
                         const item = document.createElement('div');
                         item.className = 'upload-combo-item mt-4';
 
+                        const descId = `${name}_desc_${index}`;
+
                         let html = `
                             <div class="position-relative">
                                 <img src="${url}" class="rounded" style="max-width:200px; object-fit: cover;">
                                 <button type="button"
                                     class="btn btn-sm btn-danger rounded-circle btn-close-custom position-absolute top-0 end-0 mt-0 ml-1"
-                                    onclick="this.closest('.upload-combo-item').remove()">
+                                    onclick="removeUploadComboItem(this)">
                                     &times;
                                 </button>
                                 <input type="hidden" name="${name}_images[]" value="${url}">
@@ -133,18 +147,33 @@
                         `;
 
                         if (hasTitles) {
-                            html += `<input type="text" name="${name}_titles[]" class="form-control mt-2" placeholder="Tiêu đề">`;
+                            html += `<input type="text" name="${name}_titles[]" class="form-control mt-2 mb-2" placeholder="Tiêu đề">`;
                         }
 
                         if (hasDescs) {
-                            html += `<textarea name="${name}_descs[]" class="form-control mt-2" rows="2" placeholder="Mô tả"></textarea>`;
+                            html += `<textarea name="${name}_descs[]" id="${descId}" class="form-control mt-2" rows="2" placeholder="Mô tả"></textarea>`;
                         }
 
                         item.innerHTML = html;
                         list.appendChild(item);
+
+                        if (hasDescs && useEditor && typeof CKEDITOR !== 'undefined') {
+                            CKEDITOR.replace(descId);
+                        }
+
+                        index++;
                     });
                 });
             }
         });
+    }
+
+    function removeUploadComboItem(button) {
+        const container = button.closest('.upload-combo-item');
+        const textarea = container.querySelector('textarea');
+        if (textarea && CKEDITOR.instances[textarea.id]) {
+            CKEDITOR.instances[textarea.id].destroy(true);
+        }
+        container.remove();
     }
 </script>

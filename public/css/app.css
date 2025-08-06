@@ -21040,7 +21040,7 @@ a.ratio {
     -webkit-box-orient: vertical;
     overflow: hidden;
     line-height: 1.5;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 1;
     max-height: 3em;
     font-size: 14px;
     font-weight: 600;

@@ -5,13 +5,13 @@
     </div>
 </section>
 <footer class="footer">
-    <div class="footer__inner"><img class="footer__bg-1" src="./images/texture-4.png" alt="" /><img
-            class="footer__bg-2" src="./images/texture-5.png" alt="" /><img class="footer__bg-3"
-            src="./images/texture-6.png" alt="" />
+    <div class="footer__inner"><img class="footer__bg-1" src="{{asset('./images/texture-4.png')}}" alt="" /><img
+            class="footer__bg-2" src="{{asset('./images/texture-5.png')}}" alt="" /><img class="footer__bg-3"
+            src="{{asset('./images/texture-6.png')}}" alt="" />
         <div class="container">
             <div class="d-flex justify-content-start align-items-center mb-4">
                 <div>
-                    <a class="footer__logo" href="/"><img src="./images/logo_sce.png" alt="" /></a>
+                    <a class="footer__logo" href="/"><img src="{{asset('./images/logo_sce.png')}}" alt="" /></a>
                 </div>
                 <div class="ms-3">
                     <div class="footer__title custom-text-footer">SỞ TÀI CHÍNH THÀNH PHỐ HÀ NỘI</div>
@@ -41,9 +41,9 @@
                 <div class="col-lg-5">
                     <div class="footer__title">THEO DÕI CÁC THÔNG TIN MỚI NHẤT TẠI</div>
                     <ul class="f-social">
-                        <li><a href="#!"><img src="./images/icon-facebook.svg" alt="" /></a></li>
-                        <li><a href="#!"><img src="./images/icon-youtube.svg" alt="" /></a></li>
-                        <li><a href="#!"><img src="./images/icon-tik-tok.svg" alt="" /></a></li>
+                        <li><a href="#!"><img src="{{asset('./images/icon-facebook.svg')}}" alt="" /></a></li>
+                        <li><a href="#!"><img src="{{asset('./images/icon-youtube.svg')}}" alt="" /></a></li>
+                        <li><a href="#!"><img src="{{asset('./images/icon-tik-tok.svg')}}" alt="" /></a></li>
                     </ul>
                 </div>
             </div>

@@ -173,6 +173,9 @@
 <script async defer crossorigin="anonymous"
         src="https://connect.facebook.net/vi_VN/sdk.js#xfbml=1&version=v19.0&appId={{ $setting['facebook_app_id'] ?? '' }}"
         nonce="uWFE6azL"></script>
+<script>
+    window.customTawkIconUrl = "{{ asset('images/ha_noi_icon.png') }}";
+</script>
 {!! $setting['tracking_code_bottom'] !!}
 </body>
 </html>

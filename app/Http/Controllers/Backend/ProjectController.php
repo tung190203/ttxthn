@@ -72,6 +72,9 @@ class ProjectController extends Controller
         $clsDataGrid->addColumnLabel("coordinates", "Tọa độ(lat/lng)", "width='10%' nowrap", 1, '', function ($col, $val, $id, $row) {
             return ($row->lat && $row->lng) ? $row->lat . ' - ' . $row->lng : '';
         });
+        $clsDataGrid->addColumnLabel('area', 'Diện tích (ha)', "width='10%' nowrap", 1, '', function ($col, $val, $id, $row) {
+            return $row->area ? number_format($row->area) : '';
+        });
         $clsDataGrid->addColumnLabel("type.name", "Loại dự án");
         $clsDataGrid->addColumnLabel("industry.name", "Ngành nghề", "width='10%' nowrap");
         $clsDataGrid->addColumnLabel("districts", "Khu vực", "width='15%'", 1, '', function ($col, $val, $id, $row) {
@@ -132,8 +135,6 @@ class ProjectController extends Controller
             abort(403, self::MESSAGE_UNAUTHORIZED);
         }
 
-        $language = App::getLocale();
-
         $validated = $request->validate([
             'name' => 'required|max:255',
             'slug' => 'required|max:255|unique:projects,slug,' . $project->id,
@@ -142,6 +143,7 @@ class ProjectController extends Controller
             'description' => 'nullable',
             'lat' => 'nullable|numeric',
             'lng' => 'nullable|numeric',
+            'area' => 'nullable|numeric|min:0',
             'type_number' => 'nullable|integer|min:0|exists:project_types,id',
             'industry_number' => 'nullable|integer|min:0|exists:project_industries,id',
             'price' => 'nullable|numeric|min:0',
@@ -156,6 +158,7 @@ class ProjectController extends Controller
             'advantage_descs' => 'nullable|array',
             'advantage_descs.*' => 'nullable',
             'link_vrtour' => 'nullable|url',
+            'link_sand_table' => 'nullable|url',
             'design_short_desc' => 'nullable',
             'design_images' => 'nullable|array',
             'design_images.*' => 'nullable|max:2048',
@@ -168,15 +171,18 @@ class ProjectController extends Controller
         ]);
 
         // Gộp các trường array thành chuỗi bằng dấu ';'
-        $fieldsToImplode = ['advantage_titles', 'advantage_descriptions', 'design_descriptions', 'legal_description'];
-        foreach ($fieldsToImplode as $field) {
+        $fieldsToJsonEncode = ['advantage_titles', 'advantage_descs', 'design_descs', 'legal_description'];
+        foreach ($fieldsToJsonEncode as $field) {
             if (isset($validated[$field]) && is_array($validated[$field])) {
-                $validated[$field] = implode(';', array_map('trim', $validated[$field]));
+            $validated[$field] = json_encode(array_map('trim', $validated[$field]));
             }
         }
 
         try {
             $fillableData = Arr::except($validated, ['districts']);
+            $fillableData['advantage_descriptions'] = $validated['advantage_descs'] ?? '';
+            $fillableData['design_description'] = $validated['design_descs'] ?? '';
+            $fillableData['legal_description'] = $validated['legal_description'] ?? '';
             $project->fill($fillableData);
             $project->slug = $validated['slug'] ?: Str::slug($validated['name']);
             $project->save();

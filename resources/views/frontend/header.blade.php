@@ -1,9 +1,12 @@
+@php
+$listProjectHeader = App\Models\Project::all();
+@endphp
 <header class="header">
     <div class="header__wrapper">
         <div class="container">
             <div class="header__inner">
                 <a class="header__logo" href="{{ route('home_page') }}">
-                    <img src="./images/logo-new.png" alt=""/>
+                    <img src="{{asset('./images/logo-new.png')}}" alt=""/>
                 </a>
                 <div class="header__elements">
                     <div class="header__text">CÁC DỰ ÁN THU HÚT ĐẦU TƯ THÀNH PHỐ HÀ NỘI</div>
@@ -19,7 +22,7 @@
                         <div class="navbar__wrapper">
                             <div class="navbar__header">
                                 <a class="navbar__logo" href="./index.html">
-                                    <img src="./images/logo-new.png" alt=""/>
+                                    <img src="{{asset('./images/logo-new.png')}}" alt=""/>
                                 </a>
                                 <button class="btn-toggle js-navbar-toggle ms-auto"></button>
                             </div>
@@ -36,34 +39,15 @@
                                     <li class="menu-item menu-item-group">
                                         <a class="menu-link @if(($setting['menu_active']??'') == 'du-an-keu-goi-dau-tu' ) active @endif" href="{{ route('projects') }}">Dự án kêu gọi đầu tư
                                             <span
-                                        class="badge bg-danger ms-2">{{ count($projectSubMenu ?? [1,2,3]) }}</span>
+                                        class="badge bg-danger ms-2">{{ count($listProjectHeader ?? 0) }}</span>
                                         </a>
                                         <span class="menu-toggle"></span>
-                                        <ul class="menu menu-sub">
-                                            <li class="menu-item">
-                                                <a class="menu-link" href="project-detail">Cầu Trần Hưng Đạo</a>
-                                            </li>
-                                            <li class="menu-item">
-                                                <a class="menu-link" href="project-detail_cn2">Cụm công nghiệp CN2</a>
-                                            </li>
-                                            <li class="menu-item">
-                                                <a class="menu-link" href="project-detail_tien_duong">Khu nhà ở xã hội Tiên Dương 1</a>
-                                            </li>
-                                            {{-- <li class="menu-item">
-                                                <a class="menu-link" href="#!">Dropdown</a>
-                                            </li>
-                                            <li class="menu-item menu-item-group">
-                                                <a class="menu-link" href="#!">Dropdown</a>
-                                                <span class="menu-toggle"></span>
-                                                <ul class="menu menu-sub menu-sub-2">
-                                                    <li class="menu-item"><a class="menu-link" href="#!">Dropdown</a>
-                                                    </li>
-                                                    <li class="menu-item"><a class="menu-link" href="#!">Dropdown</a>
-                                                    </li>
-                                                    <li class="menu-item"><a class="menu-link" href="#!">Dropdown</a>
-                                                    </li>
-                                                </ul>
-                                            </li> --}}
+                                        <ul class="menu menu-sub custom-menu-header">
+                                            @foreach ($listProjectHeader as $item)
+                                                <li class="menu-item">
+                                                    <a class="menu-link" href="{{route('project_detail',['slug' => $item->slug])}}">{{$item->name}}</a>
+                                                </li>
+                                            @endforeach
                                         </ul>
                                     </li>
                                     <li class="menu-item"><a
@@ -100,13 +84,13 @@
                     </div>
                     <div class="h-dropdown ms-2">
                         <div class="h-dropdown__toggle">
-                            <img src="./images/vn.svg" alt=""/><i
+                            <img src="{{asset('./images/vn.svg')}}" alt=""/><i
                                     class="fal fa-fw fa-angle-down ms-1"></i></div>
                         <div class="h-dropdown__menu"><a class="h-dropdown__item" href="#!">
-                                <img src="./images/vn.svg"
+                                <img src="{{asset('./images/vn.svg')}}"
                                      alt=""/><span>Tiếng Việt</span></a>
                             <a class="h-dropdown__item" href="#!">
-                                <img src="./images/gb.svg"
+                                <img src="{{asset('./images/gb.svg')}}"
                                      alt=""/><span>English</span>
                             </a>
                         </div>

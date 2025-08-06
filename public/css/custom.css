@@ -308,4 +308,27 @@
   text-align: justify !important;
 }
 
+.custom-menu-header {
+  max-height: 300px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 999;
+  position: absolute;
+}
+.custom-menu-header .menu-item a.menu-link {
+  display: block;
+  padding: 10px 15px;
+  color: #333;
+  text-decoration: none;
+}
+.custom-menu-header .menu-item a.menu-link:hover {
+  background-color: #f5f5f5;
+}
+
 /*# sourceMappingURL=custom.css.map */

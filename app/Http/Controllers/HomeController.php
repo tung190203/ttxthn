@@ -19,8 +19,6 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\Setting;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
 
 class HomeController extends Controller
 {
@@ -57,8 +55,21 @@ class HomeController extends Controller
             ];
         })->toArray();
         $posts = Post::where('cat_id',2)->get();
+        $project_category = $rawProjects->map(function ($project) {
+            return [
+                'id' => $project->id,
+                'banner_image' => $project->banner_image,
+                'name' => $project->name,
+                'slug' => $project->slug,
+                'type_number' => $project->type_number,
+                'industry_number' => $project->industry_number,
+                'area' => $project->area,
+                'districts' => $project->districts->pluck('name')->implode(', '),
+            ];
+        })->toArray();
         return view('frontend.home.index',
             compact(
+                'project_category',
                 'setting',
                 'banners',
                 'list_post_popular',
@@ -100,8 +111,28 @@ class HomeController extends Controller
             ];
         })->toArray();
 
+        $projects = Project::with(['type', 'industry', 'districts'])
+        ->when($request->keyword, function ($query) use ($request) {
+            $query->where('name', 'like', '%' . $request->keyword . '%');
+        })
+        ->when($request->type_id, function ($query) use ($request) {
+            $query->where('type_number', $request->type_id);
+        })
+        ->when($request->district_id, function ($query) use ($request) {
+            $query->whereHas('districts', function ($q) use ($request) {
+                $q->where('districts.id', $request->district_id);
+            });
+        })
+        ->when($request->industries, function ($query) use ($request) {
+            $query->whereIn('industry_number', $request->industries);
+        })
+        ->orderBy('created_at', 'desc')
+        ->paginate(Project::PROJECTS_PER_PAGE)
+        ->appends($request->all());
+
         return view('frontend.home.project',
             compact(
+                'projects',
                 'setting',
                 'banners',
                 'list_post_popular',
@@ -132,43 +163,6 @@ class HomeController extends Controller
                 'list_post_popular',
                 'posts',
                 'project',
-            )
-        );
-    }    
-
-    public function projectDetailCN2(Request $request)
-    {
-        $setting = Setting::getAllSetting();
-        $setting['menu_active'] = 'du-an-keu-goi-dau-tu';
-
-        $banners = Widget::getByPosition('HOME_BANNER');
-        $list_post_popular = Post::popular(Post::POSTS_TAKE)->get();
-        $posts = Post::where('cat_id',Category::CATEGORY_TYPE_POST)->get();
-
-        return view('frontend.home.project_detail_cn2',
-            compact(
-                'setting',
-                'banners',
-                'list_post_popular',
-                'posts',
-            )
-        );
-    }
-    public function projectDetailTienDuong(Request $request)
-    {
-        $setting = Setting::getAllSetting();
-        $setting['menu_active'] = 'du-an-keu-goi-dau-tu';
-
-        $banners = Widget::getByPosition('HOME_BANNER');
-        $list_post_popular = Post::popular(Post::POSTS_TAKE)->get();
-        $posts = Post::where('cat_id',Category::CATEGORY_TYPE_POST)->get();
-
-        return view('frontend.home.project_detail_tien_duong',
-            compact(
-                'setting',
-                'banners',
-                'list_post_popular',
-                'posts',
             )
         );
     }

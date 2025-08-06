@@ -30,9 +30,7 @@ Route::localized(function () {
         Route::get('/map/bounds', [MapController::class, 'getProjectsInBounds']);
         Route::get('/api/districts', [MapController::class, 'getDistricts'])->name('api_districts');
         Route::get('/projects', [HomeController::class, 'projects'])->name('projects');
-        Route::get('/project-detail/{slug?}', [HomeController::class, 'projectDetail'])->name('project_detail');
-        Route::get('/project-detail_cn2', [HomeController::class, 'projectDetailCN2'])->name('project_detail_cn2');
-        Route::get('/project-detail_tien_duong', [HomeController::class, 'projectDetailTienDuong'])->name('project_detail_tien_duong');
+        Route::get('/project-detail/{slug}', [HomeController::class, 'projectDetail'])->name('project_detail');
         Route::get('/account.html', [HomeController::class, 'account'])->name('account');
         Route::get('/lien-he', [HomeController::class, 'contact'])->name('contact');
         Route::get('/sitemap.xml', [HomeController::class, 'siteMap'])->name('site_map');

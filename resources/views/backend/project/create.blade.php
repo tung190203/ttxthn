@@ -60,13 +60,15 @@
                             :messages="$errors->get('lat')" />
                         <x-forms.input name="lng" value="{{ old('lng') ?: $project->lng }}" label="Vĩ độ"
                             :messages="$errors->get('lng')" />
+                        <x-forms.input name="area" value="{{ old('area') ?: $project->area }}" label="Diện tích"
+                            :messages="$errors->get('area')" />
                         <x-forms.select name="type_number" label="Loại dự án" :required="true" :options="new HtmlString($option_types)"
                             :messages="$errors->get('type_number')" />
                         <x-forms.select name="industry_number" label="Ngành/Lĩnh vực" :required="true" :options="new HtmlString($option_industries)"
                             :messages="$errors->get('industry_number')" />
                         <x-forms.input name="price" value="{{ old('price') ?: $project->price }}" label="Vốn đầu tư"
                             :messages="$errors->get('price')" />
-                        <x-forms.input name="link" value="{{ old('link') ?: $project->link }}" label="Link vrtour dự án"
+                        <x-forms.input name="link" value="{{ old('link') ?: $project->link }}" label="Link dự án"
                             :messages="$errors->get('link')" />
                         <x-forms.upload name="location_image"
                             value="{{ old('location_image') ?: $project->location_image }}"
@@ -75,18 +77,21 @@
                             :messages="$errors->get('districts')" help="Chọn các khu vực liên quan" />
                         <x-forms.upload-multi-combo name="advantage" :value="[
                             'images' => explode(';', $project->advantage_images ?? ''),
-                            'titles' =>explode(';', $project->advantage_titles ?? ''),
-                            'descs' => explode(';', $project->advantage_descriptions ?? ''),
+                            'titles' => json_decode($project->advantage_titles ?? '[]', true),
+                            'descs' => json_decode($project->advantage_descriptions ?? '[]', true),
                         ]" label="Ảnh và mô tả lợi thế nổi bật"
+                            :editor="true"
                             :messages="$errors->get('advantage_images')" />
                         <x-forms.input name="link_vrtour" value="{{ old('link_vrtour') ?: $project->link_vrtour }}"
-                            label="Link sa bàn ảo dự án" :messages="$errors->get('link_vrtour')" />
+                            label="Link vrtour dự án" :messages="$errors->get('link_vrtour')" />
+                            <x-forms.input name="link_sand_table" value="{{ old('link_sand_table') ?: $project->link_sand_table }}"
+                                label="Link sa bàn ảo dự án" :messages="$errors->get('link_sand_table')" />
                         <x-forms.textarea name="design_short_desc" :required="true"
                             value="{{ old('design_short_desc') ?: $project->design_short_desc }}"
                             label="Mô tả ngắn thiết kế mặt bằng" :messages="$errors->get('design_short_desc')" />
                         <x-forms.upload-multi-combo name="design" :value="[
                             'images' => explode(';', $project->design_images ?? ''),
-                            'descs' => explode(';', $project->design_description ?? ''),
+                            'descs' => json_decode($project->design_description ?? '[]', true),
                         ]" label="Ảnh và mô tả thiết kế mặt bằng"
                             :messages="$errors->get('design_images')" />
                         <x-forms.input name="legal_short_desc"
@@ -94,7 +99,7 @@
                             label="Mô tả văn bản pháp quy" :messages="$errors->get('legal_short_desc')" />
                             <x-forms.textarea
                             name="legal_description"
-                             :value="old('legal_description') ?? explode(';', $project->legal_description ?? '')"
+                             :value="old('legal_description') ?? json_decode($project->legal_description, true)"
                             label="Nội dung ngắn văn bản pháp quy"
                             :messages="$errors->get('legal_description')"
                             :repeatable="true"

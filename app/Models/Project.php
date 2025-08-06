@@ -21,6 +21,7 @@ class Project extends Model
         'description',
         'lat',
         'lng',
+        'area',
         'type_number',
         'industry_number',
         'price',
@@ -37,6 +38,7 @@ class Project extends Model
         'legal_short_desc',
         'legal_description',
         'layout_id',
+        'link_sand_table'
     ];
 
     const LAYOUTS = [
@@ -44,6 +46,8 @@ class Project extends Model
         2 => 'Layout 2',
         3 => 'Layout 3',
     ];
+
+    const PROJECTS_PER_PAGE = 9;
 
     public function type()
     {
