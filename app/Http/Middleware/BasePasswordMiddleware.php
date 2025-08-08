@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Session;
 
 class BasePasswordMiddleware
 {
@@ -16,6 +17,7 @@ class BasePasswordMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         if (!session('base_logged_in') && !$request->is('base-login') && !$request->is('base-login-post')) {
+            Session::put('redirect_after_login', $request->fullUrl());
             return redirect('/base-login');
         }
         return $next($request);

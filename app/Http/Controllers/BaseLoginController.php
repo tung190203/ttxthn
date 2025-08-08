@@ -28,8 +28,9 @@ class BaseLoginController extends Controller
 
             // xoá mật khẩu cũ để bắt buộc phải tạo mới
             Cache::forget('base_login_password');
+            $redirectUrl = Session::pull('redirect_after_login', '/');
 
-            return redirect('/'); // hoặc route chính
+            return redirect($redirectUrl);
         }
 
         return back()->withErrors(['password' => 'Sai mật khẩu']);
