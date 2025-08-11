@@ -53,6 +53,11 @@ class Post extends Model
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
+    public function project()
+    {
+        return $this->belongsTo(Project::class, 'project_id', 'id');
+    }
+
     public function getUrl(): string
     {
         return Util::url_post($this);
@@ -202,6 +207,7 @@ class Post extends Model
             'description',
             'image',
             'view_num',
+            'project_id',
             'created_at'
         ];
     }

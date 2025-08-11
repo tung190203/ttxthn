@@ -30,7 +30,7 @@ class DatabaseSeeder extends Seeder
         $types = [
             1 => "PPP",
             2 => "NNS",
-            3 => "Đầu tư kinh doanh",
+            3 => "Đầu tư công",
         ];
 
         foreach ($types as $type) {

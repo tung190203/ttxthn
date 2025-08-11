@@ -55,6 +55,8 @@
                                        label="Sắp xếp" type="number" :messages="$errors->get('priority')"/>
                         <x-forms.select name="cat_id" label="Danh mục cha" :options="new HtmlString($option_categories)"
                                         :messages="$errors->get('cat_id')"/>
+                        <x-forms.select name="project_id" label="Thuộc dự án" :options="new HtmlString($option_projects)"
+                                        :messages="$errors->get('project_id')"/>
 
                         <x-forms.upload name="image" value="{{ old('image') ?: $post->image }}" label="Image"
                                         type="image" :messages="$errors->get('image')"/>

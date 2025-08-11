@@ -77,6 +77,7 @@
                     <li><a href="#sa-ban-ao">Sa bàn ảo</a></li>
                     <li><a href="#thiet-ke-va-mat-bang">Thiết kế & mặt bằng</a></li>
                     <li><a href="#phap-ly">Văn bản pháp quy</a></li>
+                    <li><a href="#thu-tuc-dau-tu">Thủ tục đầu tư</a></li>
                     <li><a href="#tin-tuc">Tin tức</a></li>
                 </ul>
             </div>
@@ -215,6 +216,44 @@
                 </nav>
             </div>
         </section>
+        <section class="section" id="thu-tuc-dau-tu"><img class="texture-1" src="{{ asset('./images/texture-1.png') }}"
+            alt=""><img class="texture-2" src="{{ asset('./images/texture-2.png') }}" alt="">
+        <div class="container">
+            <h2 class="section__title">Ưu đãi, quy trình, thủ tục đầu tư</h2>
+            <div class="news-slider">
+                <div class="news-slider__nav">
+                    <div class="news-slider__prev"><i class="fal fa-fw fa-lg fa-angle-left"></i></div>
+                    <div class="news-slider__next"><i class="fal fa-fw fa-lg fa-angle-right"></i></div>
+                </div>
+                <div class="news-slider__container swiper-container">
+                    <div class="swiper-wrapper">
+                        @foreach ($preferential as $item)
+                            <div class="swiper-slide">
+                                <div class="news"><a class="news__frame"
+                                        href="{{ route('post_detail', ['id' => $item->id, 'slug' => $item->slug]) }}"><img
+                                            src="{{ $item->image }}" alt="" /></a>
+                                    <div class="news__body">
+                                        <div class="news__info">
+                                            <div class="news__time"><i
+                                                    class="fal fa-clock me-2"></i><span>{{ $item->created_at->format('d/m/Y H:i') }}</span>
+                                            </div>
+                                            <div class="news__like"><i class="fal fa-fw fa-heart"></i></div>
+                                        </div>
+                                        <h3 class="news__title  custom-desc"><a
+                                                href="{{ route('post_detail', ['id' => $item->id, 'slug' => $item->slug]) }}">{{ $item->name }}</a>
+                                        </h3>
+                                        <div class="news__desc">{{ $item->description }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+            <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="#!">Xem thêm</a>
+            </nav>
+        </div>
+    </section>
         <section class="section" id="tin-tuc"><img class="texture-1" src="{{ asset('./images/texture-1.png') }}"
                 alt=""><img class="texture-2" src="{{ asset('./images/texture-2.png') }}" alt="">
             <div class="container">

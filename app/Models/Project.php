@@ -66,6 +66,19 @@ class Project extends Model
     {
         return $this->hasMany(IndustrialProject::class);
     }
+
+    public static function makeListProject($selected_id = '')
+    {
+        $query = Project::select('id', 'name')->get();
+        $html = '<option value="">-- Chọn dự án --</option>';
+        foreach ($query as $project) {
+            $isSelected = ($project->id == $selected_id) ? 'selected' : '';
+            $html .= "<option value=\"{$project->id}\" {$isSelected}>{$project->name}</option>";
+        }
+
+        return $html;
+    }
+
     public function scopeInBounds($query, $minLat, $maxLat, $minLng, $maxLng)
     {
         return $query->whereBetween('lat', [$minLat, $maxLat])

@@ -57,7 +57,7 @@
                             <div class="range-input">
                                 <div class="range-input__content">
                                     <div class="range-input__label">Quy mô vốn đầu tư</div>
-                                    <div class="range-input__price">0đ</div>
+                                    <div class="range-input__price">0</div>
                                 </div>
                                 <input class="range-input__input" id="priceRange" type="range" value="0"
                                     min="0" max="100000000" step="1000000">
@@ -119,7 +119,7 @@
                             <div class="range-input">
                                 <div class="range-input__content">
                                     <div class="range-input__label text-white">Giá thuê</div>
-                                    <div class="range-input__price1 text-white">0đ</div>
+                                    <div class="range-input__price1 text-white">0</div>
                                 </div>
                                 <input class="white-range" id="priceRangeSp" type="range" value="0"
                                     min="0" max="100000000" step="1000000">
@@ -466,7 +466,7 @@
             const types = {
                 1: "PPP",
                 2: "NNS",
-                3: "Đầu tư kinh doanh"
+                3: "Đầu tư công"
             };
             return types[typeNumber] || "Không rõ";
         }
@@ -475,7 +475,7 @@
             const marker = L.marker([loc.lat, loc.lng]);
             const detailUrl = loc.link || `./chi-tiet.html?id=${loc.id}`;
             const districtText = Array.isArray(loc.districts) ? loc.districts.join(", ") : loc.district || "Không rõ";
-            const priceText = loc.price !== null && loc.price !== undefined ? `${loc.price.toLocaleString('vi-VN')} VND` :
+            const priceText = loc.price !== null && loc.price !== undefined ? `${loc.price.toLocaleString('vi-VN')}` :
                 'Chưa có giá';
 
             marker.bindPopup(`
@@ -729,7 +729,7 @@
         }
         // PRICE RANGE
         $('#priceRange').on("input", function() {
-            $('#priceValue').text(parseInt($(this).val()).toLocaleString('vi-VN') + " VND");
+            $('#priceValue').text(parseInt($(this).val()).toLocaleString('vi-VN'));
         });
 
         let priceTimeout = null;
@@ -739,7 +739,7 @@
         });
 
         $('#priceRangeSp').on("input", function() {
-            $('#priceValueSp').text(parseInt($(this).val()).toLocaleString('vi-VN') + " VND");
+            $('#priceValueSp').text(parseInt($(this).val()).toLocaleString('vi-VN'));
         });
         let priceSpTimeout = null;
         $('#priceRangeSp').on("change", function() {

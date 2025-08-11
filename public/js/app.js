@@ -191,13 +191,13 @@ $(function () {
   });
 
   $('.range-input__input').on('input', function () {
-    const value = Number(this.value).toLocaleString('en-Us') + 'đ';
+    const value = Number(this.value).toLocaleString('en-Us');
 
     // console.log('value: ', this.value, this.value.toLocaleString());
     $('.range-input__price').text(value);
   });
   $('.white-range').on('input', function () {
-    const value = Number(this.value).toLocaleString('en-Us') + 'đ';
+    const value = Number(this.value).toLocaleString('en-Us');
 
     // console.log('value: ', this.value, this.value.toLocaleString());
     $('.range-input__price1').text(value);

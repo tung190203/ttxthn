@@ -1,5 +1,5 @@
 @php
-$listProjectHeader = App\Models\Project::all();
+$listProjectHeader = App\Models\Project::orderBy('updated_at', 'desc')->take(5)->get();
 @endphp
 <header class="header">
     <div class="header__wrapper">
@@ -48,6 +48,9 @@ $listProjectHeader = App\Models\Project::all();
                                                     <a class="menu-link" href="{{route('project_detail',['slug' => $item->slug])}}">{{$item->name}}</a>
                                                 </li>
                                             @endforeach
+                                            <li class="menu-item">
+                                                <a class="menu-link text-center" href="{{ route('projects') }}">Xem thêm</a>
+                                            </li>
                                         </ul>
                                     </li>
                                     <li class="menu-item"><a

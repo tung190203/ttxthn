@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Post;
 use App\Models\Category;
+use App\Models\Project;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
@@ -58,7 +59,7 @@ class PostController extends Controller
         }
 
         $posts = $query->paginate(20);
-        $options['categories'] = Category::makeListCategory(0, Category::CATEGORY_TYPE_POST, $filter['cat_id']);
+        $options['categories'] = Category::makeListCategory(0,'', $filter['cat_id']);
         $options['status'] = Util::makeHTMLOptions(Post::STATUS_ARRAY, $filter['status']);
         $option_categories = Category::makeArrayListCategory(0, Category::CATEGORY_TYPE_POST);
 
@@ -100,7 +101,8 @@ class PostController extends Controller
         }
 
         $option_categories = Category::makeListCategory(0, '', $post->cat_id);
-        return view('backend.post.create', compact('post', 'option_categories'));
+        $option_projects = Project::makeListProject($post->project_id);
+        return view('backend.post.create', compact('post', 'option_categories', 'option_projects'));
     }
 
     public function save(Post $post, Request $request)
@@ -114,6 +116,7 @@ class PostController extends Controller
             'slug' => 'nullable|alpha_dash|',//unique:posts,slug,' . $post->id,
             'description' => 'required|string',
             'content' => 'required|string',
+            'project_id' => 'nullable|integer',
         ]);
 
         $language = App::getLocale();
@@ -123,6 +126,7 @@ class PostController extends Controller
         $post->slug = $slug ?: Str::slug($name);
         $post->description = $request->get('description');
         $post->content = $request->get('content');
+        $post->project_id = intval($request->get('project_id'));
         $post->image = strip_tags($request->get('image'));
         $post->cat_id = intval($request->get('cat_id'));
         $post->status = intval($request->get('status'));

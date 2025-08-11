@@ -54,7 +54,7 @@ class HomeController extends Controller
                 'name' => $productType->name,
             ];
         })->toArray();
-        $posts = Post::where('cat_id',2)->get();
+        $posts = Post::all();
         $project_category = $rawProjects->map(function ($project) {
             return [
                 'id' => $project->id,
@@ -126,7 +126,7 @@ class HomeController extends Controller
         ->when($request->industries, function ($query) use ($request) {
             $query->whereIn('industry_number', $request->industries);
         })
-        ->orderBy('created_at', 'desc')
+        ->orderBy('updated_at', 'desc')
         ->paginate(Project::PROJECTS_PER_PAGE)
         ->appends($request->all());
 
@@ -150,7 +150,14 @@ class HomeController extends Controller
     
         $banners = Widget::getByPosition('HOME_BANNER');
         $list_post_popular = Post::popular(Post::POSTS_TAKE)->get();
-        $posts = Post::where('cat_id', Category::CATEGORY_TYPE_POST)->get();
+        // bài viết theo ưu đãi, quy trình, thủ tục đầu tu
+        $preferential = Post::where('cat_id', Category::CATEGORY_TYPE_INVESTMENT_HANDBOOK)->whereHas('project', function ($q) use ($slug) {
+            $q->where('slug', $slug);
+        })->get();
+        // bài viết theo tin tức của dự án
+        $posts = Post::where('cat_id', Category::CATEGORY_TYPE_POST)->whereHas('project', function ($q) use ($slug) {
+            $q->where('slug', $slug);
+        })->get();
     
         $project = Project::with(['type', 'industry', 'districts'])
             ->where('slug', $slug)
@@ -161,6 +168,7 @@ class HomeController extends Controller
                 'setting',
                 'banners',
                 'list_post_popular',
+                'preferential',
                 'posts',
                 'project',
             )

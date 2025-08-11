@@ -16,6 +16,21 @@
             <img class="banner__bg" src="./images/banner-news.jpg" alt="" />
             <div class="banner__title">Cẩm nang đầu tư</div>
         </article>
+        <nav class="project-nav">
+            <div class="container">
+                <ul class="project-nav__list">
+                    @foreach($childCategories as $id => $name)
+                        <li>
+                            <a 
+                                href="{{ route('category', ['slug' => $setting['menu_active'], 'cat_id' => $id]) }}" 
+                                class="{{ (int)$selectedCatId === $id ? 'active' : '' }}">
+                                {{ $name }}
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        </nav>            
         <section class="section pt-40">
             <div class="container">
                 <div class="row g-20">
