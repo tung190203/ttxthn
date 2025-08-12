@@ -57,7 +57,7 @@
                             <div class="mb-4">
                                 <div class="fw-600 text-uppercase mb-2">Địa điểm</div>
                                 <select class="form-select" name="district_id">
-                                    <option value="">Chọn Phường/Xã/Thị trấn</option>
+                                    <option value="">Chọn Phường/Xã</option>
                                     @foreach ($list_districts as $item )
                                         <option value="{{ $item['id'] }}" {{ request('district_id') == $item['id'] ? 'selected' : '' }}>{{ $item['name'] }}</option>
                                     @endforeach

@@ -19,6 +19,13 @@
         <nav class="project-nav">
             <div class="container">
                 <ul class="project-nav__list">
+                    <li>
+                        <a 
+                            href="{{ route('category', ['slug' => $setting['menu_active']]) }}" 
+                            class="{{ empty($selectedCatId) ? 'active' : '' }}">
+                            Tất cả
+                        </a>
+                    </li>
                     @foreach($childCategories as $id => $name)
                         <li>
                             <a 

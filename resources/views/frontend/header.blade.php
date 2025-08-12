@@ -1,5 +1,6 @@
 @php
 $listProjectHeader = App\Models\Project::orderBy('updated_at', 'desc')->take(5)->get();
+$countAllProject = App\Models\Project::count();
 @endphp
 <header class="header">
     <div class="header__wrapper">
@@ -39,7 +40,7 @@ $listProjectHeader = App\Models\Project::orderBy('updated_at', 'desc')->take(5)-
                                     <li class="menu-item menu-item-group">
                                         <a class="menu-link @if(($setting['menu_active']??'') == 'du-an-keu-goi-dau-tu' ) active @endif" href="{{ route('projects') }}">Dự án kêu gọi đầu tư
                                             <span
-                                        class="badge bg-danger ms-2">{{ count($listProjectHeader ?? 0) }}</span>
+                                        class="badge bg-danger ms-2">{{ $countAllProject ?? 0 }}</span>
                                         </a>
                                         <span class="menu-toggle"></span>
                                         <ul class="menu menu-sub custom-menu-header">

@@ -17,7 +17,7 @@ Route::localized(function () {
     Route::post('/base-login', [BaseLoginController::class, 'checkLogin'])->name('base_login_post');
     Route::get('/show-password', [BaseLoginController::class, 'generatePassword'])->name('show_password');
 
-    Route::middleware(['base_auth'])->group(function () {
+    // Route::middleware(['base_auth'])->group(function () {
         Route::group(['prefix' => 'ajax'], function () {
             Route::post('/get_district', [AjaxController::class, 'getDistrict'])->name('ajax_get_district');
             Route::post('/get_ward', [AjaxController::class, 'getWard'])->name('ajax_get_ward');
@@ -43,5 +43,5 @@ Route::localized(function () {
         Route::get('{slug}-n{id}.html', [PostController::class, 'detail'])->where(['slug' => '[a-z0-9\-]+', 'id' => '[0-9]+'])->name('post_detail');
 
         Route::get('{slug}', [SlugController::class, 'index'])->where(['slug' => '[a-zA-Z0-9\-]+'])->name('category');
-    });
+    // });
 });
