@@ -57,10 +57,10 @@
                             <div class="range-input">
                                 <div class="range-input__content">
                                     <div class="range-input__label">Quy mô vốn đầu tư</div>
-                                    <div class="range-input__price">0</div>
+                                    <div class="range-input__price">0 VND</div>
                                 </div>
                                 <input class="range-input__input" id="priceRange" type="range" value="0"
-                                    min="0" max="100000000" step="1000000">
+                                    min="0" max="100000000000" step="1000000000">
                             </div>
                         </div>
                     </div>

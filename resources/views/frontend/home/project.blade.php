@@ -76,9 +76,15 @@
                                             <img src="{{$item->banner_image ?? './images/project-1.jpg' }}" alt=""/></a>
                                         <div class="project__body">
                                             <h3 class="project__title"><a href="{{ route('project_detail',['slug' => $item->slug]) }}">{{$item->name}}</a></h3>
-                                            <div class="project__overlay"><span>Dự án mới</span><a class="project__like"
-                                                                                                   href="#!"><i
-                                                            class="fal fa-fw fa-lg fa-heart"></i></a></div>
+                                            @if($item->is_invest == 0)
+                                                <div class="project__overlay"><span>Dự án đang kêu gọi đầu tư</span>
+                                                    <a class="project__like" href="#!"><i class="fal fa-fw fa-lg fa-heart"></i></a>
+                                                </div>
+                                            @else
+                                                <div class="project__overlay"><span>Dự án đã có chủ đầu tư</span>
+                                                    <a class="project__like" href="#!"><i class="fal fa-fw fa-lg fa-heart"></i></a>
+                                                </div>
+                                            @endif
                                             <ul class="project__info">
                                                 <li><img class="me-2" src="./images/icon-map-marker.svg" alt=""/><span>Dự án nằm trên địa bàn {{ $item->districts->pluck('name')->join(', ') }}, thành phố Hà Nội</span>
                                                 </li>

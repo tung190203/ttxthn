@@ -75,6 +75,8 @@
                             label="Ảnh sơ đồ liên kết dự án" type="image" :messages="$errors->get('location_image')" />
                         <x-forms.select-multiple name="districts" label="Khu vực" :options="$option_districts" :selected="old('districts', $project->districts->pluck('id')->toArray())"
                             :messages="$errors->get('districts')" help="Chọn các khu vực liên quan" />
+                        <x-forms.switch name="is_invest" label="Trạng thái đầu tư" value="{{$project->is_invest ?? 0}}"
+                             :messages="$errors->get('is_invest')"/>
                         <x-forms.upload-multi-combo name="advantage" :value="[
                             'images' => explode(';', $project->advantage_images ?? ''),
                             'titles' => json_decode($project->advantage_titles ?? '[]', true),

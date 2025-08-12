@@ -168,6 +168,7 @@ class ProjectController extends Controller
             'legal_description' => 'nullable|array',
             'legal_description.*' => 'nullable',
             'layout_id' => 'required|integer|min:1|max:3',
+            'is_invest' => 'nullable|boolean',
         ]);
 
         // Gộp các trường array thành chuỗi bằng dấu ';'

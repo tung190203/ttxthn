@@ -38,6 +38,7 @@ class Project extends Model
         'legal_short_desc',
         'legal_description',
         'layout_id',
+        'is_invest',
         'link_sand_table'
     ];
 
