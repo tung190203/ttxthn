@@ -41,7 +41,9 @@ class ProjectController extends Controller
         ];        
 
         $query = $this->project->with(['type', 'industry', 'districts'])
-        ->orderBy('id', 'desc');
+        ->orderBy('is_pinned', 'desc')
+        ->orderByRaw('CASE WHEN pin_order IS NULL THEN 999999 ELSE pin_order END ASC')
+        ->orderBy('updated_at', 'desc');
     
     if (!empty($filter['name'])) {
         $query->where('name', 'like', '%' . $filter['name'] . '%');
@@ -67,7 +69,7 @@ class ProjectController extends Controller
 
         $clsDataGrid = new DataGrid();
         $clsDataGrid->setLinkEdit($route_name);
-        $clsDataGrid->addColumnLabel("name", "Tên dự án");
+        $clsDataGrid->addColumnLabel("name", "Tên dự án", "width='10%' nowrap");
         $clsDataGrid->addColumnImage("banner_image", "Ảnh chính", "", "width='10%' nowrap");
         $clsDataGrid->addColumnLabel("coordinates", "Tọa độ(lat/lng)", "width='10%' nowrap", 1, '', function ($col, $val, $id, $row) {
             return ($row->lat && $row->lng) ? $row->lat . ' - ' . $row->lng : '';
@@ -75,9 +77,9 @@ class ProjectController extends Controller
         $clsDataGrid->addColumnLabel('area', 'Diện tích (ha)', "width='10%' nowrap", 1, '', function ($col, $val, $id, $row) {
             return $row->area ? number_format($row->area) : '';
         });
-        $clsDataGrid->addColumnLabel("type.name", "Loại dự án");
-        $clsDataGrid->addColumnLabel("industry.name", "Ngành nghề", "width='10%' nowrap");
-        $clsDataGrid->addColumnLabel("districts", "Khu vực", "width='15%'", 1, '', function ($col, $val, $id, $row) {
+        $clsDataGrid->addColumnLabel("type.name", "Loại dự án", "width='10%' nowrap");
+        $clsDataGrid->addColumnLabel("industry.name", "Ngành nghề", "width='2%' nowrap");
+        $clsDataGrid->addColumnLabel("districts", "Khu vực", "width='15%' nowrap", 1, '', function ($col, $val, $id, $row) {
             return collect($row->districts)->pluck('name')->implode(', ');
         });
         $clsDataGrid->addColumnDate("created_at", "Ngày tạo", "width='10%' nowrap", 'd-m-Y');
@@ -169,6 +171,8 @@ class ProjectController extends Controller
             'legal_description.*' => 'nullable',
             'layout_id' => 'required|integer|min:1|max:3',
             'is_invest' => 'nullable|boolean',
+            'is_pinned' => 'nullable|boolean',
+            'pin_order' => 'nullable|integer|min:1',
         ]);
 
         // Gộp các trường array thành chuỗi bằng dấu ';'

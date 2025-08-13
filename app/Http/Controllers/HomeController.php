@@ -126,6 +126,8 @@ class HomeController extends Controller
         ->when($request->industries, function ($query) use ($request) {
             $query->whereIn('industry_number', $request->industries);
         })
+        ->orderBy('is_pinned', 'desc')
+        ->orderByRaw('CASE WHEN pin_order IS NULL THEN 999999 ELSE pin_order END ASC')
         ->orderBy('updated_at', 'desc')
         ->paginate(Project::PROJECTS_PER_PAGE)
         ->appends($request->all());

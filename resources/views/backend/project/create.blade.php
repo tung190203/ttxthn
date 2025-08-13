@@ -45,7 +45,7 @@
                     class="form-horizontal" id="formDataGrid">
                     @csrf
                     <div class="card-body">
-                        <x-forms.input name="name" value="{{ old('name') ?: $project->name }}" label="Tên dự án"
+                        <x-forms.input name="name" value="{!! old('name') ?: $project->name !!}" label="Tên dự án"
                             :required="true" onkeyup="changeNameToSlug('name', 'slug', false)" :messages="$errors->get('name')" />
                         <x-forms.input name="slug" value="{{ old('slug') ?: $project->slug }}" label="Slug"
                             :messages="$errors->get('slug')" />
@@ -77,6 +77,10 @@
                             :messages="$errors->get('districts')" help="Chọn các khu vực liên quan" />
                         <x-forms.switch name="is_invest" label="Trạng thái đầu tư" value="{{$project->is_invest ?? 0}}"
                              :messages="$errors->get('is_invest')"/>
+                        <x-forms.switch name="is_pinned" label="Có ghim dự án không" value="{{$project->is_pinned ?? 0}}"
+                             :messages="$errors->get('is_pinned')"/>
+                        <x-forms.input name="pin_order" value="{{ old('pin_order') ?: $project->pin_order }}"
+                            label="Thứ tự ghim dự án" :messages="$errors->get('pin_order')" />
                         <x-forms.upload-multi-combo name="advantage" :value="[
                             'images' => explode(';', $project->advantage_images ?? ''),
                             'titles' => json_decode($project->advantage_titles ?? '[]', true),

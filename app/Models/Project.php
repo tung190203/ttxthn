@@ -39,6 +39,8 @@ class Project extends Model
         'legal_description',
         'layout_id',
         'is_invest',
+        'is_pinned',
+        'pin_order',
         'link_sand_table'
     ];
 
