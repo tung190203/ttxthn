@@ -152,30 +152,33 @@ class HomeController extends Controller
     
         $banners = Widget::getByPosition('HOME_BANNER');
         $list_post_popular = Post::popular(Post::POSTS_TAKE)->get();
-        // bài viết theo ưu đãi, quy trình, thủ tục đầu tu
-        $preferential = Post::where('cat_id', Category::CATEGORY_TYPE_INVESTMENT_HANDBOOK)->whereHas('project', function ($q) use ($slug) {
-            $q->where('slug', $slug);
-        })->get();
-        // bài viết theo tin tức của dự án
-        $posts = Post::where('cat_id', Category::CATEGORY_TYPE_POST)->whereHas('project', function ($q) use ($slug) {
-            $q->where('slug', $slug);
-        })->get();
     
         $project = Project::with(['type', 'industry', 'districts'])
             ->where('slug', $slug)
             ->firstOrFail();
     
-        return view('frontend.home.project_detail',
-            compact(
-                'setting',
-                'banners',
-                'list_post_popular',
-                'preferential',
-                'posts',
-                'project',
-            )
-        );
-    }
+        $preferential = collect(); // default empty
+        $posts = collect();        // default empty
+    
+        if ($project->type_number !== null) {
+            $preferential = Post::where('cat_id', Category::CATEGORY_TYPE_INVESTMENT_HANDBOOK)
+                                ->where('project_type', $project->type_number)
+                                ->get();
+    
+            $posts = Post::where('cat_id', Category::CATEGORY_TYPE_POST)
+                         ->where('project_type', $project->type_number)
+                         ->get();
+        }
+    
+        return view('frontend.home.project_detail', compact(
+            'setting',
+            'banners',
+            'list_post_popular',
+            'preferential',
+            'posts',
+            'project',
+        ));
+    }    
 
     public function account(Request $request)
     {
