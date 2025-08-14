@@ -65,6 +65,7 @@ class HomeController extends Controller
                 'industry_number' => $project->industry_number,
                 'area' => $project->area,
                 'districts' => $project->districts->pluck('name')->implode(', '),
+                'is_invest' => $project->is_invest,
             ];
         })->toArray();
         return view('frontend.home.index',
