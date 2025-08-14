@@ -1,6 +1,6 @@
 @php
 $listProjectHeader = App\Models\Project::orderBy('is_pinned','desc')->orderByRaw('CASE WHEN pin_order IS NULL THEN 999999 ELSE pin_order END ASC')->orderBy('updated_at', 'desc')->take(5)->get();
-$countAllProject = App\Models\Project::count();
+$countAllProject = App\Models\Project::where('is_invest', 0)->count();
 @endphp
 <header class="header">
     <div class="header__wrapper">

@@ -134,18 +134,22 @@
             <div class="section section--overlay">
                 <div class="container">
                     <h2 class="section__title text-white">Sa bàn ảo</h2>
-                    <div class="mt-3">
-                        <a href="{{ $project->link_vrtour }}" class="btn btn-warning text-white custom-btn-vrtour"
-                            target="_blank" rel="noopener noreferrer">
-                            Xem VR Tour
-                        </a>
-                    </div>
+                    @if($project->link_vrtour)
+                        <div class="mt-3">
+                            <a href="{{ $project->link_vrtour }}" class="btn btn-warning text-white custom-btn-vrtour"
+                                target="_blank" rel="noopener noreferrer">
+                                Xem VR Tour
+                            </a>
+                        </div>
+                    @endif
                 </div>
             </div>
+            @if($project->link_sand_table)
             <div class="ratio ratio-2x1">
                 <iframe src="{{ $project->link_sand_table }}" frameborder="0" allowfullscreen
                     allow="fullscreen"></iframe>
             </div>
+            @endif
             <div class="container">
                 <h2 class="section__title text-white">Sa bàn ảo</h2>
             </div>

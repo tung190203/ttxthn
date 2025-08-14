@@ -1,5 +1,8 @@
 @extends('frontend.index')
-
+@php
+$countAllProject = App\Models\Project::count();
+$countAllIndustrial = App\Models\ProjectIndustries::count();
+@endphp
 @section('content')
     <div class="page__content">
         <!-- main content-->
@@ -199,7 +202,7 @@
                 <div class="counter">
                     <div class="counter__item">
                         <div class="counter__icon"><img src="./images/counter-1.svg" alt="" /></div>
-                        <div class="counter__number">36</div>
+                        <div class="counter__number">{{ $countAllProject }}</div>
                         <div class="counter__title">Tổng số dự án</div>
                     </div>
                     <div class="counter__item">
@@ -209,7 +212,7 @@
                     </div>
                     <div class="counter__item">
                         <div class="counter__icon"><img src="./images/counter-3.svg" alt="" /></div>
-                        <div class="counter__number">15</div>
+                        <div class="counter__number">{{ $countAllIndustrial }}</div>
                         <div class="counter__title">Lĩnh vực</div>
                     </div>
                     <div class="counter__item">
