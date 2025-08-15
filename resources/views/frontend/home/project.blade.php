@@ -15,7 +15,7 @@
                     </div>
                 </nav>
             </div>
-            <img class="banner__bg" src="./images/banner-project.jpg" alt=""/>
+            <img class="banner__bg" src="./images/thong-tin-chung-banner.jpg" alt=""/>
             <div class="banner__title">Danh mục dự án đầu tư</div>
         </article>
         <section class="section pt-40"><img class="texture-7" src="./images/texture-7.png" alt="">

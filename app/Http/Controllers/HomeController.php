@@ -160,16 +160,14 @@ class HomeController extends Controller
     
         $preferential = collect(); // default empty
         $posts = collect();        // default empty
-    
-        if ($project->type_number !== null) {
-            $preferential = Post::where('cat_id', Category::CATEGORY_TYPE_INVESTMENT_HANDBOOK)
-                                ->where('project_type', $project->type_number)
-                                ->get();
-    
-            $posts = Post::where('cat_id', Category::CATEGORY_TYPE_POST)
-                         ->where('project_type', $project->type_number)
-                         ->get();
-        }
+
+        $preferential = Post::where('cat_id', Category::CATEGORY_TYPE_INVESTMENT_HANDBOOK)->whereHas('project', function ($q) use ($slug) {
+            $q->where('slug', $slug);
+        })->get();
+        // bài viết theo tin tức của dự án
+        $posts = Post::where('cat_id', Category::CATEGORY_TYPE_POST)->whereHas('project', function ($q) use ($slug) {
+            $q->where('slug', $slug);
+        })->get();
     
         return view('frontend.home.project_detail', compact(
             'setting',
@@ -179,7 +177,7 @@ class HomeController extends Controller
             'posts',
             'project',
         ));
-    }    
+    }
 
     public function account(Request $request)
     {

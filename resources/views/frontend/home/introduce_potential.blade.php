@@ -13,7 +13,7 @@
                     </div>
                 </nav>
             </div>
-            <img class="banner__bg" src="./images/banner-news.jpg" alt="" />
+            <img class="banner__bg" src="./images/cam-nang-dau-tu-banner.jpg" alt="" />
             <div class="banner__title">Cẩm nang đầu tư</div>
         </article>
         <nav class="project-nav">

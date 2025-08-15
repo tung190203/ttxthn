@@ -13,7 +13,7 @@
                     </div>
                 </nav>
             </div>
-            <img class="banner__bg" src="./images/banner-news.jpg" alt=""/>
+            <img class="banner__bg" src="./images/tin-tuc-banner.jpg" alt=""/>
             <div class="banner__title">Tin tức</div>
         </article>
         <section class="section">

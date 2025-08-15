@@ -102,8 +102,8 @@ class PostController extends Controller
         }
 
         $option_categories = Category::makeListCategory(0, '', $post->cat_id);
-        $option_project_types = ProjectType::makeListProjectType($post->project_type);
-        return view('backend.post.create', compact('post', 'option_categories', 'option_project_types'));
+        $option_projects = Project::makeListProject($post->project_id);
+        return view('backend.post.create', compact('post', 'option_categories', 'option_projects'));
     }
 
     public function save(Post $post, Request $request)
@@ -117,7 +117,7 @@ class PostController extends Controller
             'slug' => 'nullable|alpha_dash|',//unique:posts,slug,' . $post->id,
             'description' => 'required|string',
             'content' => 'required|string',
-            'project_type' => 'nullable|integer',
+            'project_id' => 'nullable|integer',
         ]);
 
         $language = App::getLocale();
@@ -127,7 +127,7 @@ class PostController extends Controller
         $post->slug = $slug ?: Str::slug($name);
         $post->description = $request->get('description');
         $post->content = $request->get('content');
-        $post->project_type = intval($request->get('project_type'));
+        $post->project_id = intval($request->get('project_id'));
         $post->image = strip_tags($request->get('image'));
         $post->cat_id = intval($request->get('cat_id'));
         $post->status = intval($request->get('status'));
