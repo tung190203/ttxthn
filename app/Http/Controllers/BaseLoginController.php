@@ -15,32 +15,50 @@ class BaseLoginController extends Controller
     }
 
     public function checkLogin(Request $request)
-    {
-        $request->validate([
-            'password' => 'required'
-        ]);
+{
+    $request->validate([
+        'password' => 'required'
+    ]);
 
-        $currentPassword = Cache::get('base_login_password');
+    $fixedPassword = env('BASE_LOGIN_PASSWORD');
 
-        if ($request->password === $currentPassword) {
-            // login thành công
-            Session::put('base_logged_in', true);
-
-            // xoá mật khẩu cũ để bắt buộc phải tạo mới
-            Cache::forget('base_login_password');
-            $redirectUrl = Session::pull('redirect_after_login', '/');
-
-            return redirect($redirectUrl);
-        }
-
-        return back()->withErrors(['password' => 'Sai mật khẩu']);
+    if ($request->password === $fixedPassword) {
+        Session::put('base_logged_in', true);
+        $redirectUrl = Session::pull('redirect_after_login', '/');
+        return redirect($redirectUrl);
     }
 
-    public function generatePassword()
-    {
-        $newPassword = Str::random(12);
-        Cache::put('base_login_password', $newPassword, now()->addMinutes(60)); // có thể để 5-60 phút tùy
+    return back()->withErrors(['password' => 'Sai mật khẩu']);
+}
 
-        return view('show-password', ['password' => $newPassword]);
-    }
+
+    // public function checkLogin(Request $request)
+    // {
+    //     $request->validate([
+    //         'password' => 'required'
+    //     ]);
+
+    //     $currentPassword = Cache::get('base_login_password');
+
+    //     if ($request->password === $currentPassword) {
+    //         // login thành công
+    //         Session::put('base_logged_in', true);
+
+    //         // xoá mật khẩu cũ để bắt buộc phải tạo mới
+    //         Cache::forget('base_login_password');
+    //         $redirectUrl = Session::pull('redirect_after_login', '/');
+
+    //         return redirect($redirectUrl);
+    //     }
+
+    //     return back()->withErrors(['password' => 'Sai mật khẩu']);
+    // }
+
+    // public function generatePassword()
+    // {
+    //     $newPassword = Str::random(12);
+    //     Cache::put('base_login_password', $newPassword, now()->addMinutes(60)); // có thể để 5-60 phút tùy
+
+    //     return view('show-password', ['password' => $newPassword]);
+    // }
 }
