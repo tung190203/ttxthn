@@ -13,7 +13,7 @@
                     </div>
                 </nav>
             </div>
-            <img class="banner__bg" src="./images/cam-nang-dau-tu-banner.jpg" alt="" />
+            <img class="banner__bg" src="./images/banner-project.jpg" alt="" />
             <div class="banner__title">Cẩm nang đầu tư</div>
         </article>
         <nav class="project-nav">
@@ -38,7 +38,7 @@
                 </ul>
             </div>
         </nav>            
-        <section class="section pt-40">
+        <div class="pt-40">
             <div class="container">
                 <div class="row g-20">
                     <div class="col-lg-3">
@@ -68,15 +68,15 @@
                     </div>
                     <div class="col-lg-9">
                         <div class="row g-20">
-                    @if ($list_post_potential->isEmpty())
+                    @if ($list_investment->isEmpty())
                         <div class="col-12">
                             <p class="text-center fs-2">Chưa có cẩm nang đầu tư</p>
                         </div>
                     @else
-                        @foreach ($list_post_potential as $item)
+                        @foreach ($list_investment as $item)
                             <div class="col-6 col-lg-4">
                                 <div class="news"><a class="news__frame"
-                                        href="{{ route('post_detail',['id' => $item->id, 'slug' => $item->slug]) }}"><img
+                                        href="{{ route('investment_guide_detail',['id' => $item->id, 'slug' => $item->slug]) }}"><img
                                             src="{{ $item->image --}}" alt="" /></a>
                                     <div class="news__body">
                                         <div class="news__info">
@@ -95,12 +95,12 @@
                     @endif
                         </div>
                         <nav class="d-flex justify-content-center mt-40 mt-lg-50" aria-label="Pagination navigation">
-                            {{ $list_post_potential->onEachSide(1)->links('pagination::bootstrap-4') }}
+                            {{ $list_investment->onEachSide(1)->links('pagination::bootstrap-4') }}
                         </nav>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
     </div>
 @endsection
 

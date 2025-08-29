@@ -141,6 +141,7 @@ class ProjectController extends Controller
             'name' => 'required|max:255',
             'slug' => 'required|max:255|unique:projects,slug,' . $project->id,
             'banner_image' => 'nullable|max:2048',
+            'detail_image' => 'nullable|max:2048',
             'short_desc' => 'nullable',
             'description' => 'nullable',
             'lat' => 'nullable|numeric',
@@ -194,6 +195,9 @@ class ProjectController extends Controller
 
             if ($request->filled('banner_image')) {
                 $project->banner_image = $request->input('banner_image');
+            }
+            if ($request->filled('detail_image')) {
+                $project->detail_image = $request->input('detail_image');
             }
             if ($request->filled('location_image')) {
                 $project->location_image = $request->input('location_image');

@@ -102,6 +102,7 @@ class PostController extends Controller
         $setting['og_image'] = ($post->image) ?: ($setting['og_image'] ?? '');
         $list_post_popular = Post::where('status', Post::STATUS_ACTIVE)
             ->where('language', App::getLocale())
+            ->where('id', '<>', $post->id)
             ->orderBy('view_num', 'desc')
             ->take(Post::POSTS_TAKE)
             ->get();

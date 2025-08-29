@@ -64,6 +64,15 @@ class Util
         }
     }
 
+    public static function url_investment($investment_guide): string
+    {
+        if (!$investment_guide) {
+            return '';
+        } else {
+            return route('investment_guide_detail', ['slug' => $investment_guide->slug, 'id' => $investment_guide->id]);
+        }
+    }
+
     public static function url_store($store): string
     {
         if (!$store) {

@@ -16,7 +16,7 @@
             <img class="banner__bg" src="./images/tin-tuc-banner.jpg" alt=""/>
             <div class="banner__title">Tin tức</div>
         </article>
-        <section class="section">
+        <section class=" pt-40 pb-40">
             <div class="container">
                 <div class="row g-3 g-sm-4">
                     @forelse($posts as $item)

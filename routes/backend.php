@@ -14,6 +14,7 @@ use App\Http\Controllers\Backend\SettingController;
 use App\Http\Controllers\Backend\WidgetController;
 use App\Http\Controllers\Backend\UserController;
 use App\Http\Controllers\Backend\GroupController;
+use App\Http\Controllers\Backend\InvestMentGuideController;
 use Illuminate\Support\Facades\Route;
 
 Route::localized(function () {
@@ -75,6 +76,19 @@ Route::localized(function () {
             Route::get('clone/{post}', [PostController::class, 'clone'])->name('backend_post_clone');
             Route::get('restore/{id}', [PostController::class, 'restore'])->name('backend_post_restore');
             Route::get('force-delete/{id}', [PostController::class, 'forceDelete'])->name('backend_post_force_delete');
+        });
+
+        Route::prefix('investment_guide')->group(function () {
+            Route::get('/', [InvestMentGuideController::class, 'index'])->name('backend_investment_guide');
+            Route::post('/', [InvestMentGuideController::class, 'saveDataIndex'])->name('backend_investment_guide_save_data_index');
+            Route::get('create', [InvestMentGuideController::class, 'edit'])->name('backend_investment_guide_create');
+            Route::get('edit/{investment_guide}', [InvestMentGuideController::class, 'edit'])->name('backend_investment_guide_edit');
+            Route::post('save/{investment_guide?}', [InvestMentGuideController::class, 'save'])->name('backend_investment_guide_save');
+            Route::get('delete/{id}', [InvestMentGuideController::class, 'delete'])->name('backend_investment_guide_delete');
+            Route::post('bulk_delete', [InvestMentGuideController::class, 'bulkDelete'])->name('backend_investment_guide_bulk_delete');
+            Route::get('clone/{investment_guide}', [InvestMentGuideController::class, 'clone'])->name('backend_investment_guide_clone');
+            Route::get('restore/{id}', [InvestMentGuideController::class, 'restore'])->name('backend_investment_guide_restore');
+            Route::get('force-delete/{id}', [InvestMentGuideController::class, 'forceDelete'])->name('backend_investment_guide_force_delete');
         });
 
         Route::get('file-manager', [FileManagerController::class, 'index'])->name('backend_file_manager');

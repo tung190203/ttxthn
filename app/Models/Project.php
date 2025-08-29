@@ -27,6 +27,7 @@ class Project extends Model
         'price',
         'link',
         'banner_image',
+        'detail_image',
         'location_image',
         'advantage_images',
         'advantage_titles',
@@ -80,6 +81,11 @@ class Project extends Model
         }
 
         return $html;
+    }
+
+    public static function makeListProjectArray()
+    {
+        return Project::pluck('name', 'id')->toArray();
     }
 
     public function scopeInBounds($query, $minLat, $maxLat, $minLng, $maxLng)

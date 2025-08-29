@@ -86,10 +86,38 @@ class Category extends Model
         return $categories->values();
     }
 
-    public static function makeListCategory($parent_id = 0, $type = -1, $selected_id = '', $include_default = false)
+    public static function makeListCategoryForInvestMent($parent_id = 0, $type = -1, $selected_id = '', $include_default = false)
     {
         $language = App::getLocale();
-        $query = Category::where('language', $language);
+        $parentIds = Category::where('parent_id', 2)->pluck('id')->toArray();
+        $query = Category::where('language', $language)->whereIn('id',[2,...$parentIds]);
+        if ($type > -1) {
+            $query = $query->where('type', $type);
+        }
+        $categories = $query->orderBy('priority')->orderBy('name')->get(['id', 'parent_id', 'name']);
+        $html = '';
+
+        if ($include_default) {
+            $html .= "<option value='0'>__ROOT__</option>";
+        }
+
+        $list_categories = (new self())->showCategories($categories, $parent_id);
+        foreach ($list_categories as $category) {
+            if (is_array($selected_id)) {
+                $selected = in_array($category->id, $selected_id) ? 'selected' : '';
+            } else {
+                $selected = ($category->id == $selected_id) ? 'selected' : '';
+            }
+            $html .= "<option value=\"$category->id\" $selected>" . $category->name . "</option>";
+        }
+        return $html;
+
+    }
+
+    public static function makeListCategoryForPost($parent_id = 0, $type = -1, $selected_id = '', $include_default = false)
+    {
+        $language = App::getLocale();
+        $query = Category::where('language', $language)->where('id',1);
         if ($type > -1) {
             $query = $query->where('type', $type);
         }

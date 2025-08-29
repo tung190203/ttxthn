@@ -6,6 +6,7 @@ use App\Http\Controllers\MapController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\SlugController;
 use App\Http\Controllers\AjaxController;
+use App\Http\Controllers\InvestMentGuideController;
 use Illuminate\Support\Facades\Route;
 
 require __DIR__ . '/auth.php';
@@ -41,6 +42,7 @@ Route::localized(function () {
         //    Route::post('contact-post', [HomeController::class, 'contactPost'])->name('contact_post');
 
         Route::get('{slug}-n{id}.html', [PostController::class, 'detail'])->where(['slug' => '[a-z0-9\-]+', 'id' => '[0-9]+'])->name('post_detail');
+        Route::get('{slug}-p{id}.html',[InvestMentGuideController::class, 'detail'])->where(['slug' => '[a-z0-9\-]+', 'id' => '[0-9]+'])->name('investment_guide_detail');
 
         Route::get('{slug}', [SlugController::class, 'index'])->where(['slug' => '[a-zA-Z0-9\-]+'])->name('category');
     });

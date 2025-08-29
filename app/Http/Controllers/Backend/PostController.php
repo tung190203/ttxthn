@@ -60,7 +60,7 @@ class PostController extends Controller
         }
 
         $posts = $query->paginate(20);
-        $options['categories'] = Category::makeListCategory(0,'', $filter['cat_id']);
+        $options['categories'] = Category::makeListCategoryForPost(0,'', $filter['cat_id']);
         $options['status'] = Util::makeHTMLOptions(Post::STATUS_ARRAY, $filter['status']);
         $option_categories = Category::makeArrayListCategory(0, Category::CATEGORY_TYPE_POST);
 
@@ -101,7 +101,7 @@ class PostController extends Controller
             abort(403, self::MESSAGE_UNAUTHORIZED);
         }
 
-        $option_categories = Category::makeListCategory(0, '', $post->cat_id);
+        $option_categories = Category::makeListCategoryForPost(0, '', $post->cat_id);
         $option_projects = Project::makeListProject($post->project_id);
         return view('backend.post.create', compact('post', 'option_categories', 'option_projects'));
     }

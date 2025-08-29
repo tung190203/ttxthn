@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\District;
 use App\Models\Post;
 use App\Models\Feedback;
+use App\Models\InvestmentGuide;
 use App\Models\Page;
 use App\Models\ProductType;
 use App\Models\Project;
@@ -58,7 +59,7 @@ class HomeController extends Controller
         $project_category = $rawProjects->map(function ($project) {
             return [
                 'id' => $project->id,
-                'banner_image' => $project->banner_image,
+                'detail_image' => $project->detail_image,
                 'name' => $project->name,
                 'slug' => $project->slug,
                 'type_number' => $project->type_number,
@@ -68,6 +69,8 @@ class HomeController extends Controller
                 'is_invest' => $project->is_invest,
             ];
         })->toArray();
+        $maxPrice = $rawProjects->max('price');
+        $maxPriceSp = Project::where('industry_number', 6)->max('price');
         return view('frontend.home.index',
             compact(
                 'project_category',
@@ -80,6 +83,8 @@ class HomeController extends Controller
                 'list_projects',
                 'product_types',
                 'posts',
+                'maxPrice',
+                'maxPriceSp',
             )
         );
     }
@@ -88,63 +93,66 @@ class HomeController extends Controller
     {
         $setting = Setting::getAllSetting();
         $setting['menu_active'] = 'du-an-keu-goi-dau-tu';
-
+    
         $banners = Widget::getByPosition('HOME_BANNER');
         $list_post_popular = Post::popular(Post::POSTS_TAKE)->get();
+    
         $list_types = ProjectType::all()->map(function ($type) {
             return [
-                'id' => $type->id,
+                'id'   => $type->id,
                 'name' => $type->name,
             ];
         })->toArray();
-
-        $list_districts =District::all()->map(function ($district) {
+    
+        $list_districts = District::all()->map(function ($district) {
             return [
-                'id' => $district->id,
+                'id'   => $district->id,
                 'name' => $district->name,
             ];
         })->toArray();
-
+    
         $list_industries = ProjectIndustries::all()->map(function ($industry) {
             return [
-                'id' => $industry->id,
+                'id'   => $industry->id,
                 'name' => $industry->name,
             ];
         })->toArray();
-
+    
         $projects = Project::with(['type', 'industry', 'districts'])
-        ->when($request->keyword, function ($query) use ($request) {
-            $query->where('name', 'like', '%' . $request->keyword . '%');
-        })
-        ->when($request->type_id, function ($query) use ($request) {
-            $query->where('type_number', $request->type_id);
-        })
-        ->when($request->district_id, function ($query) use ($request) {
-            $query->whereHas('districts', function ($q) use ($request) {
-                $q->where('districts.id', $request->district_id);
-            });
-        })
-        ->when($request->industries, function ($query) use ($request) {
-            $query->whereIn('industry_number', $request->industries);
-        })
-        ->orderBy('is_pinned', 'desc')
-        ->orderByRaw('CASE WHEN pin_order IS NULL THEN 999999 ELSE pin_order END ASC')
-        ->orderBy('updated_at', 'desc')
-        ->paginate(Project::PROJECTS_PER_PAGE)
-        ->appends($request->all());
-
-        return view('frontend.home.project',
-            compact(
-                'projects',
-                'setting',
-                'banners',
-                'list_post_popular',
-                'list_districts',
-                'list_types',
-                'list_industries',
-            )
-        );
-    }
+            ->when($request->keyword, function ($query) use ($request) {
+                $query->where('name', 'like', '%' . $request->keyword . '%');
+            })
+            ->when($request->type_id, function ($query) use ($request) {
+                $query->where('type_number', $request->type_id);
+            })
+            ->when($request->district_id, function ($query) use ($request) {
+                $query->whereHas('districts', function ($q) use ($request) {
+                    $q->where('districts.id', $request->district_id);
+                });
+            })
+            ->when($request->industries, function ($query) use ($request) {
+                $query->whereIn('industry_number', $request->industries);
+            })
+            ->when(!is_null($request->is_invest), function ($query) use ($request) {
+                // lọc theo dự án có/không có nhà đầu tư
+                $query->where('is_invest', $request->is_invest);
+            })
+            ->orderBy('is_pinned', 'desc')
+            ->orderByRaw('CASE WHEN pin_order IS NULL THEN 999999 ELSE pin_order END ASC')
+            ->orderBy('updated_at', 'desc')
+            ->paginate(Project::PROJECTS_PER_PAGE)
+            ->appends($request->all());
+    
+        return view('frontend.home.project', compact(
+            'projects',
+            'setting',
+            'banners',
+            'list_post_popular',
+            'list_districts',
+            'list_types',
+            'list_industries',
+        ));
+    }    
 
     public function projectDetail(Request $request, $slug = null)
     {
@@ -161,9 +169,10 @@ class HomeController extends Controller
         $preferential = collect(); // default empty
         $posts = collect();        // default empty
 
-        $preferential = Post::where('cat_id', Category::CATEGORY_TYPE_INVESTMENT_HANDBOOK)->whereHas('project', function ($q) use ($slug) {
-            $q->where('slug', $slug);
-        })->get();
+        $preferential = InvestmentGuide::where('cat_id', Category::CATEGORY_TYPE_INVESTMENT_HANDBOOK)
+            ->whereHas('projects', function ($q) use ($slug) {
+                $q->where('slug', $slug);
+            })->get();
         // bài viết theo tin tức của dự án
         $posts = Post::where('cat_id', Category::CATEGORY_TYPE_POST)->whereHas('project', function ($q) use ($slug) {
             $q->where('slug', $slug);
@@ -213,14 +222,14 @@ class HomeController extends Controller
         $selectedCatId = $request->get('cat_id');
         $catIds = ($selectedCatId && in_array($selectedCatId, $allCatIds)) ? [$selectedCatId] : $allCatIds;
     
-        $query = Post::whereIn('cat_id', $catIds)
-            ->where('status', Post::STATUS_ACTIVE);
+        $query = InvestmentGuide::whereIn('cat_id', $catIds)
+            ->where('status', InvestmentGuide::STATUS_ACTIVE);
     
         if ($request->filled('keyword')) {
             $query->where('name', 'like', '%' . $request->keyword . '%');
         }
     
-        $list_post_potential = $query->latest()->paginate(Post::POSTS_PER_PAGE);
+        $list_investment = $query->latest()->paginate(InvestmentGuide::INVESTMENT_PER_PAGE);
 
         $childCategories = $subQuery->pluck('name', 'id');
     
@@ -228,7 +237,7 @@ class HomeController extends Controller
             compact(
                 'banners',
                 'setting',
-                'list_post_potential',
+                'list_investment',
                 'childCategories',
                 'selectedCatId'
             )

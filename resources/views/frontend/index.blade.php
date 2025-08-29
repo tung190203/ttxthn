@@ -179,3 +179,43 @@
 {!! $setting['tracking_code_bottom'] !!}
 </body>
 </html>
+
+<script>
+let scrollTimeout;
+let lastScrollTop = 0;
+
+document.addEventListener("scroll", () => {
+    clearTimeout(scrollTimeout);
+
+    scrollTimeout = setTimeout(() => {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const isScrollingDown = scrollTop > lastScrollTop; // check hướng scroll
+
+        lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // tránh âm
+
+        if (!isScrollingDown) {
+            // Nếu kéo lên thì thôi, không snap
+            return;
+        }
+
+        const sections = document.querySelectorAll(".section");
+        let closestSection = null;
+        let minDistance = window.innerHeight;
+
+        sections.forEach(section => {
+            const rect = section.getBoundingClientRect();
+            const distance = Math.abs(rect.top);
+
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestSection = section;
+            }
+        });
+
+        // Chỉ snap xuống khi còn cách section < 150px
+        if (closestSection && minDistance < 150) {
+            closestSection.scrollIntoView({ behavior: "smooth" });
+        }
+    }, 200); // chờ user dừng kéo 200ms
+});
+</script>

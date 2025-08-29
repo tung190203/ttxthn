@@ -22697,23 +22697,24 @@ a.ratio {
     display: -ms-flexbox;
     display: flex;
     -ms-flex-pack: distribute;
-    justify-content: space-around
+    justify-content: space-around;
+    align-items: baseline;
 }
 
 .partners__item {
     width: 130px;
-    position: relative
+    /* position: relative */
 }
 
-.partners__item::before {
+/* .partners__item::before {
     content: '';
     display: block;
     width: 100%;
     padding-bottom: 100%
-}
+} */
 
 .partners__item img {
-    position: absolute;
+    /* position: absolute;
     top: 0;
     left: 0;
     width: 100%;
@@ -22721,7 +22722,10 @@ a.ratio {
     -o-object-fit: cover;
     object-fit: cover;
     -o-object-position: 50% 50%;
-    object-position: 50% 50%
+    object-position: 50% 50% */
+    width: 100%;
+    height: auto;   /* giữ tỷ lệ gốc */
+    object-fit: contain;
 }
 
 @media (max-width:1199.98px) {

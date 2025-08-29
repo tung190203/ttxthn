@@ -50,7 +50,9 @@
                         <x-forms.input name="slug" value="{{ old('slug') ?: $project->slug }}" label="Slug"
                             :messages="$errors->get('slug')" />
                         <x-forms.upload name="banner_image" value="{{ old('banner_image') ?: $project->banner_image }}"
-                            label="Ảnh bìa" type="image" :messages="$errors->get('banner_image')" />
+                            label="Ảnh Chính" type="image" :messages="$errors->get('banner_image')" />
+                        <x-forms.upload name="detail_image" value="{{ old('detail_image') ?: $project->detail_image }}"
+                                label="Ảnh Phụ (nhỏ)" type="image" :messages="$errors->get('detail_image')" />
                         <x-forms.textarea name="short_desc" :required="true"
                             value="{{ old('short_desc') ?: $project->short_desc }}" label="Mô tả ngắn" :messages="$errors->get('short_desc')" />
                         <x-forms.textarea name="description" :required="true"

@@ -1,0 +1,45 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\InvestmentGuide;
+use Illuminate\Http\Request;
+use App\Models\Setting;
+use App\Models\Category;
+use Illuminate\Support\Facades\App;
+
+class InvestMentGuideController extends Controller
+{
+    public function detail(Request $request, $slug, $id)
+    {
+        $investment_guide = InvestmentGuide::where('status', InvestmentGuide::STATUS_ACTIVE)
+            ->where('language', App::getLocale())
+            ->where('id', $id)->firstOrFail();
+
+        $category = Category::where('id', data_get($investment_guide, 'cat_id'))->first();
+        $investment_guide->increment('view_num');
+
+        //SEO MOZ
+        $setting = Setting::getAllSetting();
+        $setting['menu_active'] = 'cam-nang-dau-tu';
+        $setting['meta_title'] = ($investment_guide->meta_title) ?: $investment_guide->name;
+        $setting['meta_keywords'] = ($investment_guide->meta_keywords) ?: $setting['meta_keywords'];
+        $setting['meta_description'] = ($investment_guide->meta_description) ?: $setting['meta_description'];
+        $setting['og_image'] = ($investment_guide->image) ?: ($setting['og_image'] ?? '');
+        $list_investment_guide_popular = InvestmentGuide::where('status', InvestmentGuide::STATUS_ACTIVE)
+            ->where('language', App::getLocale())
+            ->where('id', '<>', $investment_guide->id)
+            ->orderBy('view_num', 'desc')
+            ->take(InvestmentGuide::INVESTMENT_TAKE)
+            ->get();
+
+        return view('frontend.home.investment_guide_detail',
+            compact(
+                'setting',
+                'investment_guide',
+                'category',
+                'list_investment_guide_popular'
+            )
+        );
+    }
+}

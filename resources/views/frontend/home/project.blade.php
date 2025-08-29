@@ -18,7 +18,39 @@
             <img class="banner__bg" src="./images/thong-tin-chung-banner.jpg" alt=""/>
             <div class="banner__title">Danh mục dự án đầu tư</div>
         </article>
-        <section class="section pt-40"><img class="texture-7" src="./images/texture-7.png" alt="">
+        <nav class="project-nav">
+            <div class="container">
+                <ul class="project-nav__list">
+                    {{-- Tất cả --}}
+                    <li>
+                        <a 
+                            href="{{ route('projects') }}" 
+                            class="{{ request('is_invest') === null ? 'active' : '' }}">
+                            Tất cả
+                        </a>
+                    </li>
+        
+                    {{-- Dự án có nhà đầu tư --}}
+                    <li>
+                        <a 
+                            href="{{ route('projects', ['is_invest' => 1]) }}" 
+                            class="{{ request('is_invest') === '1' ? 'active' : '' }}">
+                            Dự án đã có nhà đầu tư
+                        </a>
+                    </li>
+        
+                    {{-- Dự án đang kêu gọi đầu tư --}}
+                    <li>
+                        <a 
+                            href="{{ route('projects', ['is_invest' => 0]) }}" 
+                            class="{{ request('is_invest') === '0' ? 'active' : '' }}">
+                            Dự án đang kêu gọi đầu tư
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>        
+        <section class=" pb-40 pt-40"><img class="texture-7" src="./images/texture-7.png" alt="">
             <div class="container">
                 <div class="row g-20">
                     <div class="col-lg-3">
@@ -73,7 +105,7 @@
                                 <div class="col-6 col-md-4 col-lg-6 col-xl-4">
                                     <div class="project">
                                         <a class="project__frame" href="{{ route('project_detail',['slug' => $item->slug]) }}">
-                                            <img src="{{$item->banner_image ?? './images/project-1.jpg' }}" alt=""/></a>
+                                            <img src="{{$item->detail_image ?? './images/project-1.jpg' }}" alt=""/></a>
                                         <div class="project__body">
                                             <h3 class="project__title"><a href="{{ route('project_detail',['slug' => $item->slug]) }}">{{$item->name}}</a></h3>
                                             @if($item->is_invest == 0)

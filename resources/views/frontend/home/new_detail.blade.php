@@ -9,7 +9,7 @@
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a class="link-unstyled" href="#!"><i
                                         class="fal fa-home me-2"></i><span>Trang chủ</span></a></li>
-                        <li class="breadcrumb-item active">Tin tức</li>
+                        <li class="breadcrumb-item active">{{$category->name}}</li>
                     </ol>
                 </div>
             </nav>

@@ -208,7 +208,10 @@ class DataGrid
             $route = data_get($view, 'route', '');
             if ($route == 'post_detail') {
                 $link = route($route, ['slug' => $value->slug, 'id' => $value->id]);
-            } else {
+            }elseif ($route == 'investment_guide_detail') {
+                $link = route($route, ['slug' => $value->slug, 'id' => $value->id]);
+            }
+             else {
                 $link = route($route, $value->slug);
             }
             $html .= "<a class='btn btn-success btn-sm mr-1' href=\"$link\" title='Xem chi tiết' target='_blank'>

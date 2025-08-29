@@ -10,12 +10,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Gate;
 
-class Post extends Model
+class InvestmentGuide extends Model
 {
     use SoftDeletes;
     use HasGlobalScopes;
 
-    protected $dates = ['created_at', 'updated_at', 'deleted_at'];
+    protected $table = 'investment_guides';
 
     protected $fillable = [
         'name',
@@ -30,6 +30,8 @@ class Post extends Model
         'status',
         'is_hot',
         'view_num',
+        'files',
+        'short_file_descs',
         'meta_title',
         'meta_keywords',
         'meta_description',
@@ -38,8 +40,10 @@ class Post extends Model
         'project_id'
     ];
 
-    const POSTS_PER_PAGE = 10;
-    const POSTS_TAKE = 10;
+    protected $dates = ['created_at', 'updated_at', 'deleted_at'];
+
+    const INVESTMENT_PER_PAGE = 10;
+    const INVESTMENT_TAKE = 10;
 
     const STATUS_ACTIVE = 1;
     const STATUS_INACTIVE = 0;
@@ -51,24 +55,25 @@ class Post extends Model
         self::STATUS_DELETED => 'Đã xóa',
     ];
 
-    const PUBLISHED = 1;
-    const UNPUBLISHED = 0;
     protected static function boot()
     {
         parent::boot();
 
-        static::deleting(function ($post) {
-//            Slug::deleteSlug(Slug::MODULE['POST'], $post->id);
+        static::deleting(function ($investment_guide) {
         });
 
-        static::saved(function ($post) {
-//            Slug::insertOrUpdateSlug($post->slug, Slug::MODULE['POST'], $post->id);
+        static::saved(function ($investment_guide) {
         });
     }
 
     public function category()
     {
         return $this->belongsTo(Category::class, 'cat_id', 'id');
+    }
+
+    public function projects()
+    {
+        return $this->belongsToMany(Project::class, 'investment_guide_project');
     }
 
     public function user()
@@ -83,21 +88,21 @@ class Post extends Model
 
     public function getUrl(): string
     {
-        return Util::url_post($this);
+        return Util::url_investment($this);
     }
 
     public function getAllTags(): array
     {
         $language = App::getLocale();
-        $posts = Post::select('meta_keywords')
+        $investment_guides = InvestmentGuide::select('meta_keywords')
             ->where('language', $language)
             ->where('meta_keywords', '<>', '')
             ->orderBy('id', 'desc')
             ->limit(100)
             ->get();
         $list_tags = [];
-        foreach ($posts as $post) {
-            $list_tags = array_merge($list_tags, preg_split("/\s?+,\s?+/", $post->meta_keywords));
+        foreach ($investment_guides as $investment_guide) {
+            $list_tags = array_merge($list_tags, preg_split("/\s?+,\s?+/", $investment_guide->meta_keywords));
         }
 
         $list_tags = array_filter($list_tags, function ($tag) {
@@ -112,18 +117,18 @@ class Post extends Model
         return $this->meta_keywords ? preg_split("/\s?+,\s?+/", $this->meta_keywords) : [];
     }
 
-    public function getNextPost()
+    public function getNextInvest()
     {
-        return Post::where('status', 1)
+        return InvestmentGuide::where('status', 1)
             ->where('language', App::getLocale())
             ->where('id', '>', $this->id)
             ->orderBy('id')
             ->first();
     }
 
-    public function getPreviousPost()
+    public function getPreviousInvest()
     {
-        return Post::where('status', 1)
+        return InvestmentGuide::where('status', 1)
             ->where('language', App::getLocale())
             ->where('id', '<', $this->id)
             ->orderBy('id', 'desc')
@@ -132,7 +137,7 @@ class Post extends Model
 
     public function scopePopular($query, $limit = 5)
     {
-        return Post::with('category')
+        return InvestmentGuide::with('category')
             ->select($this->getSimpleField())
             ->language()
             ->active()
@@ -140,9 +145,9 @@ class Post extends Model
             ->limit($limit);
     }
 
-    public function getOtherPost($limit)
+    public function getOtherInvest($limit)
     {
-        return Post::with('category')
+        return InvestmentGuide::with('category')
             ->select($this->getSimpleField())
             ->where('id', '<>', $this->id)
             ->where('cat_id', $this->cat_id)
@@ -151,9 +156,9 @@ class Post extends Model
             ->get();
     }
 
-    public function getHotPostsInCategory($limit)
+    public function getHotInvestsInCategory($limit)
     {
-        return Post::with('category')
+        return InvestmentGuide::with('category')
             ->select($this->getSimpleField())
             ->where('id', '<>', $this->id)
             ->where('cat_id', $this->cat_id)
@@ -162,10 +167,10 @@ class Post extends Model
             ->get();
     }
 
-    public function getListPostHot($limit)
+    public function getListInvestHot($limit)
     {
         $language = App::getLocale();
-        return Post::with('category')->select($this->getSimpleField())
+        return InvestmentGuide::with('category')->select($this->getSimpleField())
             ->where('language', $language)
             ->where('status', 1)
             ->where('is_hot', 1)
@@ -174,10 +179,10 @@ class Post extends Model
             ->get();
     }
 
-    public function getListLatestPost($limit = 8)
+    public function getListLatestInvest($limit = 8)
     {
         $language = App::getLocale();
-        return Post::with('category')
+        return InvestmentGuide::with('category')
             ->select($this->getSimpleField())
             ->where('language', $language)
             ->where('status', 1)
@@ -186,10 +191,10 @@ class Post extends Model
             ->get();
     }
 
-    public function getListRandomPost($limit)
+    public function getListRandomInvest($limit)
     {
         $language = App::getLocale();
-        return Post::with('category')
+        return InvestmentGuide::with('category')
             ->select($this->getSimpleField())
             ->where('language', $language)
             ->where('status', 1)
@@ -198,14 +203,14 @@ class Post extends Model
             ->get();
     }
 
-    public function getListRelatedPostByKeyword($meta_keywords, $limit = 5): Collection|array
+    public function getListRelatedInvestByKeyword($meta_keywords, $limit = 5): Collection|array
     {
         $keywords = $meta_keywords ? preg_split("/\s?+,\s?+/", $meta_keywords) : [];
         if (empty($keywords)) {
             return [];
         }
 
-        $query = Post::with('category')
+        $query = InvestmentGuide::with('category')
             ->where('language', App::getLocale())
             ->where('status', 1);
 
@@ -235,14 +240,14 @@ class Post extends Model
         ];
     }
 
-    public function getAllPostByCatID($cat_id = 0, $limit = 5)
+    public function getAllInvestByCatID($cat_id = 0, $limit = 5)
     {
         $language = App::getLocale();
         $clsCategory = new Category();
         $clsCategory->getParentArray();
         $cat_ids = $clsCategory->getAllCatStr($cat_id);
         $cat_ids[] = (int)$cat_id;
-        return Post::with('category')
+        return InvestmentGuide::with('category')
             ->select($this->getSimpleField())
             ->where('status', 1)
             ->where('language', $language)
@@ -256,14 +261,14 @@ class Post extends Model
     {
         $options = [
             'view' => [
-                'route' => 'post_detail',
+                'route' => 'investment_guide_detail',
             ]
         ];
 
         foreach (['edit', 'delete', 'clone'] as $action) {
-            if (Gate::allows('post/' . $action)) {
+            if (Gate::allows('investment_guide/' . $action)) {
                 $options[$action] = [
-                    'route' => 'backend_post_' . $action,
+                    'route' => 'backend_investment_guide_' . $action,
                 ];
             }
         }

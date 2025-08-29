@@ -22,6 +22,11 @@ return [
                     'route' => 'backend_post',
                     'title' => 'Tin tức',
                 ],
+                'investment_guide' => [
+                    'icon' => 'fas fa-book',
+                    'route' => 'backend_investment_guide',
+                    'title' => 'Cẩm nang đầu tư',
+                ],
                 'widget' => [
                     'icon' => 'fas fa-puzzle-piece',
                     'route' => 'backend_widget',

@@ -21,6 +21,15 @@ return [
             'clone' => 'Nhân bản',
         ]
     ],
+    'investment_guide' => [
+        'label' => 'Cẩm nang đầu tư',
+        'items' => [
+            'add' => 'Thêm',
+            'edit' => 'Sửa',
+            'delete' => 'Xóa',
+            'clone' => 'Nhân bản',
+        ]
+    ],
     'page' => [
         'label' => 'Trang nội dung',
         'items' => [

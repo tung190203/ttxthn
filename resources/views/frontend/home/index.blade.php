@@ -11,8 +11,8 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                 <div id="map"></div>
             </div>
         </section>
-        <div class="pj-search">
-            <div class="container py-3">
+        <div class="pj-search" id="pjSearchFull">
+            <div class="container py-3" style="position: absolute; top:50%;left:50%;transform: translate(-50%,-100%);">
                 <!-- FORM: TÌM KIẾM DỰ ÁN -->
                 <div class="pj-search__body custom_body tab-content active" id="projectTabContent">
                     <div class="pj-search__top">
@@ -63,14 +63,10 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                                     <div class="range-input__price">0 VND</div>
                                 </div>
                                 <input class="range-input__input" id="priceRange" type="range" value="0"
-                                    min="0" max="100000000000" step="1000000000">
+                                    min="0" max="{{$maxPrice ?? 100000000000 }}" step="1000000000">
                             </div>
                         </div>
                     </div>
-                    {{-- <button onclick="resetMap()" class="pj-search__btn" style="max-width: 50px; margin-top: 10px;">
-                        <i class="fas fa-redo-alt"></i>
-                    </button> --}}
-
                 </div>
 
                 <!-- FORM: SP KHU CÔNG NGHIỆP -->
@@ -125,22 +121,34 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                                     <div class="range-input__price1 text-white">0</div>
                                 </div>
                                 <input class="white-range" id="priceRangeSp" type="range" value="0"
-                                    min="0" max="100000000" step="1000000">
+                                    min="0" max="{{$maxPriceSp ?? 100000000}}" step="1000000">
                             </div>
                         </div>
                     </div>
-                    {{-- <button onclick="resetMap()" class="pj-search__btn orange-btn"
-                        style="max-width: 50px; margin-top: 10px;">
-                        <i class="fas fa-redo-alt"></i>
-                    </button> --}}
                 </div>
 
                 <!-- Tabs dưới form -->
                 <div class="custom_tabs">
                     <button class="custom-btn active" id="projectTab" onclick="showTab('project')">TÌM KIẾM DỰ
                         ÁN</button>
-                    <button class="custom-btn" id="industrialTab" onclick="showTab('industrial')">SP KHU CÔNG
-                        NGHIỆP</button>
+                    <button class="custom-btn" id="industrialTab" onclick="showTab('industrial')">SẢN PHẨM KHU, CỤM CÔNG NGHIỆP</button>
+                </div>
+            </div>
+        </div>
+        <div class="pj-search" id="pjSearchMini">
+            <div class="container py-3" style="position: absolute; top:50%;left:50%;transform: translate(-50%,-100%);">
+                <div class="pj-search__body custom_body tab-content active" id="projectTabContentMini" style="border-bottom-left-radius:8px !important">
+                    <div class="pj-search__top">
+                        <div class="pj-search__col">
+                            <div class="input-group">
+                                <input class="form-control" type="text" id="searchInput" placeholder="Nhập tên dự án">
+                                <div class="input-group-text"><i class="fal fa-lg fa-search"></i></div>
+                            </div>
+                        </div>
+                        <div class="pj-search__col">
+                            <button class="pj-search__btn" id="applyBtn" type="button">Tìm kiếm</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -167,7 +175,7 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                                     <div>
                                         <div class="project"><a class="project__frame"
                                                 href="{{ route('project_detail',['slug' => $item['slug']]) }}">
-                                                <img src="{{$item['banner_image'] ?? './images/project-1.jpg' }}"
+                                                <img src="{{$item['detail_image'] ?? './images/project-1.jpg' }}"
                                                     alt="" /></a>
                                             <div class="project__body">
                                                 <h3 class="project__title"><a href="{{ route('project_detail',['slug' => $item['slug']]) }}">{{$item['name']}}</a></h3>
@@ -277,23 +285,23 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                         </a>
                     </div>
                     <div class="partners__item">
-                        <a href="https://sotaichinh.hanoi.gov.vn/" target="_blank">
-                            <img src="./images/logo_so_tai_chinh.png" alt="">
+                        <a href="https://www.hhtp.gov.vn/" target="_blank">
+                            <img src="./images/logo_kcnc_hoa_lac.png" alt="">
                         </a>
                     </div>
                     <div class="partners__item">
-                        <a href="https://sotaichinh.hanoi.gov.vn/" target="_blank">
-                            <img src="./images/logo_so_tai_chinh.png" alt="">
+                        <a href="https://vafie.org.vn/" target="_blank">
+                            <img src="./images/logo_hhdn.png" alt="">
                         </a>
                     </div>
                     <div class="partners__item">
-                        <a href="https://sotaichinh.hanoi.gov.vn/" target="_blank">
-                            <img src="./images/logo_so_tai_chinh.png" alt="">
+                        <a href="https://hanoisme.vn/" target="_blank">
+                            <img src="./images/logo_hhdn_nho_vua.png" alt="">
                         </a>
                     </div>
                     <div class="partners__item">
-                        <a href="https://sotaichinh.hanoi.gov.vn/" target="_blank">
-                            <img src="./images/logo_so_tai_chinh.png" alt="">
+                        <a href="https://hanoiba.org.vn/" target="_blank">
+                            <img src="./images/logo_hdnthn.png" alt="">
                         </a>
                     </div>
                 </div>
@@ -901,5 +909,53 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                 $('#industrialTabContent').show();
             }
         }
+    </script>
+    <script>
+        $(document).ready(function () {
+            const $miniBox = $("#pjSearchMini");   // cụm bé
+            const $fullBox = $("#pjSearchFull");   // cụm to
+            const $inputMini = $miniBox.find("input[type=text]"); // input trong cụm bé
+
+            let ignoreNextDocClick = false;
+
+            // Trạng thái ban đầu
+            $fullBox.hide().addClass("fade-slide");
+            $miniBox.show();
+
+            // Khi focus vào input bé → hiện cụm to
+            $inputMini.on("focus", function () {
+                $miniBox.hide();
+                $fullBox.show();
+
+                requestAnimationFrame(() => {
+                    $fullBox.addClass("show");
+                });
+
+                ignoreNextDocClick = true;
+            });
+
+            // Click ngoài → đóng cụm to, hiện lại cụm bé
+            $(document).on("click", function (e) {
+                if (ignoreNextDocClick) {
+                    ignoreNextDocClick = false;
+                    return;
+                }
+
+                if (
+                    !$fullBox.is(e.target) &&
+                    $fullBox.has(e.target).length === 0 &&
+                    !$miniBox.is(e.target) &&
+                    $miniBox.has(e.target).length === 0
+                ) {
+                    closeFullForm();
+                }
+            });
+
+            function closeFullForm() {
+                $fullBox.removeClass("show").hide();
+                $miniBox.show();
+            }
+        });
+
     </script>
 @endpush
