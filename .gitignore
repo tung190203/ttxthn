@@ -2,7 +2,6 @@
 /public/js/ckfinder
 /public/uploads
 /storage/*.key
-/vendor
 .env
 .phpunit.result.cache
 /.idea
