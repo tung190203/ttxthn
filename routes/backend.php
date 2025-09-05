@@ -89,6 +89,8 @@ Route::localized(function () {
             Route::get('clone/{investment_guide}', [InvestMentGuideController::class, 'clone'])->name('backend_investment_guide_clone');
             Route::get('restore/{id}', [InvestMentGuideController::class, 'restore'])->name('backend_investment_guide_restore');
             Route::get('force-delete/{id}', [InvestMentGuideController::class, 'forceDelete'])->name('backend_investment_guide_force_delete');
+            Route::get('import', [InvestMentGuideController::class, 'showImportForm'])->name('backend_investment_guide_show_import_form');
+            Route::post('import', [InvestMentGuideController::class, 'importFromUrl'])->name('backend_investment_guide_import');
         });
 
         Route::get('file-manager', [FileManagerController::class, 'index'])->name('backend_file_manager');

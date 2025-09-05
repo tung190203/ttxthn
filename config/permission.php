@@ -28,6 +28,7 @@ return [
             'edit' => 'Sửa',
             'delete' => 'Xóa',
             'clone' => 'Nhân bản',
+            'import' => 'Import từ URL',
         ]
     ],
     'page' => [
