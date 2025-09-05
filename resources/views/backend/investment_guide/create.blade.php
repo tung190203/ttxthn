@@ -25,6 +25,10 @@
                         @can('investment_guide/' . ($investment_guide->exists ? 'edit' : 'add'))
                             <x-forms.button-save/>
                         @endcan
+                        @can('investment_guide/import')
+                            <x-forms.button-url title="Tạo từ link" class="btn-warning text-white" icon="fa fa-link"
+                                                url="{{ route('backend_investment_guide_show_import_form') }}"/>
+                        @endcan
                         @if($investment_guide->exists)
                             @can('investment_guide/add')
                                 <x-forms.button-url title="Thêm mới" class="btn-info" icon="fa fa-plus"
