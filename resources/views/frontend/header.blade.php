@@ -7,10 +7,10 @@ $countAllProject = App\Models\Project::where('is_invest', 0)->count();
         <div class="container">
             <div class="header__inner">
                 <a class="header__logo" href="{{ route('home_page') }}">
-                    <img src="{{$setting['logo']}}" alt=""/>
+                    <img src="{{$setting['logo'] ?? ''}}" alt=""/>
                 </a>
                 <div class="header__elements">
-                    <div class="header__text">{{$setting['site_name']}}</div>
+                    <div class="header__text">{{$setting['site_name'] ?? ''}}</div>
                 </div>
                 <button class="btn-toggle text-white d-xl-none js-navbar-toggle ms-1"></button>
             </div>

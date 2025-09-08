@@ -11,10 +11,10 @@
         <div class="container">
             <div class="d-flex justify-content-start align-items-center mb-4">
                 <div>
-                    <a class="footer__logo" href="/"><img src="{{$setting['logo_footer']}}" alt="" /></a>
+                    <a class="footer__logo" href="/"><img src="{{$setting['logo_footer'] ?? ''}}" alt="" /></a>
                 </div>
                 <div class="ms-3">
-                    <div class="footer__title custom-text-footer">{!! $setting['company_name']!!}</div>
+                    <div class="footer__title custom-text-footer">{!! $setting['company_name'] ?? '' !!}</div>
                 </div>
             </div>
             <div class="row">
@@ -23,8 +23,8 @@
                         <li><i class="fal fa-fw fa-map-marker-alt me-2"></i><span>Địa chỉ: {{ $setting['address'] }}</span>
                         </li>
                         <li><i class="fal fa-fw fa-globe me-2"></i>Website: <a
-                                href="{{$setting['website']}}"
-                                target="_blank">{{$setting['website']}}</a></li>
+                                href="{{$setting['website'] ?? ''}}"
+                                target="_blank">{{$setting['website'] ?? ''}}</a></li>
                         <li><i class="fal fa-fw fa-phone me-2" style="transform: rotate(-270deg);"></i>SĐT: <a
                                 href="tel:{{ preg_replace('/\D+/', '', $setting['phone']) }}">{{ $setting['phone'] }}</a></li>
                     </ul>
@@ -33,9 +33,9 @@
                     </div>
                 </div>
                 <div class="col-lg-5">
-                    <div class="footer__title">{{$setting['social_title']}}</div>
+                    <div class="footer__title">{{$setting['social_title'] ?? ''}}</div>
                     <ul class="f-social">
-                        <li><a href="{{ $setting['facebook'] }}"><img src="{{asset('./images/icon-facebook.svg')}}" alt="" /></a></li>
+                        <li><a href="{{ $setting['facebook'] ?? '' }}"><img src="{{asset('./images/icon-facebook.svg')}}" alt="" /></a></li>
                         <li><a href="#!"><img src="{{asset('./images/icon-youtube.svg')}}" alt="" /></a></li>
                         <li><a href="#!"><img src="{{asset('./images/icon-tik-tok.svg')}}" alt="" /></a></li>
                     </ul>
