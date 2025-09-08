@@ -29,7 +29,7 @@
                                 href="tel:{{ preg_replace('/\D+/', '', $setting['phone']) }}">{{ $setting['phone'] }}</a></li>
                     </ul>
                     <div class="footer__content mt-4">
-                       {!! $setting['copyright_notice'] !!}
+                       {!! $setting['copyright_notice'] ?? '' !!}
                     </div>
                 </div>
                 <div class="col-lg-5">
