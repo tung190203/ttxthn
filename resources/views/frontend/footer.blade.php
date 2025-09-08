@@ -14,13 +14,13 @@
                     <a class="footer__logo" href="/"><img src="{{$setting['logo_footer'] ?? ''}}" alt="" /></a>
                 </div>
                 <div class="ms-3">
-                    <div class="footer__title custom-text-footer">{!! $setting['company_name'] ?? '' !!}</div>
+                    <div class="footer__title custom-text-footer">{!! $setting['footer_info'] ?? '' !!}</div>
                 </div>
             </div>
             <div class="row">
                 <div class="col-lg-7 mb-40 mb-lg-0">
                     <ul class="f-contact">
-                        <li><i class="fal fa-fw fa-map-marker-alt me-2"></i><span>Địa chỉ: {{ $setting['footer_info'] ?? '' }}</span>
+                        <li><i class="fal fa-fw fa-map-marker-alt me-2"></i><span>Địa chỉ: {{ $setting['address'] ?? '' }}</span>
                         </li>
                         <li><i class="fal fa-fw fa-globe me-2"></i>Website: <a
                                 href="{{$setting['website'] ?? ''}}"
