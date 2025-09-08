@@ -47,11 +47,11 @@ return [
 //                    'route' => 'backend_member',
 //                    'title' => 'Đại lý/cửa hàng',
 //                ],
-                'page' => [
-                    'icon' => 'far fa-file',
-                    'route' => 'backend_page',
-                    'title' => 'Trang nội dung',
-                ],
+                // 'page' => [
+                //     'icon' => 'far fa-file',
+                //     'route' => 'backend_page',
+                //     'title' => 'Trang nội dung',
+                // ],
 //                'landing_page' => [
 //                    'icon' => 'fas fa-palette',
 //                    'title' => 'Lading page',

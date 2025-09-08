@@ -141,6 +141,33 @@ class Category extends Model
 
     }
 
+    public static function makeListCategory($parent_id = 0, $type = -1, $selected_id = '', $include_default = false)
+    {
+        $language = App::getLocale();
+        $query = Category::where('language', $language);
+        if ($type > -1) {
+            $query = $query->where('type', $type);
+        }
+        $categories = $query->orderBy('priority')->orderBy('name')->get(['id', 'parent_id', 'name']);
+        $html = '';
+
+        if ($include_default) {
+            $html .= "<option value='0'>__ROOT__</option>";
+        }
+
+        $list_categories = (new self())->showCategories($categories, $parent_id);
+        foreach ($list_categories as $category) {
+            if (is_array($selected_id)) {
+                $selected = in_array($category->id, $selected_id) ? 'selected' : '';
+            } else {
+                $selected = ($category->id == $selected_id) ? 'selected' : '';
+            }
+            $html .= "<option value=\"$category->id\" $selected>" . $category->name . "</option>";
+        }
+        return $html;
+
+    }
+
     public static function makeArrayListCategory($parent_id = 0, $type = -1): array
     {
         $query = Category::where('language', App::getLocale());

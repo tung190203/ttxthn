@@ -25,20 +25,28 @@ class Setting extends Model
     public static function getAllSetting()
     {
         static $cached = [];
+    
         if (isset($cached['all_setting'])) {
             return $cached['all_setting'];
         } else {
             $language = App::getLocale();
             $settings = self::where('language', $language)->get();
             $results = [];
+    
             foreach ($settings as $setting) {
-                $results[$setting->skey] = $setting->svalue;
+                if ($setting->skey === 'banners') {
+                    $results[$setting->skey] = !empty($setting->svalue)
+                        ? json_decode($setting->svalue, true)
+                        : [];
+                } else {
+                    $results[$setting->skey] = $setting->svalue;
+                }
             }
+    
             $cached['all_setting'] = $results;
             return $results;
         }
-
-    }
+    }    
 
     public static function getSettingByKey($key, $default = '')
     {

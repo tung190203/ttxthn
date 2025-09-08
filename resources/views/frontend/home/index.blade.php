@@ -1,7 +1,7 @@
 @extends('frontend.index')
 @php
-$countAllProject = App\Models\Project::count();
-$countAllIndustrial = App\Models\ProjectIndustries::count();
+    $countAllProject = App\Models\Project::count();
+    $countAllIndustrial = App\Models\ProjectIndustries::count();
 @endphp
 @section('content')
     <div class="page__content">
@@ -62,8 +62,8 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                                     <div class="range-input__label">Quy mô vốn đầu tư</div>
                                     <div class="range-input__price">0 VND</div>
                                 </div>
-                                <input class="range-input__input" id="priceRange" type="range" value="0"
-                                    min="0" max="{{$maxPrice ?? 100000000000 }}" step="1000000000">
+                                <input class="range-input__input" id="priceRange" type="range" value="0" min="0"
+                                    max="{{$maxPrice ?? 100000000000 }}" step="1000000000">
                             </div>
                         </div>
                     </div>
@@ -75,8 +75,7 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                     <div class="pj-search__top">
                         <div class="pj-search__col">
                             <div class="input-group">
-                                <input class="form-control" type="text" id="searchInputSp"
-                                    placeholder="Từ khóa tìm kiếm">
+                                <input class="form-control" type="text" id="searchInputSp" placeholder="Từ khóa tìm kiếm">
                                 <div class="input-group-text"><i class="fal fa-lg fa-search"></i></div>
                             </div>
                         </div>
@@ -120,8 +119,8 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                                     <div class="range-input__label text-white">Giá thuê</div>
                                     <div class="range-input__price1 text-white">0</div>
                                 </div>
-                                <input class="white-range" id="priceRangeSp" type="range" value="0"
-                                    min="0" max="{{$maxPriceSp ?? 100000000}}" step="1000000">
+                                <input class="white-range" id="priceRangeSp" type="range" value="0" min="0"
+                                    max="{{$maxPriceSp ?? 100000000}}" step="1000000">
                             </div>
                         </div>
                     </div>
@@ -131,13 +130,15 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                 <div class="custom_tabs">
                     <button class="custom-btn active" id="projectTab" onclick="showTab('project')">TÌM KIẾM DỰ
                         ÁN</button>
-                    <button class="custom-btn" id="industrialTab" onclick="showTab('industrial')">SẢN PHẨM KHU, CỤM CÔNG NGHIỆP</button>
+                    <button class="custom-btn" id="industrialTab" onclick="showTab('industrial')">SẢN PHẨM KHU, CỤM CÔNG
+                        NGHIỆP</button>
                 </div>
             </div>
         </div>
         <div class="pj-search" id="pjSearchMini">
             <div class="container py-3" style="position: absolute; top:50%;left:50%;transform: translate(-50%,-100%);">
-                <div class="pj-search__body custom_body tab-content active" id="projectTabContentMini" style="border-bottom-left-radius:8px !important">
+                <div class="pj-search__body custom_body tab-content active" id="projectTabContentMini"
+                    style="border-bottom-left-radius:8px !important">
                     <div class="pj-search__top">
                         <div class="pj-search__col">
                             <div class="input-group">
@@ -174,29 +175,32 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                                 <div class="swiper-slide">
                                     <div>
                                         <div class="project"><a class="project__frame"
-                                                href="{{ route('project_detail',['slug' => $item['slug']]) }}">
-                                                <img src="{{$item['detail_image'] ?? './images/project-1.jpg' }}"
-                                                    alt="" /></a>
+                                                href="{{ route('project_detail', ['slug' => $item['slug']]) }}">
+                                                <img src="{{$item['detail_image'] ?? './images/project-1.jpg' }}" alt="" /></a>
                                             <div class="project__body">
-                                                <h3 class="project__title"><a href="{{ route('project_detail',['slug' => $item['slug']]) }}">{{$item['name']}}</a></h3>
+                                                <h3 class="project__title"><a
+                                                        href="{{ route('project_detail', ['slug' => $item['slug']]) }}">{{$item['name']}}</a>
+                                                </h3>
                                                 @if($item['is_invest'] == 0)
-                                                <div class="project__overlay"><span>Dự án đang kêu gọi đầu tư</span>
-                                                    <a class="project__like" href="#!"><i class="fal fa-fw fa-lg fa-heart"></i></a>
-                                                </div>
-                                            @else
-                                                <div class="project__overlay"><span>Dự án đã có chủ đầu tư</span>
-                                                    <a class="project__like" href="#!"><i class="fal fa-fw fa-lg fa-heart"></i></a>
-                                                </div>
-                                            @endif
+                                                    <div class="project__overlay"><span>Dự án đang kêu gọi đầu tư</span>
+                                                        <a class="project__like" href="#!"><i
+                                                                class="fal fa-fw fa-lg fa-heart"></i></a>
+                                                    </div>
+                                                @else
+                                                    <div class="project__overlay"><span>Dự án đã có chủ đầu tư</span>
+                                                        <a class="project__like" href="#!"><i
+                                                                class="fal fa-fw fa-lg fa-heart"></i></a>
+                                                    </div>
+                                                @endif
                                                 <ul class="project__info">
-                                                    <li><img class="me-2" src="./images/icon-map-marker.svg"
-                                                            alt="" /><span>Dự án thuộc {{$item['districts']}}</span>
+                                                    <li><img class="me-2" src="./images/icon-map-marker.svg" alt="" /><span>Dự
+                                                            án thuộc {{$item['districts']}}</span>
                                                     </li>
                                                     <li><img class="me-2" src="./images/icon-dimension.svg"
                                                             alt="" /><span>{{$item['area'] ?? 0}} ha</span>
                                                     </li>
-                                                    <li><img class="me-2" src="./images/icon-save-money.svg"
-                                                            alt="" /><span>Theo đề xuất</span>
+                                                    <li><img class="me-2" src="./images/icon-save-money.svg" alt="" /><span>Theo
+                                                            đề xuất</span>
                                                     </li>
                                                 </ul>
                                             </div>
@@ -237,8 +241,8 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                 </div>
             </div>
         </section>
-        <section class="section"><img class="texture-1" src="./images/texture-1.png" alt="" /><img
-                class="texture-2" src="./images/texture-2.png" alt="" />
+        <section class="section"><img class="texture-1" src="./images/texture-1.png" alt="" /><img class="texture-2"
+                src="./images/texture-2.png" alt="" />
             <div class="container">
                 <h2 class="section__title">Tin tức</h2>
                 <div class="news-slider">
@@ -278,33 +282,18 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
         <section class="section section--medium-blue">
             <div class="container">
                 <h2 class="section__title text-white">Liên kết</h2>
-                <div class="partners">
-                    <div class="partners__item">
-                        <a href="https://sotaichinh.hanoi.gov.vn/" target="_blank">
-                            <img src="./images/logo_so_tai_chinh.png" alt="">
-                        </a>
+                @if(!empty($setting['banners']))
+                    <div class="partners">
+                        @foreach($setting['banners'] as $banner)
+                            <div class="partners__item">
+                                <a href="{{ $banner['link'] ?? '#' }}" target="_blank">
+                                    <img src="{{ $banner['image'] ?? '' }}" alt="">
+                                </a>
+                            </div>
+                        @endforeach
                     </div>
-                    <div class="partners__item">
-                        <a href="https://www.hhtp.gov.vn/" target="_blank">
-                            <img src="./images/logo_kcnc_hoa_lac.png" alt="">
-                        </a>
-                    </div>
-                    <div class="partners__item">
-                        <a href="https://vafie.org.vn/" target="_blank">
-                            <img src="./images/logo_hhdn.png" alt="">
-                        </a>
-                    </div>
-                    <div class="partners__item">
-                        <a href="https://hanoisme.vn/" target="_blank">
-                            <img src="./images/logo_hhdn_nho_vua.png" alt="">
-                        </a>
-                    </div>
-                    <div class="partners__item">
-                        <a href="https://hanoiba.org.vn/" target="_blank">
-                            <img src="./images/logo_hdnthn.png" alt="">
-                        </a>
-                    </div>
-                </div>
+                @endif
+
             </div>
         </section>
         <div class="modal fade" id="filterResultModal" tabindex="-1" aria-hidden="true">
@@ -386,7 +375,7 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
             position: 'bottomright'
         });
 
-        resetControl.onAdd = function(map) {
+        resetControl.onAdd = function (map) {
             const btn = L.DomUtil.create('button', 'leaflet-bar leaflet-control leaflet-control-custom');
             btn.innerHTML = '<i class="fas fa-redo-alt"></i>';
             btn.title = 'Reset bản đồ';
@@ -402,7 +391,7 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
 
             L.DomEvent.disableClickPropagation(btn);
 
-            btn.onclick = function() {
+            btn.onclick = function () {
                 resetMap();
             };
 
@@ -411,7 +400,7 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
 
         resetControl.addTo(map);
 
-        currentLocation.onAdd = function(map) {
+        currentLocation.onAdd = function (map) {
             const btn = L.DomUtil.create('button', 'leaflet-bar leaflet-control leaflet-control-custom');
             btn.innerHTML = '<i class="fas fa-crosshairs"></i>';
             btn.title = 'Vị trí hiện tại';
@@ -428,9 +417,9 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
 
             L.DomEvent.disableClickPropagation(btn);
 
-            btn.onclick = function() {
+            btn.onclick = function () {
                 if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(function(position) {
+                    navigator.geolocation.getCurrentPosition(function (position) {
                         const latLng = [position.coords.latitude, position.coords.longitude];
                         map.setView(latLng, 16);
 
@@ -438,12 +427,12 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                             map.removeLayer(map._currentLocationMarker);
                         }
                         map._currentLocationMarker = L.marker(latLng, {
-                                icon: redIcon
-                            }).addTo(map)
+                            icon: redIcon
+                        }).addTo(map)
                             .bindPopup("Vị trí hiện tại")
                             .openPopup();
 
-                    }, function() {
+                    }, function () {
                         alert('Không thể lấy vị trí hiện tại.');
                     });
                 } else {
@@ -496,16 +485,16 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                 'Chưa có giá';
 
             marker.bindPopup(`
-                <a href="${detailUrl}" target="_blank" style="text-decoration: none; color: inherit;">
-                  <div class='info-box'>
-                    <strong>${loc.name}</strong><br>
-                    Loại: ${getTypeName(loc.type_number)}<br>
-                    Khu vực: ${districtText}<br>
-                    Quy mô vốn đầu tư: ${priceText}<br>
-                    <em>→ Click để xem chi tiết</em>
-                  </div>
-                </a>
-            `);
+                            <a href="${detailUrl}" target="_blank" style="text-decoration: none; color: inherit;">
+                              <div class='info-box'>
+                                <strong>${loc.name}</strong><br>
+                                Loại: ${getTypeName(loc.type_number)}<br>
+                                Khu vực: ${districtText}<br>
+                                Quy mô vốn đầu tư: ${priceText}<br>
+                                <em>→ Click để xem chi tiết</em>
+                              </div>
+                            </a>
+                        `);
             return marker;
         }
 
@@ -615,7 +604,7 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                 url: '/map/bounds',
                 method: 'GET',
                 data: params,
-                success: function(data) {
+                success: function (data) {
                     loadMarkers(data, !triggeredByMap);
                     const allIndustrial = [];
                     data.forEach(project => {
@@ -646,7 +635,7 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                         currentDistrict = null;
                     }
                 },
-                error: function(err) {
+                error: function (err) {
                     console.error("Lỗi khi tải dữ liệu:", err);
                 }
             });
@@ -662,24 +651,24 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
 
             if (allItems.length === 0) {
                 resultList.innerHTML = `
-            <li class="list-group-item text-muted justify-content-center">
-                Chưa có kết quả tìm kiếm phù hợp.
-            </li>
-        `;
+                        <li class="list-group-item text-muted justify-content-center">
+                            Chưa có kết quả tìm kiếm phù hợp.
+                        </li>
+                    `;
                 $('#pagination').empty();
                 return;
             }
 
             resultList.innerHTML = items.map(item => `
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-            <div>
-                <strong>${item.name}</strong><br>
-                <small>Dự án: ${item.project_name}</small> - Mã dự án: ${item.code}<br>
-                <small>Diện tích: ${item.acreage} - Loại hình: ${item.product_type_name}</small>
-            </div>
-            <a href="${item.link}" target="_blank" class="btn custom-btn btn-sm">Vị trí</a>
-        </li>
-    `).join('');
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>${item.name}</strong><br>
+                            <small>Dự án: ${item.project_name}</small> - Mã dự án: ${item.code}<br>
+                            <small>Diện tích: ${item.acreage} - Loại hình: ${item.product_type_name}</small>
+                        </div>
+                        <a href="${item.link}" target="_blank" class="btn custom-btn btn-sm">Vị trí</a>
+                    </li>
+                `).join('');
 
             renderPagination(page);
         }
@@ -735,31 +724,31 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
             $.ajax({
                 url: '/api/districts',
                 method: 'GET',
-                success: function(res) {
+                success: function (res) {
                     allDistricts = res.sort();
                     allDistrictsLoaded = true;
                 },
-                error: function(err) {
+                error: function (err) {
                     console.error("Lỗi khi tải danh sách quận:", err);
                 }
             });
         }
         // PRICE RANGE
-        $('#priceRange').on("input", function() {
+        $('#priceRange').on("input", function () {
             $('#priceValue').text(parseInt($(this).val()).toLocaleString('vi-VN'));
         });
 
         let priceTimeout = null;
-        $('#priceRange').on("change", function() {
+        $('#priceRange').on("change", function () {
             clearTimeout(priceTimeout);
             priceTimeout = setTimeout(applyFiltersWithBounds, 500);
         });
 
-        $('#priceRangeSp').on("input", function() {
+        $('#priceRangeSp').on("input", function () {
             $('#priceValueSp').text(parseInt($(this).val()).toLocaleString('vi-VN'));
         });
         let priceSpTimeout = null;
-        $('#priceRangeSp').on("change", function() {
+        $('#priceRangeSp').on("change", function () {
             clearTimeout(priceSpTimeout);
             priceSpTimeout = setTimeout(applyFiltersWithBounds, 500);
         });
@@ -790,14 +779,14 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
             dropdown.show();
         }
 
-        $('#districtFilter').on('input', function() {
+        $('#districtFilter').on('input', function () {
             const keyword = $(this).val().toLowerCase();
             const filtered = allDistricts.filter(d => d.toLowerCase().includes(keyword));
             $('.custom_tabs').addClass('position-custom');
             renderDistrictDropdown(filtered);
         });
 
-        $(document).on('click', '#districtDropdown div', function() {
+        $(document).on('click', '#districtDropdown div', function () {
             const val = $(this).data('value');
             $('#districtFilter').val(val);
             $('#districtDropdown').hide();
@@ -805,21 +794,21 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
             applyFiltersWithBounds();
         });
 
-        $(document).on('click', function(e) {
+        $(document).on('click', function (e) {
             if (!$(e.target).closest('.pj-search__col').length) {
                 $('#districtDropdown').hide();
                 $('.custom_tabs').removeClass('position-custom');
             }
         });
 
-        $('#districtFilterSp').on('input', function() {
+        $('#districtFilterSp').on('input', function () {
             const keyword = $(this).val().toLowerCase();
             const filtered = allDistricts.filter(d => d.toLowerCase().includes(keyword));
             $('.custom_tabs').addClass('position-custom');
             renderDistrictDropdown(filtered);
         });
 
-        $(document).on('click', '#districtDropdownSp div', function() {
+        $(document).on('click', '#districtDropdownSp div', function () {
             const val = $(this).data('value');
             $('#districtFilterSp').val(val);
             $('#districtDropdownSp').hide();
@@ -827,7 +816,7 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
             applyFiltersWithBounds();
         });
 
-        $(document).on('click', function(e) {
+        $(document).on('click', function (e) {
             if (!$(e.target).closest('.pj-search__col').length) {
                 $('#districtDropdownSp').hide();
                 $('.custom_tabs').removeClass('position-custom');
@@ -836,17 +825,17 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
 
         // MAP MOVE
         let mapMoveTimeout = null;
-        map.on('moveend zoomend', function() {
+        map.on('moveend zoomend', function () {
             isMapTriggered = true;
             clearTimeout(mapMoveTimeout);
             mapMoveTimeout = setTimeout(applyFiltersWithBounds, 500);
         });
 
-        map.whenReady(function() {
+        map.whenReady(function () {
             loadAllDistricts(); // tải districts ngay khi map load
             applyFiltersWithBounds(); // tải marker ngay từ đầu
 
-            $('#openDropdown').on('click', function() {
+            $('#openDropdown').on('click', function () {
                 const dropdown = $('#districtDropdown');
                 const customTabs = $('.custom_tabs');
 
@@ -858,7 +847,7 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                     customTabs.addClass('position-custom');
                 }
             });
-            $('#openDropdownSp').on('click', function() {
+            $('#openDropdownSp').on('click', function () {
                 const dropdown = $('#districtDropdownSp');
                 const customTabs = $('.custom_tabs');
 
