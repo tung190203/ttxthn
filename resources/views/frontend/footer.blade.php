@@ -20,13 +20,13 @@
             <div class="row">
                 <div class="col-lg-7 mb-40 mb-lg-0">
                     <ul class="f-contact">
-                        <li><i class="fal fa-fw fa-map-marker-alt me-2"></i><span>Địa chỉ: {{ $setting['address'] }}</span>
+                        <li><i class="fal fa-fw fa-map-marker-alt me-2"></i><span>Địa chỉ: {{ $setting['footer_info'] ?? '' }}</span>
                         </li>
                         <li><i class="fal fa-fw fa-globe me-2"></i>Website: <a
                                 href="{{$setting['website'] ?? ''}}"
                                 target="_blank">{{$setting['website'] ?? ''}}</a></li>
                         <li><i class="fal fa-fw fa-phone me-2" style="transform: rotate(-270deg);"></i>SĐT: <a
-                                href="tel:{{ preg_replace('/\D+/', '', $setting['phone']) }}">{{ $setting['phone'] }}</a></li>
+                                href="tel:{{ preg_replace('/\D+/', '', $setting['phone'] ?? '') }}">{{ $setting['phone'] ?? '' }}</a></li>
                     </ul>
                     <div class="footer__content mt-4">
                        {!! $setting['copyright_notice'] ?? '' !!}
