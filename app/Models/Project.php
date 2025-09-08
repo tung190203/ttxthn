@@ -37,6 +37,7 @@ class Project extends Model
         'design_images',
         'design_description',
         'legal_short_desc',
+        'legal_file',
         'legal_description',
         'layout_id',
         'is_invest',

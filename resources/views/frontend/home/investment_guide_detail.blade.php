@@ -49,7 +49,7 @@
                         <div class="row g-3">
                             @foreach ($files as $index => $file)
                                 <div class="col-md-6">
-                                    <a href="{{ asset($file) }}" download
+                                    <a href="{{ asset($file) }}" target="_blank" rel="noopener noreferrer"
                                         class="text-decoration-none">
                                         <div class="card shadow-sm h-100 hover-shadow-custom border-0">
                                             <div class="card-body d-flex align-items-center">
@@ -57,7 +57,7 @@
                                                 <div>
                                                     @if (isset($content[$index]) && !empty($content[$index]))
                                                         <div class="fw-bold">
-                                                            {{ Str::limit($content[$index], 50, '...') }}
+                                                            {{ Str::limit($content[$index], 35, '...') }}
                                                         </div>
                                                     @endif
                                                     <small class="text-muted">{{ basename($file) }}</small>
