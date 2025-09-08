@@ -95,16 +95,16 @@
                                 <div class="swiper-slide">
                                     <div>
                                         <div class="project"><a class="project__frame"
-                                                                href="{{ route('project_detail') }}"><img
+                                                                href=""><img
                                                         src="./images/project-1.jpg" alt=""/></a>
                                             <div class="project__body">
-                                                <h3 class="project__title"><a href="{{ route('project_detail') }}">Dự án
+                                                <h3 class="project__title"><a href="">Dự án
                                                         Khu công nghệ cao Láng -
                                                         Hoà
                                                         Lạc</a></h3>
                                                 <div class="project__overlay"><span>Dự án mới</span><a
                                                             class="project__like"
-                                                            href="{{ route('project_detail') }}"><i
+                                                            href=""><i
                                                                 class="fal fa-fw fa-lg fa-heart"></i></a></div>
                                                 <ul class="project__info">
                                                     <li><img class="me-2" src="./images/icon-map-marker.svg"
@@ -122,16 +122,16 @@
                                     </div>
                                     <div class="mt-20">
                                         <div class="project"><a class="project__frame"
-                                                                href="{{ route('project_detail') }}"><img
+                                                                href=""><img
                                                         src="./images/project-1.jpg" alt=""/></a>
                                             <div class="project__body">
-                                                <h3 class="project__title"><a href="{{ route('project_detail') }}">Dự án
+                                                <h3 class="project__title"><a href="">Dự án
                                                         Khu công nghệ cao Láng -
                                                         Hoà
                                                         Lạc</a></h3>
                                                 <div class="project__overlay"><span>Dự án mới</span><a
                                                             class="project__like"
-                                                            href="{{ route('project_detail') }}"><i
+                                                            href=""><i
                                                                 class="fal fa-fw fa-lg fa-heart"></i></a></div>
                                                 <ul class="project__info">
                                                     <li><img class="me-2" src="./images/icon-map-marker.svg"
@@ -195,7 +195,7 @@
                         <div class="swiper-wrapper">
                             @foreach(range(1,6) as $item)
                                 <div class="swiper-slide">
-                                    <div class="news"><a class="news__frame" href="{{ route('new_detail') }}"><img
+                                    <div class="news"><a class="news__frame" href=""><img
                                                     src="./images/news-1.jpg"
                                                     alt=""/></a>
                                         <div class="news__body">
@@ -204,7 +204,7 @@
                                                             class="fal fa-clock me-2"></i><span>15/04/2024</span></div>
                                                 <div class="news__like"><i class="fal fa-fw fa-heart"></i></div>
                                             </div>
-                                            <h3 class="news__title"><a href="{{ route('new_detail') }}">Tin tức thủ đô
+                                            <h3 class="news__title"><a href="">Tin tức thủ đô
                                                     mới của Malaysia chuyển
                                                     về
                                                     Kuala Lumper</a></h3>
