@@ -203,18 +203,26 @@
                 <div class="section__desc">{{ $project->legal_short_desc }}</div>
                 <div class="legal-grid">
                     @php
-                        $legal_descs = json_decode($project->legal_description, true);
-                        $legal_descs = is_array($legal_descs) ? $legal_descs : [];
-                        $legal_count = count($legal_descs);
+                        $legal_files = $project->legal_file ? explode(';', $project->legal_file) : [];
+                        $legal_descs = $project->legal_description ? json_decode($project->legal_description, true) : [];
                     @endphp
-                    @for ($i = 0; $i < $legal_count; $i++)
-                        <a class="legal" href="#!"><img class="legal__icon"
-                                src="{{ asset('./images/icon-pdf.svg') }}" alt="" />
-                            <div class="legal__body">
-                                <div class="legal__title">{{ $legal_descs[$i] ?? 'Văn bản pháp quy' }}</div>
-                            </div>
-                        </a>
-                    @endfor
+                    @if(count($legal_files) > 0)
+                        @foreach ($legal_files as $index => $file)
+                            <a class="legal" href="{{ asset($file) }}" target="_blank" rel="noopener noreferrer">
+                                <img class="legal__icon" src="{{ asset('./images/icon-pdf.svg') }}" alt="" />
+                                <div class="legal__body">
+                                    <div class="legal__title">
+                                        @if(isset($legal_descs[$index]) && !empty($legal_descs[$index]))
+                                            <div class="fw-bold">
+                                                {{ Str::limit($legal_descs[$index], 35, '...') }}
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <small class="text-muted">{{ basename($file) }}</small>
+                                </div>
+                            </a>
+                        @endforeach
+                    @endif
                 </div>
                 <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="#!">Xem thêm</a>
                 </nav>

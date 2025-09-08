@@ -167,9 +167,11 @@ class ProjectController extends Controller
             'design_images.*' => 'nullable|max:2048',
             'design_descs' => 'nullable|array',
             'design_descs.*' => 'nullable',
+            'files_images' => 'nullable|array',
+            'files_images.*' => 'nullable|max:2048',
             'legal_short_desc' => 'nullable|string',
-            'legal_description' => 'nullable|array',
-            'legal_description.*' => 'nullable',
+            'files_descs' => 'nullable|array',
+            'files_descs.*' => 'nullable',
             'layout_id' => 'required|integer|min:1|max:3',
             'is_invest' => 'nullable|boolean',
             'is_pinned' => 'nullable|boolean',
@@ -177,7 +179,7 @@ class ProjectController extends Controller
         ]);
 
         // Gộp các trường array thành chuỗi bằng dấu ';'
-        $fieldsToJsonEncode = ['advantage_titles', 'advantage_descs', 'design_descs', 'legal_description'];
+        $fieldsToJsonEncode = ['advantage_titles', 'advantage_descs', 'design_descs', 'files_descs'];
         foreach ($fieldsToJsonEncode as $field) {
             if (isset($validated[$field]) && is_array($validated[$field])) {
             $validated[$field] = json_encode(array_map('trim', $validated[$field]));
@@ -188,7 +190,7 @@ class ProjectController extends Controller
             $fillableData = Arr::except($validated, ['districts']);
             $fillableData['advantage_descriptions'] = $validated['advantage_descs'] ?? '';
             $fillableData['design_description'] = $validated['design_descs'] ?? '';
-            $fillableData['legal_description'] = $validated['legal_description'] ?? '';
+            $fillableData['legal_description'] = $validated['files_descs'] ?? '';
             $project->fill($fillableData);
             $project->slug = $validated['slug'] ?: Str::slug($validated['name']);
             $project->save();
@@ -209,6 +211,10 @@ class ProjectController extends Controller
 
             if ($request->filled('design_images') && is_array($request->design_images)) {
                 $project->design_images = implode(';', array_map('trim', $request->design_images));
+            }
+
+            if( $request->filled('files_images') && is_array($request->files_images)) {
+                $project->legal_file = implode(';', array_map('trim', $request->files_images));
             }
 
             $project->save();

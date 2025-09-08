@@ -45,14 +45,14 @@
                     class="form-horizontal" id="formDataGrid">
                     @csrf
                     <div class="card-body">
-                        <x-forms.input name="name" value="{!! old('name') ?: $project->name !!}" label="Tên dự án"
-                            :required="true" onkeyup="changeNameToSlug('name', 'slug', false)" :messages="$errors->get('name')" />
+                        <x-forms.input name="name" value="{!! old('name') ?: $project->name !!}" label="Tên dự án" :required="true"
+                            onkeyup="changeNameToSlug('name', 'slug', false)" :messages="$errors->get('name')" />
                         <x-forms.input name="slug" value="{{ old('slug') ?: $project->slug }}" label="Slug"
                             :messages="$errors->get('slug')" />
                         <x-forms.upload name="banner_image" value="{{ old('banner_image') ?: $project->banner_image }}"
                             label="Ảnh Chính" type="image" :messages="$errors->get('banner_image')" />
                         <x-forms.upload name="detail_image" value="{{ old('detail_image') ?: $project->detail_image }}"
-                                label="Ảnh Phụ (nhỏ)" type="image" :messages="$errors->get('detail_image')" />
+                            label="Ảnh Phụ (nhỏ)" type="image" :messages="$errors->get('detail_image')" />
                         <x-forms.textarea name="short_desc" :required="true"
                             value="{{ old('short_desc') ?: $project->short_desc }}" label="Mô tả ngắn" :messages="$errors->get('short_desc')" />
                         <x-forms.textarea name="description" :required="true"
@@ -77,10 +77,10 @@
                             label="Ảnh sơ đồ liên kết dự án" type="image" :messages="$errors->get('location_image')" />
                         <x-forms.select-multiple name="districts" label="Khu vực" :options="$option_districts" :selected="old('districts', $project->districts->pluck('id')->toArray())"
                             :messages="$errors->get('districts')" help="Chọn các khu vực liên quan" />
-                        <x-forms.switch name="is_invest" label="Trạng thái đầu tư" value="{{$project->is_invest ?? 0}}"
-                             :messages="$errors->get('is_invest')"/>
-                        <x-forms.switch name="is_pinned" label="Có ghim dự án không" value="{{$project->is_pinned ?? 0}}"
-                             :messages="$errors->get('is_pinned')"/>
+                        <x-forms.switch name="is_invest" label="Trạng thái đầu tư" value="{{ $project->is_invest ?? 0 }}"
+                            :messages="$errors->get('is_invest')" />
+                        <x-forms.switch name="is_pinned" label="Có ghim dự án không" value="{{ $project->is_pinned ?? 0 }}"
+                            :messages="$errors->get('is_pinned')" />
                         <x-forms.input name="pin_order" value="{{ old('pin_order') ?: $project->pin_order }}"
                             label="Thứ tự ghim dự án" :messages="$errors->get('pin_order')" />
                         <x-forms.upload-multi-combo name="advantage" :value="[
@@ -88,12 +88,12 @@
                             'titles' => json_decode($project->advantage_titles ?? '[]', true),
                             'descs' => json_decode($project->advantage_descriptions ?? '[]', true),
                         ]" label="Ảnh và mô tả lợi thế nổi bật"
-                            :editor="true"
-                            :messages="$errors->get('advantage_images')" />
+                            :editor="true" :messages="$errors->get('advantage_images')" />
                         <x-forms.input name="link_vrtour" value="{{ old('link_vrtour') ?: $project->link_vrtour }}"
                             label="Link vrtour dự án" :messages="$errors->get('link_vrtour')" />
-                            <x-forms.input name="link_sand_table" value="{{ old('link_sand_table') ?: $project->link_sand_table }}"
-                                label="Link sa bàn ảo dự án" :messages="$errors->get('link_sand_table')" />
+                        <x-forms.input name="link_sand_table"
+                            value="{{ old('link_sand_table') ?: $project->link_sand_table }}" label="Link sa bàn ảo dự án"
+                            :messages="$errors->get('link_sand_table')" />
                         <x-forms.textarea name="design_short_desc" :required="true"
                             value="{{ old('design_short_desc') ?: $project->design_short_desc }}"
                             label="Mô tả ngắn thiết kế mặt bằng" :messages="$errors->get('design_short_desc')" />
@@ -105,17 +105,13 @@
                         <x-forms.input name="legal_short_desc"
                             value="{{ old('legal_short_desc') ?: $project->legal_short_desc }}"
                             label="Mô tả văn bản pháp quy" :messages="$errors->get('legal_short_desc')" />
-                            <x-forms.textarea
-                            name="legal_description"
-                             :value="old('legal_description') ?? json_decode($project->legal_description, true)"
-                            label="Nội dung ngắn văn bản pháp quy"
-                            :messages="$errors->get('legal_description')"
-                            :repeatable="true"
-                        />
-                        <x-forms.select name="layout_id" label="Lựa chọn layout dự án" :required="true"
-                        :options="new HtmlString($option_layouts)"
-                        :selected="old('layout_id', $project->layout_id)"
-                        :messages="$errors->get('layout_id')" />
+                            <x-forms.upload-multi-combo name="files" :value="[
+                                'images' => explode(';', $project->legal_file ?? ''),
+                                'descs' => json_decode($project->legal_description ?? '[]', true),
+                            ]" label="Tệp đính kèm văn bản pháp quy"
+                                :messages="$errors->get('files')" />
+                        <x-forms.select name="layout_id" label="Lựa chọn layout dự án" :required="true" :options="new HtmlString($option_layouts)"
+                            :selected="old('layout_id', $project->layout_id)" :messages="$errors->get('layout_id')" />
                     </div>
                 </form>
             </div>
