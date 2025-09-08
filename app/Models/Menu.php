@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Libs\Util;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Str;
 
 class Menu extends Model
 {
@@ -18,6 +19,17 @@ class Menu extends Model
     public function page()
     {
         return $this->belongsTo(Page::class);
+    }
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($menu) {
+            if (empty($menu->slug)) {
+                $menu->slug = Str::slug($menu->name);
+            }
+        });
     }
 
     public function showMenus($menus, $parent_id = 0, $char = '')

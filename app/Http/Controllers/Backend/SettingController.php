@@ -85,14 +85,24 @@ class SettingController extends Controller
             $arrListKey['noindex'] = 0;
         }
         foreach ($arrListKey as $skey => $svalue) {
+            if (is_array($svalue)) {
+                // Reset key để luôn là array tuần tự
+                $svalue = array_values($svalue);
+                $svalue = json_encode($svalue, JSON_UNESCAPED_UNICODE);
+            }
+
             if (Setting::check_exists_skey($skey)) {
-                //Nếu skey đã tồn tại thì cập nhật svalue
-                Setting::where('skey', $skey)->where('language', $language)->update(['svalue' => $svalue]);
+                Setting::where('skey', $skey)
+                    ->where('language', $language)
+                    ->update(['svalue' => $svalue]);
             } else {
-                Setting::insert(["skey" => "$skey", "svalue" => "$svalue", "language" => "$language"]);
+                Setting::insert([
+                    "skey" => $skey,
+                    "svalue" => $svalue,
+                    "language" => $language
+                ]);
             }
         }
         return redirect()->back()->with('success', 'Cập nhật thông tin thành công');
-
     }
 }

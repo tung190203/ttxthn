@@ -58,9 +58,9 @@ class MenuController extends Controller
         $clsDataGrid = new DataGrid();
         $clsDataGrid->setLinkEdit($route_name);
         $clsDataGrid->addColumnLabel("name", "Tiêu đề", "width='15%' nowrap");
-        $clsDataGrid->addColumnSelect("page_id", "Trang", "width='5%' align='center'", $arr_pages);
-        $clsDataGrid->addColumnSelect("cat_id", "Danh mục", "width='5%' align='center'", $arr_categories);
-        $clsDataGrid->addColumnLabel("custom_link", "Custom URL", "width='20%' nowrap");
+        // $clsDataGrid->addColumnSelect("page_id", "Trang", "width='5%' align='center'", $arr_pages);
+        // $clsDataGrid->addColumnSelect("cat_id", "Danh mục", "width='5%' align='center'", $arr_categories);
+        $clsDataGrid->addColumnLabel("slug", "Slug", "width='20%' nowrap");
         $clsDataGrid->addColumnSelect("status", "Hiển thị", "width='5%' align='center'", ["Không", "Có"]);
         $clsDataGrid->addColumnText("priority", "STT", "width='5%' align='center'");
 

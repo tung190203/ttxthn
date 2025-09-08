@@ -7,10 +7,10 @@ $countAllProject = App\Models\Project::where('is_invest', 0)->count();
         <div class="container">
             <div class="header__inner">
                 <a class="header__logo" href="{{ route('home_page') }}">
-                    <img src="{{asset('./images/logo-new.png')}}" alt=""/>
+                    <img src="{{$setting['logo']}}" alt=""/>
                 </a>
                 <div class="header__elements">
-                    <div class="header__text">CÁC DỰ ÁN THU HÚT ĐẦU TƯ THÀNH PHỐ HÀ NỘI</div>
+                    <div class="header__text">{{$setting['site_name']}}</div>
                 </div>
                 <button class="btn-toggle text-white d-xl-none js-navbar-toggle ms-1"></button>
             </div>
@@ -29,40 +29,41 @@ $countAllProject = App\Models\Project::where('is_invest', 0)->count();
                             </div>
                             <div class="navbar__body">
                                 <ul class="menu menu-root">
-                                    <li class="menu-item">
-                                        <a class="menu-link @if(empty($setting['menu_active'])) active @endif"
-                                           href="{{ route('home_page') }}">Trang chủ</a>
-                                    </li>
-                                    <li class="menu-item">
-                                        <a class="menu-link @if(($setting['menu_active']??'') == 'cam-nang-dau-tu' ) active @endif"
-                                           href="{{ route('category',['slug' => 'cam-nang-dau-tu']) }}">Cẩm nang đầu tư</a>
-                                    </li>
-                                    <li class="menu-item menu-item-group">
-                                        <a class="menu-link @if(($setting['menu_active']??'') == 'du-an-keu-goi-dau-tu' ) active @endif" href="{{ route('projects') }}">Dự án kêu gọi đầu tư
-                                            <span
-                                        class="badge bg-danger ms-2">{{ $countAllProject ?? 0 }}</span>
-                                        </a>
-                                        <span class="menu-toggle"></span>
-                                        <ul class="menu menu-sub custom-menu-header">
-                                            @foreach ($listProjectHeader as $item)
-                                                <li class="menu-item">
-                                                    <a class="menu-link" href="{{route('project_detail',['slug' => $item->slug])}}">{{$item->name}}</a>
-                                                </li>
-                                            @endforeach
-                                            <li class="menu-item">
-                                                <a class="menu-link text-center" href="{{ route('projects') }}">Xem thêm</a>
-                                            </li>
-                                        </ul>
-                                    </li>
-                                    <li class="menu-item"><a
-                                                class="menu-link @if(($setting['menu_active']??'') == 'tin-tuc' ) active @endif"
-                                                href="{{ route('category',['slug'=> 'tin-tuc']) }}">Tin tức</a>
-                                    </li>
-                                    <li class="menu-item"><a
-                                        class="menu-link @if(($setting['menu_active']??'') == 'lien-he' ) active @endif"
-                                        href="{{ route('contact') }}">Liên hệ</a>
-                            </li>
+                                    @foreach($share['main_menu'] as $item)
+                                        <li class="menu-item @if($item['name'] == 'Dự án kêu gọi đầu tư') menu-item-group @endif">
+                                            <a class="menu-link 
+                                                @if(empty($setting['menu_active']) && $item['name'] == 'Trang chủ') active
+                                                @elseif(($setting['menu_active'] ?? '') == \Str::slug($item['name'])) active
+                                                @endif"
+                                               href="{{ $item['href'] }}">
+                                                {{ $item['name'] }}
+                                
+                                                {{-- Hiển thị badge cho menu nhóm --}}
+                                                @if($item['name'] == 'Dự án kêu gọi đầu tư')
+                                                    <span class="badge bg-danger ms-2">{{ $countAllProject ?? 0 }}</span>
+                                                @endif
+                                            </a>
+                                
+                                            {{-- Menu nhóm dự án --}}
+                                            @if($item['name'] == 'Dự án kêu gọi đầu tư')
+                                                <span class="menu-toggle"></span>
+                                                <ul class="menu menu-sub custom-menu-header">
+                                                    @foreach($listProjectHeader as $project)
+                                                        <li class="menu-item">
+                                                            <a class="menu-link" href="{{ route('project_detail', ['slug' => $project->slug]) }}">
+                                                                {{ $project->name }}
+                                                            </a>
+                                                        </li>
+                                                    @endforeach
+                                                    <li class="menu-item">
+                                                        <a class="menu-link text-center" href="{{ route('projects') }}">Xem thêm</a>
+                                                    </li>
+                                                </ul>
+                                            @endif
+                                        </li>
+                                    @endforeach
                                 </ul>
+                                
                             </div>
                         </div>
                     </section>

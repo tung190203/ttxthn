@@ -86,7 +86,7 @@
                                             <div class="news__like"><i class="fal fa-fw fa-heart"></i></div>
                                         </div>
                                         <h3 class="news__title custom-desc"><a
-                                                href="{{ route('post_detail',['id' => $item->id, 'slug' => $item->slug]) }}">{{ $item->name }}</a></h3>
+                                                href="{{ route('investment_guide_detail',['id' => $item->id, 'slug' => $item->slug]) }}">{{ $item->name }}</a></h3>
                                         <div class="news__desc">{{ $item->description }}</div>
                                     </div>
                                 </div>
