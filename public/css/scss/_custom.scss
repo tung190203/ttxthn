@@ -381,3 +381,12 @@
   box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
   transition: box-shadow 0.3s ease-in-out;
 }
+
+.opacity-minibox {
+  opacity: 0.8;
+  transition: opacity 0.3s ease-in-out;
+
+  &:hover {
+    opacity: 1;
+  }
+}
