@@ -181,9 +181,9 @@
                 </div>
             </div>
         </section>
-        <section class="section"><img class="texture-1" src="./images/texture-1.png" alt=""/><img class="texture-2"
-                                                                                                  src="./images/texture-2.png"
-                                                                                                  alt=""/>
+        <section class="section">
+            {{-- <img class="texture-1" src="./images/texture-1.png" alt=""/>
+            <img class="texture-2" src="./images/texture-2.png" alt=""/> --}}
             <div class="container">
                 <h2 class="section__title">Tin tức quan tâm</h2>
                 <div class="news-slider">

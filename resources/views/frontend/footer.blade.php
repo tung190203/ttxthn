@@ -6,8 +6,8 @@
 </section>
 <footer class="footer">
     <div class="footer__inner"><img class="footer__bg-1" src="{{asset('./images/texture-4.png')}}" alt="" /><img
-            class="footer__bg-2" src="{{asset('./images/texture-5.png')}}" alt="" /><img class="footer__bg-3"
-            src="{{asset('./images/texture-6.png')}}" alt="" />
+            class="footer__bg-2" src="{{asset('./images/texture-5.png')}}" alt="" />
+            {{-- <img class="footer__bg-3" src="{{asset('./images/texture-6.png')}}" alt="" /> --}}
         <div class="container">
             <div class="d-flex justify-content-start align-items-center mb-4">
                 <div>

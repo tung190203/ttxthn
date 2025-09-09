@@ -228,8 +228,9 @@
                 </nav>
             </div>
         </section>
-        <section class="section" id="thu-tuc-dau-tu"><img class="texture-1" src="{{ asset('./images/texture-1.png') }}"
-            alt=""><img class="texture-2" src="{{ asset('./images/texture-2.png') }}" alt="">
+        <section class="section" id="thu-tuc-dau-tu">
+            {{-- <img class="texture-1" src="{{ asset('./images/texture-1.png') }}" alt="">
+            <img class="texture-2" src="{{ asset('./images/texture-2.png') }}" alt=""> --}}
         <div class="container">
             <h2 class="section__title">Ưu đãi, quy trình, thủ tục đầu tư</h2>
             <div class="news-slider">
