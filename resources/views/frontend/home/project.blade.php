@@ -50,7 +50,8 @@
                 </ul>
             </div>
         </nav>        
-        <section class=" pb-40 pt-40"><img class="texture-7" src="./images/texture-7.png" alt="">
+        <section class=" pb-40 pt-40">
+            {{-- <img class="texture-7" src="./images/texture-7.png" alt=""> --}}
             <div class="container">
                 <div class="row g-20">
                     <div class="col-lg-3">
