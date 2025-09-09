@@ -911,6 +911,8 @@
             // Trạng thái ban đầu
             $fullBox.hide().addClass("fade-slide");
             $miniBox.show();
+            $miniBox.addClass("opacity-minibox");
+            $('#projectTabContentMini').css('maxWidth', '70%');
 
             // Khi focus vào input bé → hiện cụm to
             $inputMini.on("focus", function () {
