@@ -14,51 +14,51 @@ class BaseLoginController extends Controller
         return view('base-login');
     }
 
+//     public function checkLogin(Request $request)
+// {
+//     $request->validate([
+//         'password' => 'required'
+//     ]);
+
+//     $fixedPassword = env('BASE_LOGIN_PASSWORD');
+
+//     if ($request->password === $fixedPassword) {
+//         Session::put('base_logged_in', true);
+//         $redirectUrl = Session::pull('redirect_after_login', '/');
+//         return redirect($redirectUrl);
+//     }
+
+//     return back()->withErrors(['password' => 'Sai mật khẩu']);
+// }
+
+
     public function checkLogin(Request $request)
-{
-    $request->validate([
-        'password' => 'required'
-    ]);
+    {
+        $request->validate([
+            'password' => 'required'
+        ]);
 
-    $fixedPassword = env('BASE_LOGIN_PASSWORD');
+        $currentPassword = Cache::get('base_login_password');
 
-    if ($request->password === $fixedPassword) {
-        Session::put('base_logged_in', true);
-        $redirectUrl = Session::pull('redirect_after_login', '/');
-        return redirect($redirectUrl);
+        if ($request->password === $currentPassword) {
+            // login thành công
+            Session::put('base_logged_in', true);
+
+            // xoá mật khẩu cũ để bắt buộc phải tạo mới
+            Cache::forget('base_login_password');
+            $redirectUrl = Session::pull('redirect_after_login', '/');
+
+            return redirect($redirectUrl);
+        }
+
+        return back()->withErrors(['password' => 'Sai mật khẩu']);
     }
 
-    return back()->withErrors(['password' => 'Sai mật khẩu']);
-}
+    public function generatePassword()
+    {
+        $newPassword = Str::random(12);
+        Cache::put('base_login_password', $newPassword, now()->addDays(3));
 
-
-    // public function checkLogin(Request $request)
-    // {
-    //     $request->validate([
-    //         'password' => 'required'
-    //     ]);
-
-    //     $currentPassword = Cache::get('base_login_password');
-
-    //     if ($request->password === $currentPassword) {
-    //         // login thành công
-    //         Session::put('base_logged_in', true);
-
-    //         // xoá mật khẩu cũ để bắt buộc phải tạo mới
-    //         Cache::forget('base_login_password');
-    //         $redirectUrl = Session::pull('redirect_after_login', '/');
-
-    //         return redirect($redirectUrl);
-    //     }
-
-    //     return back()->withErrors(['password' => 'Sai mật khẩu']);
-    // }
-
-    // public function generatePassword()
-    // {
-    //     $newPassword = Str::random(12);
-    //     Cache::put('base_login_password', $newPassword, now()->addMinutes(60)); // có thể để 5-60 phút tùy
-
-    //     return view('show-password', ['password' => $newPassword]);
-    // }
+        return view('show-password', ['password' => $newPassword]);
+    }
 }
