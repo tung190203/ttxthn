@@ -56,9 +56,15 @@ class BaseLoginController extends Controller
 
     public function generatePassword()
     {
-        $newPassword = Str::random(12);
-        Cache::put('base_login_password', $newPassword, now()->addDays(3));
-
+        $currentPassword = Cache::get('base_login_password');
+    
+        if ($currentPassword) {
+            $newPassword = $currentPassword;
+        } else {
+            $newPassword = Str::random(12);
+            Cache::put('base_login_password', $newPassword, now()->addDays(3));
+        }
+    
         return view('show-password', ['password' => $newPassword]);
     }
 }
