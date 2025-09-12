@@ -213,12 +213,11 @@
                                 <div class="legal__body">
                                     <div class="legal__title">
                                         @if(isset($legal_descs[$index]) && !empty($legal_descs[$index]))
-                                            <div class="fw-bold">
-                                                {{ Str::limit($legal_descs[$index], 35, '...') }}
+                                            <div class="fw-bold text-truncate-multiline">
+                                                {{ $legal_descs[$index] }}
                                             </div>
                                         @endif
                                     </div>
-                                    <small class="text-muted">{{ mb_strimwidth(basename($file), 0, 20, "...") }}</small>
                                 </div>
                             </a>
                         @endforeach
