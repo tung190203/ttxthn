@@ -126,6 +126,7 @@ class InvestMentGuideController extends Controller
             'files_images.*' => 'nullable',
             'files_descs' => 'nullable|array',
             'files_descs.*' => 'nullable|string|max:255',
+            'published_at' => 'nullable|date',
         ]);
 
         $fieldsToJsonEncode = ['files_descs'];
@@ -147,6 +148,7 @@ class InvestMentGuideController extends Controller
         $investment_guide->cat_id = intval($request->get('cat_id'));
         $investment_guide->status = intval($request->get('status'));
         $investment_guide->is_hot = intval($request->get('is_hot'));
+        $investment_guide->published_at = $request->get('published_at') ? date('Y-m-d H:i:s', strtotime($request->get('published_at'))) : null;
         if ($request->filled('files_images') && is_array($request->files_images)) {
             $investment_guide->files = implode(';', array_map('trim', $request->files_images));
         }

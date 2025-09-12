@@ -179,6 +179,7 @@ class HomeController extends Controller
         ->pluck('id');
 
         $preferential = InvestmentGuide::whereIn('cat_id', $categoryIds)
+        ->where('published_at' , '<=', Carbon::now())
         ->whereHas('projects', function ($q) use ($slug) {
             $q->where('slug', $slug);
         })
@@ -233,6 +234,7 @@ class HomeController extends Controller
         $catIds = ($selectedCatId && in_array($selectedCatId, $allCatIds)) ? [$selectedCatId] : $allCatIds;
     
         $query = InvestmentGuide::whereIn('cat_id', $catIds)
+            ->where('published_at' , '<=', Carbon::now())
             ->where('status', InvestmentGuide::STATUS_ACTIVE);
     
         if ($request->filled('keyword')) {
