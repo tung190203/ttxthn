@@ -25,6 +25,7 @@ class PostController extends Controller
             ->where('status', Post::STATUS_ACTIVE)
             ->where('language', $language)
             ->whereIn('cat_id', $cat_ids)
+            ->orderBy('published_at', 'desc')
             ->orderBy('priority')
             ->orderBy('id', 'desc');
         $posts = $query_post->paginate(Post::POSTS_PER_PAGE);
