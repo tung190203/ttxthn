@@ -55,7 +55,7 @@
                                         <div class="news__body">
                                             <div class="news__info">
                                                 <div class="news__time"><i
-                                                            class="fal fa-clock me-2"></i><span>{{$item->published_at->format('d/m/Y')}}</span></div>
+                                                            class="fal fa-clock me-2"></i><span>{{\Carbon\Carbon::parse($item->published_at)->format('Y-m-d')}}</span></div>
                                                 <div class="news__like"><i class="fal fa-fw fa-heart"></i></div>
                                             </div>
                                             <h3 class="news__title custom-desc"><a href="{{ route('post_detail',['id' => $item->id, 'slug' => $item->slug]) }}">{{$item->name}}</a></h3>
