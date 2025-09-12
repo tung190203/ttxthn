@@ -13,25 +13,6 @@ class BaseLoginController extends Controller
     {
         return view('base-login');
     }
-
-//     public function checkLogin(Request $request)
-// {
-//     $request->validate([
-//         'password' => 'required'
-//     ]);
-
-//     $fixedPassword = env('BASE_LOGIN_PASSWORD');
-
-//     if ($request->password === $fixedPassword) {
-//         Session::put('base_logged_in', true);
-//         $redirectUrl = Session::pull('redirect_after_login', '/');
-//         return redirect($redirectUrl);
-//     }
-
-//     return back()->withErrors(['password' => 'Sai mật khẩu']);
-// }
-
-
     public function checkLogin(Request $request)
     {
         $request->validate([

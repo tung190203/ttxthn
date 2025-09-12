@@ -39,8 +39,8 @@ class Post extends Model
         'published_at'
     ];
 
-    const POSTS_PER_PAGE = 10;
-    const POSTS_TAKE = 10;
+    const POSTS_PER_PAGE = 9;
+    const POSTS_TAKE = 9;
 
     const STATUS_ACTIVE = 1;
     const STATUS_INACTIVE = 0;
