@@ -37,10 +37,11 @@ class InvestmentGuide extends Model
         'meta_description',
         'language',
         'project_type',
-        'project_id'
+        'project_id',
+        'published_at'
     ];
 
-    protected $dates = ['created_at', 'updated_at', 'deleted_at'];
+    protected $dates = ['created_at', 'updated_at', 'deleted_at', 'published_at'];
 
     const INVESTMENT_PER_PAGE = 10;
     const INVESTMENT_TAKE = 10;

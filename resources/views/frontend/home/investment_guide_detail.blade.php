@@ -31,7 +31,7 @@
                 <div class="post__footer">
                     <span class="post__time me-4">
                         <i
-                            class="fal fa-clock me-2"></i><span>{{ $investment_guide->created_at->format('d/m/Y') }}</span>
+                            class="fal fa-clock me-2"></i><span>{{ \Carbon\Carbon::parse($investment_guide->published_at)->format('d/m/Y') }}</span>
                     </span>
                 </div>
             </div>
@@ -92,7 +92,7 @@
                                         <div class="news__body">
                                             <div class="news__info">
                                                 <div class="news__time"><i
-                                                        class="fal fa-clock me-2"></i><span>{{ $item->created_at->format('d/m/Y H:i') }}</span>
+                                                        class="fal fa-clock me-2"></i><span>{{ \Carbon\Carbon::parse($item->published_at)->format('d/m/Y') }}</span>
                                                 </div>
                                                 <div class="news__like"><i class="fal fa-fw fa-heart"></i></div>
                                             </div>

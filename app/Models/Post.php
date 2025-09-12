@@ -35,7 +35,8 @@ class Post extends Model
         'meta_description',
         'language',
         'project_type',
-        'project_id'
+        'project_id',
+        'published_at'
     ];
 
     const POSTS_PER_PAGE = 10;

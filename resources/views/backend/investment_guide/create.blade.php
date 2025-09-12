@@ -69,6 +69,10 @@
                                         :messages="$errors->get('status')"/>
                         <x-forms.switch name="is_hot" value="{{ $investment_guide->is_hot ?? 1 }}" label="Nổi bật"
                                         :messages="$errors->get('is_hot')"/>
+                                        <x-forms.input name="published_at" label="Ngày xuất bản" type="date"
+                            :value="$investment_guide->published_at ? \Carbon\Carbon::parse($investment_guide->published_at)->format('Y-m-d') : null"
+                            :messages="$errors->get('published_at')"
+                            required />
 
                         <x-forms.textarea name="description" :required="true"
                                           value="{{ old('description') ?: $investment_guide->description }}"
