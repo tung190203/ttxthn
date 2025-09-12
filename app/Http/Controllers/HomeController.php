@@ -235,7 +235,8 @@ class HomeController extends Controller
     
         $query = InvestmentGuide::whereIn('cat_id', $catIds)
             ->where('published_at' , '<=', Carbon::now())
-            ->where('status', InvestmentGuide::STATUS_ACTIVE);
+            ->where('status', InvestmentGuide::STATUS_ACTIVE)
+            ->orderBy('published_at', 'desc');
     
         if ($request->filled('keyword')) {
             $query->where('name', 'like', '%' . $request->keyword . '%');
