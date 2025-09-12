@@ -43,9 +43,6 @@ class BaseLoginController extends Controller
         if ($request->password === $currentPassword) {
             // login thành công
             Session::put('base_logged_in', true);
-
-            // xoá mật khẩu cũ để bắt buộc phải tạo mới
-            Cache::forget('base_login_password');
             $redirectUrl = Session::pull('redirect_after_login', '/');
 
             return redirect($redirectUrl);

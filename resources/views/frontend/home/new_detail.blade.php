@@ -30,7 +30,7 @@
             
                 <div class="post__footer">
                     <span class="post__time me-4">
-                        <i class="fal fa-clock me-2"></i><span>{{$post->created_at->format('d/m/Y H:i')}}</span>
+                        <i class="fal fa-clock me-2"></i><span>{{$post->created_at->format('d/m/Y')}}</span>
                     </span>
                 </div>
             </div>
