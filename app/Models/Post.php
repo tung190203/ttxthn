@@ -15,7 +15,7 @@ class Post extends Model
     use SoftDeletes;
     use HasGlobalScopes;
 
-    protected $dates = ['created_at', 'updated_at', 'deleted_at'];
+    protected $dates = ['created_at', 'updated_at', 'deleted_at', 'published_at'];
 
     protected $fillable = [
         'name',

@@ -31,7 +31,7 @@
                 <div class="post__footer">
                     <span class="post__time me-4">
                         <i
-                            class="fal fa-clock me-2"></i><span>{{ $investment_guide->created_at->format('d/m/Y H:i') }}</span>
+                            class="fal fa-clock me-2"></i><span>{{ $investment_guide->created_at->format('d/m/Y') }}</span>
                     </span>
                 </div>
             </div>
@@ -60,7 +60,7 @@
                                                             {{ Str::limit($content[$index], 35, '...') }}
                                                         </div>
                                                     @endif
-                                                    <small class="text-muted">{{ basename($file) }}</small>
+                                                    <small class="text-muted">{{ mb_strimwidth(basename($file), 0, 20, "...") }}</small>
                                                 </div>
                                             </div>
                                         </div>

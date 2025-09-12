@@ -55,7 +55,10 @@ class HomeController extends Controller
                 'name' => $productType->name,
             ];
         })->toArray();
-        $posts = Post::all();
+        $posts = Post::where('published_at' , '<=', Carbon::now())
+            ->orderBy('published_at', 'desc')
+            ->take(10)
+            ->get();
         $project_category = $rawProjects->map(function ($project) {
             return [
                 'id' => $project->id,
@@ -95,7 +98,7 @@ class HomeController extends Controller
         $setting['menu_active'] = 'du-an-keu-goi-dau-tu';
     
         $banners = Widget::getByPosition('HOME_BANNER');
-        $list_post_popular = Post::popular(Post::POSTS_TAKE)->get();
+        $list_post_popular = Post::popular(Post::POSTS_TAKE)->where('published_at' , '<=', Carbon::now())->get();
     
         $list_types = ProjectType::all()->map(function ($type) {
             return [
@@ -160,7 +163,7 @@ class HomeController extends Controller
         $setting['menu_active'] = 'du-an-keu-goi-dau-tu';
     
         $banners = Widget::getByPosition('HOME_BANNER');
-        $list_post_popular = Post::popular(Post::POSTS_TAKE)->get();
+        $list_post_popular = Post::popular(Post::POSTS_TAKE)->where('published_at' , '<=', Carbon::now())->get();
     
         $project = Project::with(['type', 'industry', 'districts'])
             ->where('slug', $slug)
@@ -169,12 +172,19 @@ class HomeController extends Controller
         $preferential = collect(); // default empty
         $posts = collect();        // default empty
 
-        $preferential = InvestmentGuide::where('cat_id', Category::CATEGORY_TYPE_INVESTMENT_HANDBOOK)
-            ->whereHas('projects', function ($q) use ($slug) {
-                $q->where('slug', $slug);
-            })->get();
+        $categoryId = Category::CATEGORY_TYPE_INVESTMENT_HANDBOOK;
+
+        $categoryIds = Category::where('id', $categoryId)
+        ->orWhere('parent_id', $categoryId)
+        ->pluck('id');
+
+        $preferential = InvestmentGuide::whereIn('cat_id', $categoryIds)
+        ->whereHas('projects', function ($q) use ($slug) {
+            $q->where('slug', $slug);
+        })
+        ->get();
         // bài viết theo tin tức của dự án
-        $posts = Post::where('cat_id', Category::CATEGORY_TYPE_POST)->whereHas('project', function ($q) use ($slug) {
+        $posts = Post::where('published_at' , '<=', Carbon::now())->where('cat_id', Category::CATEGORY_TYPE_POST)->whereHas('project', function ($q) use ($slug) {
             $q->where('slug', $slug);
         })->get();
     
