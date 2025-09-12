@@ -390,3 +390,12 @@
     opacity: 1;
   }
 }
+
+.text-truncate-multiline {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* Số dòng muốn giới hạn */
+  -webkit-box-orient: vertical;
+  white-space: normal; /* Cho phép xuống dòng */
+  text-overflow: ellipsis; /* Hiển thị dấu ... nếu tràn */
+}

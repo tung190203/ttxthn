@@ -54,18 +54,15 @@
                                         <div class="card shadow-sm h-100 hover-shadow-custom border-0">
                                             <div class="card-body d-flex align-items-center">
                                                 <i class="fas fa-file-alt fa-2x text-primary me-3"></i>
-                                                <div>
                                                     @if (isset($content[$index]) && !empty($content[$index]))
-                                                        <div class="fw-bold">
-                                                            {{ Str::limit($content[$index], 35, '...') }}
+                                                        <div class="fw-bold text-truncate-multiline">
+                                                            {{ $content[$index] }}
                                                         </div>
                                                     @endif
-                                                    <small class="text-muted">{{ mb_strimwidth(basename($file), 0, 20, "...") }}</small>
-                                                </div>
                                             </div>
                                         </div>
                                     </a>
-                                </div>                
+                                </div>
                             @endforeach
                         </div>
                     </div>
