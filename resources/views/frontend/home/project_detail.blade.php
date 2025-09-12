@@ -218,7 +218,7 @@
                                             </div>
                                         @endif
                                     </div>
-                                    <small class="text-muted">{{ basename($file) }}</small>
+                                    <small class="text-muted">{{ mb_strimwidth(basename($file), 0, 20, "...") }}</small>
                                 </div>
                             </a>
                         @endforeach
@@ -267,8 +267,10 @@
             </nav>
         </div>
     </section>
-        <section class="section" id="tin-tuc"><img class="texture-1" src="{{ asset('./images/texture-1.png') }}"
-                alt=""><img class="texture-2" src="{{ asset('./images/texture-2.png') }}" alt="">
+        <section class="section" id="tin-tuc">
+            {{-- <img class="texture-1" src="{{ asset('./images/texture-1.png') }}"
+                alt="">
+                <img class="texture-2" src="{{ asset('./images/texture-2.png') }}" alt=""> --}}
             <div class="container">
                 <h2 class="section__title">Tin tức</h2>
                 <div class="news-slider">

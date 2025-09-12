@@ -118,6 +118,7 @@ class PostController extends Controller
             'description' => 'required|string',
             'content' => 'required|string',
             'project_id' => 'nullable|integer',
+            'published_at' => 'nullable|date',
         ]);
 
         $language = App::getLocale();
@@ -132,6 +133,7 @@ class PostController extends Controller
         $post->cat_id = intval($request->get('cat_id'));
         $post->status = intval($request->get('status'));
         $post->is_hot = intval($request->get('is_hot'));
+        $post->published_at = $request->get('published_at') ?: date('Y-m-d H:i:s');
 
         $post->meta_title = $request->get('meta_title');
         $post->meta_keywords = $request->get('meta_keywords');
