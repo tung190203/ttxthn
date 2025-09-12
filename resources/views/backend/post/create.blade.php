@@ -25,6 +25,10 @@
                         @can('post/' . ($post->exists ? 'edit' : 'add'))
                             <x-forms.button-save />
                         @endcan
+                        @can('investment_guide/import')
+                            <x-forms.button-url title="Tạo từ link" class="btn-warning text-white" icon="fa fa-link"
+                                                url="{{ route('backend_post_show_import_form') }}"/>
+                        @endcan
                         @if($post->exists)
                             @can('post/add')
                                 <x-forms.button-url title="Thêm mới" class="btn-info" icon="fa fa-plus"
@@ -53,8 +57,10 @@
                             label="Sắp xếp" type="number" :messages="$errors->get('priority')" />
                         <x-forms.select name="cat_id" label="Danh mục cha" :options="new HtmlString($option_categories)"
                             :messages="$errors->get('cat_id')" />
-                        <x-forms.select name="project_id" label="Thuộc dự án" :options="new HtmlString($option_projects)"
-                            :messages="$errors->get('project_id')" />
+                        {{-- <x-forms.select name="project_id" label="Thuộc dự án" :options="new HtmlString($option_projects)"
+                            :messages="$errors->get('project_id')" /> --}}
+                            <x-forms.select-multiple name="projects" label="Thuộc các dự án" :options="$option_projects" :selected="old('projects', $post->projects->pluck('id')->toArray())"
+                                :messages="$errors->get('projects')" help="Chọn các dự án trực thuộc" />
 
                         <x-forms.upload name="image" value="{{ old('image') ?: $post->image }}" label="Image" type="image"
                             :messages="$errors->get('image')" />

@@ -9,10 +9,16 @@ use App\Http\Controllers\Controller;
 use App\Models\Post;
 use App\Models\Category;
 use App\Models\Project;
-use App\Models\ProjectType;
+use GuzzleHttp\Client;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
+use Symfony\Component\DomCrawler\Crawler;
+use andreskrey\Readability\Readability;
+use andreskrey\Readability\Configuration;
+use \GuzzleHttp\Psr7\Uri;
+use \GuzzleHttp\Psr7\UriResolver;
+use Illuminate\Support\Facades\Log;
 
 class PostController extends Controller
 {
@@ -102,7 +108,8 @@ class PostController extends Controller
         }
 
         $option_categories = Category::makeListCategoryForPost(0, '', $post->cat_id);
-        $option_projects = Project::makeListProject($post->project_id);
+        // $option_projects = Project::makeListProject($post->project_id);
+        $option_projects = Project::makeListProjectArray();
         return view('backend.post.create', compact('post', 'option_categories', 'option_projects'));
     }
 
@@ -119,6 +126,8 @@ class PostController extends Controller
             'content' => 'required|string',
             'project_id' => 'nullable|integer',
             'published_at' => 'nullable|date',
+            'projects' => 'nullable|array',
+            'project.*' => 'integer|exists:projects,id',
         ]);
 
         $language = App::getLocale();
@@ -128,7 +137,7 @@ class PostController extends Controller
         $post->slug = $slug ?: Str::slug($name);
         $post->description = $request->get('description');
         $post->content = $request->get('content');
-        $post->project_id = intval($request->get('project_id'));
+        $post->project_id = intval($request->get('project_id') ?? null);
         $post->image = strip_tags($request->get('image'));
         $post->cat_id = intval($request->get('cat_id'));
         $post->status = intval($request->get('status'));
@@ -145,6 +154,12 @@ class PostController extends Controller
 
         try {
             $post->save();
+            if($request->filled('projects')){
+                $post->projects()->syncWithPivotValues(
+                    $request->input('projects', []),
+                    ['created_at' => now(), 'updated_at' => now()]
+                );
+            }
         } catch (\Exception $ex) {
             return back()->withInput()->withErrors(['slug' => $ex->getMessage()]);
         }
@@ -218,6 +233,170 @@ class PostController extends Controller
         $post = Post::withTrashed()->findOrFail($id);
         $post->forceDelete();
         return redirect()->route('backend_post', 'status=2')->with('success', 'Xóa bài viết thành công');
+    }
+
+    public function showImportForm()
+    {
+        if (!Gate::allows('post/import')) {
+            abort(403, self::MESSAGE_UNAUTHORIZED);
+        }
+        $this->selectedSubMenu('post');
+        $post = new Post();
+        return view('backend.post.import', compact('post'));
+    }
+
+    public function importFromUrl(Request $request)
+    {
+        if (!Gate::allows('post/import')) {
+            abort(403, self::MESSAGE_UNAUTHORIZED);
+        }
+
+        $url = $request->input('url');
+        $client = new Client([
+            'headers' => [
+                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+            ],
+            'timeout' => 10,
+            'allow_redirects' => true,
+            'verify' => false,
+        ]);
+
+        $response = $client->get($url);
+        $html = (string) $response->getBody();
+
+        $crawler = new Crawler($html);
+
+        // ---- Title ----
+        $title = $crawler->filter('title')->count() ? $crawler->filter('title')->text() : null;
+
+        // ---- Description ----
+        $description = null;
+        if ($crawler->filterXPath('//meta[@name="description"]')->count()) {
+            $description = $crawler->filterXPath('//meta[@name="description"]')->attr('content');
+        } elseif ($crawler->filterXPath('//meta[@property="og:description"]')->count()) {
+            $description = $crawler->filterXPath('//meta[@property="og:description"]')->attr('content');
+        }
+
+        $keywords = null;
+        if ($crawler->filterXPath('//meta[@name="keywords"]')->count()) {
+            $keywords = $crawler->filterXPath('//meta[@name="keywords"]')->attr('content');
+        }
+
+        // ---- Nội dung chính ----
+        $config = new Configuration();
+        $readability = new Readability($config);
+        $readability->parse($html);
+        $content = $readability->getContent();
+        $excerpt = $readability->getExcerpt();
+
+        if (!$description && $excerpt) {
+            $description = $excerpt;
+        }
+
+        // ---- Ảnh đại diện (thumbnail) ----
+        // $image = null;
+        // if ($crawler->filterXPath('//meta[@property="og:image"]')->count()) {
+        //     $image = $crawler->filterXPath('//meta[@property="og:image"]')->attr('content');
+        // } elseif ($crawler->filterXPath('//meta[@name="twitter:image"]')->count()) {
+        //     $image = $crawler->filterXPath('//meta[@name="twitter:image"]')->attr('content');
+        // }
+        $image = null;
+        if ($crawler->filterXPath('//meta[@property="og:image"]')->count()) {
+            $image = $crawler->filterXPath('//meta[@property="og:image"]')->attr('content');
+        } elseif ($crawler->filterXPath('//meta[@name="twitter:image"]')->count()) {
+            $image = $crawler->filterXPath('//meta[@name="twitter:image"]')->attr('content');
+        }
+
+        if ($image) {
+            try {
+                // Tải ảnh từ URL
+                $imageContents = file_get_contents($image);
+
+                // Lấy đuôi file (nếu không có thì mặc định jpg)
+                $ext = pathinfo(parse_url($image, PHP_URL_PATH), PATHINFO_EXTENSION);
+                if (!$ext) {
+                    $ext = 'jpg';
+                }
+
+                // Tạo tên file duy nhất
+                $fileName = 'imported_' . time() . '_' . uniqid() . '.' . $ext;
+
+                // Đường dẫn vật lý (trong public/uploads)
+                $savePath = public_path('uploads/' . $fileName);
+
+                // Đảm bảo thư mục tồn tại
+                if (!file_exists(dirname($savePath))) {
+                    mkdir(dirname($savePath), 0755, true);
+                }
+
+                // Ghi file
+                file_put_contents($savePath, $imageContents);
+
+                // Trả về path dạng /uploads/...
+                $image = '/uploads/' . $fileName;
+
+            } catch (\Exception $e) {
+                Log::error("Import image failed: " . $e->getMessage());
+            }
+        }
+
+        // ---- Fix ảnh trong content ----
+        $contentCrawler = new Crawler($content);
+        $contentCrawler->filter('img')->each(function (Crawler $node) use ($url) {
+            $img = $node->getNode(0);
+            if (!$img instanceof \DOMElement)
+                return;
+
+            $src = $img->getAttribute('src');
+            if ($src) {
+                // Nếu src là base64 → lấy data-src, data-original...
+                if (str_starts_with($src, 'data:image')) {
+                    $newSrc = $node->attr('data-src') ?: $node->attr('data-original') ?: $node->attr('data-lazy');
+                    if ($newSrc) {
+                        $img->setAttribute('src', $this->makeAbsoluteUrl($url, $newSrc));
+                    }
+                } else {
+                    $img->setAttribute('src', $this->makeAbsoluteUrl($url, $src));
+                }
+            }
+
+            // Xóa các giới hạn kích thước
+            $img->removeAttribute('width');
+            $img->removeAttribute('height');
+            $img->removeAttribute('style');
+
+            // Thêm style responsive cho an toàn
+            $img->setAttribute('style', 'max-width:100%;height:auto;');
+        });
+
+        // Lấy lại content sau khi xử lý
+        $content = $contentCrawler->html();
+
+        $data = [
+            'name' => $title,
+            'slug' => $title ? Str::slug($title) : '',
+            'description' => $description,
+            'content' => $content,
+            'meta_title' => $title,
+            'meta_keywords' => $keywords,
+            'meta_description' => $description,
+            'image' => $image,
+        ];
+
+        return redirect()
+            ->route('backend_post_create')
+            ->withInput($data);
+    }
+
+    /**
+     * Convert relative path → absolute URL
+     */
+    protected function makeAbsoluteUrl($baseUrl, $relativeUrl)
+    {
+        return (string) UriResolver::resolve(
+            new Uri($baseUrl),
+            new Uri($relativeUrl)
+        );
     }
 }
 

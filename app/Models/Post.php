@@ -82,6 +82,11 @@ class Post extends Model
         return $this->belongsTo(Project::class, 'project_id', 'id');
     }
 
+    public function projects()
+    {
+        return $this->belongsToMany(Project::class, 'post_project');
+    }
+
     public function getUrl(): string
     {
         return Util::url_post($this);
