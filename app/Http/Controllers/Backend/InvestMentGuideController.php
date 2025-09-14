@@ -125,7 +125,7 @@ class InvestMentGuideController extends Controller
             'files_images' => 'nullable|array',
             'files_images.*' => 'nullable',
             'files_descs' => 'nullable|array',
-            'files_descs.*' => 'nullable|string|max:255',
+            'files_descs.*' => 'nullable|string',
             'published_at' => 'nullable|date',
         ]);
 
