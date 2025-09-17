@@ -234,4 +234,9 @@ class Project extends Model
     
         return $html;
     }
+
+    public function scopeWithRelations($query)
+    {
+        return $query->with(['type', 'industry', 'districts']);
+    }
 }

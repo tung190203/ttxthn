@@ -154,67 +154,176 @@
             </div>
         </div>
 
-        <section class="section">
+        {{-- <section class="section" id="investment-section">
             <div class="container">
                 <h2 class="section__title mb-3">Danh mục đầu tư</h2>
-                <ul class="project-nav__list mb-60">
-                    <li><a class="active" href="#!">Tất cả</a></li>
-                    <li><a href="#!">Cơ sở hạ tầng giao thông</a></li>
-                    <li><a href="#!">Bất động sản dân dụng</a></li>
-                    <li><a href="#!">Công trình công cộng</a></li>
-                    <li><a href="#!">Công trình thương mại</a></li>
+                <ul class="project-nav__list_custom mb-60">
+                    <li>
+                        <a class="{{ request('industry') ? '' : 'active' }}"
+                            href="{{ route('home_page') }}#investment-section">
+                            Tất cả
+                        </a>
+                    </li>
+                    @foreach($industries as $industry)
+                        <li>
+                            <a class="{{ request('industry') == $industry['id'] ? 'active' : '' }}"
+                                href="{{ route('home_page', ['industry' => $industry['id']]) }}#investment-section">
+                                {{ $industry['name'] }}
+                            </a>
+                        </li>
+                    @endforeach
                 </ul>
-                <div class="news-slider">
-                    <div class="news-slider__nav">
-                        <div class="news-slider__prev"><i class="fal fa-fw fa-lg fa-angle-left"></i></div>
-                        <div class="news-slider__next"><i class="fal fa-fw fa-lg fa-angle-right"></i></div>
-                    </div>
-                    <div class="news-slider__container swiper-container">
-                        <div class="swiper-wrapper">
-                            @foreach ($project_category as $item)
-                                <div class="swiper-slide">
-                                    <div>
-                                        <div class="project"><a class="project__frame"
-                                                href="{{ route('project_detail', ['slug' => $item['slug']]) }}">
-                                                <img src="{{$item['detail_image'] ?? './images/project-1.jpg' }}" alt="" /></a>
-                                            <div class="project__body">
-                                                <h3 class="project__title"><a
-                                                        href="{{ route('project_detail', ['slug' => $item['slug']]) }}">{{$item['name']}}</a>
-                                                </h3>
-                                                @if($item['is_invest'] == 0)
-                                                    <div class="project__overlay"><span>Dự án đang kêu gọi đầu tư</span>
-                                                        <a class="project__like" href="#!"><i
-                                                                class="fal fa-fw fa-lg fa-heart"></i></a>
-                                                    </div>
-                                                @else
-                                                    <div class="project__overlay"><span>Dự án đã có chủ đầu tư</span>
-                                                        <a class="project__like" href="#!"><i
-                                                                class="fal fa-fw fa-lg fa-heart"></i></a>
-                                                    </div>
-                                                @endif
-                                                <ul class="project__info">
-                                                    <li><img class="me-2" src="./images/icon-map-marker.svg" alt="" /><span>Dự
-                                                            án thuộc {{$item['districts']}}</span>
-                                                    </li>
-                                                    <li><img class="me-2" src="./images/icon-dimension.svg"
-                                                            alt="" /><span>{{$item['area'] ?? 0}} ha</span>
-                                                    </li>
-                                                    <li><img class="me-2" src="./images/icon-save-money.svg" alt="" /><span>Theo
-                                                            đề xuất</span>
-                                                    </li>
-                                                </ul>
+                @if(empty($project_category))
+                    <p class="text-center">Chưa có dự án phù hợp</p>
+                @else
+                    <div class="news-slider">
+                        <div class="news-slider__nav">
+                            <div class="news-slider__prev"><i class="fal fa-fw fa-lg fa-angle-left"></i></div>
+                            <div class="news-slider__next"><i class="fal fa-fw fa-lg fa-angle-right"></i></div>
+                        </div>
+                        <div class="news-slider__container swiper-container">
+                            <div class="swiper-wrapper">
+                                @foreach ($project_category as $item)
+                                    <div class="swiper-slide">
+                                        <div>
+                                            <div class="project"><a class="project__frame"
+                                                    href="{{ route('project_detail', ['slug' => $item['slug']]) }}">
+                                                    <img src="{{$item['detail_image'] ?? './images/project-1.jpg' }}" alt="" /></a>
+                                                <div class="project__body">
+                                                    <h3 class="project__title"><a
+                                                            href="{{ route('project_detail', ['slug' => $item['slug']]) }}"
+                                                            data-tippy-content="{{$item['name']}}">{{$item['name']}}</a>
+                                                    </h3>
+                                                    @if($item['is_invest'] == 0)
+                                                        <div class="project__overlay"><span>Dự án đang kêu gọi đầu tư</span>
+                                                            <a class="project__like" href="#!"><i
+                                                                    class="fal fa-fw fa-lg fa-heart"></i></a>
+                                                        </div>
+                                                    @else
+                                                        <div class="project__overlay"><span>Dự án đã có chủ đầu tư</span>
+                                                            <a class="project__like" href="#!"><i
+                                                                    class="fal fa-fw fa-lg fa-heart"></i></a>
+                                                        </div>
+                                                    @endif
+                                                    <ul class="project__info">
+                                                        <li><img class="me-2" src="./images/icon-map-marker.svg" alt="" /><span
+                                                                data-tippy-content="Dự án thuộc {{$item['districts']}}">Dự
+                                                                án thuộc {{$item['districts']}}</span>
+                                                        </li>
+                                                        <li><img class="me-2" src="./images/icon-dimension.svg"
+                                                                alt="" /><span>{{$item['area'] ?? 0}} ha</span>
+                                                        </li>
+                                                        <li><img class="me-2" src="./images/icon-save-money.svg" alt="" /><span>Theo
+                                                                đề xuất</span>
+                                                        </li>
+                                                    </ul>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            @endforeach
+                                @endforeach
+                            </div>
                         </div>
                     </div>
-                </div>
-                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="#!">Xem thêm</a>
-                </nav>
+                    <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="/projects">Xem thêm</a>
+                    </nav>
+                @endif
             </div>
-        </section>
+        </section> --}}
+        <section class="section" id="investment-section">
+            <div class="container">
+              <h2 class="section__title mb-3">Danh mục đầu tư</h2>
+          
+              <div class="project-nav-wrapper mb-60">
+                <!-- "Tất cả" cố định -->
+                <div class="project-nav-fixed">
+                  <a class="{{ request('industry') ? '' : 'active' }}"
+                     href="{{ route('home_page') }}#investment-section">
+                    Tất cả
+                  </a>
+                </div>
+          
+                <!-- Các ngành scroll ngang -->
+                <div class="project-nav-scroll">
+                  <ul class="project-nav__list_custom">
+                    @foreach($industries as $industry)
+                      <li data-tippy-content="{{ $industry['name'] }}">
+                        <a class="{{ request('industry') == $industry['id'] ? 'active' : '' }}"
+                           href="{{ route('home_page', ['industry' => $industry['id']]) }}#investment-section">
+                          {{ $industry['name'] }}
+                        </a>
+                      </li>
+                    @endforeach
+                  </ul>
+                </div>
+              </div>
+          
+              @if(empty($project_category))
+                <p class="text-center">Chưa có dự án phù hợp</p>
+              @else
+                <!-- phần slider giữ nguyên -->
+                <div class="news-slider">
+                  <div class="news-slider__nav">
+                    <div class="news-slider__prev"><i class="fal fa-fw fa-lg fa-angle-left"></i></div>
+                    <div class="news-slider__next"><i class="fal fa-fw fa-lg fa-angle-right"></i></div>
+                  </div>
+                  <div class="news-slider__container swiper-container">
+                    <div class="swiper-wrapper">
+                      @foreach ($project_category as $item)
+                        <div class="swiper-slide">
+                          <div>
+                            <div class="project">
+                              <a class="project__frame"
+                                 href="{{ route('project_detail', ['slug' => $item['slug']]) }}">
+                                <img src="{{$item['detail_image'] ?? './images/project-1.jpg' }}" alt="" />
+                              </a>
+                              <div class="project__body">
+                                <h3 class="project__title">
+                                  <a href="{{ route('project_detail', ['slug' => $item['slug']]) }}"
+                                     data-tippy-content="{{$item['name']}}">
+                                    {{$item['name']}}
+                                  </a>
+                                </h3>
+                                @if($item['is_invest'] == 0)
+                                  <div class="project__overlay">
+                                    <span>Dự án đang kêu gọi đầu tư</span>
+                                    <a class="project__like" href="#!"><i class="fal fa-fw fa-lg fa-heart"></i></a>
+                                  </div>
+                                @else
+                                  <div class="project__overlay">
+                                    <span>Dự án đã có chủ đầu tư</span>
+                                    <a class="project__like" href="#!"><i class="fal fa-fw fa-lg fa-heart"></i></a>
+                                  </div>
+                                @endif
+                                <ul class="project__info">
+                                  <li>
+                                    <img class="me-2" src="./images/icon-map-marker.svg" alt="" />
+                                    <span data-tippy-content="Dự án thuộc {{$item['districts']}}">
+                                      Dự án thuộc {{$item['districts']}}
+                                    </span>
+                                  </li>
+                                  <li><img class="me-2" src="./images/icon-dimension.svg" alt="" />
+                                    <span>{{$item['area'] ?? 0}} ha</span>
+                                  </li>
+                                  <li><img class="me-2" src="./images/icon-save-money.svg" alt="" />
+                                    <span>Theo đề xuất</span>
+                                  </li>
+                                </ul>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      @endforeach
+                    </div>
+                  </div>
+                </div>
+          
+                <nav class="d-flex justify-content-center mt-40 mt-lg-60">
+                  <a class="button" href="/projects">Xem thêm</a>
+                </nav>
+              @endif
+            </div>
+          </section>          
         <section class="section section--bg-pattern">
             <div class="container">
                 <div class="counter">
@@ -266,7 +375,8 @@
                                                 <div class="news__like"><i class="fal fa-fw fa-heart"></i></div>
                                             </div>
                                             <h3 class="news__title  custom-desc"><a
-                                                    href="{{ route('post_detail', ['id' => $item->id, 'slug' => $item->slug]) }}">{{ $item->name }}</a>
+                                                    href="{{ route('post_detail', ['id' => $item->id, 'slug' => $item->slug]) }}"
+                                                    data-tippy-content="{{$item->name}}">{{ $item->name }}</a>
                                             </h3>
                                             <div class="news__desc">{{ $item->description }}</div>
                                         </div>
@@ -276,7 +386,7 @@
                         </div>
                     </div>
                 </div>
-                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="#!">Xem thêm</a>
+                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="tin-tuc">Xem thêm</a>
                 </nav>
             </div>
         </section>
@@ -288,7 +398,7 @@
                         @foreach($setting['banners'] as $banner)
                             <div class="partners__item">
                                 <a href="{{ $banner['link'] ?? '#' }}" target="_blank">
-                                    <img src="{{ $banner['image'] ?? '' }}" alt="">
+                                    <img src="{{ $banner['image'] ?? '' }}" alt="" />
                                 </a>
                             </div>
                         @endforeach
@@ -486,16 +596,16 @@
                 'Chưa có giá';
 
             marker.bindPopup(`
-                            <a href="${detailUrl}" target="_blank" style="text-decoration: none; color: inherit;">
-                              <div class='info-box'>
-                                <strong>${loc.name}</strong><br>
-                                Loại: ${getTypeName(loc.type_number)}<br>
-                                Khu vực: ${districtText}<br>
-                                Quy mô vốn đầu tư: ${priceText}<br>
-                                <em>→ Click để xem chi tiết</em>
-                              </div>
-                            </a>
-                        `);
+                                <a href="${detailUrl}" target="_blank" style="text-decoration: none; color: inherit;">
+                                  <div class='info-box'>
+                                    <strong>${loc.name}</strong><br>
+                                    Loại: ${getTypeName(loc.type_number)}<br>
+                                    Khu vực: ${districtText}<br>
+                                    Quy mô vốn đầu tư: ${priceText}<br>
+                                    <em>→ Click để xem chi tiết</em>
+                                  </div>
+                                </a>
+                            `);
             return marker;
         }
 
@@ -652,24 +762,24 @@
 
             if (allItems.length === 0) {
                 resultList.innerHTML = `
-                        <li class="list-group-item text-muted justify-content-center">
-                            Chưa có kết quả tìm kiếm phù hợp.
-                        </li>
-                    `;
+                            <li class="list-group-item text-muted justify-content-center">
+                                Chưa có kết quả tìm kiếm phù hợp.
+                            </li>
+                        `;
                 $('#pagination').empty();
                 return;
             }
 
             resultList.innerHTML = items.map(item => `
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <div>
-                            <strong>${item.name}</strong><br>
-                            <small>Dự án: ${item.project_name}</small> - Mã dự án: ${item.code}<br>
-                            <small>Diện tích: ${item.acreage} - Loại hình: ${item.product_type_name}</small>
-                        </div>
-                        <a href="${item.link}" target="_blank" class="btn custom-btn btn-sm">Vị trí</a>
-                    </li>
-                `).join('');
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>${item.name}</strong><br>
+                                <small>Dự án: ${item.project_name}</small> - Mã dự án: ${item.code}<br>
+                                <small>Diện tích: ${item.acreage} - Loại hình: ${item.product_type_name}</small>
+                            </div>
+                            <a href="${item.link}" target="_blank" class="btn custom-btn btn-sm">Vị trí</a>
+                        </li>
+                    `).join('');
 
             renderPagination(page);
         }

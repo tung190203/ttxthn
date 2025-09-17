@@ -36,7 +36,7 @@
                                         </div>
                                     </div>
                                     <h3 class="news__title custom-desc">
-                                        <a href="{{ route('post_detail',['id' => $item->id, 'slug' => $item->slug]) }}">
+                                        <a href="{{ route('post_detail',['id' => $item->id, 'slug' => $item->slug]) }}" data-tippy-content="{{$item->name}}">
                                             {{ $item->name }}
                                         </a>
                                     </h3>
