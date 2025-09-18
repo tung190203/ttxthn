@@ -36,7 +36,6 @@
                                     <select class="form-control" id="slt_vrtour_type">
                                         <option value="0">Toàn bộ</option>
                                         <option value="1">Màn hình chào mừng</option>
-                                        <option value="2">Thông tin chung</option>
                                         <option value="3">Sơ đồ liên kết vùng</option>
                                         <option value="4">Văn bản pháp quy</option>
                                         <option value="5">Kế hoạch triển khai</option>
@@ -346,17 +345,6 @@
                                 $('#multiple_document .row_detail #document_name-'+(_key+1)).val(_value['name']);
                                 $('#multiple_document .row_detail #document_name_en-'+(_key+1)).val(_value['name_en']);
                                 $('#multiple_document .row_detail #download-'+(_key+1)+'_input').val(_value['download']);
-                                var preview_detail      = '';
-                                var str_detail          = '';
-                                if (_value['detail'].length > 0) {
-                                    $.each(_value['detail'], function(__key, __value){
-                                        str_detail      += __value['image'] + (__key < _value['detail'].length - 1 ? ';' : '');
-                                        preview_detail  += '<div class="image-wrapper" data-url="'+__value['image']+'">';
-                                        preview_detail  += '<img src="'+__value['image']+'"><button class="remove-btn" type="button">×</button></div>';
-                                    });
-                                }
-                                $('#download_img-'+(_key+1)+'_add_button').parent().after().append(preview_detail);
-                                $('#download_img-'+(_key+1)+'_input').val(str_detail);
                             });
                         }
                     
@@ -381,14 +369,12 @@
                 const name          = $('#document_name-'+(key+1)).val();
                 const nameEn        = $('#document_name_en-'+(key+1)).val();
                 const download      = $('#download-'+(key+1)+'_input').val();
-                const downloadImg   = $('#download_img-'+(key+1)+'_input').val();
                 
                 result.push({
                     id                  : document_id,
                     document_name       : name,
                     document_name_en    : nameEn,
                     download            : download,
-                    download_img        : downloadImg
                 });
             });
 
