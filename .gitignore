@@ -10,3 +10,4 @@
 composer.lock
 .DS_Store
 *.map
+/public/vrtour
