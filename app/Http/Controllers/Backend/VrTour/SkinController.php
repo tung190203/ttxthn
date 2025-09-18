@@ -12,7 +12,6 @@ use App\Models\Investor;
 use App\Models\WelcomeScreen;
 use App\Models\Plan;
 use App\Models\LegalDocument;
-use App\Models\LegalDocumentImage;
 use Illuminate\Support\Facades\DB;
 use Auth;
 use Illuminate\Support\Facades\File;
@@ -50,7 +49,7 @@ class SkinController extends Controller
             //plan
             $plan           = Plan::where('vrtour_id', $vrtour_id)->first();
             //document 
-            $document       = LegalDocument::with('detail')->where('vrtour_id', $vrtour_id)->get();
+            $document       = LegalDocument::where('vrtour_id', $vrtour_id)->get();
             $data['connect_map']    = $connect_map;
             $data['location']       = $vrtour->location_in_tour;
             $data['investor']       = $investor;
@@ -125,26 +124,11 @@ class SkinController extends Controller
                         $_document->download    = $doc['download'];
                         $_document->user_id     = Auth::id();
                         $_document->save();
-                        $arr_detail = [];
-                        if ($doc['download_img'] != null) {
-                            $arr_detail = explode(';', $doc['download_img']);
-                        }
-                        LegalDocumentImage::where('legal_documnet_id', $_document->id)->delete();
-                        foreach ($arr_detail as $_key => $detail) {
-                            $new_detail = new LegalDocumentImage();
-                            $new_detail->legal_documnet_id = $_document->id;
-                            $new_detail->image = $detail;
-                            $new_detail->save();
-                        }
                     }
                 } else {
-                    $all_document = LegalDocument::where('vrtour_id', $vrtour_id);
-                    foreach ($all_document->get() as $key => $doc) {
-                        LegalDocumentImage::where('legal_documnet_id', $doc->id)->delete();
-                    }
-                    $all_document->delete();
+                    $all_document = LegalDocument::where('vrtour_id', $vrtour_id)->delete();
                 }
-                $all_document = LegalDocument::with('detail')->where('vrtour_id', $vrtour_id)->get();
+                $all_document = LegalDocument::where('vrtour_id', $vrtour_id)->get();
                 createFile('vrtour/'.$vrtour->name, 'document.js');
                 file_put_contents('vrtour/'.$vrtour->name.'/document.js', $all_document);
             }
@@ -221,7 +205,10 @@ class SkinController extends Controller
                 $vrtour->location_in_tour   = $request['location']['map'];
                 $vrtour->save();
                 createFile('vrtour/'.$vrtour->name, 'location.js');
-                file_put_contents('vrtour/'.$vrtour->name.'/location.js', json_encode($vrtour->location_in_tour));
+                file_put_contents('vrtour/'.$vrtour->name.'/location.js', json_encode([
+                        'location'  => $vrtour->location_in_tour,
+                        'general'   => $vrtour->link
+                    ]));
             }
 
             DB::commit();

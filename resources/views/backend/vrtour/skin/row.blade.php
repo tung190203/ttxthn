@@ -9,6 +9,5 @@
         <x-forms.textarea name="document_name-" value="" label="Tên văn bản" />
         <x-forms.textarea name="document_name_en-" value="" label="Tên văn bản EN" />
         <x-forms.upload name="download-" value="" label="File download" type="Files"/>
-        <x-forms.upload-multi-1 name="download_img-"  label="File ảnh" value="" :messages="$errors->get('files')" />
     </div>
 </div>
