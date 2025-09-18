@@ -63,7 +63,10 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+    <link rel="stylesheet" href="https://unpkg.com/tippy.js@6/themes/light.css"/>
     <!-- Scripts-->
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <script src="https://unpkg.com/tippy.js@6"></script>
     <script src="{{ asset('js/libs.js') }}" defer="defer"></script>
     <script src="{{ asset('js/app.js') }}" defer="defer"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -193,10 +196,10 @@ document.addEventListener("scroll", () => {
 
         lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // tránh âm
 
-        if (!isScrollingDown) {
-            // Nếu kéo lên thì thôi, không snap
-            return;
-        }
+        // if (!isScrollingDown) {
+        //     // Nếu kéo lên thì thôi, không snap
+        //     return;
+        // }
 
         const sections = document.querySelectorAll(".section");
         let closestSection = null;
@@ -218,4 +221,14 @@ document.addEventListener("scroll", () => {
         }
     }, 200); // chờ user dừng kéo 200ms
 });
+
+document.addEventListener("DOMContentLoaded", function(){
+    tippy('[data-tippy-content]', {
+    theme: 'light',
+    animation: 'scale',
+    duration: [200, 200],
+    delay: [100, 100],
+    });
+});
+
 </script>

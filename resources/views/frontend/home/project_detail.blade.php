@@ -213,18 +213,17 @@
                                 <div class="legal__body">
                                     <div class="legal__title">
                                         @if(isset($legal_descs[$index]) && !empty($legal_descs[$index]))
-                                            <div class="fw-bold">
-                                                {{ Str::limit($legal_descs[$index], 35, '...') }}
+                                            <div class="fw-bold text-truncate-multiline">
+                                                {{ $legal_descs[$index] }}
                                             </div>
                                         @endif
                                     </div>
-                                    <small class="text-muted">{{ basename($file) }}</small>
                                 </div>
                             </a>
                         @endforeach
                     @endif
                 </div>
-                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="#!">Xem thêm</a>
+                {{-- <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="/projects">Xem thêm</a> --}}
                 </nav>
             </div>
         </section>
@@ -243,17 +242,17 @@
                         @foreach ($preferential as $item)
                             <div class="swiper-slide">
                                 <div class="news"><a class="news__frame"
-                                        href="{{ route('post_detail', ['id' => $item->id, 'slug' => $item->slug]) }}"><img
+                                        href="{{ route('investment_guide_detail', ['id' => $item->id, 'slug' => $item->slug]) }}"><img
                                             src="{{ $item->image }}" alt="" /></a>
                                     <div class="news__body">
                                         <div class="news__info">
                                             <div class="news__time"><i
-                                                    class="fal fa-clock me-2"></i><span>{{ $item->created_at->format('d/m/Y H:i') }}</span>
+                                                    class="fal fa-clock me-2"></i><span>{{ \Carbon\Carbon::parse($item->published_at)->format('d/m/Y') }}</span>
                                             </div>
                                             <div class="news__like"><i class="fal fa-fw fa-heart"></i></div>
                                         </div>
                                         <h3 class="news__title  custom-desc"><a
-                                                href="{{ route('post_detail', ['id' => $item->id, 'slug' => $item->slug]) }}">{{ $item->name }}</a>
+                                                href="{{ route('investment_guide_detail', ['id' => $item->id, 'slug' => $item->slug]) }}" data-tippy-content="{{$item->name}}">{{ $item->name }}</a>
                                         </h3>
                                         <div class="news__desc">{{ $item->description }}</div>
                                     </div>
@@ -263,12 +262,14 @@
                     </div>
                 </div>
             </div>
-            <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="#!">Xem thêm</a>
+            <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="cam-nang-dau-tu">Xem thêm</a>
             </nav>
         </div>
     </section>
-        <section class="section" id="tin-tuc"><img class="texture-1" src="{{ asset('./images/texture-1.png') }}"
-                alt=""><img class="texture-2" src="{{ asset('./images/texture-2.png') }}" alt="">
+        <section class="section" id="tin-tuc">
+            {{-- <img class="texture-1" src="{{ asset('./images/texture-1.png') }}"
+                alt="">
+                <img class="texture-2" src="{{ asset('./images/texture-2.png') }}" alt=""> --}}
             <div class="container">
                 <h2 class="section__title">Tin tức</h2>
                 <div class="news-slider">
@@ -286,12 +287,12 @@
                                         <div class="news__body">
                                             <div class="news__info">
                                                 <div class="news__time"><i
-                                                        class="fal fa-clock me-2"></i><span>{{ $item->created_at->format('d/m/Y H:i') }}</span>
+                                                        class="fal fa-clock me-2"></i><span>{{ \Carbon\Carbon::parse($item->published_at)->format('d/m/Y') }}</span>
                                                 </div>
                                                 <div class="news__like"><i class="fal fa-fw fa-heart"></i></div>
                                             </div>
                                             <h3 class="news__title  custom-desc"><a
-                                                    href="{{ route('post_detail', ['id' => $item->id, 'slug' => $item->slug]) }}">{{ $item->name }}</a>
+                                                    href="{{ route('post_detail', ['id' => $item->id, 'slug' => $item->slug]) }}" data-tippy-content="{{$item->name}}">{{ $item->name }}</a>
                                             </h3>
                                             <div class="news__desc">{{ $item->description }}</div>
                                         </div>
@@ -301,7 +302,7 @@
                         </div>
                     </div>
                 </div>
-                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="#!">Xem thêm</a>
+                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="tin-tuc">Xem thêm</a>
                 </nav>
             </div>
         </section>

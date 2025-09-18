@@ -31,7 +31,7 @@
                 <div class="post__footer">
                     <span class="post__time me-4">
                         <i
-                            class="fal fa-clock me-2"></i><span>{{ $investment_guide->created_at->format('d/m/Y H:i') }}</span>
+                            class="fal fa-clock me-2"></i><span>{{ \Carbon\Carbon::parse($investment_guide->published_at)->format('d/m/Y') }}</span>
                     </span>
                 </div>
             </div>
@@ -54,18 +54,15 @@
                                         <div class="card shadow-sm h-100 hover-shadow-custom border-0">
                                             <div class="card-body d-flex align-items-center">
                                                 <i class="fas fa-file-alt fa-2x text-primary me-3"></i>
-                                                <div>
                                                     @if (isset($content[$index]) && !empty($content[$index]))
-                                                        <div class="fw-bold">
-                                                            {{ Str::limit($content[$index], 35, '...') }}
+                                                        <div class="fw-bold text-truncate-multiline">
+                                                            {{ $content[$index] }}
                                                         </div>
                                                     @endif
-                                                    <small class="text-muted">{{ basename($file) }}</small>
-                                                </div>
                                             </div>
                                         </div>
                                     </a>
-                                </div>                
+                                </div>
                             @endforeach
                         </div>
                     </div>
@@ -92,7 +89,7 @@
                                         <div class="news__body">
                                             <div class="news__info">
                                                 <div class="news__time"><i
-                                                        class="fal fa-clock me-2"></i><span>{{ $item->created_at->format('d/m/Y H:i') }}</span>
+                                                        class="fal fa-clock me-2"></i><span>{{ \Carbon\Carbon::parse($item->published_at)->format('d/m/Y') }}</span>
                                                 </div>
                                                 <div class="news__like"><i class="fal fa-fw fa-heart"></i></div>
                                             </div>
@@ -109,7 +106,7 @@
                         </div>
                     </div>
                 </div>
-                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="#!">Xem thêm</a>
+                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="/cam-nang-dau-tu">Xem thêm</a>
                 </nav>
             </div>
         </section>

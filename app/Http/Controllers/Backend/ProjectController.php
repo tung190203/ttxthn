@@ -168,7 +168,7 @@ class ProjectController extends Controller
             'design_descs' => 'nullable|array',
             'design_descs.*' => 'nullable',
             'files_images' => 'nullable|array',
-            'files_images.*' => 'nullable|max:2048',
+            'files_images.*' => 'nullable|max:10240',
             'legal_short_desc' => 'nullable|string',
             'files_descs' => 'nullable|array',
             'files_descs.*' => 'nullable',

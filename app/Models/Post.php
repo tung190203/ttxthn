@@ -15,7 +15,7 @@ class Post extends Model
     use SoftDeletes;
     use HasGlobalScopes;
 
-    protected $dates = ['created_at', 'updated_at', 'deleted_at'];
+    protected $dates = ['created_at', 'updated_at', 'deleted_at', 'published_at'];
 
     protected $fillable = [
         'name',
@@ -35,11 +35,12 @@ class Post extends Model
         'meta_description',
         'language',
         'project_type',
-        'project_id'
+        'project_id',
+        'published_at'
     ];
 
-    const POSTS_PER_PAGE = 10;
-    const POSTS_TAKE = 10;
+    const POSTS_PER_PAGE = 9;
+    const POSTS_TAKE = 9;
 
     const STATUS_ACTIVE = 1;
     const STATUS_INACTIVE = 0;
@@ -79,6 +80,11 @@ class Post extends Model
     public function project()
     {
         return $this->belongsTo(Project::class, 'project_id', 'id');
+    }
+
+    public function projects()
+    {
+        return $this->belongsToMany(Project::class, 'post_project');
     }
 
     public function getUrl(): string

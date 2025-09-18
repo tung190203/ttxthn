@@ -6,6 +6,7 @@ use App\Models\InvestmentGuide;
 use Illuminate\Http\Request;
 use App\Models\Setting;
 use App\Models\Category;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\App;
 
 class InvestMentGuideController extends Controller
@@ -13,6 +14,7 @@ class InvestMentGuideController extends Controller
     public function detail(Request $request, $slug, $id)
     {
         $investment_guide = InvestmentGuide::where('status', InvestmentGuide::STATUS_ACTIVE)
+            ->where('published_at' , '<=', Carbon::now())
             ->where('language', App::getLocale())
             ->where('id', $id)->firstOrFail();
 
@@ -27,6 +29,7 @@ class InvestMentGuideController extends Controller
         $setting['meta_description'] = ($investment_guide->meta_description) ?: $setting['meta_description'];
         $setting['og_image'] = ($investment_guide->image) ?: ($setting['og_image'] ?? '');
         $list_investment_guide_popular = InvestmentGuide::where('status', InvestmentGuide::STATUS_ACTIVE)
+            ->where('published_at' , '<=', Carbon::now())
             ->where('language', App::getLocale())
             ->where('id', '<>', $investment_guide->id)
             ->orderBy('view_num', 'desc')

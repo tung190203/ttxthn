@@ -28,8 +28,8 @@ class HomeController extends Controller
         $setting = Setting::getAllSetting();
 
         $banners = Widget::getByPosition('HOME_BANNER');
-        $list_post_popular = Post::popular(4)->get();
-        $rawProjects = Project::with(['type', 'industry', 'districts'])->get();
+        $list_post_popular = Post::where('published_at', '<=', Carbon::now())->popular(4)->get();
+        $rawProjects = Project::withRelations()->get();
         $projects = $rawProjects->map([ProjectTransformer::class, 'transform']);
         $types = ProjectType::all()->map(function ($type) {
             return [
@@ -55,8 +55,25 @@ class HomeController extends Controller
                 'name' => $productType->name,
             ];
         })->toArray();
-        $posts = Post::all();
-        $project_category = $rawProjects->map(function ($project) {
+        $posts = Post::where('published_at', '<=', Carbon::now())
+            ->orderBy('published_at', 'desc')
+            ->take(10)
+            ->get();
+        $list_industries = ProjectIndustries::all()->map(function ($industry) {
+            return [
+                'id' => $industry->id,
+                'name' => $industry->name,
+            ];
+        })->toArray();
+        $filteredProjectsQuery = Project::withRelations();
+
+        if ($request->industry) {
+            $filteredProjectsQuery->where('industry_number', $request->industry);
+        }
+
+        $filteredProjects = $filteredProjectsQuery->get();
+
+        $project_category = $filteredProjects->map(function ($project) {
             return [
                 'id' => $project->id,
                 'detail_image' => $project->detail_image,
@@ -71,7 +88,8 @@ class HomeController extends Controller
         })->toArray();
         $maxPrice = $rawProjects->max('price');
         $maxPriceSp = Project::where('industry_number', 6)->max('price');
-        return view('frontend.home.index',
+        return view(
+            'frontend.home.index',
             compact(
                 'project_category',
                 'setting',
@@ -85,6 +103,7 @@ class HomeController extends Controller
                 'posts',
                 'maxPrice',
                 'maxPriceSp',
+                'list_industries'
             )
         );
     }
@@ -93,31 +112,31 @@ class HomeController extends Controller
     {
         $setting = Setting::getAllSetting();
         $setting['menu_active'] = 'du-an-keu-goi-dau-tu';
-    
+
         $banners = Widget::getByPosition('HOME_BANNER');
-        $list_post_popular = Post::popular(Post::POSTS_TAKE)->get();
-    
+        $list_post_popular = Post::popular(Post::POSTS_TAKE)->where('published_at', '<=', Carbon::now())->get();
+
         $list_types = ProjectType::all()->map(function ($type) {
             return [
-                'id'   => $type->id,
+                'id' => $type->id,
                 'name' => $type->name,
             ];
         })->toArray();
-    
+
         $list_districts = District::all()->map(function ($district) {
             return [
-                'id'   => $district->id,
+                'id' => $district->id,
                 'name' => $district->name,
             ];
         })->toArray();
-    
+
         $list_industries = ProjectIndustries::all()->map(function ($industry) {
             return [
-                'id'   => $industry->id,
+                'id' => $industry->id,
                 'name' => $industry->name,
             ];
         })->toArray();
-    
+
         $projects = Project::with(['type', 'industry', 'districts'])
             ->when($request->keyword, function ($query) use ($request) {
                 $query->where('name', 'like', '%' . $request->keyword . '%');
@@ -142,7 +161,7 @@ class HomeController extends Controller
             ->orderBy('updated_at', 'desc')
             ->paginate(Project::PROJECTS_PER_PAGE)
             ->appends($request->all());
-    
+
         return view('frontend.home.project', compact(
             'projects',
             'setting',
@@ -152,32 +171,43 @@ class HomeController extends Controller
             'list_types',
             'list_industries',
         ));
-    }    
+    }
 
     public function projectDetail(Request $request, $slug = null)
     {
         $setting = Setting::getAllSetting();
         $setting['menu_active'] = 'du-an-keu-goi-dau-tu';
-    
+
         $banners = Widget::getByPosition('HOME_BANNER');
-        $list_post_popular = Post::popular(Post::POSTS_TAKE)->get();
-    
+        $list_post_popular = Post::popular(Post::POSTS_TAKE)->where('published_at', '<=', Carbon::now())->get();
+
         $project = Project::with(['type', 'industry', 'districts'])
             ->where('slug', $slug)
             ->firstOrFail();
-    
+
         $preferential = collect(); // default empty
         $posts = collect();        // default empty
 
-        $preferential = InvestmentGuide::where('cat_id', Category::CATEGORY_TYPE_INVESTMENT_HANDBOOK)
+        $categoryId = Category::CATEGORY_TYPE_INVESTMENT_HANDBOOK;
+
+        $categoryIds = Category::where('id', $categoryId)
+            ->orWhere('parent_id', $categoryId)
+            ->pluck('id');
+
+        $preferential = InvestmentGuide::whereIn('cat_id', $categoryIds)
+            ->where('published_at', '<=', Carbon::now())
+            ->whereHas('projects', function ($q) use ($slug) {
+                $q->where('slug', $slug);
+            })
+            ->orderBy('published_at', 'desc')
+            ->get();
+        // bài viết theo tin tức của dự án
+        $posts = Post::where('cat_id', Category::CATEGORY_TYPE_POST)
+            ->where('published_at', '<=', Carbon::now())
             ->whereHas('projects', function ($q) use ($slug) {
                 $q->where('slug', $slug);
             })->get();
-        // bài viết theo tin tức của dự án
-        $posts = Post::where('cat_id', Category::CATEGORY_TYPE_POST)->whereHas('project', function ($q) use ($slug) {
-            $q->where('slug', $slug);
-        })->get();
-    
+
         return view('frontend.home.project_detail', compact(
             'setting',
             'banners',
@@ -193,9 +223,10 @@ class HomeController extends Controller
         $setting = Setting::getAllSetting();
 
         $banners = Widget::getByPosition('HOME_BANNER');
-        $list_post_popular = Post::popular(4)->get();
+        $list_post_popular = Post::popular(4)->where('published_at', '<=', Carbon::now())->get();
 
-        return view('frontend.home.account',
+        return view(
+            'frontend.home.account',
             compact(
                 'setting',
                 'banners',
@@ -221,19 +252,22 @@ class HomeController extends Controller
 
         $selectedCatId = $request->get('cat_id');
         $catIds = ($selectedCatId && in_array($selectedCatId, $allCatIds)) ? [$selectedCatId] : $allCatIds;
-    
+
         $query = InvestmentGuide::whereIn('cat_id', $catIds)
-            ->where('status', InvestmentGuide::STATUS_ACTIVE);
-    
+            ->where('published_at', '<=', Carbon::now())
+            ->where('status', InvestmentGuide::STATUS_ACTIVE)
+            ->orderBy('published_at', 'desc');
+
         if ($request->filled('keyword')) {
             $query->where('name', 'like', '%' . $request->keyword . '%');
         }
-    
+
         $list_investment = $query->latest()->paginate(InvestmentGuide::INVESTMENT_PER_PAGE);
 
         $childCategories = $subQuery->pluck('name', 'id');
-    
-        return view('frontend.home.introduce_potential',
+
+        return view(
+            'frontend.home.introduce_potential',
             compact(
                 'banners',
                 'setting',
@@ -252,7 +286,8 @@ class HomeController extends Controller
 
         $setting['menu_active'] = '事業内容';
 
-        return view('frontend.home.jobs',
+        return view(
+            'frontend.home.jobs',
             compact(
                 'setting',
                 'job_data',
@@ -320,7 +355,7 @@ class HomeController extends Controller
 
         $data['contact']['loc'] = route('contact');
         $data['contact']['lastmod'] = Carbon::now();
-//
+        //
 //        //Category
 //        $key_categories = 'site_map_categories_' . $lang_code;
 //        $categories = Cache::remember($key_categories, $time_cache, function () use ($lang_code) {
@@ -369,7 +404,7 @@ class HomeController extends Controller
 //            $data['page' . $key_pa]['lastmod'] = $page->updated_at;
 //        }
         $last_mod = data_get($data, 'category0.lastmod', Carbon::now());
-//        dd($data);
+        //        dd($data);
 
         return response()->view('frontend.home.sitemap', compact('data', 'last_mod'))
             ->header('Content-Type', 'text/xml');
