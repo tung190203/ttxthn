@@ -6,6 +6,7 @@ use App\Models\Post;
 use Illuminate\Http\Request;
 use App\Models\Setting;
 use App\Models\Category;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\App;
 
 class PostController extends Controller
@@ -20,9 +21,11 @@ class PostController extends Controller
         $cat_ids[] = (int)$category->id;
 
         $query_post = Post::with('category')
+            ->where('published_at' , '<=', Carbon::now())
             ->where('status', Post::STATUS_ACTIVE)
             ->where('language', $language)
             ->whereIn('cat_id', $cat_ids)
+            ->orderBy('published_at', 'desc')
             ->orderBy('priority')
             ->orderBy('id', 'desc');
         $posts = $query_post->paginate(Post::POSTS_PER_PAGE);
@@ -56,6 +59,7 @@ class PostController extends Controller
         $key = $request->get('key');
 
         $query_post = Post::with('category')
+            ->where('published_at' , '<=', Carbon::now())
             ->where('status', Post::STATUS_ACTIVE)
             ->where('language', $language)
             ->where('name', 'like', '%' . $key . '%')
@@ -101,6 +105,7 @@ class PostController extends Controller
         $setting['meta_description'] = ($post->meta_description) ?: $setting['meta_description'];
         $setting['og_image'] = ($post->image) ?: ($setting['og_image'] ?? '');
         $list_post_popular = Post::where('status', Post::STATUS_ACTIVE)
+            ->where('published_at' , '<=', Carbon::now())
             ->where('language', App::getLocale())
             ->where('id', '<>', $post->id)
             ->orderBy('view_num', 'desc')

@@ -79,6 +79,8 @@ Route::localized(function () {
             Route::get('clone/{post}', [PostController::class, 'clone'])->name('backend_post_clone');
             Route::get('restore/{id}', [PostController::class, 'restore'])->name('backend_post_restore');
             Route::get('force-delete/{id}', [PostController::class, 'forceDelete'])->name('backend_post_force_delete');
+            Route::get('import', [PostController::class, 'showImportForm'])->name('backend_post_show_import_form');
+            Route::post('import', [PostController::class, 'importFromUrl'])->name('backend_post_import');
         });
 
         Route::prefix('investment_guide')->group(function () {

@@ -29,14 +29,14 @@
                                     <div class="news__info">
                                         <div class="news__time">
                                             <i class="fal fa-clock me-2"></i>
-                                            <span>{{ $item->created_at->format('d/m/Y H:i') }}</span>
+                                            <span>{{ \Carbon\Carbon::parse($item->published_at)->format('d/m/Y') }}</span>
                                         </div>
                                         <div class="news__like">
                                             <i class="fal fa-fw fa-heart"></i>
                                         </div>
                                     </div>
                                     <h3 class="news__title custom-desc">
-                                        <a href="{{ route('post_detail',['id' => $item->id, 'slug' => $item->slug]) }}">
+                                        <a href="{{ route('post_detail',['id' => $item->id, 'slug' => $item->slug]) }}" data-tippy-content="{{$item->name}}">
                                             {{ $item->name }}
                                         </a>
                                     </h3>

@@ -30,7 +30,7 @@
             
                 <div class="post__footer">
                     <span class="post__time me-4">
-                        <i class="fal fa-clock me-2"></i><span>{{$post->created_at->format('d/m/Y H:i')}}</span>
+                        <i class="fal fa-clock me-2"></i><span>{{\Carbon\Carbon::parse($post->published_at)->format('d/m/Y')}}</span>
                     </span>
                 </div>
             </div>
@@ -55,7 +55,7 @@
                                         <div class="news__body">
                                             <div class="news__info">
                                                 <div class="news__time"><i
-                                                            class="fal fa-clock me-2"></i><span>{{$item->created_at->format('d/m/Y H:i')}}</span></div>
+                                                            class="fal fa-clock me-2"></i><span>{{\Carbon\Carbon::parse($item->published_at)->format('d/m/Y')}}</span></div>
                                                 <div class="news__like"><i class="fal fa-fw fa-heart"></i></div>
                                             </div>
                                             <h3 class="news__title custom-desc"><a href="{{ route('post_detail',['id' => $item->id, 'slug' => $item->slug]) }}">{{$item->name}}</a></h3>
@@ -69,7 +69,7 @@
                         </div>
                     </div>
                 </div>
-                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="#!">Xem thêm</a></nav>
+                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="tin-tuc">Xem thêm</a></nav>
             </div>
         </section>
     </div>
