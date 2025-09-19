@@ -69,6 +69,7 @@
                                 <hr>
                                 <x-forms.input name="title" value="" label="Tên dự án" />
                                 <x-forms.textarea name="description" editor="true" value="" label="Mô tả dự án"/>
+                                <x-forms.upload name="voice" value="" label="Voice" type="text" :messages="$errors->get('ct_audio')"/>
                                 <x-forms.switch name="investor" id="investor" label="Hiển thị chủ đầu tư" value="" :messages="$errors->get('status')" />
                                 <x-forms.upload name="investor_image" value="" label="Logo chủ đầu tư" type="image"/>
                                 <x-forms.input name="investor_des1" value="" label="Mô tả 1"/>
@@ -215,11 +216,10 @@
 
 @section('script')
     <script>
+        $('.skin_div').hide();
         $('#skin_investor #investor_status').bootstrapSwitch();
         $('#skin_screen #investor').bootstrapSwitch();
         $('#skin_plan #status').bootstrapSwitch();
-        $('.skin_div').hide();
-
         var count_detail = 0;
 
         function replaceHtml(count_detail){
@@ -293,6 +293,7 @@
                             $('#skin_screen #wlscreen_id').val(screen['id']);
                             $('#skin_screen #title').val(screen['title']);
                             CKEDITOR.instances['description'].setData(screen['description']);
+                            $('#skin_screen #voice_input').val(screen['voice']);
                             $('#skin_screen #investor').bootstrapSwitch('state', screen['show_investor'] == 1 ? true : false);
                             $('#skin_screen #investor_image_input').val(screen['investor_img']);
                             $('#skin_screen #investor_des1').val(screen['investor_desc1']);
@@ -408,6 +409,7 @@
                 screen : {
                     id                  :  $('#skin_screen #wlscreen_id').val(),  
                     title               :  $('#skin_screen #title').val(),
+                    voice               :  $('#skin_screen #voice_input').val(),
                     description         :  CKEDITOR.instances['description'].getData(),
                     investor_img        :  $('#skin_screen #investor_image_input').val(),
                     investor_desc1      :  $('#skin_screen #investor_des1').val(),

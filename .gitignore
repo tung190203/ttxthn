@@ -1,6 +1,7 @@
 /node_modules
 /public/js/ckfinder
 /public/uploads
+/public/vrtour
 /storage/*.key
 /vendor
 .env
@@ -10,4 +11,3 @@
 composer.lock
 .DS_Store
 *.map
-/public/vrtour

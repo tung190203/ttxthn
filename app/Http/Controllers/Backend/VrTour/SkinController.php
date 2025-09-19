@@ -80,6 +80,7 @@ class SkinController extends Controller
                 $screen->vrtour_id          = $vrtour_id;
                 $screen->title              = $request['screen']['title'];
                 $screen->description        = $request['screen']['description'];
+                $screen->voice              = $request['screen']['voice'];
                 $screen->show_investor      = $request['screen']['status'] == true ? 1 : 0;
                 $screen->investor_img       = $request['screen']['investor_img'];
                 $screen->investor_desc1     = $request['screen']['investor_desc1'];
