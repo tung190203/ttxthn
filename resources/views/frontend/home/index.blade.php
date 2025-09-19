@@ -153,83 +153,6 @@
                 </div>
             </div>
         </div>
-
-        {{-- <section class="section" id="investment-section">
-            <div class="container">
-                <h2 class="section__title mb-3">Danh mục đầu tư</h2>
-                <ul class="project-nav__list_custom mb-60">
-                    <li>
-                        <a class="{{ request('industry') ? '' : 'active' }}"
-                            href="{{ route('home_page') }}#investment-section">
-                            Tất cả
-                        </a>
-                    </li>
-                    @foreach($industries as $industry)
-                        <li>
-                            <a class="{{ request('industry') == $industry['id'] ? 'active' : '' }}"
-                                href="{{ route('home_page', ['industry' => $industry['id']]) }}#investment-section">
-                                {{ $industry['name'] }}
-                            </a>
-                        </li>
-                    @endforeach
-                </ul>
-                @if(empty($project_category))
-                    <p class="text-center">Chưa có dự án phù hợp</p>
-                @else
-                    <div class="news-slider">
-                        <div class="news-slider__nav">
-                            <div class="news-slider__prev"><i class="fal fa-fw fa-lg fa-angle-left"></i></div>
-                            <div class="news-slider__next"><i class="fal fa-fw fa-lg fa-angle-right"></i></div>
-                        </div>
-                        <div class="news-slider__container swiper-container">
-                            <div class="swiper-wrapper">
-                                @foreach ($project_category as $item)
-                                    <div class="swiper-slide">
-                                        <div>
-                                            <div class="project"><a class="project__frame"
-                                                    href="{{ route('project_detail', ['slug' => $item['slug']]) }}">
-                                                    <img src="{{$item['detail_image'] ?? './images/project-1.jpg' }}" alt="" /></a>
-                                                <div class="project__body">
-                                                    <h3 class="project__title"><a
-                                                            href="{{ route('project_detail', ['slug' => $item['slug']]) }}"
-                                                            data-tippy-content="{{$item['name']}}">{{$item['name']}}</a>
-                                                    </h3>
-                                                    @if($item['is_invest'] == 0)
-                                                        <div class="project__overlay"><span>Dự án đang kêu gọi đầu tư</span>
-                                                            <a class="project__like" href="#!"><i
-                                                                    class="fal fa-fw fa-lg fa-heart"></i></a>
-                                                        </div>
-                                                    @else
-                                                        <div class="project__overlay"><span>Dự án đã có chủ đầu tư</span>
-                                                            <a class="project__like" href="#!"><i
-                                                                    class="fal fa-fw fa-lg fa-heart"></i></a>
-                                                        </div>
-                                                    @endif
-                                                    <ul class="project__info">
-                                                        <li><img class="me-2" src="./images/icon-map-marker.svg" alt="" /><span
-                                                                data-tippy-content="Dự án thuộc {{$item['districts']}}">Dự
-                                                                án thuộc {{$item['districts']}}</span>
-                                                        </li>
-                                                        <li><img class="me-2" src="./images/icon-dimension.svg"
-                                                                alt="" /><span>{{$item['area'] ?? 0}} ha</span>
-                                                        </li>
-                                                        <li><img class="me-2" src="./images/icon-save-money.svg" alt="" /><span>Theo
-                                                                đề xuất</span>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-                    </div>
-                    <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="/projects">Xem thêm</a>
-                    </nav>
-                @endif
-            </div>
-        </section> --}}
         <section class="section" id="investment-section">
             <div class="container">
               <h2 class="section__title mb-3">Danh mục đầu tư</h2>
@@ -386,7 +309,7 @@
                         </div>
                     </div>
                 </div>
-                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="tin-tuc">Xem thêm</a>
+                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="/tin-tuc">Xem thêm</a>
                 </nav>
             </div>
         </section>
