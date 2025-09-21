@@ -13,15 +13,14 @@
                     </div>
                 @endif
 
-                <form action="" method="POST">
+                <form action="{{route('contact')}}" method="POST">
                     @csrf
-
                     <div class="mb-3">
-                        <label for="fullname" class="form-label">Họ và tên</label>
-                        <input type="text" name="fullname" id="fullname"
-                               class="form-control @error('fullname') is-invalid @enderror"
-                               placeholder="Nhập họ và tên" value="{{ old('fullname') }}" required>
-                        @error('fullname')
+                        <label for="name" class="form-label">Họ và tên</label>
+                        <input type="text" name="name" id="name"
+                               class="form-control @error('name') is-invalid @enderror"
+                               placeholder="Nhập họ và tên" value="{{ old('name') }}">
+                        @error('name')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
@@ -30,7 +29,7 @@
                         <label for="email" class="form-label">Địa chỉ Email</label>
                         <input type="email" name="email" id="email"
                                class="form-control @error('email') is-invalid @enderror"
-                               placeholder="you@example.com" value="{{ old('email') }}" required>
+                               placeholder="you@example.com" value="{{ old('email') }}">
                         @error('email')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -40,21 +39,21 @@
                         <label for="phone" class="form-label">Số điện thoại</label>
                         <input type="text" name="phone" id="phone"
                                class="form-control @error('phone') is-invalid @enderror"
-                               placeholder="Nhập số điện thoại" value="{{ old('phone') }}" required>
+                               placeholder="Nhập số điện thoại" value="{{ old('phone') }}">
                         @error('phone')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
 
                     <div class="mb-3">
-                        <label for="project" class="form-label">Dự án bạn quan tâm</label>
-                        <select name="project" id="project" class="form-select @error('project') is-invalid @enderror" required>
+                        <label for="project_id" class="form-label">Dự án bạn quan tâm</label>
+                        <select name="project_id" id="project_id" class="form-select @error('project_id') is-invalid @enderror">
                             <option value="">-- Chọn dự án --</option>
-                            <option value="Thịnh Vượng" {{ old('project') == 'Thịnh Vượng' ? 'selected' : '' }}>Khu đô thị Thịnh Vượng</option>
-                            <option value="TechPark" {{ old('project') == 'TechPark' ? 'selected' : '' }}>Dự án TechPark Bình Dương</option>
-                            <option value="Riverside" {{ old('project') == 'Riverside' ? 'selected' : '' }}>Căn hộ Riverside</option>
+                            @foreach ($projects as $p)
+                                <option value="{{ $p->id }}" {{ old('project_id') == $p->name ? 'selected' : '' }}>{{ $p->name }}</option>
+                            @endforeach
                         </select>
-                        @error('project')
+                        @error('project_id')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>

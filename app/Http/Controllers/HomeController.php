@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use App\Libs\Util;
 use App\Libs\Validate;
 use App\Models\Category;
+use App\Models\Contact;
 use App\Models\District;
 use App\Models\Post;
-use App\Models\Feedback;
 use App\Models\InvestmentGuide;
 use App\Models\Page;
 use App\Models\ProductType;
@@ -82,6 +82,7 @@ class HomeController extends Controller
                 'type_number' => $project->type_number,
                 'industry_number' => $project->industry_number,
                 'area' => $project->area,
+                'unit' => $project->unit_type_text,
                 'districts' => $project->districts->pluck('name')->implode(', '),
                 'is_invest' => $project->is_invest,
             ];
@@ -207,6 +208,13 @@ class HomeController extends Controller
             ->whereHas('projects', function ($q) use ($slug) {
                 $q->where('slug', $slug);
             })->get();
+            $backUrl = url()->previous();
+            $backLabel = $request->get('ref');
+            
+            if (rtrim($backUrl, '/') === rtrim(url('/'), '/')) {
+                $backUrl = null;
+                $backLabel = null;
+            }            
 
         return view('frontend.home.project_detail', compact(
             'setting',
@@ -215,6 +223,8 @@ class HomeController extends Controller
             'preferential',
             'posts',
             'project',
+            'backUrl'
+            ,'backLabel'
         ));
     }
 
@@ -322,26 +332,35 @@ class HomeController extends Controller
         });
     }
 
-    public function contact(Request $request, Feedback $feedback)
+    public function contact(Request $request, Contact $contact)
     {
         $setting = Setting::getAllSetting();
         if ($request->isMethod('post')) {
-            $feedback->name = $request->get('name');
-            $feedback->kananame = $request->get('kananame');
-            $feedback->phone = $request->get('phone');
-            $feedback->email = $request->get('email');
-            $feedback->content = $request->get('content');
-            $feedback->save();
-            return redirect()->route('contact')->with('success', __('app.contact.success'));
+            $validated = $request->validate([
+                'name'       => 'required|string|max:255',
+                'email'      => 'required|email|max:255',
+                'phone'      => 'nullable|string|max:20',
+                'project_id' => 'nullable|exists:projects,id',
+                'message'    => 'nullable|string|max:2000',
+            ], [
+                'name.required'    => 'Vui lòng nhập họ tên',
+                'email.required'   => 'Vui lòng nhập email',
+                'email.email'      => 'Email không hợp lệ',
+                'message.required' => 'Vui lòng nhập nội dung liên hệ',
+            ]);
+            $contact->fill($validated);
+            $contact->save();
+
+            return redirect()->route('contact')
+                ->with('success', __('app.contact.success'));
         }
 
-        //SEO MOZ Cấu hình SEO
+        // SEO MOZ Cấu hình SEO
         $setting['meta_title'] = 'Liên hệ với chúng tôi';
         $setting['menu_active'] = 'lien-he';
 
         return view('frontend.home.contact', compact('setting'));
-
-    }
+    }    
 
     public function siteMap(Request $request)
     {

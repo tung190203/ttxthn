@@ -35,6 +35,8 @@ class InvestMentGuideController extends Controller
             ->orderBy('view_num', 'desc')
             ->take(InvestmentGuide::INVESTMENT_TAKE)
             ->get();
+        $backUrl = url()->previous();
+        $backLabel = $request->get('ref');
 
         return view('frontend.home.investment_guide_detail',
             compact(
@@ -42,6 +44,8 @@ class InvestMentGuideController extends Controller
                 'investment_guide',
                 'category',
                 'list_investment_guide_popular'
+                ,'backUrl'
+                ,'backLabel'
             )
         );
     }

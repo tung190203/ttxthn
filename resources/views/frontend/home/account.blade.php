@@ -4,7 +4,7 @@
     <div class="page__content">
         <!-- main content-->
         <article class="banner d-block px-0">
-            <div class="banner__breadcrumb">
+            {{-- <div class="banner__breadcrumb">
                 <nav>
                     <div class="container">
                         <ol class="breadcrumb">
@@ -14,7 +14,7 @@
                         </ol>
                     </div>
                 </nav>
-            </div>
+            </div> --}}
             <img class="banner__bg" src="./images/banner-project.jpg" alt="">
             <div class="container text-end">
                 <div class="position-relative" style="z-index: 100;">

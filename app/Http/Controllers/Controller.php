@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Page;
+use App\Models\Nation;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\View;
 use App\Models\Setting;
 use App\Models\Menu;
+use App\Models\Project;
 
 abstract class Controller
 {
@@ -36,6 +37,8 @@ abstract class Controller
         View::share('share', $share);
         View::share('setting', $setting);
         View::share('current_locale', $current_locale);
+        View::share('nations', Nation::all());
+        View::share('projects', Project::orderBy('created_at', 'desc')->get());
         //End code dự án
 
     }

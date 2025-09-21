@@ -22,6 +22,8 @@
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
 
     <script src="{{ asset('backend_assets/js/jquery.min.js') }}"></script>
+    <link href="{{ asset('css/cropper.min.css') }}" rel="stylesheet">
+    <script src="{{ asset('js/cropper.min.js') }}"></script>
 
     @csrf
 

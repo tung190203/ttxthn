@@ -9,7 +9,12 @@
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a class="link-unstyled" href="#!"><i
                                     class="fal fa-home me-2"></i><span>Trang chủ</span></a></li>
-                        <li class="breadcrumb-item active">{{ $category->name }}</li>
+                        @if (!empty($backUrl) && $backUrl !== url()->current())
+                            <li class="breadcrumb-item">
+                                <a href="{{ $backUrl }}">{{$backLabel}}</a>
+                            </li>
+                        @endif
+                        <li class="breadcrumb-item active">{{ $investment_guide->name }}</li>
                     </ol>
                 </div>
             </nav>
@@ -54,11 +59,11 @@
                                         <div class="card shadow-sm h-100 hover-shadow-custom border-0">
                                             <div class="card-body d-flex align-items-center">
                                                 <i class="fas fa-file-alt fa-2x text-primary me-3"></i>
-                                                    @if (isset($content[$index]) && !empty($content[$index]))
-                                                        <div class="fw-bold text-truncate-multiline">
-                                                            {{ $content[$index] }}
-                                                        </div>
-                                                    @endif
+                                                @if (isset($content[$index]) && !empty($content[$index]))
+                                                    <div class="fw-bold text-truncate-multiline">
+                                                        {{ $content[$index] }}
+                                                    </div>
+                                                @endif
                                             </div>
                                         </div>
                                     </a>
@@ -106,7 +111,8 @@
                         </div>
                     </div>
                 </div>
-                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="/cam-nang-dau-tu">Xem thêm</a>
+                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="/cam-nang-dau-tu">Xem
+                        thêm</a>
                 </nav>
             </div>
         </section>
