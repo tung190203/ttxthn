@@ -21,7 +21,7 @@
                 <ul class="project-nav__list">
                     <li>
                         <a 
-                            href="{{ route('category', ['slug' => $setting['menu_active']]) }}" 
+                            href="{{ route('category', array_merge(['slug' => $setting['menu_active']], request()->only('keyword'), ['cat_id' => null])) }}" 
                             class="{{ empty($selectedCatId) ? 'active' : '' }}">
                             Tất cả
                         </a>
@@ -29,7 +29,7 @@
                     @foreach($childCategories as $id => $name)
                         <li>
                             <a 
-                                href="{{ route('category', ['slug' => $setting['menu_active'], 'cat_id' => $id]) }}" 
+                                href="{{ route('category', array_merge(['slug' => $setting['menu_active']], request()->only('keyword'), ['cat_id' => $id])) }}" 
                                 class="{{ (int)$selectedCatId === $id ? 'active' : '' }}">
                                 {{ $name }}
                             </a>
