@@ -76,7 +76,7 @@
                         @foreach ($list_investment as $item)
                             <div class="col-6 col-lg-4">
                                 <div class="news"><a class="news__frame"
-                                        href="{{ route('investment_guide_detail',['id' => $item->id, 'slug' => $item->slug]) }}"><img
+                                        href="{{ route('investment_guide_detail',['id' => $item->id, 'slug' => $item->slug, 'ref' => 'Cẩm nang đầu tư']) }}"><img
                                             src="{{ $item->image --}}" alt="" /></a>
                                     <div class="news__body">
                                         <div class="news__info">
@@ -86,7 +86,7 @@
                                             <div class="news__like"><i class="fal fa-fw fa-heart"></i></div>
                                         </div>
                                         <h3 class="news__title custom-desc"><a
-                                                href="{{ route('investment_guide_detail',['id' => $item->id, 'slug' => $item->slug]) }}" data-tippy-content="{{$item->name}}">{{ $item->name }}</a></h3>
+                                                href="{{ route('investment_guide_detail',['id' => $item->id, 'slug' => $item->slug, 'ref' => 'Cẩm nang đầu tư']) }}" data-tippy-content="{{$item->name}}">{{ $item->name }}</a></h3>
                                         <div class="news__desc">{{ $item->description }}</div>
                                     </div>
                                 </div>

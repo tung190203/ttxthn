@@ -22,7 +22,7 @@
                     @forelse($posts as $item)
                         <div class="col-6 col-lg-4">
                             <div class="news">
-                                <a class="news__frame" href="{{ route('post_detail',['id' => $item->id, 'slug' => $item->slug]) }}">
+                                <a class="news__frame" href="{{ route('post_detail',['id' => $item->id, 'slug' => $item->slug, 'ref' => 'Tin tức']) }}">
                                     <img src="{{$item->image}}" alt=""/>
                                 </a>
                                 <div class="news__body">
@@ -36,7 +36,7 @@
                                         </div>
                                     </div>
                                     <h3 class="news__title custom-desc">
-                                        <a href="{{ route('post_detail',['id' => $item->id, 'slug' => $item->slug]) }}" data-tippy-content="{{$item->name}}">
+                                        <a href="{{ route('post_detail',['id' => $item->id, 'slug' => $item->slug, 'ref' => 'Tin tức']) }}" data-tippy-content="{{$item->name}}">
                                             {{ $item->name }}
                                         </a>
                                     </h3>

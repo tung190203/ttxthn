@@ -22,6 +22,7 @@ class Project extends Model
         'lat',
         'lng',
         'area',
+        'unit',
         'type_number',
         'industry_number',
         'price',
@@ -53,6 +54,21 @@ class Project extends Model
     ];
 
     const PROJECTS_PER_PAGE = 9;
+
+    const KILOMETERS = 1;
+    const HECTARES = 2;
+
+    const UNIT_OPTIONS = [
+        self::KILOMETERS => 'km',
+        self::HECTARES => 'ha',
+    ];
+
+    protected $appends = ['unit_type_text'];
+
+    public function getUnitTypeTextAttribute()
+    {
+        return self::UNIT_OPTIONS[$this->unit] ?? '';
+    }
 
     public function type()
     {
@@ -232,6 +248,18 @@ class Project extends Model
             $html .= "<option value=\"{$id}\" {$isSelected}>{$name}</option>";
         }
     
+        return $html;
+    }
+
+    public static function makeListUnit($selected = null, $include_default = false)
+    {
+        $units = self::UNIT_OPTIONS;
+        $html = '<option value="">-- Chọn đơn vị --</option>';
+        foreach ($units as $key => $value) {
+            $isSelected = ($key == $selected) ? 'selected' : '';
+            $html .= "<option value=\"{$key}\" {$isSelected}>{$value}</option>";
+        }
+
         return $html;
     }
 

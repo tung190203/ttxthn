@@ -11,7 +11,6 @@ use App\Models\District;
 use App\Models\ProjectIndustries;
 use App\Models\ProjectType;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
 
 class ProjectController extends Controller
@@ -74,8 +73,11 @@ class ProjectController extends Controller
         $clsDataGrid->addColumnLabel("coordinates", "Tọa độ(lat/lng)", "width='10%' nowrap", 1, '', function ($col, $val, $id, $row) {
             return ($row->lat && $row->lng) ? $row->lat . ' - ' . $row->lng : '';
         });
-        $clsDataGrid->addColumnLabel('area', 'Diện tích (ha)', "width='10%' nowrap", 1, '', function ($col, $val, $id, $row) {
+        $clsDataGrid->addColumnLabel('area', 'Diện tích', "width='10%' nowrap", 1, '', function ($col, $val, $id, $row) {
             return $row->area ? number_format($row->area) : '';
+        });
+        $clsDataGrid->addColumnLabel('unit', 'Đơn vị tính', "width='5%' nowrap", 1, '', function ($col, $val, $id, $row) {
+            return Project::UNIT_OPTIONS[$row->unit] ?? '';
         });
         $clsDataGrid->addColumnLabel("type.name", "Loại dự án", "width='10%' nowrap");
         $clsDataGrid->addColumnLabel("industry.name", "Ngành nghề", "width='2%' nowrap");
@@ -122,12 +124,14 @@ class ProjectController extends Controller
         $option_industries = Project::makeListIndustry($project->industry_number, true);
         $option_districts = Project::makeListDistricts();
         $option_layouts = Project::makeListLayout($project->layout_id, true);
+        $option_units = Project::makeListUnit($project->unit, true);
         return view('backend.project.create', compact(
             'project',
             'option_types',
             'option_industries',
             'option_districts',
-            'option_layouts'
+            'option_layouts',
+            'option_units'
         ));
     }
 
@@ -147,6 +151,7 @@ class ProjectController extends Controller
             'lat' => 'nullable|numeric',
             'lng' => 'nullable|numeric',
             'area' => 'nullable|numeric|min:0',
+            'unit' => 'nullable|integer',
             'type_number' => 'nullable|integer|min:0|exists:project_types,id',
             'industry_number' => 'nullable|integer|min:0|exists:project_industries,id',
             'price' => 'nullable|numeric|min:0',

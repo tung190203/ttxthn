@@ -226,7 +226,7 @@
                                     </span>
                                   </li>
                                   <li><img class="me-2" src="./images/icon-dimension.svg" alt="" />
-                                    <span>{{$item['area'] ?? 0}} ha</span>
+                                    <span>{{$item['area'] ?? 0}} {{$item['unit'] ?? ''}}</span>
                                   </li>
                                   <li><img class="me-2" src="./images/icon-save-money.svg" alt="" />
                                     <span>Theo đề xuất</span>
@@ -513,22 +513,36 @@
 
         function createMarker(loc) {
             const marker = L.marker([loc.lat, loc.lng]);
-            const detailUrl = loc.link || `./chi-tiet.html?id=${loc.id}`;
-            const districtText = Array.isArray(loc.districts) ? loc.districts.join(", ") : loc.district || "Không rõ";
-            const priceText = loc.price !== null && loc.price !== undefined ? `${loc.price.toLocaleString('vi-VN')}` :
-                'Chưa có giá';
 
-            marker.bindPopup(`
-                                <a href="${detailUrl}" target="_blank" style="text-decoration: none; color: inherit;">
-                                  <div class='info-box'>
-                                    <strong>${loc.name}</strong><br>
-                                    Loại: ${getTypeName(loc.type_number)}<br>
-                                    Khu vực: ${districtText}<br>
-                                    Quy mô vốn đầu tư: ${priceText}<br>
-                                    <em>→ Click để xem chi tiết</em>
-                                  </div>
-                                </a>
-                            `);
+            const detailUrl = loc.link;
+            const tourUrl = loc.link_vrtour;
+
+            const districtText = Array.isArray(loc.districts) 
+                ? loc.districts.join(", ") 
+                : loc.district || "Không rõ";
+
+            const priceText = (loc.price !== null && loc.price !== undefined) 
+                ? `${loc.price.toLocaleString('vi-VN')}` 
+                : 'Chưa có giá';
+
+            const imageUrl = `${window.location.origin}${loc.banner_image}`;
+
+            const popupContent = `
+                <div class='info-box' style="max-width:250px;">
+                    <img src="${imageUrl}" alt="${loc.name}" style="width:100%; height:120px; object-fit:cover; border-radius:6px; margin-bottom:8px;">
+                    <strong>${loc.name}</strong><br>
+                    Loại: ${getTypeName(loc.type_number)}<br>
+                    Khu vực: ${districtText}<br>
+                    Quy mô vốn đầu tư: ${priceText}<br>
+                    Diện tích: ${loc.area ? loc.area.toLocaleString('vi-VN') : ''} ${loc.unit || ''}<br>
+                    <div style="margin-top:10px; display:flex; gap:8px; justify-content:flex-end;">
+                        <a href="${tourUrl}" target="_blank" class="btn btn-sm btn-secondary text-white">Xem tour</a>
+                        <a href="${detailUrl}" target="_blank" class="btn btn-sm btn-primary text-white">Xem dự án</a>
+                    </div>
+                </div>
+            `;
+
+            marker.bindPopup(popupContent);
             return marker;
         }
 

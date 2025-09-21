@@ -4,7 +4,7 @@
     <div class="page__content">
         <!-- main content-->
         <article class="banner">
-            <div class="banner__breadcrumb">
+            {{-- <div class="banner__breadcrumb">
                 <nav>
                     <div class="container">
                         <ol class="breadcrumb">
@@ -14,7 +14,7 @@
                         </ol>
                     </div>
                 </nav>
-            </div>
+            </div> --}}
             <img class="banner__bg" src="./images/thong-tin-chung-banner.jpg" alt=""/>
             <div class="banner__title">Danh mục dự án đầu tư</div>
         </article>
@@ -24,7 +24,7 @@
                     {{-- Tất cả --}}
                     <li>
                         <a 
-                            href="{{ route('projects') }}" 
+                            href="{{ route('projects', array_merge(request()->all(), ['is_invest' => null])) }}" 
                             class="{{ request('is_invest') === null ? 'active' : '' }}">
                             Tất cả
                         </a>
@@ -33,7 +33,7 @@
                     {{-- Dự án có nhà đầu tư --}}
                     <li>
                         <a 
-                            href="{{ route('projects', ['is_invest' => 1]) }}" 
+                            href="{{ route('projects', array_merge(request()->all(), ['is_invest' => 1])) }}" 
                             class="{{ request('is_invest') === '1' ? 'active' : '' }}">
                             Dự án đã có nhà đầu tư
                         </a>
@@ -42,7 +42,7 @@
                     {{-- Dự án đang kêu gọi đầu tư --}}
                     <li>
                         <a 
-                            href="{{ route('projects', ['is_invest' => 0]) }}" 
+                            href="{{ route('projects', array_merge(request()->all(), ['is_invest' => 0])) }}" 
                             class="{{ request('is_invest') === '0' ? 'active' : '' }}">
                             Dự án đang kêu gọi đầu tư
                         </a>
@@ -56,6 +56,11 @@
                 <div class="row g-20">
                     <div class="col-lg-3">
                         <form class="aside-form" action="{{ route('projects') }}" method="GET">
+                            {{-- Giữ lại tab filter khi submit --}}
+                            @if(request()->has('is_invest'))
+                                <input type="hidden" name="is_invest" value="{{ request('is_invest') }}">
+                            @endif
+
                             <div class="mb-4">
                                 <div class="input-group">
                                     <input class="form-control" type="text" name="keyword" value="{{ request('keyword') }}" placeholder="Tìm kiếm dự án">
@@ -102,13 +107,18 @@
                     </div>
                     <div class="col-lg-9">
                         <div class="row g-20">
+                            @if($projects->isEmpty())
+                                <div class="col-12">
+                                    <p class="text-center">Hiện tại không có dự án nào phù hợp.</p>
+                                </div>
+                            @endif
                             @foreach($projects as $item)
                                 <div class="col-6 col-md-4 col-lg-6 col-xl-4">
                                     <div class="project">
-                                        <a class="project__frame" href="{{ route('project_detail',['slug' => $item->slug]) }}">
+                                        <a class="project__frame" href="{{ route('project_detail',['slug' => $item->slug, 'ref' => 'Dự án kêu gọi đầu tư']) }}">
                                             <img src="{{$item->detail_image ?? './images/project-1.jpg' }}" alt=""/></a>
                                         <div class="project__body">
-                                            <h3 class="project__title"><a href="{{ route('project_detail',['slug' => $item->slug]) }}" data-tippy-content="{{$item->name}}">{{$item->name}}</a></h3>
+                                            <h3 class="project__title"><a href="{{ route('project_detail',['slug' => $item->slug, 'ref' => 'Dự án kêu gọi đầu tư']) }}" data-tippy-content="{{$item->name}}">{{$item->name}}</a></h3>
                                             @if($item->is_invest == 0)
                                                 <div class="project__overlay"><span>Dự án đang kêu gọi đầu tư</span>
                                                     <a class="project__like" href="#!"><i class="fal fa-fw fa-lg fa-heart"></i></a>
@@ -122,7 +132,7 @@
                                                 <li><img class="me-2" src="./images/icon-map-marker.svg" alt=""/><span data-tippy-content="Dự án nằm trên địa bàn {{ $item->districts->pluck('name')->join(', ') }}, thành phố Hà Nội">Dự án nằm trên địa bàn {{ $item->districts->pluck('name')->join(', ') }}, thành phố Hà Nội</span>
                                                 </li>
                                                 <li><img class="me-2" src="./images/icon-dimension.svg"
-                                                         alt=""/><span>{{$item->area ?? 0}} ha</span></li>
+                                                         alt=""/><span>{{$item->area ?? 0}} {{$item->unit_type_text ?? ''}}</span></li>
                                                 <li><img class="me-2" src="./images/icon-save-money.svg" alt=""/><span>Theo đề xuất</span>
                                                 </li>
                                             </ul>
