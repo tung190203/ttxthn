@@ -50,7 +50,7 @@ $countAllProject = App\Models\Project::where('is_invest', 0)->count();
                                                 <ul class="menu menu-sub custom-menu-header">
                                                     @foreach($listProjectHeader as $project)
                                                         <li class="menu-item">
-                                                            <a class="menu-link" href="{{ route('project_detail', ['slug' => $project->slug]) }}">
+                                                            <a class="menu-link" href="{{ route('project_detail', ['slug' => $project->slug, 'ref' => "Dự án kêu gọi đầu tư"]) }}">
                                                                 {{ $project->name }}
                                                             </a>
                                                         </li>

@@ -112,6 +112,15 @@ $config['resourceTypes'][] = array(
     'backend'           => 'default'
 );
 
+$config['resourceTypes'][] = array(
+    'name'              => 'Videos',
+    'directory'         => 'videos',
+    'maxSize'           => 0,
+    'allowedExtensions' => 'mp4,avi,mkv,webm,mov',
+    'deniedExtensions'  => '',
+    'backend'           => 'default'
+);
+
 /*================================ Access Control =====================================*/
 // http://docs.cksource.com/ckfinder3-php/configuration.html#configuration_options_roleSessionVar
 

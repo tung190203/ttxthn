@@ -111,6 +111,12 @@ class PostController extends Controller
             ->orderBy('view_num', 'desc')
             ->take(Post::POSTS_TAKE)
             ->get();
+        $backUrl = url()->previous();
+        $backLabel = $request->get('ref');
+        if (rtrim($backUrl, '/') === rtrim(url('/'), '/')) {
+            $backUrl = null;
+            $backLabel = null;
+        }
 
         return view('frontend.home.new_detail',
             compact(
@@ -118,6 +124,8 @@ class PostController extends Controller
                 'post',
                 'category',
                 'list_post_popular'
+                ,'backUrl'
+                ,'backLabel'
             )
         );
     }

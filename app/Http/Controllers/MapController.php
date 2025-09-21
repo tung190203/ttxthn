@@ -87,8 +87,12 @@ class MapController extends Controller
                 'type_name' => $project->type->name ?? null,
                 'industry_name' => $project->industry->name ?? null,
                 'industry_number' => $project->industry_number,
+                'area' => $project->area,
+                'unit' => $project->unit_type_text,
                 'price' => $project->price,
                 'link' => $project->link,
+                'link_vrtour' => $project->link_vrtour,
+                'banner_image' => $project->banner_image,
                 'districts' => $project->districts->pluck('name')->toArray(),
                 'industrial' => $project->industrialProjects->map(function ($industrialProject) {
                     return [
