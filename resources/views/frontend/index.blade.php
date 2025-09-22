@@ -113,7 +113,7 @@
 
                         <div class="md-form__btns">
                             <button class="md-form__btn" type="submit">Đăng nhập</button>
-                            <a class="md-form__btn-2" href="#!"><i class="fab fa-google me-3"></i><span>Đăng nhập bằng
+                            <a class="md-form__btn-2" href="{{route('google_login')}}"><i class="fab fa-google me-3"></i><span>Đăng nhập bằng
                                     tài khoản Google</span></a>
                         </div>
 
@@ -186,7 +186,7 @@
 
                         <div class="md-form__btns">
                             <button class="md-form__btn" type="submit">Đăng ký tài khoản</button>
-                            <a class="md-form__btn-2" href="#!"><i class="fab fa-google me-3"></i><span>Đăng ký bằng tài
+                            <a class="md-form__btn-2" href="{{route('google_login')}}"><i class="fab fa-google me-3"></i><span>Đăng ký bằng tài
                                     khoản Google</span></a>
                         </div>
 
