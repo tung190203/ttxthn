@@ -25,6 +25,8 @@ Route::localized(function () {
             Route::post('/login', [AuthController::class, 'login'])->name('guest_login');
             Route::get('/logout', [AuthController::class, 'logout'])->name('guest_logout');
             Route::post('/update-info', [AuthController::class, 'updateAccount'])->name('guest_update_account');
+            Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('google_login');
+            Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
         });
         Route::group(['prefix' => 'ajax'], function () {
             Route::post('/get_district', [AjaxController::class, 'getDistrict'])->name('ajax_get_district');
