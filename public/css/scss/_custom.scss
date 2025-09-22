@@ -93,6 +93,18 @@
   // }
 }
 
+@media (max-width: 375px) {
+  .custom-btn {
+    // width: 120px !important;
+    max-width: unset;
+    font-size: 8px !important;
+  }
+
+  .custom-text-footer {
+    font-size: 8px !important;
+  }
+}
+
 .custom-btn {
   width: 100%;
   max-width: fit-content;

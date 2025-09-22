@@ -10,12 +10,12 @@ class Contact extends Model
         'name',
         'email',
         'phone',
-        'project_id',
+        'project_industry_id',
         'message',
     ];
 
-    public function project()
+    public function projectIndustry()
     {
-        return $this->belongsTo(Project::class);
+        return $this->belongsTo(ProjectIndustries::class, 'project_industry_id');
     }
 }
