@@ -21769,7 +21769,7 @@ a.ratio {
     }
 }
 
-.news-slider {
+.news-slider, .features-slider {
     position: relative
 }
 
@@ -21819,11 +21819,11 @@ a.ratio {
     border-radius: 0 10px 10px 0
 }
 
-.news-slider .swiper-container {
+.news-slider .swiper-container, .features-slider .swiper-container {
     margin: -10px
 }
 
-.news-slider .swiper-slide {
+.news-slider .swiper-slide, .features-slider .swiper-slide {
     padding: 10px
 }
 
@@ -21847,11 +21847,11 @@ a.ratio {
         border-radius: 0 8px 8px 0
     }
 
-    .news-slider .swiper-container {
+    .news-slider .swiper-container, .features-slider .swiper-container {
         margin: -8px
     }
 
-    .news-slider .swiper-slide {
+    .news-slider .swiper-slide, .features-slider .swiper-slide {
         padding: 8px
     }
 }
@@ -22357,7 +22357,9 @@ a.ratio {
     position: absolute;
     z-index: 10;
     top: 100%;
-    right: 0
+    right: 0;
+    border: 1px solid #5654543b;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .15)
 }
 
 .h-dropdown__item {
