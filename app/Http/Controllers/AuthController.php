@@ -9,6 +9,7 @@ use App\Models\Guest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
@@ -92,4 +93,56 @@ class AuthController extends Controller
 
         return redirect()->back()->with('success', 'Cập nhật thông tin thành công');
     }
+    public function redirectToGoogle()
+    {
+        $host = request()->getHost();
+        $redirectUrl = ($host === 'localhost') 
+            ? env('APP_URL') . ':' . env('APP_PORT', 80) . '/guest/auth/google/callback'
+            : 'https://' . $host . '/guest/auth/google/callback';
+
+        return Socialite::driver('google')->redirectUrl($redirectUrl)->redirect();
+    }
+
+    public function handleGoogleCallback()
+    {
+        try {
+            $host = request()->getHost();
+            $redirectUrl = ($host === 'localhost') 
+                ? env('APP_URL') . ':' . env('APP_PORT', 80) . '/guest/auth/google/callback'
+                : 'https://' . $host . '/guest/auth/google/callback';
+            $googleUser = Socialite::driver('google')->redirectUrl($redirectUrl)->user();
+    
+            $avatarPath = null;
+    
+            // Nếu Google có avatar thì tải về
+            if ($googleUser->getAvatar()) {
+                $avatarUrl = $googleUser->getAvatar();
+                $avatarContents = file_get_contents($avatarUrl);
+                $fileName = 'avatars/' . uniqid() . '.jpg';
+                Storage::disk('public')->put($fileName, $avatarContents);
+                $avatarPath = $fileName;
+            }
+    
+            $guest = Guest::updateOrCreate(
+                [ 'email' => $googleUser->getEmail() ], // tìm theo email
+                [
+                    'name'     => $googleUser->getName(),
+                    'avatar'   => $avatarPath,
+                    'password' => bcrypt(str()->random(16)),
+                ]
+            );
+    
+            if (!$guest->avatar && $avatarPath) {
+                $guest->avatar = $avatarPath;
+                $guest->save();
+            }
+    
+            Auth::guard('guest')->login($guest, true);
+    
+            return redirect()->intended('/');
+        } catch (\Exception $e) {
+            return redirect()->route('guest_login')->withErrors(['msg' => 'Đăng nhập Google thất bại.']);
+        }
+    }
+    
 }
