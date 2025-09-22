@@ -249,28 +249,25 @@
           </section>          
         <section class="section section--bg-pattern">
             <div class="container">
-                <div class="counter">
-                    <div class="counter__item">
-                        <div class="counter__icon"><img src="./images/counter-1.svg" alt="" /></div>
-                        <div class="counter__number">{{ $countAllProject }}</div>
-                        <div class="counter__title">Tổng số dự án</div>
+                <div class="features-slider">
+                    <div class="features-slider__container swiper-container">
+                      <div class="swiper-wrapper">
+                        @foreach ($setting['features'] as $item)
+                          <div class="swiper-slide">
+                            <div class="counter">
+                              <div class="counter__item">
+                                <div class="counter__icon">
+                                  <img src="{{ $item['icon'] ?? '' }}" alt="" />
+                                </div>
+                                <div class="counter__number">{{ $item['title'] ?? '0' }}</div>
+                                <div class="counter__title">{{ $item['content'] ?? '' }}</div>
+                              </div>
+                            </div>
+                          </div>
+                        @endforeach
+                      </div>
                     </div>
-                    <div class="counter__item">
-                        <div class="counter__icon"><img src="./images/counter-2.svg" alt="" /></div>
-                        <div class="counter__number">10K+</div>
-                        <div class="counter__title">Tổng vốn đầu tư</div>
-                    </div>
-                    <div class="counter__item">
-                        <div class="counter__icon"><img src="./images/counter-3.svg" alt="" /></div>
-                        <div class="counter__number">{{ $countAllIndustrial }}</div>
-                        <div class="counter__title">Lĩnh vực</div>
-                    </div>
-                    <div class="counter__item">
-                        <div class="counter__icon"><img src="./images/counter-4.svg" alt="" /></div>
-                        <div class="counter__number">20</div>
-                        <div class="counter__title">Chủ trương đầu tư</div>
-                    </div>
-                </div>
+                  </div>
             </div>
         </section>
         <section class="section">

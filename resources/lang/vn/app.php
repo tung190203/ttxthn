@@ -23,7 +23,7 @@ return [
         'address' => 'Địa chỉ',
         'phone' => 'Điện thoại',
         'business_house' => 'Giờ làm việc',
-        'success' => 'Gửi thành công',
+        'success' => 'Cảm ơn bạn đã liên hệ với chúng tôi. Chúng tôi sẽ phản hồi lại bạn trong thời gian sớm nhất.',
     ]
 
 ];

@@ -34,7 +34,7 @@ class Setting extends Model
             $results = [];
     
             foreach ($settings as $setting) {
-                if ($setting->skey === 'banners') {
+                if ($setting->skey === 'banners' || $setting->skey === 'features') {
                     $results[$setting->skey] = !empty($setting->svalue)
                         ? json_decode($setting->svalue, true)
                         : [];

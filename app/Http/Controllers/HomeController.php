@@ -20,6 +20,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\Setting;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
@@ -231,6 +232,7 @@ class HomeController extends Controller
     public function account(Request $request)
     {
         $setting = Setting::getAllSetting();
+        $user = Auth::guard('guest')->user();
 
         $banners = Widget::getByPosition('HOME_BANNER');
         $list_post_popular = Post::popular(4)->where('published_at', '<=', Carbon::now())->get();
@@ -241,6 +243,7 @@ class HomeController extends Controller
                 'setting',
                 'banners',
                 'list_post_popular',
+                'user'
             )
         );
     }
@@ -340,7 +343,7 @@ class HomeController extends Controller
                 'name'       => 'required|string|max:255',
                 'email'      => 'required|email|max:255',
                 'phone'      => 'nullable|string|max:20',
-                'project_id' => 'nullable|exists:projects,id',
+                'project_industry_id' => 'nullable|integer|exists:project_industries,id',
                 'message'    => 'nullable|string|max:2000',
             ], [
                 'name.required'    => 'Vui lòng nhập họ tên',

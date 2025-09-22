@@ -45,7 +45,11 @@ return [
             'provider' => 'members',
             'login' => 'member_login',
             'username_field' => 'user_name'
-        ]
+        ],
+        'guest' => [
+            'driver' => 'session',
+            'provider' => 'guests',
+        ],
     ],
 
     /*
@@ -74,6 +78,10 @@ return [
         'members' => [
             'driver' => 'eloquent',
             'model' => App\Models\Member::class,
+        ],
+        'guests' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Guest::class,
         ],
     ],
 

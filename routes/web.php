@@ -6,6 +6,7 @@ use App\Http\Controllers\MapController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\SlugController;
 use App\Http\Controllers\AjaxController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\InvestMentGuideController;
 use Illuminate\Support\Facades\Route;
 
@@ -19,6 +20,12 @@ Route::localized(function () {
     Route::get('/show-password', [BaseLoginController::class, 'generatePassword'])->name('show_password');
 
     Route::middleware(['base_auth'])->group(function () {
+        Route::group(['prefix' => 'guest'], function () {
+            Route::post('/register', [AuthController::class, 'register'])->name('guest_register');
+            Route::post('/login', [AuthController::class, 'login'])->name('guest_login');
+            Route::get('/logout', [AuthController::class, 'logout'])->name('guest_logout');
+            Route::post('/update-info', [AuthController::class, 'updateAccount'])->name('guest_update_account');
+        });
         Route::group(['prefix' => 'ajax'], function () {
             Route::post('/get_district', [AjaxController::class, 'getDistrict'])->name('ajax_get_district');
             Route::post('/get_ward', [AjaxController::class, 'getWard'])->name('ajax_get_ward');

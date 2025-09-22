@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\View;
 use App\Models\Setting;
 use App\Models\Menu;
 use App\Models\Project;
+use App\Models\ProjectIndustries;
 
 abstract class Controller
 {
@@ -38,6 +39,7 @@ abstract class Controller
         View::share('setting', $setting);
         View::share('current_locale', $current_locale);
         View::share('nations', Nation::all());
+        View::share('project_industries', ProjectIndustries::orderBy('created_at', 'desc')->get());
         View::share('projects', Project::orderBy('created_at', 'desc')->get());
         //End code dự án
 
