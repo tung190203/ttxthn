@@ -4,6 +4,7 @@ namespace Illuminate\Database\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Events\ModelPruningFinished;
 use Illuminate\Database\Events\ModelPruningStarting;
 use Illuminate\Database\Events\ModelsPruned;
@@ -114,16 +115,17 @@ class PruneCommand extends Command
      */
     protected function models()
     {
-        if (! empty($models = $this->option('model'))) {
-            return (new Collection($models))->filter(function ($model) {
-                return class_exists($model);
-            })->values();
-        }
-
+        $models = $this->option('model');
         $except = $this->option('except');
 
-        if (! empty($models) && ! empty($except)) {
+        if ($models && $except) {
             throw new InvalidArgumentException('The --models and --except options cannot be combined.');
+        }
+
+        if ($models) {
+            return (new Collection($models))
+                ->filter(static fn (string $model) => class_exists($model))
+                ->values();
         }
 
         return (new Collection(Finder::create()->in($this->getPath())->files()->name('*.php')))
@@ -137,8 +139,7 @@ class PruneCommand extends Command
                 );
             })
             ->when(! empty($except), fn ($models) => $models->reject(fn ($model) => in_array($model, $except)))
-            ->filter(fn ($model) => class_exists($model))
-            ->filter(fn ($model) => $model::isPrunable())
+            ->filter(fn ($model) => $this->isPrunable($model))
             ->values();
     }
 
@@ -178,5 +179,19 @@ class PruneCommand extends Command
         } else {
             $this->components->info("{$count} [{$model}] records will be pruned.");
         }
+    }
+
+    /**
+     * Determine if the given model is prunable.
+     *
+     * @param  string  $model
+     * @return bool
+     */
+    private function isPrunable(string $model)
+    {
+        return class_exists($model)
+            && is_a($model, Model::class, true)
+            && ! (new \ReflectionClass($model))->isAbstract()
+            && $model::isPrunable();
     }
 }
