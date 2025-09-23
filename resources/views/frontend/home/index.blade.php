@@ -153,83 +153,6 @@
                 </div>
             </div>
         </div>
-
-        {{-- <section class="section" id="investment-section">
-            <div class="container">
-                <h2 class="section__title mb-3">Danh mục đầu tư</h2>
-                <ul class="project-nav__list_custom mb-60">
-                    <li>
-                        <a class="{{ request('industry') ? '' : 'active' }}"
-                            href="{{ route('home_page') }}#investment-section">
-                            Tất cả
-                        </a>
-                    </li>
-                    @foreach($industries as $industry)
-                        <li>
-                            <a class="{{ request('industry') == $industry['id'] ? 'active' : '' }}"
-                                href="{{ route('home_page', ['industry' => $industry['id']]) }}#investment-section">
-                                {{ $industry['name'] }}
-                            </a>
-                        </li>
-                    @endforeach
-                </ul>
-                @if(empty($project_category))
-                    <p class="text-center">Chưa có dự án phù hợp</p>
-                @else
-                    <div class="news-slider">
-                        <div class="news-slider__nav">
-                            <div class="news-slider__prev"><i class="fal fa-fw fa-lg fa-angle-left"></i></div>
-                            <div class="news-slider__next"><i class="fal fa-fw fa-lg fa-angle-right"></i></div>
-                        </div>
-                        <div class="news-slider__container swiper-container">
-                            <div class="swiper-wrapper">
-                                @foreach ($project_category as $item)
-                                    <div class="swiper-slide">
-                                        <div>
-                                            <div class="project"><a class="project__frame"
-                                                    href="{{ route('project_detail', ['slug' => $item['slug']]) }}">
-                                                    <img src="{{$item['detail_image'] ?? './images/project-1.jpg' }}" alt="" /></a>
-                                                <div class="project__body">
-                                                    <h3 class="project__title"><a
-                                                            href="{{ route('project_detail', ['slug' => $item['slug']]) }}"
-                                                            data-tippy-content="{{$item['name']}}">{{$item['name']}}</a>
-                                                    </h3>
-                                                    @if($item['is_invest'] == 0)
-                                                        <div class="project__overlay"><span>Dự án đang kêu gọi đầu tư</span>
-                                                            <a class="project__like" href="#!"><i
-                                                                    class="fal fa-fw fa-lg fa-heart"></i></a>
-                                                        </div>
-                                                    @else
-                                                        <div class="project__overlay"><span>Dự án đã có chủ đầu tư</span>
-                                                            <a class="project__like" href="#!"><i
-                                                                    class="fal fa-fw fa-lg fa-heart"></i></a>
-                                                        </div>
-                                                    @endif
-                                                    <ul class="project__info">
-                                                        <li><img class="me-2" src="./images/icon-map-marker.svg" alt="" /><span
-                                                                data-tippy-content="Dự án thuộc {{$item['districts']}}">Dự
-                                                                án thuộc {{$item['districts']}}</span>
-                                                        </li>
-                                                        <li><img class="me-2" src="./images/icon-dimension.svg"
-                                                                alt="" /><span>{{$item['area'] ?? 0}} ha</span>
-                                                        </li>
-                                                        <li><img class="me-2" src="./images/icon-save-money.svg" alt="" /><span>Theo
-                                                                đề xuất</span>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-                    </div>
-                    <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="/projects">Xem thêm</a>
-                    </nav>
-                @endif
-            </div>
-        </section> --}}
         <section class="section" id="investment-section">
             <div class="container">
               <h2 class="section__title mb-3">Danh mục đầu tư</h2>
@@ -303,7 +226,7 @@
                                     </span>
                                   </li>
                                   <li><img class="me-2" src="./images/icon-dimension.svg" alt="" />
-                                    <span>{{$item['area'] ?? 0}} ha</span>
+                                    <span>{{$item['area'] ?? 0}} {{$item['unit'] ?? ''}}</span>
                                   </li>
                                   <li><img class="me-2" src="./images/icon-save-money.svg" alt="" />
                                     <span>Theo đề xuất</span>
@@ -326,28 +249,25 @@
           </section>          
         <section class="section section--bg-pattern">
             <div class="container">
-                <div class="counter">
-                    <div class="counter__item">
-                        <div class="counter__icon"><img src="./images/counter-1.svg" alt="" /></div>
-                        <div class="counter__number">{{ $countAllProject }}</div>
-                        <div class="counter__title">Tổng số dự án</div>
+                <div class="features-slider">
+                    <div class="features-slider__container swiper-container">
+                      <div class="swiper-wrapper">
+                        @foreach ($setting['features'] as $item)
+                          <div class="swiper-slide">
+                            <div class="counter">
+                              <div class="counter__item">
+                                <div class="counter__icon">
+                                  <img src="{{ $item['icon'] ?? '' }}" alt="" />
+                                </div>
+                                <div class="counter__number">{{ $item['title'] ?? '0' }}</div>
+                                <div class="counter__title">{{ $item['content'] ?? '' }}</div>
+                              </div>
+                            </div>
+                          </div>
+                        @endforeach
+                      </div>
                     </div>
-                    <div class="counter__item">
-                        <div class="counter__icon"><img src="./images/counter-2.svg" alt="" /></div>
-                        <div class="counter__number">10K+</div>
-                        <div class="counter__title">Tổng vốn đầu tư</div>
-                    </div>
-                    <div class="counter__item">
-                        <div class="counter__icon"><img src="./images/counter-3.svg" alt="" /></div>
-                        <div class="counter__number">{{ $countAllIndustrial }}</div>
-                        <div class="counter__title">Lĩnh vực</div>
-                    </div>
-                    <div class="counter__item">
-                        <div class="counter__icon"><img src="./images/counter-4.svg" alt="" /></div>
-                        <div class="counter__number">20</div>
-                        <div class="counter__title">Chủ trương đầu tư</div>
-                    </div>
-                </div>
+                  </div>
             </div>
         </section>
         <section class="section">
@@ -386,7 +306,7 @@
                         </div>
                     </div>
                 </div>
-                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="tin-tuc">Xem thêm</a>
+                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="/tin-tuc">Xem thêm</a>
                 </nav>
             </div>
         </section>
@@ -590,22 +510,36 @@
 
         function createMarker(loc) {
             const marker = L.marker([loc.lat, loc.lng]);
-            const detailUrl = loc.link || `./chi-tiet.html?id=${loc.id}`;
-            const districtText = Array.isArray(loc.districts) ? loc.districts.join(", ") : loc.district || "Không rõ";
-            const priceText = loc.price !== null && loc.price !== undefined ? `${loc.price.toLocaleString('vi-VN')}` :
-                'Chưa có giá';
 
-            marker.bindPopup(`
-                                <a href="${detailUrl}" target="_blank" style="text-decoration: none; color: inherit;">
-                                  <div class='info-box'>
-                                    <strong>${loc.name}</strong><br>
-                                    Loại: ${getTypeName(loc.type_number)}<br>
-                                    Khu vực: ${districtText}<br>
-                                    Quy mô vốn đầu tư: ${priceText}<br>
-                                    <em>→ Click để xem chi tiết</em>
-                                  </div>
-                                </a>
-                            `);
+            const detailUrl = loc.link;
+            const tourUrl = loc.link_vrtour;
+
+            const districtText = Array.isArray(loc.districts) 
+                ? loc.districts.join(", ") 
+                : loc.district || "Không rõ";
+
+            const priceText = (loc.price !== null && loc.price !== undefined) 
+                ? `${loc.price.toLocaleString('vi-VN')}` 
+                : 'Chưa có giá';
+
+            const imageUrl = `${window.location.origin}${loc.banner_image}`;
+
+            const popupContent = `
+                <div class='info-box' style="max-width:250px;">
+                    <img src="${imageUrl}" alt="${loc.name}" style="width:100%; height:120px; object-fit:cover; border-radius:6px; margin-bottom:8px;">
+                    <strong>${loc.name}</strong><br>
+                    Loại: ${getTypeName(loc.type_number)}<br>
+                    Khu vực: ${districtText}<br>
+                    Quy mô vốn đầu tư: ${priceText}<br>
+                    Diện tích: ${loc.area ? loc.area.toLocaleString('vi-VN') : ''} ${loc.unit || ''}<br>
+                    <div style="margin-top:10px; display:flex; gap:8px; justify-content:flex-end;">
+                        <a href="${tourUrl}" target="_blank" class="btn btn-sm btn-secondary text-white">Xem tour</a>
+                        <a href="${detailUrl}" target="_blank" class="btn btn-sm btn-primary text-white">Xem dự án</a>
+                    </div>
+                </div>
+            `;
+
+            marker.bindPopup(popupContent);
             return marker;
         }
 

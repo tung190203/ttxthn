@@ -50,7 +50,7 @@ $countAllProject = App\Models\Project::where('is_invest', 0)->count();
                                                 <ul class="menu menu-sub custom-menu-header">
                                                     @foreach($listProjectHeader as $project)
                                                         <li class="menu-item">
-                                                            <a class="menu-link" href="{{ route('project_detail', ['slug' => $project->slug]) }}">
+                                                            <a class="menu-link" href="{{ route('project_detail', ['slug' => $project->slug, 'ref' => "Dự án kêu gọi đầu tư"]) }}">
                                                                 {{ $project->name }}
                                                             </a>
                                                         </li>
@@ -80,13 +80,20 @@ $countAllProject = App\Models\Project::where('is_invest', 0)->count();
                             <button class="h-btn ms-1" type="button"><i class="fal fa-fw fa-lg fa-user"></i></button>
                         </div>
                         <div class="h-dropdown__menu">
-                            <a class="h-dropdown__item" href="{{ route('account') }}">Thông tin cá nhân</a>
-                            <a class="h-dropdown__item" href="{{ route('account') }}">Dự án đã lưu</a>
-                            <a class="h-dropdown__item"
-                               href="#!"
-                               data-bs-toggle="modal"
-                               data-bs-target="#md-sign-in">Đăng nhập</a></div>
-                    </div>
+                            @if(Auth::guard('guest')->check())
+                                <!-- Nếu đã login -->
+                                <a class="h-dropdown__item" href="{{ route('account') }}">Thông tin cá nhân</a>
+                                <a class="h-dropdown__item" href="{{ route('account') }}">Dự án đã lưu</a>
+                                <a class="h-dropdown__item" href="{{ route('guest_logout') }}">Đăng xuất</a>
+                            @else
+                                <!-- Nếu chưa login -->
+                                <a class="h-dropdown__item"
+                                   href="#!"
+                                   data-bs-toggle="modal"
+                                   data-bs-target="#md-sign-in">Đăng nhập</a>
+                            @endif
+                        </div>
+                    </div>                    
                     <div class="h-dropdown ms-2">
                         <div class="h-dropdown__toggle">
                             <img src="{{asset('./images/vn.svg')}}" alt=""/><i

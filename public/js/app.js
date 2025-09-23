@@ -218,3 +218,33 @@ $(function () {
     }
   });
 });
+
+$(function () {
+  var $slider = $('.features-slider');
+  var $wrapper = $slider.find('.swiper-wrapper');
+  var totalSlides = $wrapper.find('.swiper-slide').length;
+
+  var autoplayOptions = false;
+  if (totalSlides > 4) {
+    autoplayOptions = {
+      delay: 2000,
+      disableOnInteraction: false
+    };
+  }
+
+  addSwiper('.features-slider', {
+    loop: totalSlides > 4,
+    autoplay: autoplayOptions,
+    slidesPerView: 2,
+    spaceBetween: 24,
+    breakpoints: {
+      768: {
+        slidesPerView: 3
+      },
+      1200: {
+        slidesPerView: 4
+      }
+    }
+  });
+});
+

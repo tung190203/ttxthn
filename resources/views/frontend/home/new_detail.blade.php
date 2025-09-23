@@ -9,7 +9,12 @@
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a class="link-unstyled" href="#!"><i
                                         class="fal fa-home me-2"></i><span>Trang chủ</span></a></li>
-                        <li class="breadcrumb-item active">{{$category->name}}</li>
+                                        @if (!empty($backUrl) && $backUrl !== url()->current())
+                                        <li class="breadcrumb-item">
+                                            <a href="{{ $backUrl }}">{{$backLabel}}</a>
+                                        </li>
+                                    @endif
+                        <li class="breadcrumb-item active">{{$post->name}}</li>
                     </ol>
                 </div>
             </nav>
@@ -69,7 +74,7 @@
                         </div>
                     </div>
                 </div>
-                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="tin-tuc">Xem thêm</a></nav>
+                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="/tin-tuc">Xem thêm</a></nav>
             </div>
         </section>
     </div>

@@ -6,6 +6,7 @@ use App\Http\Controllers\MapController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\SlugController;
 use App\Http\Controllers\AjaxController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\InvestMentGuideController;
 use Illuminate\Support\Facades\Route;
 
@@ -19,6 +20,14 @@ Route::localized(function () {
     Route::get('/show-password', [BaseLoginController::class, 'generatePassword'])->name('show_password');
 
     Route::middleware(['base_auth'])->group(function () {
+        Route::group(['prefix' => 'guest'], function () {
+            Route::post('/register', [AuthController::class, 'register'])->name('guest_register');
+            Route::post('/login', [AuthController::class, 'login'])->name('guest_login');
+            Route::get('/logout', [AuthController::class, 'logout'])->name('guest_logout');
+            Route::post('/update-info', [AuthController::class, 'updateAccount'])->name('guest_update_account');
+            Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('google_login');
+            Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
+        });
         Route::group(['prefix' => 'ajax'], function () {
             Route::post('/get_district', [AjaxController::class, 'getDistrict'])->name('ajax_get_district');
             Route::post('/get_ward', [AjaxController::class, 'getWard'])->name('ajax_get_ward');
@@ -32,10 +41,10 @@ Route::localized(function () {
         Route::get('/api/districts', [MapController::class, 'getDistricts'])->name('api_districts');
         Route::get('/projects', [HomeController::class, 'projects'])->name('projects');
         Route::get('/project-detail/{slug}', [HomeController::class, 'projectDetail'])->name('project_detail');
-        Route::get('/account.html', [HomeController::class, 'account'])->name('account');
+        Route::get('/account', [HomeController::class, 'account'])->name('account');
         Route::get('/lien-he', [HomeController::class, 'contact'])->name('contact');
         Route::get('/sitemap.xml', [HomeController::class, 'siteMap'])->name('site_map');
-        // Route::match(['get', 'post'], '/contact.html', [HomeController::class, 'contact'])->name('contact');
+        Route::match(['get', 'post'], '/contact', [HomeController::class, 'contact'])->name('contact');
 
         //    Route::post('/subscriber', [HomeController::class, 'subscriber'])->name('subscriber');
         Route::get('/page/{slug}.html', [HomeController::class, 'page'])->where(['slug' => '[a-z0-9\-]+'])->name('page_content');
