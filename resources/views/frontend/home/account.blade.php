@@ -20,13 +20,13 @@
             <!-- main content-->
             <article class="banner d-block px-0">
                 <img class="banner__bg" src="./images/banner-project.jpg" alt="">
-                <div class="container text-end">
+                {{-- <div class="container text-end">
                     <div class="position-relative" style="z-index: 100;">
                         <label class="upload-img"><i class="fal fa-camera"></i>
                             <input type="file" accept="image/png, image/jpeg" />
                         </label>
                     </div>
-                </div>
+                </div> --}}
             </article>
             <section class="acc-info">
                 <div class="container">
@@ -58,17 +58,19 @@
 
                         {{-- Hiển thị lỗi validate --}}
                         @if($errors->any())
-                            <div class="alert alert-danger mb-3">
+                            <div class="alert alert-danger mb-3 position-relative">
                                 <ul class="mb-0" style="list-style: none; padding-left: 0;">
                                     @foreach($errors->all() as $error)
                                         <li>{{ $error }}</li>
                                     @endforeach
                                 </ul>
+                                <button type="button" class="btn-close position-absolute top-0 end-0 mt-2 me-2" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
                         @endif
                         @if(session('success'))
-                            <div class="alert alert-success mb-3">
+                            <div class="alert alert-success mb-3 position-relative">
                                 {{ session('success') }}
+                                <button type="button" class="btn-close position-absolute top-0 end-0 mt-2 me-2" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
                         @endif
 

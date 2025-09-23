@@ -400,10 +400,28 @@
 
         // Thêm nút reset bản đồ
         const resetControl = L.control({
-            position: 'bottomright'
+            position: window.innerWidth <= 1024 ? 'topright' : 'bottomright'
         });
         const currentLocation = L.control({
-            position: 'bottomright'
+            position: window.innerWidth <= 1024 ? 'topright' : 'bottomright'
+        });
+
+        window.addEventListener('resize', () => {
+            const newPosition = window.innerWidth <= 1024 ? 'topright' : 'bottomright';
+            resetControl.setPosition(newPosition);
+            currentLocation.setPosition(newPosition);
+            resetControl.remove();
+            currentLocation.remove();
+
+            if (newPosition === 'topright') {
+                // Muốn B trước A
+                currentLocation.addTo(map);
+                resetControl.addTo(map);
+            } else {
+                // Muốn A trước B
+                resetControl.addTo(map);
+                currentLocation.addTo(map);
+            }
         });
 
         resetControl.onAdd = function (map) {
@@ -412,8 +430,8 @@
             btn.title = 'Reset bản đồ';
 
             btn.style.backgroundColor = 'white';
-            btn.style.width = '40px';
-            btn.style.height = '40px';
+            btn.style.width = '48px';
+            btn.style.height = '48px';
             btn.style.cursor = 'pointer';
             btn.style.fontSize = '18px';
             btn.style.lineHeight = '30px';
@@ -437,14 +455,15 @@
             btn.title = 'Vị trí hiện tại';
 
             btn.style.backgroundColor = 'white';
-            btn.style.width = '40px';
-            btn.style.height = '40px';
+            btn.style.width = '48px';
+            btn.style.height = '48px';
             btn.style.margin = '0px';
             btn.style.cursor = 'pointer';
             btn.style.fontSize = '18px';
             btn.style.lineHeight = '30px';
             btn.style.textAlign = 'center';
             btn.style.margin = '10px';
+            btn.style.marginBottom = '0';
 
             L.DomEvent.disableClickPropagation(btn);
 
@@ -956,7 +975,11 @@
             $fullBox.hide().addClass("fade-slide");
             $miniBox.show();
             $miniBox.addClass("opacity-minibox");
-            $('#projectTabContentMini').css('maxWidth', '70%');
+            if ($(window).width() <= 768) {
+                $('#projectTabContentMini').css('maxWidth', '100%');
+            } else {
+                $('#projectTabContentMini').css('maxWidth', '70%');
+            }
 
             // Khi focus vào input bé → hiện cụm to
             $inputMini.on("focus", function () {
