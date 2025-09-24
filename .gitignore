@@ -1,6 +1,7 @@
 /node_modules
 /public/js/ckfinder
 /public/uploads
+/public/vrtour
 /storage/*.key
 /vendor
 .env

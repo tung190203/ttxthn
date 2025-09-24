@@ -52,20 +52,24 @@ return [
                 //     'route' => 'backend_page',
                 //     'title' => 'Trang nội dung',
                 // ],
-//                'landing_page' => [
-//                    'icon' => 'fas fa-palette',
-//                    'title' => 'Lading page',
-//                    'items' => [
-//                        'home' => [
-//                            'title' => 'Trang chủ',
-//                            'route' => 'backend_landing_page_home',
-//                        ],
-//                        'job' => [
-//                            'title' => 'Trang công việc',
-//                            'route' => 'backend_landing_page_job',
-//                        ]
-//                    ]
-//                ],
+               'vr_tour' => [
+                   'icon' => 'fas fa-vr-cardboard',
+                   'title' => 'VrTour',
+                   'items' => [
+                       'skin' => [
+                           'title' => 'Skin',
+                           'route' => 'backend_vrtour_skin_index',
+                       ],
+                       'hotspot' => [
+                           'title' => 'Hotspot',
+                           'route' => 'backend_vrtour_hotspot_index',
+                       ],
+                       'content' => [
+                           'title' => 'Nội dung',
+                           'route' => 'backend_vrtour_content_index',
+                       ]
+                   ]
+               ],
             ]
         ],
         'systems' => [
