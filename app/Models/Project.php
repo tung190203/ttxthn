@@ -83,6 +83,11 @@ class Project extends Model
         return $this->belongsToMany(District::class, 'project_district');
     }
 
+    public function plan()
+    {
+        return $this->hasOne(Plan::class, 'vrtour_id', 'id');
+    }
+
     public function industrialProjects()
     {
         return $this->hasMany(IndustrialProject::class);
