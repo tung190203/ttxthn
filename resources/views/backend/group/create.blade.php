@@ -55,7 +55,14 @@
                                 @endif
                             </div>
                         </div>
-
+                        <x-forms.select-multiple
+                        name="scope_data_project"
+                        label="Project Scope"
+                        :options="$projects->pluck('name','id')"
+                        :selected="$group->scope_data['project'] ?? []"
+                        :messages="$errors->get('scope_data.project')"
+                        help="Chọn những project mà group này được phép thao tác."
+                    />                    
                         <div class="frm-grid">
                             <div>
                                 <label>Permission Grant</label>

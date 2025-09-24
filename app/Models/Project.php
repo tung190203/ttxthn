@@ -165,7 +165,7 @@ class Project extends Model
         ];
 
         foreach (['edit', 'delete'] as $action) {
-            if (Gate::allows('post/' . $action)) {
+            if (Gate::allows('project/' . $action)) {
                 $options[$action] = [
                     'route' => 'backend_project_' . $action,
                 ];
