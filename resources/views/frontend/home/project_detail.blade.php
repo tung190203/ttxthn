@@ -10,11 +10,11 @@
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a class="link-unstyled" href="/"><i
                                         class="fal fa-home me-2"></i><span>Trang chủ</span></a></li>
-                                    @if (!empty($backUrl) && $backUrl !== url()->current())
-                                        <li class="breadcrumb-item">
-                                            <a href="{{ $backUrl }}">{{$backLabel}}</a>
-                                        </li>
-                                    @endif
+                            @if (!empty($backUrl) && $backUrl !== url()->current())
+                                <li class="breadcrumb-item">
+                                    <a href="{{ $backUrl }}">{{$backLabel}}</a>
+                                </li>
+                            @endif
                             <li class="breadcrumb-item active">{{$project->name}}</li>
                         </ol>
                     </div>
@@ -83,6 +83,7 @@
                     <li><a href="#thiet-ke-va-mat-bang">Thiết kế & mặt bằng</a></li>
                     <li><a href="#phap-ly">Văn bản pháp quy</a></li>
                     <li><a href="#thu-tuc-dau-tu">Thủ tục đầu tư</a></li>
+                    <li><a href="#ke-hoach-trien-khai">Kế hoạch triển khai</a></li>
                     <li><a href="#tin-tuc">Tin tức</a></li>
                 </ul>
             </div>
@@ -98,8 +99,8 @@
         </section>
         <section class="section pb-0" id="vi-tri">
             <div class="container">
-                <h2 class="section__title">Vị trí</h2><img class="w-100" src="{{ $project->location_image ?? asset('./images/position.jpg') }}"
-                    alt="">
+                <h2 class="section__title">Vị trí</h2><img class="w-100"
+                    src="{{ $project->location_image ?? asset('./images/position.jpg') }}" alt="">
             </div>
         </section>
         <section class="section section--light-blue" id="loi-the-noi-bat">
@@ -150,10 +151,9 @@
                 </div>
             </div>
             @if($project->link_sand_table)
-            <div class="ratio ratio-2x1">
-                <iframe src="{{ $project->link_sand_table }}" frameborder="0" allowfullscreen
-                    allow="fullscreen"></iframe>
-            </div>
+                <div class="ratio ratio-2x1">
+                    <iframe src="{{ $project->link_sand_table }}" frameborder="0" allowfullscreen allow="fullscreen"></iframe>
+                </div>
             @endif
             <div class="container">
                 <h2 class="section__title text-white">Sa bàn ảo</h2>
@@ -193,8 +193,7 @@
                         <div class="swiper-wrapper">
                             @for ($i = 0; $i < $design_count; $i++)
                                 <div class="swiper-slide">
-                                    <div class="design-thumb-slider__frame"><img src="{{ $design_images[$i] }}"
-                                            alt="" /></div>
+                                    <div class="design-thumb-slider__frame"><img src="{{ $design_images[$i] }}" alt="" /></div>
                                 </div>
                             @endfor
                         </div>
@@ -228,53 +227,125 @@
                         @endforeach
                     @endif
                 </div>
-                {{-- <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="/projects">Xem thêm</a> --}}
+                {{-- <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="/projects">Xem
+                        thêm</a> --}}
                 </nav>
             </div>
         </section>
         <section class="section" id="thu-tuc-dau-tu">
             {{-- <img class="texture-1" src="{{ asset('./images/texture-1.png') }}" alt="">
             <img class="texture-2" src="{{ asset('./images/texture-2.png') }}" alt=""> --}}
-        <div class="container">
-            <h2 class="section__title">Ưu đãi, quy trình, thủ tục đầu tư</h2>
-            <div class="news-slider">
-                <div class="news-slider__nav">
-                    <div class="news-slider__prev"><i class="fal fa-fw fa-lg fa-angle-left"></i></div>
-                    <div class="news-slider__next"><i class="fal fa-fw fa-lg fa-angle-right"></i></div>
-                </div>
-                <div class="news-slider__container swiper-container">
-                    <div class="swiper-wrapper">
-                        @foreach ($preferential as $item)
-                            <div class="swiper-slide">
-                                <div class="news"><a class="news__frame"
-                                        href="{{ route('investment_guide_detail', ['id' => $item->id, 'slug' => $item->slug, 'ref' => $project->name, 'ref' => $project->name]) }}"><img
-                                            src="{{ $item->image }}" alt="" /></a>
-                                    <div class="news__body">
-                                        <div class="news__info">
-                                            <div class="news__time"><i
-                                                    class="fal fa-clock me-2"></i><span>{{ \Carbon\Carbon::parse($item->published_at)->format('d/m/Y') }}</span>
+            <div class="container">
+                <h2 class="section__title">Ưu đãi, quy trình, thủ tục đầu tư</h2>
+                <div class="news-slider">
+                    <div class="news-slider__nav">
+                        <div class="news-slider__prev"><i class="fal fa-fw fa-lg fa-angle-left"></i></div>
+                        <div class="news-slider__next"><i class="fal fa-fw fa-lg fa-angle-right"></i></div>
+                    </div>
+                    <div class="news-slider__container swiper-container">
+                        <div class="swiper-wrapper">
+                            @foreach ($preferential as $item)
+                                <div class="swiper-slide">
+                                    <div class="news"><a class="news__frame"
+                                            href="{{ route('investment_guide_detail', ['id' => $item->id, 'slug' => $item->slug, 'ref' => $project->name, 'ref' => $project->name]) }}"><img
+                                                src="{{ $item->image }}" alt="" /></a>
+                                        <div class="news__body">
+                                            <div class="news__info">
+                                                <div class="news__time"><i
+                                                        class="fal fa-clock me-2"></i><span>{{ \Carbon\Carbon::parse($item->published_at)->format('d/m/Y') }}</span>
+                                                </div>
+                                                <div class="news__like"><i class="fal fa-fw fa-heart"></i></div>
                                             </div>
-                                            <div class="news__like"><i class="fal fa-fw fa-heart"></i></div>
+                                            <h3 class="news__title  custom-desc"><a
+                                                    href="{{ route('investment_guide_detail', ['id' => $item->id, 'slug' => $item->slug, 'ref' => $project->name]) }}"
+                                                    data-tippy-content="{{$item->name}}">{{ $item->name }}</a>
+                                            </h3>
+                                            <div class="news__desc">{{ $item->description }}</div>
                                         </div>
-                                        <h3 class="news__title  custom-desc"><a
-                                                href="{{ route('investment_guide_detail', ['id' => $item->id, 'slug' => $item->slug, 'ref' => $project->name]) }}" data-tippy-content="{{$item->name}}">{{ $item->name }}</a>
-                                        </h3>
-                                        <div class="news__desc">{{ $item->description }}</div>
                                     </div>
                                 </div>
-                            </div>
-                        @endforeach
+                            @endforeach
+                        </div>
                     </div>
                 </div>
+                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="/cam-nang-dau-tu">Xem
+                        thêm</a>
+                </nav>
             </div>
-            <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="/cam-nang-dau-tu">Xem thêm</a>
-            </nav>
-        </div>
-    </section>
+        </section>
+        <section class="section" id="ke-hoach-trien-khai">
+            <img class="texture-3" src="{{ asset('images/investor-bg.png') }}" alt="">
+            <div class="container">
+                <h2 class="section__title text-center mb-5">Kế hoạch triển khai</h2>
+
+                <div class="row g-4 align-items-stretch justify-content-center position-relative custom-investor-container">
+
+                    <!-- Bước 1 -->
+                    <div class="col-12 col-md-3 d-flex">
+                        <div class="step-card flex-fill d-flex flex-column align-items-center p-4 rounded">
+                            <div class="icon-circle mb-3">
+                                <img src="{{ asset(optional($project->plan)->image1 ?: 'images/investor-bg.png') }}" alt="">
+                            </div>
+                            <h5 class="fw-bold text-uppercase mb-3 text-center">
+                                {{ optional($project->plan)->title1 ?? '' }}
+                            </h5>
+                            <ul class="list-unstyled text-center flex-fill">
+                                {!! optional($project->plan)->content1 ?? '' !!}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Arrow 1 -->
+                    <div class="col-12 col-md-1 d-flex justify-content-center align-items-baseline">
+                        <div class="arrow-container">
+                            <img src="{{ asset('images/arrow.svg') }}" class="arrow-img" alt="">
+                        </div>
+                    </div>
+
+                    <!-- Bước 2 -->
+                    <div class="col-12 col-md-3 d-flex">
+                        <div class="step-card flex-fill d-flex flex-column align-items-center p-4 rounded">
+                            <div class="icon-circle mb-3">
+                                <img src="{{ asset(optional($project->plan)->image2 ?: 'images/investor-bg.png') }}" alt="">
+                            </div>
+                            <h5 class="fw-bold text-uppercase mb-3 text-center">
+                                {{ optional($project->plan)->title2 ?? '' }}
+                            </h5>
+                            <ul class="list-unstyled text-center flex-fill">
+                                {!! optional($project->plan)->content2 ?? '' !!}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Arrow 2 -->
+                    <div class="col-12 col-md-1 d-flex justify-content-center align-items-baseline">
+                        <div class="arrow-container">
+                            <img src="{{ asset('images/arrow.svg') }}" class="arrow-img" alt="">
+                        </div>
+                    </div>
+
+                    <!-- Bước 3 -->
+                    <div class="col-12 col-md-3 d-flex">
+                        <div class="step-card flex-fill d-flex flex-column align-items-center p-4 rounded">
+                            <div class="icon-circle mb-3">
+                                <img src="{{ asset(optional($project->plan)->image3 ?: 'images/investor-bg.png') }}" alt="">
+                            </div>
+                            <h5 class="fw-bold text-uppercase mb-3 text-center">
+                                {{ optional($project->plan)->title3 ?? '' }}
+                            </h5>
+                            <ul class="list-unstyled text-center flex-fill">
+                                {!! optional($project->plan)->content3 ?? '' !!}
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
         <section class="section" id="tin-tuc">
-            {{-- <img class="texture-1" src="{{ asset('./images/texture-1.png') }}"
-                alt="">
-                <img class="texture-2" src="{{ asset('./images/texture-2.png') }}" alt=""> --}}
+            {{-- <img class="texture-1" src="{{ asset('./images/texture-1.png') }}" alt="">
+            <img class="texture-2" src="{{ asset('./images/texture-2.png') }}" alt=""> --}}
             <div class="container">
                 <h2 class="section__title">Tin tức</h2>
                 <div class="news-slider">
@@ -297,7 +368,8 @@
                                                 <div class="news__like"><i class="fal fa-fw fa-heart"></i></div>
                                             </div>
                                             <h3 class="news__title  custom-desc"><a
-                                                    href="{{ route('post_detail', ['id' => $item->id, 'slug' => $item->slug, 'ref' => $project->name]) }}" data-tippy-content="{{$item->name}}">{{ $item->name }}</a>
+                                                    href="{{ route('post_detail', ['id' => $item->id, 'slug' => $item->slug, 'ref' => $project->name]) }}"
+                                                    data-tippy-content="{{$item->name}}">{{ $item->name }}</a>
                                             </h3>
                                             <div class="news__desc">{{ $item->description }}</div>
                                         </div>
@@ -316,13 +388,13 @@
 
 @push('bottom')
     <script>
-        $(document).ready(function() {
-            $('.project-nav__list a').click(function() {
+        $(document).ready(function () {
+            $('.project-nav__list a').click(function () {
                 $('.project-nav__list a').removeClass('active');
                 $(this).addClass('active');
             });
         });
-        $(document).ready(function() {
+        $(document).ready(function () {
             const urlParams = new URLSearchParams(window.location.search);
             const hide = urlParams.get("hide");
 
