@@ -183,7 +183,7 @@ class HomeController extends Controller
         $banners = Widget::getByPosition('HOME_BANNER');
         $list_post_popular = Post::popular(Post::POSTS_TAKE)->where('published_at', '<=', Carbon::now())->get();
 
-        $project = Project::with(['type', 'industry', 'districts'])
+        $project = Project::with(['type', 'industry', 'districts', 'plan'])
             ->where('slug', $slug)
             ->firstOrFail();
 
