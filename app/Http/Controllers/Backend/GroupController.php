@@ -71,7 +71,9 @@ class GroupController extends Controller
 
         $group->name = strip_tags($request->get('name'));
         $group->permission_data = $permission_data;
-
+        $scope_data = [];
+        $scope_data['project'] = $request->get('scope_data_project', []);
+        $group->scope_data = $scope_data;
         $group->save();
 
         return redirect()->route('backend_group_edit', $group)->with('success', 'Cập nhật thành công');

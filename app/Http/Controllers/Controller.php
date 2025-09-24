@@ -16,7 +16,7 @@ abstract class Controller
     use AuthorizesRequests;
 
     protected string $selectedMainMenu = '';
-    const MESSAGE_UNAUTHORIZED = 'This action is unauthorized.';
+    public const MESSAGE_UNAUTHORIZED = 'Quyền hạn không đủ để thực hiện thao tác này';
 
     public function __construct()
     {

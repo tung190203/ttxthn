@@ -70,38 +70,75 @@ class User extends Authenticatable
 
     public function isSuperAdmin(): bool
     {
-        return $this->id === 1 || $this->is_super_admin;
+        return $this->id === self::ROOT_ADMIN_ID || $this->is_super_admin;
     }
 
-    public function checkPermission($perm_key = false): bool
+    /**
+     * Kiểm tra quyền chung (không phụ thuộc record)
+     */
+    public function hasPermission(string $perm_key): bool
     {
-        if (!$perm_key) {
-            return false;
-        }
-
         if ($this->isSuperAdmin()) {
             return true;
         }
 
         $permission_data = data_get($this, 'group.permission_data', []);
-        $check_flag = false;
 
-        if (preg_match('/[|&]/', $perm_key)) {
-            $perm_key = preg_replace('/([^a-zA-Z0-9\/_.\-:()|&])/', '', $perm_key);
-            $perm_key = preg_replace('/(([^|&])([|&])([|&]+))/', '\\2\\3', $perm_key);
-            $perm_key = preg_replace_callback('/([a-zA-Z0-9\/_.\-:]+)/', function ($matches) use ($permission_data) {
-                return in_array($matches[1], $permission_data) ? '+' : '*';
-            }, $perm_key);
-            $perm_key = str_replace(['+', '*', '|', '&'], [' true ', ' false ', ' || ', ' && '], $perm_key);
-
-            eval('$check_flag = ' . $perm_key . ';');
-        } else {
-            $check_flag = in_array($perm_key, $permission_data);
-        }
-
-        return $check_flag;
+        return in_array($perm_key, $permission_data, true);
     }
 
+    /**
+     * Lấy scope theo module từ group.scope_data
+     */
+    public function getScope(string $perm_key): ?array
+    {
+        if ($this->isSuperAdmin()) {
+            return null; // full
+        }
+
+        $scope_data = data_get($this, 'group.scope_data', []);
+
+        // Tách resource từ key (vd: "project/edit" => "project")
+        $resource = explode('/', $perm_key)[0] ?? null;
+        if (!$resource) {
+            return null;
+        }
+
+        return $scope_data[$resource] ?? null;
+    }
+
+    /**
+     * Kiểm tra có thể thao tác trên record cụ thể
+     */
+    public function canDoOn(string $perm_key, ?string $record_id = null): bool
+    {
+        if (!$this->hasPermission($perm_key)) {
+            return false;
+        }
+
+        $scope = $this->getScope($perm_key);
+
+        // Nếu scope null => không giới hạn
+        if ($scope === null) {
+            return true;
+        }
+
+        // Quyền "add" thì luôn cho phép
+        if (str_ends_with($perm_key, '/add')) {
+            return true;
+        }
+
+        // Các action khác phải có record_id nằm trong scope
+        if ($record_id === null) {
+            return false;
+        }
+
+        return in_array((string) $record_id, $scope, true);
+    }
+
+    /**
+     * Gợi ý các button action cho user
+     */
     public static function makeOptionColumnButton(): array
     {
         $options = [];
