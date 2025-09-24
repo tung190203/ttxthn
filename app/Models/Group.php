@@ -10,6 +10,7 @@ class Group extends Model
 {
     protected $casts = [
         'permission_data' => 'array',
+        'scope_data' => 'array',
     ];
 
     public static function makeListGroup($selected_id = ''): string

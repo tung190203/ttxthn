@@ -62,6 +62,11 @@ class ProjectController extends Controller
         });
     }    
         $paginate = 10;
+        $user = auth('web')->user();
+        $scope = $user->getScope('project');
+        if(!empty($scope)) {
+            $query->whereIn('id', $scope);
+        }
         $projects = $query->paginate($paginate);
         $route_name = 'backend_project_edit';
         $option_column_button = Project::makeOptionColumnButton();
@@ -104,8 +109,11 @@ class ProjectController extends Controller
     }
     public function saveDataIndex(Request $request)
     {
-        if (!Gate::allows('project/edit')) {
-            abort(403, self::MESSAGE_UNAUTHORIZED);
+        foreach ($request->ids as $id) {
+            $p = Project::find($id);
+            if (!Gate::allows('project/edit', $p)) {
+                abort(403);
+            }
         }
 
         $update = $request->get('update', []);
@@ -117,7 +125,10 @@ class ProjectController extends Controller
 
     public function edit(Project $project)
     {
-        if (!Gate::allows('project/' . ($project->exists ? 'edit' : 'add'))) {
+        if( $project->exists && !Gate::allows('project/edit', $project)) {
+            abort(403, self::MESSAGE_UNAUTHORIZED);
+        }
+        if( !$project->exists && !Gate::allows('project/add')) {
             abort(403, self::MESSAGE_UNAUTHORIZED);
         }
         $option_types = Project::makeListType($project->type_number, true);
@@ -137,7 +148,10 @@ class ProjectController extends Controller
 
     public function save(Project $project, Request $request)
     {
-        if (!Gate::allows('project/' . ($project->exists ? 'edit' : 'add'))) {
+        if( $project->exists && !Gate::allows('project/edit', $project)) {
+            abort(403, self::MESSAGE_UNAUTHORIZED);
+        }
+        if( !$project->exists && !Gate::allows('project/add')) {
             abort(403, self::MESSAGE_UNAUTHORIZED);
         }
 
@@ -242,7 +256,8 @@ class ProjectController extends Controller
 
     public function delete(Request $request, $id)
     {
-        if (!Gate::allows('project/delete')) {
+        $projectId = Project::find($id);
+        if (!Gate::allows('project/delete',$projectId)) {
             abort(403, self::MESSAGE_UNAUTHORIZED);
         }
 
@@ -253,8 +268,11 @@ class ProjectController extends Controller
 
     public function bulkDelete(Request $request)
     {
-        if (!Gate::allows('project/delete')) {
-            abort(403, self::MESSAGE_UNAUTHORIZED);
+        foreach ($request->ids as $id) {
+            $p = Project::find($id);
+            if (!Gate::allows('project/delete', $p)) {
+                abort(403);
+            }
         }
 
         $request->validate(['ids' => 'required|array']);
