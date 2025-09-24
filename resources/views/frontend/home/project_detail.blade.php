@@ -141,7 +141,7 @@
                     <h2 class="section__title text-white">Sa bàn ảo</h2>
                     @if($project->link_vrtour)
                         <div class="mt-3">
-                            <a href="{{ $project->link_vrtour }}" class="btn btn-warning text-white custom-btn-vrtour"
+                            <a href="{{ route('show_Vrtour', $project->slug) }}" class="btn btn-warning text-white custom-btn-vrtour"
                                 target="_blank" rel="noopener noreferrer">
                                 Xem VR Tour
                             </a>
