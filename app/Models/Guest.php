@@ -43,4 +43,9 @@ class Guest extends Auththenticatable
     {
         return $this->belongsTo(Nation::class, 'nation_id', 'id');
     }
+
+    public function interests()
+    {
+        return $this->hasMany(Interest::class, 'guest_id', 'id');
+    }
 }

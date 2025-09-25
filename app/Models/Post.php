@@ -67,6 +67,11 @@ class Post extends Model
         });
     }
 
+    public function interests()
+    {
+        return $this->morphMany(Interest::class, 'interestable');
+    }
+
     public function category()
     {
         return $this->belongsTo(Category::class, 'cat_id', 'id');

@@ -62,7 +62,7 @@
                             :messages="$errors->get('lat')" />
                         <x-forms.input name="lng" value="{{ old('lng') ?: $project->lng }}" label="Vĩ độ"
                             :messages="$errors->get('lng')" />
-                        <x-forms.input name="area" value="{{ old('area') ?: $project->area }}" label="Diện tích"
+                        <x-forms.input name="area" value="{{ old('area') ?: $project->area }}" label="Giá trị"
                             :messages="$errors->get('area')" />
                         <x-forms.select name="unit" label="Đơn vị tính" :required="true" :options="new HtmlString($option_units)"
                             :messages="$errors->get('unit')" />

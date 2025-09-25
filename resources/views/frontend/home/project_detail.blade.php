@@ -255,7 +255,9 @@
                                                 <div class="news__time"><i
                                                         class="fal fa-clock me-2"></i><span>{{ \Carbon\Carbon::parse($item->published_at)->format('d/m/Y') }}</span>
                                                 </div>
-                                                <div class="news__like"><i class="fal fa-fw fa-heart"></i></div>
+                                                <a class="news__like" href="javascript:void(0)"
+                                            data-id="{{ $item->id }}" data-type="App\Models\InvestmentGuide">
+                                             <i class="fas fa-fw fa-heart {{ $item->is_interested ? 'text-danger' : '' }}"></i>
                                             </div>
                                             <h3 class="news__title  custom-desc"><a
                                                     href="{{ route('investment_guide_detail', ['id' => $item->id, 'slug' => $item->slug, 'ref' => $project->name]) }}"
@@ -366,7 +368,9 @@
                                                 <div class="news__time"><i
                                                         class="fal fa-clock me-2"></i><span>{{ \Carbon\Carbon::parse($item->published_at)->format('d/m/Y') }}</span>
                                                 </div>
-                                                <div class="news__like"><i class="fal fa-fw fa-heart"></i></div>
+                                                <a class="news__like" href="javascript:void(0)"
+                                            data-id="{{ $item->id }}" data-type="App\Models\Post">
+                                             <i class="fas fa-fw fa-heart {{ $item->is_interested ? 'text-danger' : '' }}"></i>
                                             </div>
                                             <h3 class="news__title  custom-desc"><a
                                                     href="{{ route('post_detail', ['id' => $item->id, 'slug' => $item->slug, 'ref' => $project->name]) }}"

@@ -83,7 +83,7 @@ $countAllProject = App\Models\Project::where('is_invest', 0)->count();
                             @if(Auth::guard('guest')->check())
                                 <!-- Nếu đã login -->
                                 <a class="h-dropdown__item" href="{{ route('account') }}">Thông tin cá nhân</a>
-                                <a class="h-dropdown__item" href="{{ route('account') }}">Dự án đã lưu</a>
+                                <a class="h-dropdown__item" href="{{ route('account') }}#project-interest">Dự án quan tâm</a>
                                 <a class="h-dropdown__item" href="{{ route('guest_logout') }}">Đăng xuất</a>
                             @else
                                 <!-- Nếu chưa login -->

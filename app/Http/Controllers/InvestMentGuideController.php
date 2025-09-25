@@ -8,6 +8,7 @@ use App\Models\Setting;
 use App\Models\Category;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
 
 class InvestMentGuideController extends Controller
 {
@@ -28,13 +29,19 @@ class InvestMentGuideController extends Controller
         $setting['meta_keywords'] = ($investment_guide->meta_keywords) ?: $setting['meta_keywords'];
         $setting['meta_description'] = ($investment_guide->meta_description) ?: $setting['meta_description'];
         $setting['og_image'] = ($investment_guide->image) ?: ($setting['og_image'] ?? '');
-        $list_investment_guide_popular = InvestmentGuide::where('status', InvestmentGuide::STATUS_ACTIVE)
-            ->where('published_at' , '<=', Carbon::now())
+        $list_investment_guide_popular = InvestmentGuide::with('interests')->where('status', InvestmentGuide::STATUS_ACTIVE)
+            ->where('published_at', '<=', Carbon::now())
             ->where('language', App::getLocale())
             ->where('id', '<>', $investment_guide->id)
             ->orderBy('view_num', 'desc')
             ->take(InvestmentGuide::INVESTMENT_TAKE)
-            ->get();
+            ->get()
+            ->transform(function ($item) {
+                $item->is_interested = $item->interests()
+                    ->where('guest_id', Auth::guard('guest')->id())
+                    ->exists();
+                return $item;
+            });
         $backUrl = url()->previous();
         $backLabel = $request->get('ref');
 

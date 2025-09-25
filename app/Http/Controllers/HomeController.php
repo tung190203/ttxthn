@@ -56,10 +56,21 @@ class HomeController extends Controller
                 'name' => $productType->name,
             ];
         })->toArray();
-        $posts = Post::where('published_at', '<=', Carbon::now())
+        $posts = Post::with('interests')->where('published_at', '<=', Carbon::now())
             ->orderBy('published_at', 'desc')
             ->take(10)
-            ->get();
+            ->get()
+            ->map(function ($post) {
+                return [
+                    'id' => $post->id,
+                    'name' => $post->name,
+                    'slug' => $post->slug,
+                    'image' => $post->image,
+                    'published_at' => $post->published_at,
+                    'description' => $post->description,
+                    'is_interested' => $post->interests()->where('guest_id', Auth::guard('guest')->id())->exists(),
+                ];
+            })->toArray();
         $list_industries = ProjectIndustries::all()->map(function ($industry) {
             return [
                 'id' => $industry->id,
@@ -86,6 +97,7 @@ class HomeController extends Controller
                 'unit' => $project->unit_type_text,
                 'districts' => $project->districts->pluck('name')->implode(', '),
                 'is_invest' => $project->is_invest,
+                'is_interested' => $project->interests()->where('guest_id', Auth::guard('guest')->id())->exists(),
             ];
         })->toArray();
         $maxPrice = $rawProjects->max('price');
@@ -139,7 +151,7 @@ class HomeController extends Controller
             ];
         })->toArray();
 
-        $projects = Project::with(['type', 'industry', 'districts'])
+        $projects = Project::withRelations()
             ->when($request->keyword, function ($query) use ($request) {
                 $query->where('name', 'like', '%' . $request->keyword . '%');
             })
@@ -163,6 +175,14 @@ class HomeController extends Controller
             ->orderBy('updated_at', 'desc')
             ->paginate(Project::PROJECTS_PER_PAGE)
             ->appends($request->all());
+
+        $guestId = Auth::guard('guest')->id();
+        $projects->getCollection()->transform(function ($item) use ($guestId) {
+            $item->is_interested = $item->interests()
+                ->where('guest_id', $guestId)
+                ->exists();
+            return $item;
+        });
 
         return view('frontend.home.project', compact(
             'projects',
@@ -196,26 +216,40 @@ class HomeController extends Controller
             ->orWhere('parent_id', $categoryId)
             ->pluck('id');
 
+        $guestId = Auth::guard('guest')->id();
         $preferential = InvestmentGuide::whereIn('cat_id', $categoryIds)
             ->where('published_at', '<=', Carbon::now())
             ->whereHas('projects', function ($q) use ($slug) {
                 $q->where('slug', $slug);
             })
             ->orderBy('published_at', 'desc')
-            ->get();
-        // bài viết theo tin tức của dự án
+            ->get()
+            ->transform(function ($item) use ($guestId) {
+                $item->is_interested = $item->interests()
+                    ->where('guest_id', $guestId)
+                    ->exists();
+                return $item;
+            });
+
         $posts = Post::where('cat_id', Category::CATEGORY_TYPE_POST)
             ->where('published_at', '<=', Carbon::now())
             ->whereHas('projects', function ($q) use ($slug) {
                 $q->where('slug', $slug);
-            })->get();
-            $backUrl = url()->previous();
-            $backLabel = $request->get('ref');
-            
-            if (rtrim($backUrl, '/') === rtrim(url('/'), '/')) {
-                $backUrl = null;
-                $backLabel = null;
-            }            
+            })
+            ->get()
+            ->transform(function ($item) use ($guestId) {
+                $item->is_interested = $item->interests()
+                    ->where('guest_id', $guestId)
+                    ->exists();
+                return $item;
+            });
+        $backUrl = url()->previous();
+        $backLabel = $request->get('ref');
+
+        if (rtrim($backUrl, '/') === rtrim(url('/'), '/')) {
+            $backUrl = null;
+            $backLabel = null;
+        }
 
         return view('frontend.home.project_detail', compact(
             'setting',
@@ -225,7 +259,8 @@ class HomeController extends Controller
             'posts',
             'project',
             'backUrl'
-            ,'backLabel'
+            ,
+            'backLabel'
         ));
     }
 
@@ -241,17 +276,78 @@ class HomeController extends Controller
         $user = Auth::guard('guest')->user();
 
         $banners = Widget::getByPosition('HOME_BANNER');
-        $list_post_popular = Post::popular(4)->where('published_at', '<=', Carbon::now())->get();
+        $industries = ProjectIndustries::all()->map(fn($industry) => [
+            'id' => $industry->id,
+            'name' => $industry->name,
+        ])->toArray();
 
-        return view(
-            'frontend.home.account',
-            compact(
-                'setting',
-                'banners',
-                'list_post_popular',
-                'user'
-            )
-        );
+        // Lấy interest của user và join với projects để filter
+        $interestQuery = $user->interests()
+            ->where('interestable_type', Project::class)
+            ->with([
+                'interestable' => function ($q) {
+                    $q->withRelations();
+                }
+            ]);
+
+        $list_project_interest = $interestQuery->get()
+            ->map(function ($item) {
+                $project = $item->interestable;
+                if ($project) {
+                    $project->is_interested = true;
+                    return $project;
+                }
+                return null;
+            })->filter();
+
+        // Filter theo industry nếu có
+        if ($request->industry) {
+            $list_project_interest = $list_project_interest->filter(function ($project) use ($request) {
+                return $project->industry_number == $request->industry;
+            });
+        }
+
+        // Filter theo search từ input
+        if ($request->keyword) {
+            $keyword = mb_strtolower($request->keyword);
+            $list_project_interest = $list_project_interest->filter(function ($project) use ($keyword) {
+                return str_contains(mb_strtolower($project->name), $keyword);
+            });
+        }
+
+        // Reset keys
+        $list_project_interest = $list_project_interest->values();
+
+        $list_post_interest = $user->interests()
+            ->where('interestable_type', Post::class)
+            ->with('interestable')
+            ->get()
+            ->map(function ($item) {
+                $post = $item->interestable;
+                if ($post) {
+                    return [
+                        'id' => $post->id,
+                        'name' => $post->name,
+                        'slug' => $post->slug,
+                        'image' => $post->image,
+                        'published_at' => $post->published_at,
+                        'description' => $post->description,
+                        'is_interested' => true,
+                    ];
+                }
+                return null;
+            })
+            ->filter()
+            ->toArray();
+
+        return view('frontend.home.account', compact(
+            'setting',
+            'banners',
+            'user',
+            'list_project_interest',
+            'list_post_interest',
+            'industries'
+        ));
     }
 
     public function introducePotential(Request $request)
@@ -272,7 +368,7 @@ class HomeController extends Controller
         $selectedCatId = $request->get('cat_id');
         $catIds = ($selectedCatId && in_array($selectedCatId, $allCatIds)) ? [$selectedCatId] : $allCatIds;
 
-        $query = InvestmentGuide::whereIn('cat_id', $catIds)
+        $query = InvestmentGuide::with('interests')->whereIn('cat_id', $catIds)
             ->where('published_at', '<=', Carbon::now())
             ->where('status', InvestmentGuide::STATUS_ACTIVE)
             ->orderBy('published_at', 'desc');
@@ -282,6 +378,12 @@ class HomeController extends Controller
         }
 
         $list_investment = $query->latest()->paginate(InvestmentGuide::INVESTMENT_PER_PAGE);
+        $list_investment->getCollection()->transform(function ($item) {
+            $item->is_interested = $item->interests()
+                ->where('guest_id', Auth::guard('guest')->id())
+                ->exists();
+            return $item;
+        });
 
         $childCategories = $subQuery->pluck('name', 'id');
 
@@ -346,15 +448,15 @@ class HomeController extends Controller
         $setting = Setting::getAllSetting();
         if ($request->isMethod('post')) {
             $validated = $request->validate([
-                'name'       => 'required|string|max:255',
-                'email'      => 'required|email|max:255',
-                'phone'      => 'nullable|string|max:20',
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|max:255',
+                'phone' => 'nullable|string|max:20',
                 'project_industry_id' => 'nullable|integer|exists:project_industries,id',
-                'message'    => 'nullable|string|max:2000',
+                'message' => 'nullable|string|max:2000',
             ], [
-                'name.required'    => 'Vui lòng nhập họ tên',
-                'email.required'   => 'Vui lòng nhập email',
-                'email.email'      => 'Email không hợp lệ',
+                'name.required' => 'Vui lòng nhập họ tên',
+                'email.required' => 'Vui lòng nhập email',
+                'email.email' => 'Email không hợp lệ',
                 'message.required' => 'Vui lòng nhập nội dung liên hệ',
             ]);
             $contact->fill($validated);
@@ -369,7 +471,7 @@ class HomeController extends Controller
         $setting['menu_active'] = 'lien-he';
 
         return view('frontend.home.contact', compact('setting'));
-    }    
+    }
 
     public function siteMap(Request $request)
     {

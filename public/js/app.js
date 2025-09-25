@@ -191,7 +191,7 @@ $(function () {
   });
 
   $('.range-input__input').on('input', function () {
-    const value = Number(this.value).toLocaleString('en-Us') + ' VND';
+    const value = Number(this.value).toLocaleString('en-Us') + ' Tỉ đồng';
 
     // console.log('value: ', this.value, this.value.toLocaleString());
     $('.range-input__price').text(value);

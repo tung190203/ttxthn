@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\BaseLoginController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\InterestController;
 use App\Http\Controllers\MapController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\SlugController;
@@ -43,9 +44,9 @@ Route::localized(function () {
         Route::get('/project-detail/{slug}', [HomeController::class, 'projectDetail'])->name('project_detail');
         Route::get('/vrtour/{slug}', [HomeController::class, 'showVrtour'])->name('show_Vrtour');
         Route::get('/account', [HomeController::class, 'account'])->name('account');
-        Route::get('/lien-he', [HomeController::class, 'contact'])->name('contact');
         Route::get('/sitemap.xml', [HomeController::class, 'siteMap'])->name('site_map');
-        Route::match(['get', 'post'], '/contact', [HomeController::class, 'contact'])->name('contact');
+        Route::match(['get', 'post'], '/lien-he', [HomeController::class, 'contact'])->name('contact');
+        Route::post('/interest', [InterestController::class, 'toggleInterest'])->name('interest');
 
         //    Route::post('/subscriber', [HomeController::class, 'subscriber'])->name('subscriber');
         Route::get('/page/{slug}.html', [HomeController::class, 'page'])->where(['slug' => '[a-z0-9\-]+'])->name('page_content');

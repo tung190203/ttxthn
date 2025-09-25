@@ -77,13 +77,16 @@
                             <div class="col-6 col-lg-4">
                                 <div class="news"><a class="news__frame"
                                         href="{{ route('investment_guide_detail',['id' => $item->id, 'slug' => $item->slug, 'ref' => 'Cẩm nang đầu tư']) }}"><img
-                                            src="{{ $item->image --}}" alt="" /></a>
+                                            src="{{ $item->image }}" alt="" /></a>
                                     <div class="news__body">
                                         <div class="news__info">
                                             <div class="news__time"><i
                                                     class="fal fa-clock me-2"></i><span>{{ \Carbon\Carbon::parse($item->published_at)->format('d/m/Y') }}</span>
                                             </div>
-                                            <div class="news__like"><i class="fal fa-fw fa-heart"></i></div>
+                                            <a class="news__like" href="javascript:void(0)"
+                                            data-id="{{ $item->id }}" data-type="App\Models\InvestmentGuide">
+                                             <i class="fas fa-fw fa-heart {{ $item->is_interested ? 'text-danger' : '' }}"></i>
+                                         </a>
                                         </div>
                                         <h3 class="news__title custom-desc"><a
                                                 href="{{ route('investment_guide_detail',['id' => $item->id, 'slug' => $item->slug, 'ref' => 'Cẩm nang đầu tư']) }}" data-tippy-content="{{$item->name}}">{{ $item->name }}</a></h3>
