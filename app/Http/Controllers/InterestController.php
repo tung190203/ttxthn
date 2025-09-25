@@ -8,6 +8,10 @@ class InterestController extends Controller
 {
     public function toggleInterest(Request $request) 
     {
+        $guest = auth('guest')->user();
+        if (!$guest) {
+            return response()->json(['message' => 'Vui lòng đăng nhập để thực hiện thao tác này.'], 401);
+        }
         $request->validate([
             'interestable_id'   => 'required|integer',
             'interestable_type' => 'required|string',
