@@ -229,6 +229,12 @@ class HomeController extends Controller
         ));
     }
 
+    public function showVrtour($slug)
+    {
+        $link_vrtour = Project::where('slug', $slug)->value('link_vrtour');
+        return view('frontend.home.tour', compact('link_vrtour'));
+    }
+
     public function account(Request $request)
     {
         $setting = Setting::getAllSetting();
