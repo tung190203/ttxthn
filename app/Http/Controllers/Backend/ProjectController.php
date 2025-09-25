@@ -78,7 +78,7 @@ class ProjectController extends Controller
         $clsDataGrid->addColumnLabel("coordinates", "Tọa độ(lat/lng)", "width='10%' nowrap", 1, '', function ($col, $val, $id, $row) {
             return ($row->lat && $row->lng) ? $row->lat . ' - ' . $row->lng : '';
         });
-        $clsDataGrid->addColumnLabel('area', 'Diện tích', "width='10%' nowrap", 1, '', function ($col, $val, $id, $row) {
+        $clsDataGrid->addColumnLabel('area', 'Giá trị', "width='10%' nowrap", 1, '', function ($col, $val, $id, $row) {
             return $row->area ? number_format($row->area) : '';
         });
         $clsDataGrid->addColumnLabel('unit', 'Đơn vị tính', "width='5%' nowrap", 1, '', function ($col, $val, $id, $row) {

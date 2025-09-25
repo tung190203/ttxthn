@@ -8,6 +8,7 @@ use App\Models\Setting;
 use App\Models\Category;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
 {
@@ -20,7 +21,7 @@ class PostController extends Controller
         $cat_ids = $clsCategory->getAllCatStr($category->id);
         $cat_ids[] = (int)$category->id;
 
-        $query_post = Post::with('category')
+        $query_post = Post::with(['category', 'interests'])
             ->where('published_at' , '<=', Carbon::now())
             ->where('status', Post::STATUS_ACTIVE)
             ->where('language', $language)
@@ -29,6 +30,14 @@ class PostController extends Controller
             ->orderBy('priority')
             ->orderBy('id', 'desc');
         $posts = $query_post->paginate(Post::POSTS_PER_PAGE);
+
+        $guestId = Auth::guard('guest')->id();
+        $posts->getCollection()->transform(function ($item) use ($guestId) {
+            $item->is_interested = $item->interests()
+            ->where('guest_id', $guestId)
+            ->exists();
+            return $item;
+        });
 
         $children_category = $category->getChildrenCategories();
         $parent_category = $category->getParentCategory();
@@ -104,13 +113,20 @@ class PostController extends Controller
         $setting['meta_keywords'] = ($post->meta_keywords) ?: $setting['meta_keywords'];
         $setting['meta_description'] = ($post->meta_description) ?: $setting['meta_description'];
         $setting['og_image'] = ($post->image) ?: ($setting['og_image'] ?? '');
-        $list_post_popular = Post::where('status', Post::STATUS_ACTIVE)
+        $list_post_popular = Post::with('interests')->where('status', Post::STATUS_ACTIVE)
             ->where('published_at' , '<=', Carbon::now())
             ->where('language', App::getLocale())
             ->where('id', '<>', $post->id)
             ->orderBy('view_num', 'desc')
             ->take(Post::POSTS_TAKE)
-            ->get();
+            ->get()
+            ->transform(function ($item) {
+                $item->is_interested = $item->interests()
+                ->where('guest_id', Auth::guard('guest')->id())
+                ->exists();
+                return $item;
+            });
+
         $backUrl = url()->previous();
         $backLabel = $request->get('ref');
         if (rtrim($backUrl, '/') === rtrim(url('/'), '/')) {

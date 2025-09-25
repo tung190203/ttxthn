@@ -70,6 +70,11 @@ class Project extends Model
         return self::UNIT_OPTIONS[$this->unit] ?? '';
     }
 
+    public function interests()
+    {
+        return $this->morphMany(Interest::class, 'interestable');
+    }
+
     public function type()
     {
         return $this->belongsTo(ProjectType::class, 'type_number', 'id');
@@ -270,6 +275,6 @@ class Project extends Model
 
     public function scopeWithRelations($query)
     {
-        return $query->with(['type', 'industry', 'districts']);
+        return $query->with(['type', 'industry', 'districts', 'interests'] );
     }
 }
