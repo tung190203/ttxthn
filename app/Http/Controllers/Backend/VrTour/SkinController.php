@@ -143,7 +143,7 @@ class SkinController extends Controller
                 }
                 $plan->vrtour_id            = $vrtour_id;
                 $plan->show                 = $request['plan']['show'] == true ? 1 : 0;
-                $plan->website              = $request['plan']['website'];
+                $plan->background           = $vrtour->banner_image;
 
                 $plan->image1              = $request['plan']['image1'];
                 $plan->title1              = $request['plan']['title1'];
@@ -162,12 +162,6 @@ class SkinController extends Controller
                 $plan->title3_en           = $request['plan']['title3_en'];
                 $plan->content3            = $request['plan']['content3'];
                 $plan->content3_en         = $request['plan']['content3_en'];
-
-                $plan->image4              = $request['plan']['image4'];
-                $plan->title4              = $request['plan']['title4'];
-                $plan->title4_en           = $request['plan']['title4_en'];
-                $plan->content4            = $request['plan']['content4'];
-                $plan->content4_en         = $request['plan']['content4_en'];
                 $plan->user_id             = Auth::id();
                 $plan->save();
                 createFile('vrtour/'.$vrtour->name, 'plan.js');

@@ -150,13 +150,6 @@
                                 <x-forms.textarea name="pcontent3" editor="true" value="" label="Nội dung chi tiết 3 VN"/>
                                 <x-forms.textarea name="pcontent3_en" editor="true" value="" label="Nội dung chi tiết 3 EN"/>
 
-                                <x-forms.upload name="image4" value="" label="Ảnh 4" type="image"/>
-                                <x-forms.input name="title4" value="" label="Giai đoạn 4" />
-                                <x-forms.input name="title4_en" value="" label="Giai đoạn 4 EN" />
-                                <x-forms.textarea name="pcontent4" editor="true" value="" label="Nội dung chi tiết 4 VN"/>
-                                <x-forms.textarea name="pcontent4_en" editor="true" value="" label="Nội dung chi tiết 4 EN"/>
-
-                                <x-forms.input name="website" value="" label="Website" />
                                 <x-forms.switch name="status" id="status" label="Hiển thị" value="" :messages="$errors->get('status')" />
                                 <input hidden id="plan_id">
                             </div>
@@ -305,7 +298,6 @@
                         var plan = response.data.plan;
                         if (plan != null) {
                             $('#skin_plan #plan_id').val(plan['id']);
-                            $('#skin_plan #website').val(plan['website']);
                             $('#skin_plan #status').bootstrapSwitch('state', plan['show'] == 1 ? true : false);
 
                             $('#skin_plan #image1_input').val(plan['image1']);
@@ -325,12 +317,6 @@
                             $('#skin_plan #title3_en').val(plan['title3_en']);
                             CKEDITOR.instances['pcontent3'].setData(plan['content3']);
                             CKEDITOR.instances['pcontent3_en'].setData(plan['content3_en']);
-
-                            $('#skin_plan #image4_input').val(plan['image4']);
-                            $('#skin_plan #title4').val(plan['title4']);
-                            $('#skin_plan #title4_en').val(plan['title4_en']);
-                            CKEDITOR.instances['pcontent4'].setData(plan['content4']);
-                            CKEDITOR.instances['pcontent4_en'].setData(plan['content4_en']);
                         }
 
                         //document
@@ -419,7 +405,6 @@
                 },
                 plan : {
                     id                  :  $('#skin_plan #plan_id').val(),  
-                    website             :  $('#skin_plan #website').val(),
                     show                :  $('#skin_plan #status').bootstrapSwitch('state'),
                     image1              :  $('#skin_plan #image1_input').val(),
                     title1              :  $('#skin_plan #title1').val(),
@@ -436,11 +421,6 @@
                     title3_en           :  $('#skin_plan #title3_en').val(),
                     content3            :  CKEDITOR.instances['pcontent3'].getData(),
                     content3_en         :  CKEDITOR.instances['pcontent3_en'].getData(),
-                    image4              :  $('#skin_plan #image4_input').val(),
-                    title4              :  $('#skin_plan #title4').val(),
-                    title4_en           :  $('#skin_plan #title4_en').val(),
-                    content4            :  CKEDITOR.instances['pcontent4'].getData(),
-                    content4_en         :  CKEDITOR.instances['pcontent4_en'].getData(),
                 },
                 document : result
             };

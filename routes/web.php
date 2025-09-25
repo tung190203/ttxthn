@@ -41,6 +41,7 @@ Route::localized(function () {
         Route::get('/api/districts', [MapController::class, 'getDistricts'])->name('api_districts');
         Route::get('/projects', [HomeController::class, 'projects'])->name('projects');
         Route::get('/project-detail/{slug}', [HomeController::class, 'projectDetail'])->name('project_detail');
+        Route::get('/vrtour/{slug}', [HomeController::class, 'showVrtour'])->name('show_Vrtour');
         Route::get('/account', [HomeController::class, 'account'])->name('account');
         Route::get('/lien-he', [HomeController::class, 'contact'])->name('contact');
         Route::get('/sitemap.xml', [HomeController::class, 'siteMap'])->name('site_map');
