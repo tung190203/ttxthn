@@ -33,7 +33,7 @@ class InvestMentGuideController extends Controller
             ->where('published_at', '<=', Carbon::now())
             ->where('language', App::getLocale())
             ->where('id', '<>', $investment_guide->id)
-            ->orderBy('view_num', 'desc')
+            ->orderBy('published_at', 'desc')
             ->take(InvestmentGuide::INVESTMENT_TAKE)
             ->get()
             ->transform(function ($item) {

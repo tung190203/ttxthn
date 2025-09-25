@@ -201,7 +201,9 @@ class HomeController extends Controller
         $setting['menu_active'] = 'du-an-keu-goi-dau-tu';
 
         $banners = Widget::getByPosition('HOME_BANNER');
-        $list_post_popular = Post::popular(Post::POSTS_TAKE)->where('published_at', '<=', Carbon::now())->get();
+        $list_post_popular = Post::popular(Post::POSTS_TAKE)->where('published_at', '<=', Carbon::now())
+        ->orderBy('published_at', 'desc')
+        ->get();
 
         $project = Project::with(['type', 'industry', 'districts', 'plan'])
             ->where('slug', $slug)
