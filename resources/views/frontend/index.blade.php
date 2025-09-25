@@ -364,39 +364,6 @@
 
     });
 
-    // function toggleInterest($btn) {
-    //     let id = $btn.data('id');
-    //     let type = $btn.data('type');
-    //     let $icon = $btn.find('i');
-
-    //     $.ajax({
-    //         url: "{{ route('interest') }}",
-    //         type: "POST",
-    //         data: {
-    //             interestable_id: id,
-    //             interestable_type: type,
-    //             _token: "{{ csrf_token() }}"
-    //         },
-    //         success: function (res) {
-    //             if (res.message) {
-    //                 $icon.toggleClass('text-danger');
-
-    //                 Swal.fire({
-    //                     icon: 'success',
-    //                     title: res.message,
-    //                     showConfirmButton: false,
-    //                     timer: 1000
-    //                 });
-    //             }
-    //         },
-    //         error: function (xhr) {
-    //             alert('Có lỗi xảy ra: ' + (xhr.responseJSON?.message || 'Không rõ lỗi'));
-    //         }
-    //     });
-    // }
-    // $('.project__like').click(e => toggleInterest($(e.currentTarget)));
-    // $('.news__like').click(e => toggleInterest($(e.currentTarget)));
-
     function toggleInterest($btn) {
     let id = $btn.data('id');
     let type = $btn.data('type');
@@ -430,7 +397,11 @@
             }
         },
         error: function (xhr) {
-            alert('Có lỗi xảy ra: ' + (xhr.responseJSON?.message || 'Không rõ lỗi'));
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: xhr.responseJSON?.message || 'Có lỗi xảy ra, vui lòng thử lại!',
+            });
         }
     });
 }
