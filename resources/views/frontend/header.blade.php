@@ -23,7 +23,7 @@ $countAllProject = App\Models\Project::where('is_invest', 0)->count();
                         <div class="navbar__wrapper">
                             <div class="navbar__header">
                                 <a class="navbar__logo" href="./index.html">
-                                    <img src="{{asset('./images/logo-new.png')}}" alt=""/>
+                                    <img src="{{$setting['logo']}}" alt=""/>
                                 </a>
                                 <button class="btn-toggle js-navbar-toggle ms-auto"></button>
                             </div>

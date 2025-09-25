@@ -22223,7 +22223,9 @@ a.ratio {
 .header {
     position: relative;
     z-index: 1030;
-    background-color: #2a84d0
+    background-color: #2a84d0;
+    background: url("/images/header-bg.png") no-repeat center center;
+    background-size: 110% 265%;
 }
 
 .header__inner {
@@ -22242,7 +22244,6 @@ a.ratio {
     display: -ms-inline-flexbox;
     display: inline-flex;
     padding: 8px;
-    background-color: #fff;
     margin: 0;
     -webkit-transition: .2s;
     transition: .2s
@@ -22296,9 +22297,9 @@ a.ratio {
 }
 
 @media (min-width:1200px) {
-    .header {
+    /* .header {
         height: 120px
-    }
+    } */
 
     .header__logo,
     .navbar__logo {
@@ -22306,7 +22307,7 @@ a.ratio {
         display: -ms-flexbox;
         display: flex;
         width: 200px;
-        height: 120px;
+        height: 80px;
         -webkit-box-pack: center;
         -ms-flex-pack: center;
         justify-content: center;
@@ -22315,7 +22316,6 @@ a.ratio {
         align-items: center;
         position: relative;
         z-index: 10;
-        margin: 0 0 -40px 0;
         padding: 0
     }
 
@@ -22462,7 +22462,8 @@ a.ratio {
 
 .header.is-sticky .header__logo img,
 .header.is-sticky .navbar__logo img {
-    height: 38px
+    height: 38px;
+    margin: 0 0 -41px 0;
 }
 
 .footer__inner {
