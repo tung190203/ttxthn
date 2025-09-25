@@ -113,7 +113,8 @@
 
                         <div class="md-form__btns">
                             <button class="md-form__btn" type="submit">Đăng nhập</button>
-                            <a class="md-form__btn-2" href="{{route('google_login')}}"><i class="fab fa-google me-3"></i><span>Đăng nhập bằng
+                            <a class="md-form__btn-2" href="{{route('google_login')}}"><i
+                                    class="fab fa-google me-3"></i><span>Đăng nhập bằng
                                     tài khoản Google</span></a>
                         </div>
 
@@ -186,7 +187,8 @@
 
                         <div class="md-form__btns">
                             <button class="md-form__btn" type="submit">Đăng ký tài khoản</button>
-                            <a class="md-form__btn-2" href="{{route('google_login')}}"><i class="fab fa-google me-3"></i><span>Đăng ký bằng tài
+                            <a class="md-form__btn-2" href="{{route('google_login')}}"><i
+                                    class="fab fa-google me-3"></i><span>Đăng ký bằng tài
                                     khoản Google</span></a>
                         </div>
 
@@ -361,4 +363,108 @@
         });
 
     });
+
+    // function toggleInterest($btn) {
+    //     let id = $btn.data('id');
+    //     let type = $btn.data('type');
+    //     let $icon = $btn.find('i');
+
+    //     $.ajax({
+    //         url: "{{ route('interest') }}",
+    //         type: "POST",
+    //         data: {
+    //             interestable_id: id,
+    //             interestable_type: type,
+    //             _token: "{{ csrf_token() }}"
+    //         },
+    //         success: function (res) {
+    //             if (res.message) {
+    //                 $icon.toggleClass('text-danger');
+
+    //                 Swal.fire({
+    //                     icon: 'success',
+    //                     title: res.message,
+    //                     showConfirmButton: false,
+    //                     timer: 1000
+    //                 });
+    //             }
+    //         },
+    //         error: function (xhr) {
+    //             alert('Có lỗi xảy ra: ' + (xhr.responseJSON?.message || 'Không rõ lỗi'));
+    //         }
+    //     });
+    // }
+    // $('.project__like').click(e => toggleInterest($(e.currentTarget)));
+    // $('.news__like').click(e => toggleInterest($(e.currentTarget)));
+
+    function toggleInterest($btn) {
+    let id = $btn.data('id');
+    let type = $btn.data('type');
+    let $icon = $btn.find('i');
+
+    $.ajax({
+        url: "{{ route('interest') }}",
+        type: "POST",
+        data: {
+            interestable_id: id,
+            interestable_type: type,
+            _token: "{{ csrf_token() }}"
+        },
+        success: function (res) {
+            if (res.message) {
+                let wasActive = $icon.hasClass('text-danger');
+                $icon.toggleClass('text-danger');
+
+                if ((window.location.pathname === '/account') && wasActive) {
+                    // Xoá DOM slide tương ứng
+                    let $slide = $btn.closest('.swiper-slide');
+                    $slide.remove();
+                }
+
+                Swal.fire({
+                    icon: 'success',
+                    title: res.message,
+                    showConfirmButton: false,
+                    timer: 1000
+                });
+            }
+        },
+        error: function (xhr) {
+            alert('Có lỗi xảy ra: ' + (xhr.responseJSON?.message || 'Không rõ lỗi'));
+        }
+    });
+}
+
+// Gán sự kiện
+$('.project__like').click(e => toggleInterest($(e.currentTarget)));
+$('.news__like').click(e => toggleInterest($(e.currentTarget)));
+
+    $(function () {
+        $('#project-interest-search').on('input', function () {
+            const keyword = $(this).val().toLowerCase();
+
+            $('.project-slide').each(function () {
+                const name = $(this).data('name');
+                if (name.includes(keyword)) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+
+            if ($('.project-slide:visible').length === 0) {
+                if ($('#no-project-message').length === 0) {
+                    $('#project-interest .swiper-wrapper').append('<p id="no-project-message" class="text-center w-100 mt-4">Không tìm thấy dự án nào</p>');
+                }
+            } else {
+                $('#no-project-message').remove();
+            }
+
+            // Update swiper nếu đang dùng swiper.js
+            if (typeof swiper !== 'undefined') {
+                swiper.update();
+            }
+        });
+    });
+
 </script>

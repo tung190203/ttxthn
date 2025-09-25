@@ -121,11 +121,11 @@
                                             <h3 class="project__title"><a href="{{ route('project_detail',['slug' => $item->slug, 'ref' => 'Dự án kêu gọi đầu tư']) }}" data-tippy-content="{{$item->name}}">{{$item->name}}</a></h3>
                                             @if($item->is_invest == 0)
                                                 <div class="project__overlay"><span>Dự án đang kêu gọi đầu tư</span>
-                                                    <a class="project__like" href="#!"><i class="fal fa-fw fa-lg fa-heart"></i></a>
+                                                    <a class="project__like" href="javascript:void(0)" data-id="{{ $item->id }}" data-type="App\Models\Project"><i class="fas fa-fw fa-lg fa-heart {{ $item->is_interested ? 'text-danger' : '' }}"></i></a>
                                                 </div>
                                             @else
                                                 <div class="project__overlay"><span>Dự án đã có chủ đầu tư</span>
-                                                    <a class="project__like" href="#!"><i class="fal fa-fw fa-lg fa-heart"></i></a>
+                                                    <a class="project__like" href="javascript:void(0)" data-id="{{ $item->id }}" data-type="App\Models\Project"><i class="fas fa-fw fa-lg fa-heart {{ $item->is_interested ? 'text-danger' : '' }}"></i></a>
                                                 </div>
                                             @endif
                                             <ul class="project__info">

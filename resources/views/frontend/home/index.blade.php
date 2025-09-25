@@ -60,7 +60,7 @@
                             <div class="range-input">
                                 <div class="range-input__content">
                                     <div class="range-input__label">Quy mô vốn đầu tư</div>
-                                    <div class="range-input__price">0 VND</div>
+                                    <div class="range-input__price">0</div>
                                 </div>
                                 <input class="range-input__input" id="priceRange" type="range" value="0" min="0"
                                     max="{{$maxPrice ?? 100000000000 }}" step="1000000000">
@@ -210,12 +210,12 @@
                                 @if($item['is_invest'] == 0)
                                   <div class="project__overlay">
                                     <span>Dự án đang kêu gọi đầu tư</span>
-                                    <a class="project__like" href="#!"><i class="fal fa-fw fa-lg fa-heart"></i></a>
+                                    <a class="project__like" href="javascript:void(0)"  data-id="{{ $item['id'] }}" data-type="App\Models\Project"><i class="fas fa-fw fa-lg fa-heart {{ $item['is_interested'] ? 'text-danger' : '' }}"></i></a>
                                   </div>
                                 @else
                                   <div class="project__overlay">
                                     <span>Dự án đã có chủ đầu tư</span>
-                                    <a class="project__like" href="#!"><i class="fal fa-fw fa-lg fa-heart"></i></a>
+                                    <a class="project__like" href="javascript:void(0)"  data-id="{{ $item['id'] }}" data-type="App\Models\Project"><i class="fas fa-fw fa-lg fa-heart {{ $item['is_interested'] ? 'text-danger' : '' }}"></i></a>
                                   </div>
                                 @endif
                                 <ul class="project__info">
@@ -283,26 +283,34 @@
                     <div class="news-slider__container swiper-container">
                         <div class="swiper-wrapper">
                             @foreach ($posts as $item)
-                                <div class="swiper-slide">
-                                    <div class="news"><a class="news__frame"
-                                            href="{{ route('post_detail', ['id' => $item->id, 'slug' => $item->slug]) }}"><img
-                                                src="{{ $item->image }}" alt="" /></a>
-                                        <div class="news__body">
-                                            <div class="news__info">
-                                                <div class="news__time"><i
-                                                        class="fal fa-clock me-2"></i><span>{{ \Carbon\Carbon::parse($item->published_at)->format('d/m/Y') }}</span>
-                                                </div>
-                                                <div class="news__like"><i class="fal fa-fw fa-heart"></i></div>
+                            <div class="swiper-slide">
+                                <div class="news">
+                                    <a class="news__frame"
+                                       href="{{ route('post_detail', ['id' => $item['id'], 'slug' => $item['slug']]) }}">
+                                        <img src="{{ $item['image'] }}" alt="" />
+                                    </a>
+                                    <div class="news__body">
+                                        <div class="news__info">
+                                            <div class="news__time">
+                                                <i class="fal fa-clock me-2"></i>
+                                                <span>{{ \Carbon\Carbon::parse($item['published_at'])->format('d/m/Y') }}</span>
                                             </div>
-                                            <h3 class="news__title  custom-desc"><a
-                                                    href="{{ route('post_detail', ['id' => $item->id, 'slug' => $item->slug]) }}"
-                                                    data-tippy-content="{{$item->name}}">{{ $item->name }}</a>
-                                            </h3>
-                                            <div class="news__desc">{{ $item->description }}</div>
+                                            <a class="news__like" href="javascript:void(0)"
+                                               data-id="{{ $item['id'] }}" data-type="App\Models\Post">
+                                                <i class="fas fa-fw fa-heart {{ $item['is_interested'] ? 'text-danger' : '' }}"></i>
+                                            </a>
                                         </div>
+                                        <h3 class="news__title custom-desc">
+                                            <a href="{{ route('post_detail', ['id' => $item['id'], 'slug' => $item['slug']]) }}"
+                                               data-tippy-content="{{ $item['name'] }}">
+                                                {{ $item['name'] }}
+                                            </a>
+                                        </h3>
+                                        <div class="news__desc">{{ $item['description'] }}</div>
                                     </div>
                                 </div>
-                            @endforeach
+                            </div>
+                        @endforeach
                         </div>
                     </div>
                 </div>
@@ -541,7 +549,7 @@
                 ? `${loc.price.toLocaleString('vi-VN')}` 
                 : 'Chưa có giá';
 
-            const imageUrl = `${window.location.origin}${loc.banner_image}`;
+            const imageUrl = `${window.location.origin}${loc.detail_image}`;
 
             const popupContent = `
                 <div class='info-box' style="max-width:250px;">
@@ -549,11 +557,17 @@
                     <strong>${loc.name}</strong><br>
                     Loại: ${getTypeName(loc.type_number)}<br>
                     Khu vực: ${districtText}<br>
-                    Quy mô vốn đầu tư: ${priceText}<br>
-                    Diện tích: ${loc.area ? loc.area.toLocaleString('vi-VN') : ''} ${loc.unit || ''}<br>
+                    Quy mô vốn đầu tư: ${priceText} Tỉ đồng<br>
+                    ${loc.unit === 'ha' 
+                        ? `Diện tích: ${loc.area ? loc.area.toLocaleString('vi-VN') : ''} ha`
+                        : (loc.unit === 'km' 
+                            ? `Chiều dài: ${loc.area ? loc.area.toLocaleString('vi-VN') : ''} km`
+                            : ''
+                        )
+                    }
                     <div style="margin-top:10px; display:flex; gap:8px; justify-content:flex-end;">
-                        <a href="${tourUrl}" target="_blank" class="btn btn-sm btn-secondary text-white">Xem tour</a>
-                        <a href="${detailUrl}" target="_blank" class="btn btn-sm btn-primary text-white">Xem dự án</a>
+                        <a href="${tourUrl}" target="_blank" class="btn btn-sm btn-secondary text-white">Tour thực tế ảo</a>
+                        <a href="${detailUrl}" target="_blank" class="btn btn-sm btn-primary text-white">Thông tin</a>
                     </div>
                 </div>
             `;
