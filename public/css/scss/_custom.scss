@@ -694,3 +694,9 @@
   top: 0;
   right: 0;
 }
+
+@media (max-width: 320px) {
+  .note div {
+      font-size: 12px;
+  }
+}
