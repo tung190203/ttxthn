@@ -523,10 +523,6 @@
   color: #fff;
 }
 
-.custom-investor-container {
-  margin-top: 150px;
-}
-
 @media (max-width: 1199.98px) {
   .project-nav__list_custom {
     gap: 12px;
@@ -546,9 +542,6 @@
     padding: 8px;
     font-size: 13px;
   }
-  .custom-investor-container {
-    margin-top: 100px;
-  }
 }
 
 @media (max-width: 991.98px) {
@@ -565,9 +558,10 @@
   .project-nav-fixed a {
     font-size: 12px;
   }
-  .custom-investor-container {
-    margin-top: 40px;
-  }
+}
+
+#ke-hoach-trien-khai {
+  background-color: #DCF2FF;
 }
 
 @media (max-width: 767.98px) {
@@ -588,9 +582,6 @@
   .project-nav-fixed a {
     font-size: 12px;
   }
-  .custom-investor-container {
-    margin-top: 50px;
-  }
 }
 
 /* Step card & layout */
@@ -601,127 +592,18 @@
   align-items: center;
 }
 
-.icon-circle {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  border: 1px solid transparent;
-  margin: 0 auto;
-  z-index: 1;
-}
-
-.icon-circle::before {
-  content: "";
-  position: absolute;
-  top: -25px;   /* khoảng cách giữa vòng ngoài - trong */
-  left: -25px;
-  width: calc(100% + 50px); /* 2 x khoảng cách */
-  height: calc(100% + 50px);
-  border-radius: 50%;
-  border: 3px solid #3966AE;
-  background: linear-gradient(45deg, #ffffff, #d6d6d6);
-  z-index: 0;
-}
-
-.icon-circle img {
-  z-index: 1;
-  font-size: 2.2rem;
-  border-radius: 50%;
-  border: 1px solid #ccc;
-}
-
 /* Responsive: xoay mũi tên xuống mobile */
 .arrow-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: calc(25px + 1px);
-}
-
-.arrow-img {
-  width: 40px;
-  height: auto;
-}
-
-.arrow-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  margin-top: 75px;
 }
 
 .arrow-img {
   width: 80px; /* kích thước mặc định */
   max-width: 120px; /* không vượt quá 120px */
   height: auto;
-}
-
-@media (max-width: 767px) {
-  .arrow-img {
-    transform: rotate(90deg);
-  }
-
-  .arrow-container {
-    margin-top: 0;
-    margin-bottom: 20px;
-  }
-}
-
-/* Responsive vòng tròn */
-@media (max-width: 576px) {
-  .icon-circle {
-    width: 70px;
-    height: 70px;
-  }
-  .icon-circle::before {
-    top: -20px;
-    left: -20px;
-    width: calc(100% + 40px);
-    height: calc(100% + 40px);
-  }
-  .icon-circle i {
-    font-size: 1.7rem;
-  }
-  .arrow-img {
-    width: 50px;
-  }
-}
-@media (min-width: 577px) and (max-width: 991px) {
-  .icon-circle {
-    width: 90px;
-    height: 90px;
-  }
-  .icon-circle::before {
-    top: -25px;
-    left: -25px;
-    width: calc(100% + 50px);
-    height: calc(100% + 50px);
-  }
-  .icon-circle i {
-    font-size: 2rem;
-  }
-  .arrow-img {
-    width: 80px;
-  }
-}
-@media (min-width: 992px) {
-  .icon-circle {
-    width: 100px;
-    height: 100px;
-  }
-  .icon-circle::before {
-    top: -30px;
-    left: -30px;
-    width: calc(100% + 60px);
-    height: calc(100% + 60px);
-  }
-  .icon-circle i {
-    font-size: 2.2rem;
-  }
-  .arrow-img {
-    width: 100px;
-  }
 }
 
 /* List căn đều, text không đè */
@@ -737,6 +619,79 @@
 
 /* Khoảng cách text và vòng tròn */
 .step-card h5 {
-  margin-top: 60px; /* giảm margin-top để cân đối với vòng tròn lớn hơn */
   margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+  .step-card img {
+    width: 50%;
+  }
+  .arrow-img {
+    transform: rotate(90deg);
+    width: 100px;
+  }
+
+  .arrow-container {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+}
+
+@media (min-width: 425px) and (max-width: 576px) {
+  .step-card img {
+    width: 50%;
+  }
+  .step-card h5 {
+    font-size: 15px;
+  }
+  .step-card ul span {
+    font-size: 11px !important;
+  }
+  .arrow-container img {
+    width: 50px;
+    margin-bottom: 0;
+  }
+}
+
+@media (min-width: 577px) and (max-width: 991px) {
+  .arrow-img {
+    width: 80px;
+  }
+  .arrow-container {
+    margin-top: 35px;
+  }
+}
+@media (min-width: 991px) and (max-width: 1024px) {
+  .arrow-img {
+    width: 80px;
+  }
+  .arrow-container {
+    margin-top: 50px;
+  }
+  .step-card h5 {
+    font-size: 14px;
+  }
+}
+@media (min-width: 992px) {
+  .arrow-img {
+    width: 100px;
+  }
+}
+
+.section .texture {
+  position: absolute;
+  z-index: -1; /* nằm dưới nội dung */
+  width: clamp(100px, 15vw, 250px); /* tự co giãn theo viewport */
+  height: auto; /* giữ tỉ lệ */
+  pointer-events: none;
+}
+
+.texture-bottom-left {
+  bottom: 0;
+  left: 0;
+}
+
+.texture-top-right {
+  top: 0;
+  right: 0;
 }
