@@ -426,6 +426,23 @@
   align-items: center;
 }
 
+.project-nav-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin; /* Firefox */
+}
+
+.project-nav__list_custom {
+  display: inline-flex;
+  gap: 16px;
+}
+
+.project-nav-scroll::-webkit-scrollbar {
+  height: 6px; /* cho thấy thanh scroll ngang */
+}
+
 .project-nav__list_custom li {
   flex: 0 0 140px;
   max-width: 140px;
