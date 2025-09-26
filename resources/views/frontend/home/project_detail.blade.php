@@ -237,7 +237,7 @@
             {{-- <img class="texture-1" src="{{ asset('./images/texture-1.png') }}" alt="">
             <img class="texture-2" src="{{ asset('./images/texture-2.png') }}" alt=""> --}}
             <div class="container">
-                <h2 class="section__title">Ưu đãi, quy trình, thủ tục đầu tư</h2>
+                <h2 class="section__title pb-2">Ưu đãi, quy trình, thủ tục đầu tư</h2>
                 <div class="news-slider">
                     <div class="news-slider__nav">
                         <div class="news-slider__prev"><i class="fal fa-fw fa-lg fa-angle-left"></i></div>
@@ -276,19 +276,17 @@
                 </nav>
             </div>
         </section>
-        <section class="section" id="ke-hoach-trien-khai">
-            <img class="texture-3" src="{{ asset('images/investor-bg.png') }}" alt="">
+        <section class="section position-relative" id="ke-hoach-trien-khai">
+            <img src="{{asset('/images/texture-8.png')}}" class="texture texture-bottom-left" alt="">
+            <img src="{{asset('/images/texture-9.png')}}" class="texture texture-top-right" alt="">
             <div class="container">
                 <h2 class="section__title text-center mb-5">Kế hoạch triển khai</h2>
-
-                <div class="row g-4 align-items-stretch justify-content-center position-relative custom-investor-container">
+                <div class="row g-2 align-items-stretch justify-content-center position-relative">
 
                     <!-- Bước 1 -->
-                    <div class="col-12 col-md-3 d-flex">
+                    <div class="col-12 col-lg-3 d-flex">
                         <div class="step-card flex-fill d-flex flex-column align-items-center p-4 rounded">
-                            <div class="icon-circle mb-3">
                                 <img src="{{ asset(optional($project->plan)->image1 ?: 'images/investor-bg.png') }}" alt="">
-                            </div>
                             <h5 class="fw-bold text-uppercase mb-3 text-center">
                                 {{ optional($project->plan)->title1 ?? '' }}
                             </h5>
@@ -306,11 +304,9 @@
                     </div>
 
                     <!-- Bước 2 -->
-                    <div class="col-12 col-md-3 d-flex">
+                    <div class="col-12 col-lg-3 d-flex">
                         <div class="step-card flex-fill d-flex flex-column align-items-center p-4 rounded">
-                            <div class="icon-circle mb-3">
                                 <img src="{{ asset(optional($project->plan)->image2 ?: 'images/investor-bg.png') }}" alt="">
-                            </div>
                             <h5 class="fw-bold text-uppercase mb-3 text-center">
                                 {{ optional($project->plan)->title2 ?? '' }}
                             </h5>
@@ -328,11 +324,9 @@
                     </div>
 
                     <!-- Bước 3 -->
-                    <div class="col-12 col-md-3 d-flex">
+                    <div class="col-12 col-lg-3 d-flex">
                         <div class="step-card flex-fill d-flex flex-column align-items-center p-4 rounded">
-                            <div class="icon-circle mb-3">
                                 <img src="{{ asset(optional($project->plan)->image3 ?: 'images/investor-bg.png') }}" alt="">
-                            </div>
                             <h5 class="fw-bold text-uppercase mb-3 text-center">
                                 {{ optional($project->plan)->title3 ?? '' }}
                             </h5>
