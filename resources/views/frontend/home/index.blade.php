@@ -62,8 +62,8 @@
                                     <div class="range-input__label">Quy mô vốn đầu tư</div>
                                     <div class="range-input__price">0</div>
                                 </div>
-                                <input class="range-input__input" id="priceRange" type="range" value="0" min="0"
-                                    max="{{$maxPrice ?? 100000000000 }}" step="1000000000">
+                                <input class="range-input__input" id="priceRange" type="range" value="0"
+                                    min="0" max="{{ $maxPrice ?? 100000000000 }}" step="1000000000">
                             </div>
                         </div>
                     </div>
@@ -75,7 +75,8 @@
                     <div class="pj-search__top">
                         <div class="pj-search__col">
                             <div class="input-group">
-                                <input class="form-control" type="text" id="searchInputSp" placeholder="Từ khóa tìm kiếm">
+                                <input class="form-control" type="text" id="searchInputSp"
+                                    placeholder="Từ khóa tìm kiếm">
                                 <div class="input-group-text"><i class="fal fa-lg fa-search"></i></div>
                             </div>
                         </div>
@@ -119,8 +120,8 @@
                                     <div class="range-input__label text-white">Giá thuê</div>
                                     <div class="range-input__price1 text-white">0</div>
                                 </div>
-                                <input class="white-range" id="priceRangeSp" type="range" value="0" min="0"
-                                    max="{{$maxPriceSp ?? 100000000}}" step="1000000">
+                                <input class="white-range" id="priceRangeSp" type="range" value="0"
+                                    min="0" max="{{ $maxPriceSp ?? 100000000 }}" step="1000000">
                             </div>
                         </div>
                     </div>
@@ -142,7 +143,8 @@
                     <div class="pj-search__top">
                         <div class="pj-search__col">
                             <div class="input-group">
-                                <input class="form-control" type="text" id="searchInput" placeholder="Nhập tên dự án">
+                                <input class="form-control" type="text" id="searchInput"
+                                    placeholder="Nhập tên dự án">
                                 <div class="input-group-text"><i class="fal fa-lg fa-search"></i></div>
                             </div>
                         </div>
@@ -155,119 +157,131 @@
         </div>
         <section class="section" id="investment-section">
             <div class="container">
-              <h2 class="section__title mb-3">Danh mục đầu tư</h2>
-          
-              <div class="project-nav-wrapper mb-60">
-                <!-- "Tất cả" cố định -->
-                <div class="project-nav-fixed">
-                  <a class="{{ request('industry') ? '' : 'active' }}"
-                     href="{{ route('home_page') }}#investment-section">
-                    Tất cả
-                  </a>
-                </div>
-          
-                <!-- Các ngành scroll ngang -->
-                <div class="project-nav-scroll swiper-container">
-                  <ul class="project-nav__list_custom swiper-wrapper">
-                    @foreach($industries as $industry)
-                      <li class="swiper-slide" data-tippy-content="{{ $industry['name'] }}">
-                        <a class="{{ request('industry') == $industry['id'] ? 'active' : '' }}"
-                           href="{{ route('home_page', ['industry' => $industry['id']]) }}#investment-section">
-                          {{ $industry['name'] }}
+                <h2 class="section__title mb-3">Danh mục đầu tư</h2>
+
+                <div class="project-nav-wrapper mb-60">
+                    <!-- "Tất cả" cố định -->
+                    <div class="project-nav-fixed">
+                        <a class="{{ request('industry') ? '' : 'active' }}"
+                            href="{{ route('home_page') }}#investment-section">
+                            Tất cả
                         </a>
-                      </li>
-                    @endforeach
-                  </ul>
-                </div>
-              </div>
-          
-              @if(empty($project_category))
-                <p class="text-center">Chưa có dự án phù hợp</p>
-              @else
-                <!-- phần slider giữ nguyên -->
-                <div class="news-slider">
-                  <div class="news-slider__nav">
-                    <div class="news-slider__prev"><i class="fal fa-fw fa-lg fa-angle-left"></i></div>
-                    <div class="news-slider__next"><i class="fal fa-fw fa-lg fa-angle-right"></i></div>
-                  </div>
-                  <div class="news-slider__container swiper-container">
-                    <div class="swiper-wrapper">
-                      @foreach ($project_category as $item)
-                        <div class="swiper-slide">
-                          <div>
-                            <div class="project">
-                              <a class="project__frame"
-                                 href="{{ route('project_detail', ['slug' => $item['slug']]) }}">
-                                <img src="{{$item['detail_image'] ?? './images/project-1.jpg' }}" alt="" />
-                              </a>
-                              <div class="project__body">
-                                <h3 class="project__title">
-                                  <a href="{{ route('project_detail', ['slug' => $item['slug']]) }}"
-                                     data-tippy-content="{{$item['name']}}">
-                                    {{$item['name']}}
-                                  </a>
-                                </h3>
-                                @if($item['is_invest'] == 0)
-                                  <div class="project__overlay">
-                                    <span>Dự án đang kêu gọi đầu tư</span>
-                                    <a class="project__like" href="javascript:void(0)"  data-id="{{ $item['id'] }}" data-type="App\Models\Project"><i class="fas fa-fw fa-lg fa-heart {{ $item['is_interested'] ? 'text-danger' : '' }}"></i></a>
-                                  </div>
-                                @else
-                                  <div class="project__overlay">
-                                    <span>Dự án đã có chủ đầu tư</span>
-                                    <a class="project__like" href="javascript:void(0)"  data-id="{{ $item['id'] }}" data-type="App\Models\Project"><i class="fas fa-fw fa-lg fa-heart {{ $item['is_interested'] ? 'text-danger' : '' }}"></i></a>
-                                  </div>
-                                @endif
-                                <ul class="project__info">
-                                  <li>
-                                    <img class="me-2" src="./images/icon-map-marker.svg" alt="" />
-                                    <span data-tippy-content="Dự án thuộc {{$item['districts']}}">
-                                      Dự án thuộc {{$item['districts']}}
-                                    </span>
-                                  </li>
-                                  <li><img class="me-2" src="./images/icon-dimension.svg" alt="" />
-                                    <span>{{$item['area'] ?? 0}} {{$item['unit'] ?? ''}}</span>
-                                  </li>
-                                  <li><img class="me-2" src="./images/icon-save-money.svg" alt="" />
-                                    <span>Theo đề xuất</span>
-                                  </li>
-                                </ul>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      @endforeach
                     </div>
-                  </div>
+
+                    <!-- Các ngành scroll ngang -->
+                    <div class="project-nav-scroll swiper-container">
+                        <ul class="project-nav__list_custom swiper-wrapper">
+                            @foreach ($industries as $industry)
+                                <li class="swiper-slide" data-tippy-content="{{ $industry['name'] }}">
+                                    <a class="{{ request('industry') == $industry['id'] ? 'active' : '' }}"
+                                        href="{{ route('home_page', ['industry' => $industry['id']]) }}#investment-section">
+                                        {{ $industry['name'] }}
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
                 </div>
-          
-                <nav class="d-flex justify-content-center mt-40 mt-lg-60">
-                  <a class="button" href="/projects">Xem thêm</a>
-                </nav>
-              @endif
+
+                @if (empty($project_category))
+                    <p class="text-center">Chưa có dự án phù hợp</p>
+                @else
+                    <!-- phần slider giữ nguyên -->
+                    <div class="news-slider">
+                        <div class="news-slider__nav">
+                            <div class="news-slider__prev"><i class="fal fa-fw fa-lg fa-angle-left"></i></div>
+                            <div class="news-slider__next"><i class="fal fa-fw fa-lg fa-angle-right"></i></div>
+                        </div>
+                        <div class="news-slider__container swiper-container">
+                            <div class="swiper-wrapper">
+                                @foreach ($project_category as $item)
+                                    <div class="swiper-slide">
+                                        <div>
+                                            <div class="project">
+                                                <a class="project__frame"
+                                                    href="{{ route('project_detail', ['slug' => $item['slug']]) }}">
+                                                    <img src="{{ $item['detail_image'] ?? './images/project-1.jpg' }}"
+                                                        alt="" />
+                                                </a>
+                                                <div class="project__body">
+                                                    <h3 class="project__title">
+                                                        <a href="{{ route('project_detail', ['slug' => $item['slug']]) }}"
+                                                            data-tippy-content="{{ $item['name'] }}">
+                                                            {{ $item['name'] }}
+                                                        </a>
+                                                    </h3>
+                                                    @if ($item['is_invest'] == 0)
+                                                        <div class="project__overlay">
+                                                            <span>Dự án đang kêu gọi đầu tư</span>
+                                                            <a class="project__like" href="javascript:void(0)"
+                                                                data-id="{{ $item['id'] }}"
+                                                                data-type="App\Models\Project"><i
+                                                                    class="fas fa-fw fa-lg fa-heart {{ $item['is_interested'] ? 'text-danger' : '' }}"></i></a>
+                                                        </div>
+                                                    @else
+                                                        <div class="project__overlay">
+                                                            <span>Dự án đã có chủ đầu tư</span>
+                                                            <a class="project__like" href="javascript:void(0)"
+                                                                data-id="{{ $item['id'] }}"
+                                                                data-type="App\Models\Project"><i
+                                                                    class="fas fa-fw fa-lg fa-heart {{ $item['is_interested'] ? 'text-danger' : '' }}"></i></a>
+                                                        </div>
+                                                    @endif
+                                                    <ul class="project__info">
+                                                        <li>
+                                                            <img class="me-2" src="./images/icon-map-marker.svg"
+                                                                alt="" />
+                                                            <span
+                                                                data-tippy-content="Dự án thuộc {{ $item['districts'] }}">
+                                                                Dự án thuộc {{ $item['districts'] }}
+                                                            </span>
+                                                        </li>
+                                                        <li><img class="me-2" src="./images/icon-dimension.svg"
+                                                                alt="" />
+                                                            <span>{{ $item['area'] ?? 0 }}
+                                                                {{ $item['unit'] ?? '' }}</span>
+                                                        </li>
+                                                        <li><img class="me-2" src="./images/icon-save-money.svg"
+                                                                alt="" />
+                                                            <span>Theo đề xuất</span>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+
+                    <nav class="d-flex justify-content-center mt-40 mt-lg-60">
+                        <a class="button" href="/projects">Xem thêm</a>
+                    </nav>
+                @endif
             </div>
-          </section>          
+        </section>
         <section class="section section--bg-pattern">
             <div class="container">
                 <div class="features-slider">
                     <div class="features-slider__container swiper-container">
-                      <div class="swiper-wrapper">
-                        @foreach ($setting['features'] as $item)
-                          <div class="swiper-slide">
-                            <div class="counter">
-                              <div class="counter__item">
-                                <div class="counter__icon">
-                                  <img src="{{ $item['icon'] ?? '' }}" alt="" />
+                        <div class="swiper-wrapper">
+                            @foreach ($setting['features'] as $item)
+                                <div class="swiper-slide">
+                                    <div class="counter">
+                                        <div class="counter__item">
+                                            <div class="counter__icon">
+                                                <img src="{{ $item['icon'] ?? '' }}" alt="" />
+                                            </div>
+                                            <div class="counter__number">{{ $item['title'] ?? '0' }}</div>
+                                            <div class="counter__title">{{ $item['content'] ?? '' }}</div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="counter__number">{{ $item['title'] ?? '0' }}</div>
-                                <div class="counter__title">{{ $item['content'] ?? '' }}</div>
-                              </div>
-                            </div>
-                          </div>
-                        @endforeach
-                      </div>
+                            @endforeach
+                        </div>
                     </div>
-                  </div>
+                </div>
             </div>
         </section>
         <section class="section">
@@ -283,34 +297,35 @@
                     <div class="news-slider__container swiper-container">
                         <div class="swiper-wrapper">
                             @foreach ($posts as $item)
-                            <div class="swiper-slide">
-                                <div class="news">
-                                    <a class="news__frame"
-                                       href="{{ route('post_detail', ['id' => $item['id'], 'slug' => $item['slug']]) }}">
-                                        <img src="{{ $item['image'] }}" alt="" />
-                                    </a>
-                                    <div class="news__body">
-                                        <div class="news__info">
-                                            <div class="news__time">
-                                                <i class="fal fa-clock me-2"></i>
-                                                <span>{{ \Carbon\Carbon::parse($item['published_at'])->format('d/m/Y') }}</span>
+                                <div class="swiper-slide">
+                                    <div class="news">
+                                        <a class="news__frame"
+                                            href="{{ route('post_detail', ['id' => $item['id'], 'slug' => $item['slug']]) }}">
+                                            <img src="{{ $item['image'] }}" alt="" />
+                                        </a>
+                                        <div class="news__body">
+                                            <div class="news__info">
+                                                <div class="news__time">
+                                                    <i class="fal fa-clock me-2"></i>
+                                                    <span>{{ \Carbon\Carbon::parse($item['published_at'])->format('d/m/Y') }}</span>
+                                                </div>
+                                                <a class="news__like" href="javascript:void(0)"
+                                                    data-id="{{ $item['id'] }}" data-type="App\Models\Post">
+                                                    <i
+                                                        class="fas fa-fw fa-heart {{ $item['is_interested'] ? 'text-danger' : '' }}"></i>
+                                                </a>
                                             </div>
-                                            <a class="news__like" href="javascript:void(0)"
-                                               data-id="{{ $item['id'] }}" data-type="App\Models\Post">
-                                                <i class="fas fa-fw fa-heart {{ $item['is_interested'] ? 'text-danger' : '' }}"></i>
-                                            </a>
+                                            <h3 class="news__title custom-desc">
+                                                <a href="{{ route('post_detail', ['id' => $item['id'], 'slug' => $item['slug']]) }}"
+                                                    data-tippy-content="{{ $item['name'] }}">
+                                                    {{ $item['name'] }}
+                                                </a>
+                                            </h3>
+                                            <div class="news__desc">{{ $item['description'] }}</div>
                                         </div>
-                                        <h3 class="news__title custom-desc">
-                                            <a href="{{ route('post_detail', ['id' => $item['id'], 'slug' => $item['slug']]) }}"
-                                               data-tippy-content="{{ $item['name'] }}">
-                                                {{ $item['name'] }}
-                                            </a>
-                                        </h3>
-                                        <div class="news__desc">{{ $item['description'] }}</div>
                                     </div>
                                 </div>
-                            </div>
-                        @endforeach
+                            @endforeach
                         </div>
                     </div>
                 </div>
@@ -321,9 +336,9 @@
         <section class="section section--medium-blue">
             <div class="container">
                 <h2 class="section__title text-white">Liên kết</h2>
-                @if(!empty($setting['banners']))
+                @if (!empty($setting['banners']))
                     <div class="partners">
-                        @foreach($setting['banners'] as $banner)
+                        @foreach ($setting['banners'] as $banner)
                             <div class="partners__item">
                                 <a href="{{ $banner['link'] ?? '#' }}" target="_blank">
                                     <img src="{{ $banner['image'] ?? '' }}" alt="" />
@@ -432,7 +447,7 @@
             }
         });
 
-        resetControl.onAdd = function (map) {
+        resetControl.onAdd = function(map) {
             const btn = L.DomUtil.create('button', 'leaflet-bar leaflet-control leaflet-control-custom');
             btn.innerHTML = '<i class="fas fa-redo-alt"></i>';
             btn.title = 'Reset bản đồ';
@@ -448,7 +463,7 @@
 
             L.DomEvent.disableClickPropagation(btn);
 
-            btn.onclick = function () {
+            btn.onclick = function() {
                 resetMap();
             };
 
@@ -457,7 +472,7 @@
 
         resetControl.addTo(map);
 
-        currentLocation.onAdd = function (map) {
+        currentLocation.onAdd = function(map) {
             const btn = L.DomUtil.create('button', 'leaflet-bar leaflet-control leaflet-control-custom');
             btn.innerHTML = '<i class="fas fa-crosshairs"></i>';
             btn.title = 'Vị trí hiện tại';
@@ -475,9 +490,9 @@
 
             L.DomEvent.disableClickPropagation(btn);
 
-            btn.onclick = function () {
+            btn.onclick = function() {
                 if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(function (position) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
                         const latLng = [position.coords.latitude, position.coords.longitude];
                         map.setView(latLng, 16);
 
@@ -485,12 +500,12 @@
                             map.removeLayer(map._currentLocationMarker);
                         }
                         map._currentLocationMarker = L.marker(latLng, {
-                            icon: redIcon
-                        }).addTo(map)
+                                icon: redIcon
+                            }).addTo(map)
                             .bindPopup("Vị trí hiện tại")
                             .openPopup();
 
-                    }, function () {
+                    }, function() {
                         alert('Không thể lấy vị trí hiện tại.');
                     });
                 } else {
@@ -535,42 +550,72 @@
             return types[typeNumber] || "Không rõ";
         }
 
+        // Lấy ngôn ngữ hiện tại
+        const currentLang = (window.APP_LANG || document.documentElement.lang || navigator.language || 'vi').toLowerCase();
+        const locale = (currentLang.startsWith('vi') || currentLang.startsWith('vn')) ?
+            'vi-VN' :
+            'en-US';
+
+        // Format số chung (area, length, ...)
+        const numberFormatter = new Intl.NumberFormat(locale, {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2
+        });
+
+        function fmtNumber(value) {
+            if (value === null || value === undefined || value === '') return '';
+            const n = Number(value);
+            if (!isFinite(n)) return '';
+            return numberFormatter.format(n);
+        }
+
+        // Format riêng cho giá trị tiền (tỷ đồng)
+        function fmtPrice(value) {
+            if (value === null || value === undefined || value === '') return 'Chưa có giá';
+            const n = Number(value);
+            if (!isFinite(n)) return 'Chưa có giá';
+            return numberFormatter.format(n);
+        }
+
         function createMarker(loc) {
             const marker = L.marker([loc.lat, loc.lng]);
 
             const detailUrl = loc.link;
             const tourUrl = loc.link_vrtour;
 
-            const districtText = Array.isArray(loc.districts) 
-                ? loc.districts.join(", ") 
-                : loc.district || "Không rõ";
+            const districtText = Array.isArray(loc.districts) ?
+                loc.districts.join(", ") :
+                loc.district || "Không rõ";
 
-            const priceText = (loc.price !== null && loc.price !== undefined) 
-                ? `${loc.price.toLocaleString('vi-VN')}` 
-                : 'Chưa có giá';
+            const priceText = fmtPrice(loc.price);
 
             const imageUrl = `${window.location.origin}${loc.detail_image}`;
 
+            // Xử lý diện tích/chiều dài
+            let areaHtml = '';
+            if (loc.area !== null && loc.area !== undefined && loc.area !== '') {
+                const areaText = fmtNumber(loc.area);
+                if (loc.unit === 'ha') {
+                    areaHtml = `Diện tích: ${areaText} ha`;
+                } else if (loc.unit === 'km') {
+                    areaHtml = `Chiều dài: ${areaText} km`;
+                }
+            }
+
             const popupContent = `
-                <div class='info-box' style="max-width:250px;">
-                    <img src="${imageUrl}" alt="${loc.name}" style="width:100%; height:120px; object-fit:cover; border-radius:6px; margin-bottom:8px;">
-                    <strong>${loc.name}</strong><br>
-                    Loại: ${getTypeName(loc.type_number)}<br>
-                    Khu vực: ${districtText}<br>
-                    Quy mô vốn đầu tư: ${priceText} Tỉ đồng<br>
-                    ${loc.unit === 'ha' 
-                        ? `Diện tích: ${loc.area ? loc.area.toLocaleString('vi-VN') : ''} ha`
-                        : (loc.unit === 'km' 
-                            ? `Chiều dài: ${loc.area ? loc.area.toLocaleString('vi-VN') : ''} km`
-                            : ''
-                        )
-                    }
-                    <div style="margin-top:10px; display:flex; gap:8px; justify-content:flex-end;">
-                        <a href="${tourUrl}" target="_blank" class="btn btn-sm btn-secondary text-white">Tour thực tế ảo</a>
-                        <a href="${detailUrl}" target="_blank" class="btn btn-sm btn-primary text-white">Thông tin</a>
-                    </div>
-                </div>
-            `;
+        <div class='info-box' style="max-width:250px;">
+            <img src="${imageUrl}" alt="${loc.name}" style="width:100%; height:120px; object-fit:cover; border-radius:6px; margin-bottom:8px;">
+            <strong>${loc.name}</strong><br>
+            Loại: ${getTypeName(loc.type_number)}<br>
+            Khu vực: ${districtText}<br>
+            Quy mô vốn đầu tư: ${priceText} tỷ đồng<br>
+            ${areaHtml}
+            <div style="margin-top:10px; display:flex; gap:8px; justify-content:flex-end;">
+                <a href="${tourUrl}" target="_blank" class="btn btn-sm btn-secondary text-white">Tour thực tế ảo</a>
+                <a href="${detailUrl}" target="_blank" class="btn btn-sm btn-primary text-white">Thông tin</a>
+            </div>
+        </div>
+    `;
 
             marker.bindPopup(popupContent);
             return marker;
@@ -682,7 +727,7 @@
                 url: '/map/bounds',
                 method: 'GET',
                 data: params,
-                success: function (data) {
+                success: function(data) {
                     loadMarkers(data, !triggeredByMap);
                     const allIndustrial = [];
                     data.forEach(project => {
@@ -713,7 +758,7 @@
                         currentDistrict = null;
                     }
                 },
-                error: function (err) {
+                error: function(err) {
                     console.error("Lỗi khi tải dữ liệu:", err);
                 }
             });
@@ -802,31 +847,31 @@
             $.ajax({
                 url: '/api/districts',
                 method: 'GET',
-                success: function (res) {
+                success: function(res) {
                     allDistricts = res.sort();
                     allDistrictsLoaded = true;
                 },
-                error: function (err) {
+                error: function(err) {
                     console.error("Lỗi khi tải danh sách quận:", err);
                 }
             });
         }
         // PRICE RANGE
-        $('#priceRange').on("input", function () {
+        $('#priceRange').on("input", function() {
             $('#priceValue').text(parseInt($(this).val()).toLocaleString('vi-VN'));
         });
 
         let priceTimeout = null;
-        $('#priceRange').on("change", function () {
+        $('#priceRange').on("change", function() {
             clearTimeout(priceTimeout);
             priceTimeout = setTimeout(applyFiltersWithBounds, 500);
         });
 
-        $('#priceRangeSp').on("input", function () {
+        $('#priceRangeSp').on("input", function() {
             $('#priceValueSp').text(parseInt($(this).val()).toLocaleString('vi-VN'));
         });
         let priceSpTimeout = null;
-        $('#priceRangeSp').on("change", function () {
+        $('#priceRangeSp').on("change", function() {
             clearTimeout(priceSpTimeout);
             priceSpTimeout = setTimeout(applyFiltersWithBounds, 500);
         });
@@ -857,14 +902,14 @@
             dropdown.show();
         }
 
-        $('#districtFilter').on('input', function () {
+        $('#districtFilter').on('input', function() {
             const keyword = $(this).val().toLowerCase();
             const filtered = allDistricts.filter(d => d.toLowerCase().includes(keyword));
             $('.custom_tabs').addClass('position-custom');
             renderDistrictDropdown(filtered);
         });
 
-        $(document).on('click', '#districtDropdown div', function () {
+        $(document).on('click', '#districtDropdown div', function() {
             const val = $(this).data('value');
             $('#districtFilter').val(val);
             $('#districtDropdown').hide();
@@ -872,21 +917,21 @@
             applyFiltersWithBounds();
         });
 
-        $(document).on('click', function (e) {
+        $(document).on('click', function(e) {
             if (!$(e.target).closest('.pj-search__col').length) {
                 $('#districtDropdown').hide();
                 $('.custom_tabs').removeClass('position-custom');
             }
         });
 
-        $('#districtFilterSp').on('input', function () {
+        $('#districtFilterSp').on('input', function() {
             const keyword = $(this).val().toLowerCase();
             const filtered = allDistricts.filter(d => d.toLowerCase().includes(keyword));
             $('.custom_tabs').addClass('position-custom');
             renderDistrictDropdown(filtered);
         });
 
-        $(document).on('click', '#districtDropdownSp div', function () {
+        $(document).on('click', '#districtDropdownSp div', function() {
             const val = $(this).data('value');
             $('#districtFilterSp').val(val);
             $('#districtDropdownSp').hide();
@@ -894,7 +939,7 @@
             applyFiltersWithBounds();
         });
 
-        $(document).on('click', function (e) {
+        $(document).on('click', function(e) {
             if (!$(e.target).closest('.pj-search__col').length) {
                 $('#districtDropdownSp').hide();
                 $('.custom_tabs').removeClass('position-custom');
@@ -903,17 +948,17 @@
 
         // MAP MOVE
         let mapMoveTimeout = null;
-        map.on('moveend zoomend', function () {
+        map.on('moveend zoomend', function() {
             isMapTriggered = true;
             clearTimeout(mapMoveTimeout);
             mapMoveTimeout = setTimeout(applyFiltersWithBounds, 500);
         });
 
-        map.whenReady(function () {
+        map.whenReady(function() {
             loadAllDistricts(); // tải districts ngay khi map load
             applyFiltersWithBounds(); // tải marker ngay từ đầu
 
-            $('#openDropdown').on('click', function () {
+            $('#openDropdown').on('click', function() {
                 const dropdown = $('#districtDropdown');
                 const customTabs = $('.custom_tabs');
 
@@ -925,7 +970,7 @@
                     customTabs.addClass('position-custom');
                 }
             });
-            $('#openDropdownSp').on('click', function () {
+            $('#openDropdownSp').on('click', function() {
                 const dropdown = $('#districtDropdownSp');
                 const customTabs = $('.custom_tabs');
 
@@ -978,9 +1023,9 @@
         }
     </script>
     <script>
-        $(document).ready(function () {
-            const $miniBox = $("#pjSearchMini");   // cụm bé
-            const $fullBox = $("#pjSearchFull");   // cụm to
+        $(document).ready(function() {
+            const $miniBox = $("#pjSearchMini"); // cụm bé
+            const $fullBox = $("#pjSearchFull"); // cụm to
             const $inputMini = $miniBox.find("input[type=text]"); // input trong cụm bé
 
             let ignoreNextDocClick = false;
@@ -996,7 +1041,7 @@
             }
 
             // Khi focus vào input bé → hiện cụm to
-            $inputMini.on("focus", function () {
+            $inputMini.on("focus", function() {
                 $miniBox.hide();
                 $fullBox.show();
 
@@ -1008,7 +1053,7 @@
             });
 
             // Click ngoài → đóng cụm to, hiện lại cụm bé
-            $(document).on("click", function (e) {
+            $(document).on("click", function(e) {
                 if (ignoreNextDocClick) {
                     ignoreNextDocClick = false;
                     return;
@@ -1029,6 +1074,5 @@
                 $miniBox.show();
             }
         });
-
     </script>
 @endpush
