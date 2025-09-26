@@ -337,6 +337,16 @@
                     </div>
 
                 </div>
+                <div class="d-flex justify-content-end align-items-start align-items-md-center mt-4 mt-lg-5 gap-2 gap-md-4 note">
+                    <div>
+                        <img src="{{asset('images/warning-arrow.svg')}}" style="width:15px;height:15px" alt="">
+                        <div class="d-inline-block ms-2">Đang tiến hành</div>
+                    </div>
+                    <div>
+                        <img src="{{asset('images/success-traces.svg')}}" style="width:15px;height:15px" alt="">
+                        <div class="d-inline-block ms-2">Hoàn thành</div>
+                    </div>
+                </div>
             </div>
         </section>
 
