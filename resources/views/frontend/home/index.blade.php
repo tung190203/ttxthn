@@ -381,8 +381,8 @@
 
         // Toạ độ giới hạn vùng Hà Nội (tương đối chính xác)
         const bounds = L.latLngBounds(
-            [20.8, 105.4], // Góc dưới bên trái (SW)
-            [21.3, 106.0] // Góc trên bên phải (NE)
+            [20.7, 105.3], // Góc dưới bên trái (SW)
+            [21.4, 106.1] // Góc trên bên phải (NE)
         );
 
         // Tạo bản đồ và giới hạn vùng
