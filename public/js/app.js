@@ -248,3 +248,9 @@ $(function () {
   });
 });
 
+$(document).ready(function () {
+  new Swiper('.project-nav-scroll', {
+      slidesPerView: 6,
+      spaceBetween: 10,
+  });
+});
