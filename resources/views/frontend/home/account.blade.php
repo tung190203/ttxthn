@@ -112,18 +112,18 @@
                         </div>
                     
                         <!-- Các ngành scroll ngang -->
-                        <div class="project-nav-scroll">
-                          <ul class="project-nav__list_custom">
-                            @foreach($industries as $industry)
-                              <li data-tippy-content="{{ $industry['name'] }}">
-                                <a class="{{ request('industry') == $industry['id'] ? 'active' : '' }}"
-                                   href="{{ route('account', ['industry' => $industry['id'], 'keyword' => request('keyword')]) }}#project-interest">
-                                  {{ $industry['name'] }}
-                                </a>
-                              </li>
-                            @endforeach
-                          </ul>
-                        </div>
+                        <div class="project-nav-scroll swiper-container">
+                            <ul class="project-nav__list_custom swiper-wrapper">
+                              @foreach($industries as $industry)
+                                <li class="swiper-slide" data-tippy-content="{{ $industry['name'] }}">
+                                  <a class="{{ request('industry') == $industry['id'] ? 'active' : '' }}"
+                                     href="{{ route('home_page', ['industry' => $industry['id']]) }}#investment-section">
+                                    {{ $industry['name'] }}
+                                  </a>
+                                </li>
+                              @endforeach
+                            </ul>
+                          </div>
                     </div>
                     
 

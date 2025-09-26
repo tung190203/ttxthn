@@ -167,10 +167,10 @@
                 </div>
           
                 <!-- Các ngành scroll ngang -->
-                <div class="project-nav-scroll">
-                  <ul class="project-nav__list_custom">
+                <div class="project-nav-scroll swiper-container">
+                  <ul class="project-nav__list_custom swiper-wrapper">
                     @foreach($industries as $industry)
-                      <li data-tippy-content="{{ $industry['name'] }}">
+                      <li class="swiper-slide" data-tippy-content="{{ $industry['name'] }}">
                         <a class="{{ request('industry') == $industry['id'] ? 'active' : '' }}"
                            href="{{ route('home_page', ['industry' => $industry['id']]) }}#investment-section">
                           {{ $industry['name'] }}
@@ -381,8 +381,8 @@
 
         // Toạ độ giới hạn vùng Hà Nội (tương đối chính xác)
         const bounds = L.latLngBounds(
-            [20.8, 105.4], // Góc dưới bên trái (SW)
-            [21.3, 106.0] // Góc trên bên phải (NE)
+            [20.7, 105.3], // Góc dưới bên trái (SW)
+            [21.4, 106.1] // Góc trên bên phải (NE)
         );
 
         // Tạo bản đồ và giới hạn vùng
