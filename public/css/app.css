@@ -20593,7 +20593,7 @@ a.ratio {
     -webkit-box-align: center;
     -ms-flex-align: center;
     align-items: center;
-    color: #666;
+    color: white;
     font-size: 18px;
     border-radius: 50%;
     -webkit-transition: .3s ease-out;
@@ -20633,8 +20633,15 @@ a.ratio {
 }
 
 .menu-root>.menu-item>.menu-link {
-    font-weight: 700;
-    text-transform: uppercase
+    font-weight: 400;
+    text-transform: uppercase;
+    color: white;
+}
+
+.menu-root>.menu-item>.menu-link.active {
+    background-color: #2a84d0;
+    color: #fff;
+    font-weight: 700
 }
 
 @media (min-width:1200px) {
@@ -21422,7 +21429,11 @@ a.ratio {
     -ms-flex-align: center;
     align-items: center;
     padding: 0 15px;
-    width: 100%
+    width: 100%;
+    background-color: #3A72B5;
+    background: url("/images/header-bg.png") no-repeat center center;
+    background-size: calc(100% + 30px) 200px;
+    height: 75px;
 }
 
 .navbar__title {
@@ -21452,7 +21463,8 @@ a.ratio {
     -ms-flex-positive: 1;
     flex-grow: 1;
     overflow-x: hidden;
-    overflow-y: auto
+    overflow-y: auto;
+    background-color: #2250A0;
 }
 
 .navbar__backdrop {
@@ -22196,6 +22208,11 @@ a.ratio {
     margin: 0;
     -webkit-transition: .2s;
     transition: .2s
+}
+
+.navbar__logo {
+    position: absolute;
+    left:-11px;
 }
 
 .header__logo img,

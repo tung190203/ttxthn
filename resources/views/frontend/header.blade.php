@@ -22,10 +22,10 @@ $countAllProject = App\Models\Project::where('is_invest', 0)->count();
                         <div class="navbar__backdrop js-navbar-toggle"></div>
                         <div class="navbar__wrapper">
                             <div class="navbar__header">
-                                <a class="navbar__logo" href="./index.html">
+                                <a class="navbar__logo" href="{{ route('home_page') }}">
                                     <img src="{{$setting['logo']}}" alt=""/>
                                 </a>
-                                <button class="btn-toggle js-navbar-toggle ms-auto"></button>
+                                <button class="btn-toggle js-navbar-toggle ms-auto text-white"></button>
                             </div>
                             <div class="navbar__body">
                                 <ul class="menu menu-root">
