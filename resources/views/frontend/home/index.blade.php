@@ -333,7 +333,7 @@
                 </nav>
             </div>
         </section>
-        <section class="section section--medium-blue">
+        {{-- <section class="section section--medium-blue">
             <div class="container">
                 <h2 class="section__title text-white">Liên kết</h2>
                 @if (!empty($setting['banners']))
@@ -349,7 +349,30 @@
                 @endif
 
             </div>
+        </section> --}}
+        <section class="section section--medium-blue">
+            <div class="container">
+                <h2 class="section__title text-white">Liên kết</h2>
+                @if (!empty($setting['banners']))
+                    <div class="partners-slider">
+                        <div class="partners-slider__container swiper-container">
+                            <div class="swiper-wrapper">
+                                @foreach ($setting['banners'] as $banner)
+                                    <div class="swiper-slide">
+                                        <div class="partners__item">
+                                            <a href="{{ $banner['link'] ?? '#' }}" target="_blank">
+                                                <img src="{{ $banner['image'] ?? '' }}" alt="" />
+                                            </a>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                @endif
+            </div>
         </section>
+        
         <div class="modal fade" id="filterResultModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content">
