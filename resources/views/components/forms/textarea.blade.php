@@ -44,7 +44,8 @@
                     <script>
                         CKEDITOR.replace("{{ $inputId }}", {
                             extraPlugins: 'CustomImage,html5video',
-                            removeButtons: 'Image'
+                            removeButtons: 'Image',
+                            allowedContent: true,
                         });
                         CKEDITOR.on('dialogDefinition', function(ev) {
                             if (ev.data.name === 'html5video') {
@@ -110,7 +111,8 @@
             if (useEditor && typeof CKEDITOR !== 'undefined') {
                 CKEDITOR.replace(id, {
                     extraPlugins: 'CustomImage,html5video',
-                    removeButtons: 'Image'
+                    removeButtons: 'Image',
+                    allowedContent: true
                 });
                 CKEDITOR.on('dialogDefinition', function(ev) {
                     if (ev.data.name === 'html5video') {
