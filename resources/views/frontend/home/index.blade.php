@@ -577,8 +577,54 @@
             return numberFormatter.format(n);
         }
 
+        function createDropIcon(bgColor = "#2a84d0", imgUrl = "") {
+            return L.divIcon({
+                className: "custom-drop-marker",
+                html: `
+                    <svg width="32" height="46" viewBox="0 0 32 46" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Hình giọt nước -->
+                        <path d="M16 0C7.2 0 0 7.5 0 16.7C0 28.3 16 46 16 46C16 46 32 28.3 32 16.7C32 7.5 24.8 0 16 0Z" fill="${bgColor}" />
+                        <!-- Vòng trắng bên trong -->
+                        <circle cx="16" cy="17" r="10" fill="white" />
+                        <!-- Ảnh chèn vào -->
+                        <image href="${imgUrl}" x="9" y="10" height="14" width="14" preserveAspectRatio="xMidYMid meet"/>
+                    </svg>
+                `,
+                iconAnchor: [16, 46],
+                popupAnchor: [0, -46]
+            });
+        }
+
         function createMarker(loc) {
-            const marker = L.marker([loc.lat, loc.lng]);
+            const industryStyles = {
+                1: { color: "#2a84d0", icon: "/images/custom-icon-map/bridge.png" },
+                2: { color: "#2a84d0", icon: "/images/custom-icon-map/anchor.png" },
+                3: { color: "#2a84d0", icon: "/images/custom-icon-map/enviroment.png" },
+                4: { color: "#2a84d0", icon: "/images/custom-icon-map/cityscape.png" },
+                5: { color: "#2a84d0", icon: "/images/custom-icon-map/finance.png" },
+                6: { color: "#2a84d0", icon: "/images/custom-icon-map/industrial.png" },
+                7: { color: "#2a84d0", icon: "/images/custom-icon-map/train.png" },
+                8: { color: "#2a84d0", icon: "/images/custom-icon-map/tourism.png" },
+                9: { color: "#2a84d0", icon: "/images/custom-icon-map/planting.png" },
+                10: { color: "#2a84d0", icon: "/images/custom-icon-map/technology.png" },
+                11: { color: "#2a84d0", icon: "/images/custom-icon-map/education.png" },
+                12: { color: "#2a84d0", icon: "/images/custom-icon-map/bus.png" },
+            };
+
+            const style = industryStyles[loc.industry_number];
+
+            let marker;
+            if (style) {
+                // Nếu is_invest = 0 → đổi sang màu đỏ
+                const markerColor = (loc.is_invest === 0) ? "#d9534f" : style.color;
+
+                marker = L.marker([loc.lat, loc.lng], {
+                    icon: createDropIcon(markerColor, style.icon)
+                });
+            } else {
+                // fallback mặc định
+                marker = L.marker([loc.lat, loc.lng]);
+            }
 
             const detailUrl = loc.link;
             const tourUrl = loc.link_vrtour;
