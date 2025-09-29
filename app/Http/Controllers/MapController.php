@@ -92,6 +92,7 @@ class MapController extends Controller
                 'price' => $project->price,
                 'link' => $project->link,
                 'link_vrtour' => $project->link_vrtour,
+                'is_invest' => $project->is_invest,
                 'banner_image' => $project->banner_image,
                 'detail_image' => $project->detail_image,
                 'districts' => $project->districts->pluck('name')->toArray(),
