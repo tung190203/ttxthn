@@ -566,8 +566,8 @@
 
         function getTypeName(typeNumber) {
             const types = {
-                1: "PPP",
-                2: "NNS",
+                1: "Đối tác công tư (PPP)",
+                2: "Vốn ngoài ngân sách (NNS)",
                 3: "Đầu tư công"
             };
             return types[typeNumber] || "Không rõ";
@@ -639,7 +639,7 @@
             let marker;
             if (style) {
                 // Nếu is_invest = 0 → đổi sang màu đỏ
-                const markerColor = (loc.is_invest === 0) ? "#d9534f" : style.color;
+                const markerColor = (loc.is_invest === 1) ? "#d9534f" : style.color;
 
                 marker = L.marker([loc.lat, loc.lng], {
                     icon: createDropIcon(markerColor, style.icon)
