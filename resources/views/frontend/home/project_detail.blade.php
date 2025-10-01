@@ -286,11 +286,11 @@
                     <!-- Bước 1 -->
                     <div class="col-12 col-lg-3 d-flex">
                         <div class="step-card flex-fill d-flex flex-column align-items-center p-4 rounded">
-                                <img src="{{ asset(optional($project->plan)->image1 ?: 'images/investor-bg.png') }}" alt="">
+                                <img src="{{asset('images/search-icon.png')}}" alt="">
                             <h5 class="fw-bold text-uppercase mb-3 text-center">
                                 {{ optional($project->plan)->title1 ?? '' }}
                             </h5>
-                            <ul class="list-unstyled text-center flex-fill">
+                            <ul class="list-unstyled flex-fill">
                                 {!! optional($project->plan)->content1 ?? '' !!}
                             </ul>
                         </div>
@@ -306,11 +306,11 @@
                     <!-- Bước 2 -->
                     <div class="col-12 col-lg-3 d-flex">
                         <div class="step-card flex-fill d-flex flex-column align-items-center p-4 rounded">
-                                <img src="{{ asset(optional($project->plan)->image2 ?: 'images/investor-bg.png') }}" alt="">
+                                <img src="{{asset('images/partner-icon.png')}}" alt="">
                             <h5 class="fw-bold text-uppercase mb-3 text-center">
                                 {{ optional($project->plan)->title2 ?? '' }}
                             </h5>
-                            <ul class="list-unstyled text-center flex-fill">
+                            <ul class="list-unstyled flex-fill">
                                 {!! optional($project->plan)->content2 ?? '' !!}
                             </ul>
                         </div>
@@ -326,11 +326,11 @@
                     <!-- Bước 3 -->
                     <div class="col-12 col-lg-3 d-flex">
                         <div class="step-card flex-fill d-flex flex-column align-items-center p-4 rounded">
-                                <img src="{{ asset(optional($project->plan)->image3 ?: 'images/investor-bg.png') }}" alt="">
+                                <img src="{{asset('images/analytic-icon.png')}}" alt="">
                             <h5 class="fw-bold text-uppercase mb-3 text-center">
                                 {{ optional($project->plan)->title3 ?? '' }}
                             </h5>
-                            <ul class="list-unstyled text-center flex-fill">
+                            <ul class="list-unstyled flex-fill">
                                 {!! optional($project->plan)->content3 ?? '' !!}
                             </ul>
                         </div>
