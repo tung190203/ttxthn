@@ -319,7 +319,7 @@
                         toastr["success"](response.message,'Success');
                         if (type != '0') {
                             $('.skin_div').each(function(key, value){
-                                if ($(value).data('id') == option) {
+                                if ($(value).data('id') == type) {
                                     $('.skin_div').hide();
                                     $(value).show();
                                 }
