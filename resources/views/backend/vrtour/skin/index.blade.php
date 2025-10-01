@@ -46,7 +46,6 @@
                             </div>
                             <div class="col-md-4 text-left">
                                 <div class="form-group">
-                                    <button type="button" class="btn btn-primary btn-sm" id="btn_search_tour">Lấy dữ liệu</button>
                                     <button type="button" class="btn btn-sm fw-bold btn-primary btn-info" id="update_all" role="button">
                                         <i class="fa fa-save" aria-hidden="true"></i> Cập nhật
                                     </button>
@@ -59,7 +58,7 @@
             <div class="row">
                 <div class="col-12 skin_div" id="skin_screen" data-id="1">
                     <div class="card">
-                        <form action="" method="GET" class="form-horizontal">
+                        <form action="" method="GET" class="form-horizontal" id="skin_screenForm">
                             <div class="card-body table-responsive p-4">
                                 <div class="row">
                                     <div class="col-6">
@@ -210,6 +209,7 @@
 @section('script')
     <script>
         $('.skin_div').hide();
+        $('#update_all').hide();
         $('#skin_investor #investor_status').bootstrapSwitch();
         $('#skin_screen #investor').bootstrapSwitch();
         $('#skin_plan #status').bootstrapSwitch();
@@ -222,25 +222,11 @@
             return html;
         }
 
-        $(document).on('change', '#slt_vrtour_type', function(){
-            var option = $(this).val();
-            if (option != '0') {
-                $('.skin_div').each(function(key, value){
-                    if ($(value).data('id') == option) {
-                        $('.skin_div').hide();
-                        $(value).show();
-                    }
-                });
-            } else {
-                $('.skin_div').show();
-            }
-        });
-
         $.ajaxSetup({
             headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
         });
 
-        $('#btn_search_tour').on('click', function() {
+        function fetch_data() {
             var vrtour  = $('#slt_vrtour').val();
             var type    = $('#slt_vrtour_type').val();
             if (vrtour != 'all') {
@@ -248,76 +234,69 @@
                     url: assetUrl+'vrtour/skin/get-data/'+vrtour+'/'+type,
                     type: "GET",
                     success: function(response) {
+                        $('#update_all').show();
                         //connectmap
                         var connect_map = response.data.connect_map;
-                        if (connect_map != null) {
-                            $('#skin_connectmap #connectmap_id').val(connect_map['id']);
-                            $('#skin_connectmap #image_input').val(connect_map['image']);
-                            $('#skin_connectmap #image_en_input').val(connect_map['image_en']);
-                            CKEDITOR.instances['content'].setData(connect_map['content']);
-                            CKEDITOR.instances['content_en'].setData(connect_map['content_en']);
-                        }
+                        $('#skin_connectmap #connectmap_id').val(connect_map != null ? connect_map['id'] : '');
+                        $('#skin_connectmap #image_input').val(connect_map != null ? connect_map['image'] : '');
+                        $('#skin_connectmap #image_en_input').val(connect_map != null ? connect_map['image_en'] : '');
+                        CKEDITOR.instances['content'].setData(connect_map != null ? connect_map['content'] : '');
+                        CKEDITOR.instances['content_en'].setData(connect_map != null ? connect_map['content_en'] : '');
                         
                         //location in tour
                         $('#skin_locationtour #location_in_tour').val(response.data.location);
 
                         //investor
                         var investor = response.data.investor;
-                        if (investor != null) {
-                            $('#skin_investor #investor_id').val(investor['id']);
-                            $('#skin_investor #name').val(investor['name']);
-                            $('#skin_investor #name_en').val(investor['name_en']);
-                            $('#skin_investor #ivt_image_input').val(investor['image']);
-                            CKEDITOR.instances['content1'].setData(investor['content1']);
-                            CKEDITOR.instances['content1_en'].setData(investor['content1_en']);
-                            CKEDITOR.instances['content2'].setData(investor['content2']);
-                            CKEDITOR.instances['content2_en'].setData(investor['content2_en']);
-                            CKEDITOR.instances['content3'].setData(investor['content3']);
-                            CKEDITOR.instances['content3_en'].setData(investor['content3_en']);
-                            $('#skin_investor #website').val(investor['website']);
-                            $('#skin_investor #sologan').val(investor['sologan']);
-                            $('#skin_investor #sologan_en').val(investor['sologan_en']);
-                            $('#skin_investor #investor_status').bootstrapSwitch('state', investor['status'] == 1 ? true : false);
-                        }
+                        $('#skin_investor #investor_id').val(investor != null ? investor['id'] : '');
+                        $('#skin_investor #name').val(investor != null ? investor['name'] : '');
+                        $('#skin_investor #name_en').val(investor != null ? investor['name_en'] : '');
+                        $('#skin_investor #ivt_image_input').val(investor != null ? investor['image'] : '');
+                        CKEDITOR.instances['content1'].setData(investor != null ? investor['content1'] : '');
+                        CKEDITOR.instances['content1_en'].setData(investor != null ? investor['content1_en'] : '');
+                        CKEDITOR.instances['content2'].setData(investor != null ? investor['content2'] : '');
+                        CKEDITOR.instances['content2_en'].setData(investor != null ? investor['content2_en'] : '');
+                        CKEDITOR.instances['content3'].setData(investor != null ? investor['content3'] : '');
+                        CKEDITOR.instances['content3_en'].setData(investor != null ? investor['content3_en'] : '');
+                        $('#skin_investor #website').val(investor != null ? investor['website'] : '');
+                        $('#skin_investor #sologan').val(investor != null ? investor['sologan'] : '');
+                        $('#skin_investor #sologan_en').val(investor != null ? investor['sologan_en'] : '');
+                        $('#skin_investor #investor_status').bootstrapSwitch('state', investor != null ? (investor['status'] == 1 ? true : false) : false);
                         
                         //welcome
                         var screen = response.data.screen;
-                        if (screen != null) {
-                            $('#skin_screen #wlscreen_id').val(screen['id']);
-                            $('#skin_screen #title').val(screen['title']);
-                            CKEDITOR.instances['description'].setData(screen['description']);
-                            $('#skin_screen #voice_input').val(screen['voice']);
-                            $('#skin_screen #investor').bootstrapSwitch('state', screen['show_investor'] == 1 ? true : false);
-                            $('#skin_screen #investor_image_input').val(screen['investor_img']);
-                            $('#skin_screen #investor_des1').val(screen['investor_desc1']);
-                            $('#skin_screen #investor_des2').val(screen['investor_desc2']);
-                            $('#skin_screen #investor_des3').val(screen['investor_desc3']);
-                        }
+                        $('#skin_screen #wlscreen_id').val(screen != null ? screen['id'] : '');
+                        $('#skin_screen #title').val(screen != null ? screen['title'] : '');
+                        CKEDITOR.instances['description'].setData(screen != null ? screen['description'] : '');
+                        $('#skin_screen #voice_input').val(screen != null ? screen['voice'] : '');
+                        $('#skin_screen #investor').bootstrapSwitch('state', screen != null ? (screen['show_investor'] == 1 ? true : false) : false);
+                        $('#skin_screen #investor_image_input').val(screen != null ? screen['investor_img'] : '');
+                        $('#skin_screen #investor_des1').val(screen != null ? screen['investor_desc1'] : '');
+                        $('#skin_screen #investor_des2').val(screen != null ? screen['investor_desc2'] : '');
+                        $('#skin_screen #investor_des3').val(screen != null ? screen['investor_desc3'] : '');
 
                         //plan
                         var plan = response.data.plan;
-                        if (plan != null) {
-                            $('#skin_plan #plan_id').val(plan['id']);
-                            $('#skin_plan #status').bootstrapSwitch('state', plan['show'] == 1 ? true : false);
+                        $('#skin_plan #plan_id').val(plan != null ? plan['id'] : '');
+                        $('#skin_plan #status').bootstrapSwitch('state', plan != null ? (plan['show'] == 1 ? true : false) : false);
 
-                            $('#skin_plan #image1_input').val(plan['image1']);
-                            $('#skin_plan #title1').val(plan['title1']);
-                            $('#skin_plan #title1_en').val(plan['title1_en']);
-                            CKEDITOR.instances['pcontent1'].setData(plan['content1']);
-                            CKEDITOR.instances['pcontent1_en'].setData(plan['content1_en']);
+                        $('#skin_plan #image1_input').val(plan != null ? plan['image1'] : '');
+                        $('#skin_plan #title1').val(plan != null ? plan['title1'] : '');
+                        $('#skin_plan #title1_en').val(plan != null ? plan['title1_en'] : '');
+                        CKEDITOR.instances['pcontent1'].setData(plan != null ? plan['content1'] : '');
+                        CKEDITOR.instances['pcontent1_en'].setData(plan != null ? plan['content1_en'] : '');
 
-                            $('#skin_plan #image2_input').val(plan['image2']);
-                            $('#skin_plan #title2').val(plan['title2']);
-                            $('#skin_plan #title2_en').val(plan['title2_en']);
-                            CKEDITOR.instances['pcontent2'].setData(plan['content2']);
-                            CKEDITOR.instances['pcontent2_en'].setData(plan['content2_en']);
+                        $('#skin_plan #image2_input').val(plan != null ? plan['image2'] : '');
+                        $('#skin_plan #title2').val(plan != null ? plan['title2'] : '');
+                        $('#skin_plan #title2_en').val(plan != null ? plan['title2_en'] : '');
+                        CKEDITOR.instances['pcontent2'].setData(plan != null ? plan['content2'] : '');
+                        CKEDITOR.instances['pcontent2_en'].setData(plan != null ? plan['content2_en'] : '');
 
-                            $('#skin_plan #image3_input').val(plan['image3']);
-                            $('#skin_plan #title3').val(plan['title3']);
-                            $('#skin_plan #title3_en').val(plan['title3_en']);
-                            CKEDITOR.instances['pcontent3'].setData(plan['content3']);
-                            CKEDITOR.instances['pcontent3_en'].setData(plan['content3_en']);
-                        }
+                        $('#skin_plan #image3_input').val(plan != null ? plan['image3'] : '');
+                        $('#skin_plan #title3').val(plan != null ? plan['title3'] : '');
+                        $('#skin_plan #title3_en').val(plan != null ? plan['title3_en'] : '');
+                        CKEDITOR.instances['pcontent3'].setData(plan != null ? plan['content3'] : '');
+                        CKEDITOR.instances['pcontent3_en'].setData(plan != null ? plan['content3_en'] : '');
 
                         //document
                         var document    = response.data.document;
@@ -333,18 +312,40 @@
                                 $('#multiple_document .row_detail #document_name_en-'+(_key+1)).val(_value['name_en']);
                                 $('#multiple_document .row_detail #download-'+(_key+1)+'_input').val(_value['download']);
                             });
+                        } else {
+                            $('#multiple_document').html('');
                         }
                     
                         toastr["success"](response.message,'Success');
-                        $('#slt_vrtour_type').val(type).change();
+                        if (type != '0') {
+                            $('.skin_div').each(function(key, value){
+                                if ($(value).data('id') == option) {
+                                    $('.skin_div').hide();
+                                    $(value).show();
+                                }
+                            });
+                        } else {
+                            $('.skin_div').show();
+                        }
                     },
                     error: function(response) {
+                        $('#update_all').hide();
                         toastr["error"](response.message,'Error')
                     }
                 });
             } else {
+                $('#update_all').hide();
+                $('.skin_div').hide();
                 toastr["error"]('Vui lòng chọn dự án','Error')
             }
+        }
+
+        $(document).on('change', '#slt_vrtour_type', function(){
+            fetch_data();
+        });
+
+        $(document).on('change', '#slt_vrtour', function(){
+            fetch_data();
         });
 
         $(document).on('click', '#update_all', function(){
@@ -435,7 +436,7 @@
                     toastr["success"](response.message,'Success');
                 },
                 error: function(xhr, status, error) {
-                    toastr["error"]('Vui lòng chọn dự án','Error')
+                    toastr["error"]('Có lỗi xảy ra! Vui lòng thử lại','Error')
                 }
             });
         });
