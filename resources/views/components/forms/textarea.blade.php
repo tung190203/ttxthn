@@ -43,9 +43,16 @@
                 @if ($editor)
                     <script>
                         CKEDITOR.replace("{{ $inputId }}", {
-                            extraPlugins: 'CustomImage,html5video',
+                            extraPlugins: 'CustomImage,html5video,iconbuttons',
                             removeButtons: 'Image',
                             allowedContent: true,
+                            removePlugins: 'pastefilter', // Tắt filter khi paste
+                            pasteFilter: null, // Không filter gì cả
+                            forcePasteAsPlainText: false, // Không ép paste dưới dạng plain text
+
+                            // Hoặc cấu hình chi tiết hơn:
+                            pasteFromWordRemoveFontStyles: false,
+                            pasteFromWordRemoveStyles: false,
                         });
                         CKEDITOR.on('dialogDefinition', function(ev) {
                             if (ev.data.name === 'html5video') {
@@ -110,9 +117,16 @@
 
             if (useEditor && typeof CKEDITOR !== 'undefined') {
                 CKEDITOR.replace(id, {
-                    extraPlugins: 'CustomImage,html5video',
+                    extraPlugins: 'CustomImage,html5video,iconbuttons',
                     removeButtons: 'Image',
-                    allowedContent: true
+                    allowedContent: true,
+                    removePlugins: 'pastefilter', // Tắt filter khi paste
+                    pasteFilter: null, // Không filter gì cả
+                    forcePasteAsPlainText: false, // Không ép paste dưới dạng plain text
+
+                    // Hoặc cấu hình chi tiết hơn:
+                    pasteFromWordRemoveFontStyles: false,
+                    pasteFromWordRemoveStyles: false,
                 });
                 CKEDITOR.on('dialogDefinition', function(ev) {
                     if (ev.data.name === 'html5video') {
