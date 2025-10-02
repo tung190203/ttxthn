@@ -288,7 +288,8 @@
                         <div class="step-card flex-fill d-flex flex-column align-items-center p-4 rounded">
                                 <img src="{{asset('images/search-icon.png')}}" alt="">
                             <h5 class="fw-bold text-uppercase mb-3 text-center">
-                                {{ optional($project->plan)->title1 ?? '' }}
+                                {{-- {{ optional($project->plan)->title1 ?? '' }} --}}
+                                CHUẨN BỊ DỰ ÁN
                             </h5>
                             <ul class="list-unstyled flex-fill">
                                 {!! optional($project->plan)->content1 ?? '' !!}
@@ -308,7 +309,8 @@
                         <div class="step-card flex-fill d-flex flex-column align-items-center p-4 rounded">
                                 <img src="{{asset('images/partner-icon.png')}}" alt="">
                             <h5 class="fw-bold text-uppercase mb-3 text-center">
-                                {{ optional($project->plan)->title2 ?? '' }}
+                                {{-- {{ optional($project->plan)->title2 ?? '' }} --}}
+                                XÚC TIẾN ĐẦU TƯ
                             </h5>
                             <ul class="list-unstyled flex-fill">
                                 {!! optional($project->plan)->content2 ?? '' !!}
@@ -328,7 +330,8 @@
                         <div class="step-card flex-fill d-flex flex-column align-items-center p-4 rounded">
                                 <img src="{{asset('images/analytic-icon.png')}}" alt="">
                             <h5 class="fw-bold text-uppercase mb-3 text-center">
-                                {{ optional($project->plan)->title3 ?? '' }}
+                                {{-- {{ optional($project->plan)->title3 ?? '' }} --}}
+                                GIÁM SÁT THỰC HIỆN
                             </h5>
                             <ul class="list-unstyled flex-fill">
                                 {!! optional($project->plan)->content3 ?? '' !!}
