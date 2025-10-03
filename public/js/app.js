@@ -174,7 +174,6 @@ $(function () {
 
   $('html, body').on('click', function (e) {
     $('.h-dropdown__menu').fadeOut('fast');
-    $('.search').hide();
   });
 
   $('.js-switch-modal').on('click', function (e) {
@@ -280,7 +279,9 @@ $(function () {
 
 $(document).ready(function () {
   new Swiper('.project-nav-scroll', {
-      slidesPerView: 6,
+      slidesPerView: 'auto', 
       spaceBetween: 10,
+      freeMode: true, 
+      loop: true, 
   });
 });

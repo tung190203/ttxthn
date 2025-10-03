@@ -47,6 +47,7 @@ Route::localized(function () {
         Route::get('/sitemap.xml', [HomeController::class, 'siteMap'])->name('site_map');
         Route::match(['get', 'post'], '/lien-he', [HomeController::class, 'contact'])->name('contact');
         Route::post('/interest', [InterestController::class, 'toggleInterest'])->name('interest');
+        Route::get('/search', [HomeController::class, 'search'])->name('search');
 
         //    Route::post('/subscriber', [HomeController::class, 'subscriber'])->name('subscriber');
         Route::get('/page/{slug}.html', [HomeController::class, 'page'])->where(['slug' => '[a-z0-9\-]+'])->name('page_content');

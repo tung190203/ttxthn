@@ -67,9 +67,9 @@ $countAllProject = App\Models\Project::where('is_invest', 0)->count();
                             </div>
                         </div>
                     </section>
-                    <form class="search">
+                    <form class="search" method="GET" action="{{ route('search') }}">
                         <div class="input-group">
-                            <input class="form-control" type="text" placeholder="Tìm kiếm..." size="1"/>
+                            <input class="form-control" name="keyword" type="text" placeholder="Tìm kiếm..." size="1"/>
                             <button class="input-group-text"><i class="far fa-search"></i></button>
                         </div>
                     </form>
