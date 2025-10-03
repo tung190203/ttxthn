@@ -202,8 +202,8 @@ class HomeController extends Controller
 
         $banners = Widget::getByPosition('HOME_BANNER');
         $list_post_popular = Post::popular(Post::POSTS_TAKE)->where('published_at', '<=', Carbon::now())
-        ->orderBy('published_at', 'desc')
-        ->get();
+            ->orderBy('published_at', 'desc')
+            ->get();
 
         $project = Project::with(['type', 'industry', 'districts', 'plan'])
             ->where('slug', $slug)
@@ -547,6 +547,239 @@ class HomeController extends Controller
         $template = 'email.test';
         $data = ['name' => 'Nguyễn Đức'];
         Util::sendEmail($template, $data, 'Nguyễn Đức Test', 'huuductin1k12@gmail.com');
+    }
+
+    // {
+    //     $setting = Setting::getAllSetting();
+    //     $setting['menu_active'] = 'search';
+    //     $keyword = $request->input('keyword');
+    //     $type = $request->input('type', 'all');
+
+    //     // Nếu đây là yêu cầu AJAX để lấy dữ liệu trang mới (từ JS)
+    //     if ($request->ajax() && $request->filled('ajax_type')) {
+    //         return $this->ajaxSearch($request);
+    //     }
+
+    //     $groupedResults = [];
+    //     $perPage = 6;
+
+    //     if ($request->filled('keyword')) {
+    //         // LẤY RIÊNG từng page param (post_page, project_page, guide_page)
+    //         $postPage = $request->input('post_page', 1);
+    //         $projectPage = $request->input('project_page', 1);
+    //         $guidePage = $request->input('guide_page', 1);
+
+    //         // --- 1. Posts ---
+    //         $posts = Post::with('interests')
+    //             ->where('published_at', '<=', Carbon::now())
+    //             ->where('name', 'like', '%' . $keyword . '%')
+    //             ->orderBy('published_at', 'desc')
+    //             ->paginate($perPage, ['*'], 'post_page', $postPage)
+    //             ->appends(['keyword' => $keyword]);
+
+    //         if ($posts->total() > 0) {
+    //             $posts->through(function ($post) {
+    //                 $item = $post->toArray();
+    //                 $item['type'] = 'post';
+    //                 $item['is_interested'] = $post->interests()->where('guest_id', Auth::guard('guest')->id())->exists();
+    //                 return (object)$item;
+    //             });
+    //             $groupedResults['Bài viết & Tin tức'] = $posts;
+    //         }
+
+    //         // --- 2. Projects ---
+    //         $projects = Project::withRelations()
+    //             ->where('name', 'like', '%' . $keyword . '%')
+    //             ->orderBy('updated_at', 'desc')
+    //             ->paginate($perPage, ['*'], 'project_page', $projectPage)
+    //             ->appends(['keyword' => $keyword]);
+
+    //         if ($projects->total() > 0) {
+    //             $projects->through(function ($project) {
+    //                 $item = $project->toArray();
+    //                 $item['type'] = 'project';
+    //                 $item['districts'] = $project->districts;
+    //                 $item['unit_type_text'] = $project->unit_type_text;
+    //                 $item['is_interested'] = $project->interests()->where('guest_id', Auth::guard('guest')->id())->exists();
+    //                 return (object)$item;
+    //             });
+    //             $groupedResults['Các Dự án Đầu tư'] = $projects;
+    //         }
+
+    //         // --- 3. Investment Guides ---
+    //         $investment_guides = InvestmentGuide::with('interests')
+    //             ->where('published_at', '<=', Carbon::now())
+    //             ->where('name', 'like', '%' . $keyword . '%')
+    //             ->orderBy('published_at', 'desc')
+    //             ->paginate($perPage, ['*'], 'guide_page', $guidePage)
+    //             ->appends(['keyword' => $keyword]);
+
+    //         if ($investment_guides->total() > 0) {
+    //             $investment_guides->through(function ($item) {
+    //                 $data = $item->toArray();
+    //                 $data['type'] = 'guide';
+    //                 $data['is_interested'] = $item->interests()->where('guest_id', Auth::guard('guest')->id())->exists();
+    //                 return (object)$data;
+    //             });
+    //             $groupedResults['Cẩm nang Đầu tư'] = $investment_guides;
+    //         }
+    //     }
+
+    //     $key = $keyword ?? '';
+    //     $list_module_allow_search = [
+    //         'all' => 'Tất cả',
+    //         'post' => 'Bài viết',
+    //         'project' => 'Dự án',
+    //         'guide' => 'Cẩm nang',
+    //     ];
+
+    //     return view('frontend.home.search', compact(
+    //         'groupedResults',
+    //         'key',
+    //         'type',
+    //         'list_module_allow_search',
+    //         'setting'
+    //     ));
+    // }
+
+    public function search(Request $request)
+    {
+        $setting = Setting::getAllSetting();
+        $setting['menu_active'] = 'search';
+        $keyword = $request->input('keyword');
+
+        if ($request->ajax() && $request->filled('ajax_type')) {
+            return $this->ajaxSearch($request);
+        }
+
+        $groupedResults = [];
+        $perPage = 6;
+
+        // --- 1. Posts ---
+        $postPage = $request->input('post_page', 1);
+        $posts = Post::with('interests')
+            ->where('published_at', '<=', Carbon::now())
+            ->when($keyword, function ($query, $keyword) {
+                return $query->where('name', 'like', "%{$keyword}%");
+            })
+            ->orderBy('published_at', 'desc')
+            ->paginate($perPage, ['*'], 'post_page', $postPage)
+            ->appends(['keyword' => $keyword]);
+
+        if ($posts->total() > 0) {
+            $posts->through(function ($post) {
+                $item = $post->toArray();
+                $item['type'] = 'post';
+                $item['is_interested'] = $post->interests()->where('guest_id', Auth::guard('guest')->id())->exists();
+                return (object) $item;
+            });
+            $groupedResults['Tin tức'] = $posts;
+        }
+
+        // --- 2. Projects ---
+        $projectPage = $request->input('project_page', 1);
+        $projects = Project::withRelations()
+            ->when($keyword, function ($query, $keyword) {
+                return $query->where('name', 'like', "%{$keyword}%");
+            })
+            ->orderBy('updated_at', 'desc')
+            ->paginate($perPage, ['*'], 'project_page', $projectPage)
+            ->appends(['keyword' => $keyword]);
+
+        if ($projects->total() > 0) {
+            $projects->through(function ($project) {
+                $item = $project->toArray();
+                $item['type'] = 'project';
+                $item['districts'] = $project->districts;
+                $item['unit_type_text'] = $project->unit_type_text;
+                $item['is_interested'] = $project->interests()->where('guest_id', Auth::guard('guest')->id())->exists();
+                return (object) $item;
+            });
+            $groupedResults['Dự án kêu gọi đầu tư'] = $projects;
+        }
+
+        // --- 3. Investment Guides ---
+        $guidePage = $request->input('guide_page', 1);
+        $investment_guides = InvestmentGuide::with('interests')
+            ->where('published_at', '<=', Carbon::now())
+            ->when($keyword, function ($query, $keyword) {
+                return $query->where('name', 'like', "%{$keyword}%");
+            })
+            ->orderBy('published_at', 'desc')
+            ->paginate($perPage, ['*'], 'guide_page', $guidePage)
+            ->appends(['keyword' => $keyword]);
+
+        if ($investment_guides->total() > 0) {
+            $investment_guides->through(function ($item) {
+                $data = $item->toArray();
+                $data['type'] = 'guide';
+                $data['is_interested'] = $item->interests()->where('guest_id', Auth::guard('guest')->id())->exists();
+                return (object) $data;
+            });
+            $groupedResults['Cẩm nang Đầu tư'] = $investment_guides;
+        }
+
+        $key = $keyword ?? '';
+
+        return view('frontend.home.search', compact(
+            'groupedResults',
+            'key',
+            'setting'
+        ));
+    }
+
+    protected function ajaxSearch(Request $request)
+    {
+        $keyword = $request->input('keyword');
+        $ajax_type = $request->input('ajax_type');
+        $perPage = 6;
+
+        $page = $request->input($ajax_type . '_page', $request->input('page', 1));
+
+        $query = match ($ajax_type) {
+            'post' => Post::with('interests')->where('published_at', '<=', Carbon::now()),
+            'project' => Project::withRelations(),
+            'guide' => InvestmentGuide::with('interests')->where('published_at', '<=', Carbon::now()),
+            default => null,
+        };
+
+        if (!$query) {
+            return response()->json(['html' => ''], 400);
+        }
+
+        $results = $query
+            ->when($keyword, function ($q, $keyword) {
+                return $q->where('name', 'like', "%{$keyword}%");
+            })
+            ->orderBy($ajax_type == 'project' ? 'updated_at' : 'published_at', 'desc')
+            ->paginate($perPage, ['*'], $ajax_type . '_page', $page)
+            ->appends(['keyword' => $keyword]);
+
+        $results->through(function ($item) use ($ajax_type) {
+            $data = $item->toArray();
+            $data['type'] = $ajax_type;
+            $data['is_interested'] = $item->interests()->where('guest_id', Auth::guard('guest')->id())->exists();
+
+            if ($ajax_type === 'project') {
+                $data['districts'] = $item->districts;
+                $data['unit_type_text'] = $item->unit_type_text;
+            }
+            return (object) $data;
+        });
+
+        $html = view('frontend.home.partials.search_results_ajax', [
+            'results' => $results,
+            'type_name' => match ($ajax_type) {
+                'post' => 'Tin tức',
+                'project' => 'Dự án kêu gọi đầu tư',
+                'guide' => 'Cẩm nang Đầu tư',
+                default => 'Kết quả',
+            },
+        ])->render();
+
+        return response()->json([
+            'html' => $html,
+        ]);
     }
 
 }
