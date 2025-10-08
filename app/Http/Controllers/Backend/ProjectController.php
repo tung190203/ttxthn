@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use App\Libs\DataGrid;
 use App\Models\District;
+use App\Models\Group;
 use App\Models\ProjectIndustries;
 use App\Models\ProjectType;
 use Illuminate\Support\Arr;
@@ -248,6 +249,20 @@ class ProjectController extends Controller
                 $project->districts()->detach();
             }
 
+            if( $project->exists && Gate::allows('project/add')) {
+                $user = auth('web')->user();
+                $group = Group::find($user->group_id);
+                $scope_data = data_get($group, 'scope_data', []);
+                $resource = 'project';
+                if( isset($scope_data[$resource]) && is_array($scope_data[$resource]) ) {
+                    if( !in_array($project->id, $scope_data[$resource]) ) {
+                        $scope_data[$resource][] = (string) $project->id;
+                        $group->scope_data = $scope_data;
+                        $group->save();
+                    }
+                }
+            }
+
             return redirect()->route('backend_project_edit', $project)->with('success', 'Cập nhật thông tin thành công');
         } catch (\Exception $e) {
             return redirect()->back()->withErrors(['error' => 'Lỗi khi lưu dữ liệu: ' . $e->getMessage()]);
@@ -263,6 +278,8 @@ class ProjectController extends Controller
 
         $this->project->destroy($id);
         $this->project->districts()->detach($id);
+        $this->removeProjectFromScope($id);
+
         return redirect()->to(route('backend_project'))->with('success', 'Xóa dự án thành công');
     }
 
@@ -284,6 +301,28 @@ class ProjectController extends Controller
 
         $this->project->destroy($ids);
         $this->project->districts()->detach($ids);
+        foreach ($ids as $id) {
+            $this->removeProjectFromScope($id);
+        }
+
         return $this->responseJsonOk();
     }
+
+    protected function removeProjectFromScope($projectId)
+    {
+        $groups = Group::whereJsonContains('scope_data->project', (string)$projectId)->get();
+    
+        foreach ($groups as $group) {
+            $scope = $group->scope_data ?? [];
+            if (isset($scope['project']) && is_array($scope['project'])) {
+                $scope['project'] = array_filter(
+                    $scope['project'],
+                    fn($id) => (string)$id !== (string)$projectId
+                );
+                $scope['project'] = array_values($scope['project']);
+                $group->scope_data = $scope;
+                $group->save();
+            }
+        }
+    }    
 }
