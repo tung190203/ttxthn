@@ -238,6 +238,7 @@ class HomeController extends Controller
             ->whereHas('projects', function ($q) use ($slug) {
                 $q->where('slug', $slug);
             })
+            ->orderByDesc('published_at')
             ->get()
             ->transform(function ($item) use ($guestId) {
                 $item->is_interested = $item->interests()
