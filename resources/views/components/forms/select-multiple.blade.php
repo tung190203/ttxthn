@@ -26,7 +26,7 @@
             <div id="selected-tags-{{ $name }}"
                 class="form-control flex flex-wrap items-center gap-1 px-2 py-2 mb-1"
                 onclick="toggleDropdown_{{ $name }}()"
-                style="min-height: 48px; cursor: pointer; display: flex; align-items: center; justify-content: flex-start;">
+                style="min-height: fit-content; cursor: pointer; display: flex; align-items: center; justify-content: flex-start; gap: 5px">
 
                 @php $hasSelected = false; @endphp
                 @foreach ($options as $key => $value)

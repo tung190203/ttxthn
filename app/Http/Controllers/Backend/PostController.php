@@ -16,6 +16,7 @@ use Illuminate\Support\Str;
 use Symfony\Component\DomCrawler\Crawler;
 use andreskrey\Readability\Readability;
 use andreskrey\Readability\Configuration;
+use App\Models\Group;
 use \GuzzleHttp\Psr7\Uri;
 use \GuzzleHttp\Psr7\UriResolver;
 use Illuminate\Support\Facades\Log;
@@ -48,6 +49,14 @@ class PostController extends Controller
         $filter['status'] = $request->get('status', -1);
         $query = $this->post->with(['category', 'user'])
             ->where('language', $language)
+            ->where(function ($q) {
+                $q->where(function ($sub) {
+                    $sub->where('is_draft', false)
+                        ->whereDoesntHave('draft');
+                })->orWhere(function ($sub) {
+                    $sub->where('is_draft', true);
+                });
+            })
             ->orderBy('id', 'desc');
         if ($filter['name'] !== '') {
             $query->where('name', 'like', '%' . $filter['name'] . '%');
@@ -64,6 +73,12 @@ class PostController extends Controller
                 $query->where('status', $filter['status']);
             }
         }
+        $user = auth('web')->user();
+
+        $scope = $user->getScope('post');
+        if (!empty($scope)) {
+            $query->whereIn('id', $scope);
+        }
 
         $posts = $query->paginate(20);
         $options['categories'] = Category::makeListCategoryForPost(0,'', $filter['cat_id']);
@@ -76,7 +91,28 @@ class PostController extends Controller
 
         $clsDataGrid = new DataGrid();
         $clsDataGrid->setLinkEdit($route_name);
-        $clsDataGrid->addColumnLabel("name", "Name", "width='20%' nowrap");
+        $clsDataGrid->addColumnLabel("name", "Tên dự án", "width='10%' nowrap", 1, '', function ($col, $val, $id, $row) {
+            $html = e($row->name);
+    
+            // Hiển thị nhãn trạng thái
+            if ($row->is_draft) {
+                $html .= " <span class='badge bg-warning'>Bản chỉnh sửa</span>";
+            } elseif ($row->draft) {
+                $html .= " <span class='badge bg-info'>Có bản nháp</span>";
+            }
+    
+            // Hiển thị trạng thái duyệt
+            if ($row->status_approve === 'pending') {
+                if ($row->approval_level == 0) $html .= " <span class='badge bg-secondary'>Chờ duyệt cấp 1</span>";
+                elseif ($row->approval_level == 1) $html .= " <span class='badge bg-primary'>Chờ duyệt cấp 2</span>";
+            } elseif ($row->status_approve === 'approved') {
+                $html .= " <span class='badge bg-success'>Đã duyệt</span>";
+            } elseif ($row->status_approve === 'rejected') {
+                $html .= " <span class='badge bg-danger'>Từ chối</span>";
+            }
+    
+            return $html;
+        });
         $clsDataGrid->addColumnImage("image", "Image", "", "width='10%' nowrap");
         $clsDataGrid->addColumnSelect("status", "Hiển thị", "width='15%'", ["Không", "Có"]);
         $clsDataGrid->addColumnText("priority", "STT", "width='10%'");
@@ -90,8 +126,11 @@ class PostController extends Controller
 
     public function saveDataIndex(Request $request)
     {
-        if (!Gate::allows('post/edit')) {
-            abort(403, self::MESSAGE_UNAUTHORIZED);
+        foreach($request->ids as $id) {
+            $p = Post::find($id);
+            if(!Gate::allows('post/edit', $p)) {
+                abort(403);
+            }
         }
 
         $update = $request->get('update', []);
@@ -103,7 +142,10 @@ class PostController extends Controller
 
     public function edit(Post $post)
     {
-        if (!Gate::allows('post/' . ($post->exists ? 'edit' : 'add'))) {
+        if($post->exists && !Gate::allows('post/edit', $post)) {
+            abort(403, self::MESSAGE_UNAUTHORIZED);
+        }
+        if(!$post->exists && !Gate::allows('post/add')) {
             abort(403, self::MESSAGE_UNAUTHORIZED);
         }
 
@@ -114,57 +156,207 @@ class PostController extends Controller
     }
 
     public function save(Post $post, Request $request)
-    {
-        if (!Gate::allows('post/' . ($post->exists ? 'edit' : 'add'))) {
-            abort(403, self::MESSAGE_UNAUTHORIZED);
-        }
+{
+    $user = auth('web')->user();
 
-        $request->validate([
-            'name' => 'required|string',
-            'slug' => 'nullable|alpha_dash|',//unique:posts,slug,' . $post->id,
-            'description' => 'required|string',
-            'content' => 'required|string',
-            'project_id' => 'nullable|integer',
-            'published_at' => 'nullable|date',
-            'projects' => 'nullable|array',
-            'project.*' => 'integer|exists:projects,id',
-        ]);
+    if ($post->exists && !Gate::allows('post/edit', $post)) {
+        abort(403, self::MESSAGE_UNAUTHORIZED);
+    }
+    if (!$post->exists && !Gate::allows('post/add')) {
+        abort(403, self::MESSAGE_UNAUTHORIZED);
+    }
 
-        $language = App::getLocale();
-        $name = strip_tags($request->get('name'));
-        $slug = strip_tags($request->get('slug'));
-        $post->name = $name;
-        $post->slug = $slug ?: Str::slug($name);
-        $post->description = $request->get('description');
-        $post->content = $request->get('content');
-        $post->project_id = intval($request->get('project_id') ?? null);
-        $post->image = strip_tags($request->get('image'));
-        $post->cat_id = intval($request->get('cat_id'));
-        $post->status = intval($request->get('status'));
-        $post->is_hot = intval($request->get('is_hot'));
-        $post->published_at = $request->get('published_at') ?: date('Y-m-d H:i:s');
+    $validated = $request->validate([
+        'name' => 'required|string',
+        'slug' => 'nullable|alpha_dash', // unique sẽ check thủ công
+        'description' => 'required|string',
+        'content' => 'required|string',
+        'project_id' => 'nullable|integer',
+        'published_at' => 'nullable|date',
+        'projects' => 'nullable|array',
+        'projects.*' => 'integer|exists:projects,id',
+        'image' => 'nullable|string|max:2048',
+        'cat_id' => 'nullable|integer',
+        'status' => 'nullable|integer',
+        'is_hot' => 'nullable|boolean',
+        'meta_title' => 'nullable|string',
+        'meta_keywords' => 'nullable|string',
+        'meta_description' => 'nullable|string',
+    ]);
 
-        $post->meta_title = $request->get('meta_title');
-        $post->meta_keywords = $request->get('meta_keywords');
-        $post->meta_description = $request->get('meta_description');
-
+    try {
+        // 🟩 Tạo mới (bản chính)
         if (!$post->exists) {
-            $post->language = $language;
-        }
+            $post->fill($validated);
+            $post->approval_level = 0;
+            $post->max_approval = 2;
+            $post->is_draft = false;
+            $post->status_approve = 'pending';
+            $post->status = Post::STATUS_INACTIVE;
+            $post->language = App::getLocale();
 
-        try {
+            // Sinh slug unique
+            $slug = Str::slug($post->slug ?: $post->name);
+            $originalSlug = $slug;
+            $counter = 1;
+            while (Post::where('slug', $slug)->exists()) {
+                $slug = $originalSlug . '-' . $counter++;
+            }
+            $post->slug = $slug;
+
             $post->save();
-            if($request->filled('projects')){
+
+            // Đồng bộ project liên quan
+            if ($request->filled('projects')) {
                 $post->projects()->syncWithPivotValues(
-                    $request->input('projects', []),
+                    $request->input('projects'),
                     ['created_at' => now(), 'updated_at' => now()]
                 );
             }
-        } catch (\Exception $ex) {
-            return back()->withInput()->withErrors(['slug' => $ex->getMessage()]);
+
+            if (Gate::allows('post/add')) {
+                $this->addPostToScope($user, $post->id);
+            }
+
+        } else {
+            // 🟦 Super admin merge
+            if ($user->is_super_admin) {
+                $mainPost = $post->parent_id ? Post::find($post->parent_id) : $post;
+
+                $mainPost->fill($validated);
+                $mainPost->approval_level = $mainPost->max_approval;
+                $mainPost->status_approve = 'approved';
+                $mainPost->is_draft = false;
+                $mainPost->parent_id = null;
+                // $mainPost->status = Post::STATUS_ACTIVE;
+
+                // Slug unique (remove -draft)
+                $slug = preg_replace('/-draft$/', '', Str::slug($mainPost->slug ?: $mainPost->name));
+                $originalSlug = $slug;
+                $counter = 1;
+                while (Post::where('slug', $slug)->where('id', '<>', $mainPost->id)->exists()) {
+                    $slug = $originalSlug . '-' . $counter++;
+                }
+                $mainPost->slug = $slug;
+                $mainPost->save();
+
+                // Sync projects
+                if ($request->filled('projects')) {
+                    $mainPost->projects()->sync($request->input('projects'));
+                } else {
+                    $mainPost->projects()->detach();
+                }
+
+                // Xoá nháp
+                $drafts = Post::where('parent_id', $mainPost->id)->get();
+                foreach ($drafts as $draft) {
+                    $this->removePostFromScope($draft->id);
+                    $draft->delete();
+                }
+
+                $post = $mainPost;
+
+            } else {
+                // 🟨 Người dùng thường
+                if ($post->status_approve === 'approved' && !$post->is_draft) {
+                    // Bản chính đã duyệt → tạo bản nháp
+                    $draft = $post->replicate();
+                    $draft->fill($validated);
+                    $draft->is_draft = true;
+                    $draft->status_approve = 'pending';
+                    $draft->approval_level = 0;
+                    $draft->parent_id = $post->id;
+                    $draft->status = Post::STATUS_INACTIVE;
+                    $draft->slug = Str::slug($draft->slug ?: $draft->name) . '-draft';
+                    $draft->save();
+
+                    if ($request->filled('projects')) {
+                        $draft->projects()->sync($request->input('projects'));
+                    }
+
+                    if (Gate::allows('post/add')) {
+                        $this->addPostToScope($user, $draft->id);
+                    }
+
+                    $post = $draft;
+                } else {
+                    // Cập nhật bản hiện tại (chưa duyệt hoặc nháp)
+                    $post->fill($validated);
+                    $post->save();
+
+                    if ($request->filled('projects')) {
+                        $post->projects()->sync($request->input('projects'));
+                    } else {
+                        $post->projects()->detach();
+                    }
+                }
+            }
         }
 
-        return redirect()->route('backend_post_edit', $post)->with('success', 'Cập nhật thành công');
+        return redirect()
+            ->route('backend_post_edit', $post)
+            ->with('success', 'Lưu dữ liệu thành công ' . (
+                $user->is_super_admin ? '(Đã duyệt)' : ($user->is_approve ? '(Chờ duyệt cấp 2)' : '')
+            ));
+
+    } catch (\Exception $e) {
+        return redirect()->back()->withErrors(['error' => 'Lỗi khi lưu dữ liệu: ' . $e->getMessage()]);
+    }
+}
+
+    public function approve(Post $post)
+    {
+        $user = auth('web')->user();
+
+        if (!($user->is_super_admin || $user->is_approve)) {
+            abort(403, 'Bạn không có quyền duyệt dự án.');
+        }
+    
+        if ($user->is_super_admin) {
+            $post->approval_level = $post->max_approval;
+            $post->status_approve = 'approved';
+            $post->is_draft = false;
+    
+            if ($post->parent_id) {
+                $parent = Post::find($post->parent_id);
+                if ($parent) {
+                    $draftData = $post->toArray();
+                    $this->removePostFromScope($post->id);
+                    $post->delete();
+
+                    $parent->fill($draftData);
+
+                    $parent->parent_id = null;
+                    $parent->is_draft = false;
+                    $parent->status_approve = 'approved';
+                    $parent->approval_level = $parent->max_approval;
+
+                    $slug = Str::slug($parent->name);
+                    $originalSlug = $slug;
+                    $counter = 1;
+                    while (Post::where('slug', $slug)->where('id', '<>', $parent->id)->exists()) {
+                        $slug = $originalSlug . '-' . $counter;
+                        $counter++;
+                    }
+                    $parent->slug = $slug;
+
+                    $parent->save();
+
+                    $post = $parent;
+                }
+            }
+        } elseif ($user->is_approve) {
+            if ($post->approval_level < 1) {
+                $post->approval_level = 1;
+                $post->status_approve = 'pending';
+            }
+        }
+    
+        $post->save();
+
+        return redirect()
+            ->route('backend_post_edit', $post->id)
+            ->with('success', 'Duyệt bài viết thành công ' . ($user->is_super_admin ? '(Đã duyệt)' : '(Chờ duyệt cấp 2)'));
     }
 
     public function clone(Post $post)
@@ -397,6 +589,43 @@ class PostController extends Controller
             new Uri($baseUrl),
             new Uri($relativeUrl)
         );
+    }
+
+    protected function addPostToScope($user, $postId)
+    {
+        $group = Group::find($user->group_id);
+        if (!$group) return;
+
+        $scopeData = $group->scope_data ?? [];
+        $resource = 'post';
+
+        if (!isset($scopeData[$resource]) || !is_array($scopeData[$resource])) {
+            $scopeData[$resource] = [];
+        }
+
+        if (!in_array((string)$postId, $scopeData[$resource])) {
+            $scopeData[$resource][] = (string)$postId;
+            $group->scope_data = $scopeData;
+            $group->save();
+        }
+    }
+
+    protected function removePostFromScope($postId)
+    {
+        $groups = Group::whereJsonContains('scope_data->post', (string)$postId)->get();
+
+        foreach ($groups as $group) {
+            $scope = $group->scope_data ?? [];
+            if (isset($scope['post']) && is_array($scope['post'])) {
+                $scope['post'] = array_filter(
+                    $scope['post'],
+                    fn($id) => (string)$id !== (string)$postId
+                );
+                $scope['post'] = array_values($scope['post']);
+                $group->scope_data = $scope;
+                $group->save();
+            }
+        }
     }
 }
 

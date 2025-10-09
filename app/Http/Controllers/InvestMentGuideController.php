@@ -14,8 +14,8 @@ class InvestMentGuideController extends Controller
 {
     public function detail(Request $request, $slug, $id)
     {
-        $investment_guide = InvestmentGuide::where('status', InvestmentGuide::STATUS_ACTIVE)
-            ->where('published_at' , '<=', Carbon::now())
+        $investment_guide = InvestmentGuide::
+            where('published_at' , '<=', Carbon::now())
             ->where('language', App::getLocale())
             ->where('id', $id)->firstOrFail();
 
@@ -30,6 +30,7 @@ class InvestMentGuideController extends Controller
         $setting['meta_description'] = ($investment_guide->meta_description) ?: $setting['meta_description'];
         $setting['og_image'] = ($investment_guide->image) ?: ($setting['og_image'] ?? '');
         $list_investment_guide_popular = InvestmentGuide::with('interests')->where('status', InvestmentGuide::STATUS_ACTIVE)
+            ->whereNull('parent_id')
             ->where('published_at', '<=', Carbon::now())
             ->where('language', App::getLocale())
             ->where('id', '<>', $investment_guide->id)

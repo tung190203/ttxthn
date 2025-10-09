@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\InvestmentGuide;
 use App\Models\Nation;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\View;
 use App\Models\Setting;
 use App\Models\Menu;
+use App\Models\Post;
 use App\Models\Project;
 use App\Models\ProjectIndustries;
 
@@ -41,6 +43,8 @@ abstract class Controller
         View::share('nations', Nation::all());
         View::share('project_industries', ProjectIndustries::orderBy('created_at', 'desc')->get());
         View::share('projects', Project::orderBy('created_at', 'desc')->get());
+        View::share('posts', Post::orderBy('created_at', 'desc')->get());
+        View::share('investment_guides', InvestmentGuide::orderBy('created_at', 'desc')->get());
         //End code dự án
 
     }

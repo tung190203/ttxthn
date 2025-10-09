@@ -38,6 +38,46 @@
                                 <x-forms.button-url title="Xóa" class="btn-danger" icon="fa fa-trash"
                                     url="{{ route('backend_post_delete', $post->id) }}" />
                             @endcan
+                            @if(
+                                (auth('web')->user()->is_super_admin || auth('web')->user()->is_approve) &&
+                                $post->status_approve === 'pending'
+                            )
+                                <!-- Button trigger modal -->
+                                <button type="button" class="btn btn-sm fw-bold btn-success" data-toggle="modal" data-target="#approveModal-{{ $post->id }}">
+                                    <i class="fa fa-check" aria-hidden="true"></i> Duyệt
+                                </button>
+
+                                <!-- Modal -->
+                                <div class="modal fade" id="approveModal-{{ $post->id }}" tabindex="-1" aria-labelledby="approveModalLabel-{{ $post->id }}" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-success text-white">
+                                                <h5 class="modal-title" id="approveModalLabel-{{ $post->id }}">
+                                                    Xác nhận duyệt dự án
+                                                </h5>
+                                                <button type="button" class="btn-close btn-close-white" data-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Bạn có chắc chắn muốn duyệt dự án: <strong>{{ $post->name }}</strong>?
+                                                <p class="text-muted mt-2">
+                                                    @if(auth('web')->user()->is_super_admin)
+                                                        Sau khi duyệt, dự án sẽ được cập nhật trạng thái và hiển thị cho người dùng.
+                                                    @elseif(auth('web')->user()->is_approve)
+                                                        Sau khi duyệt thành công, dự án sẽ chờ duyệt lần cuối bởi admin.
+                                                    @endif
+                                                </p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                                                <form action="{{ route('backend_post_approve', $post->id) }}" method="post" class="d-inline">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-success fw-bold">Duyệt dự án</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
                         @endif
                     </div>
                 </div>
@@ -65,8 +105,10 @@
                         <x-forms.upload name="image" value="{{ old('image') ?: $post->image }}" label="Image" type="image"
                             :messages="$errors->get('image')" />
 
+                        @if(auth('web')->user()->is_super_admin)
                         <x-forms.switch name="status" value="{{ $post->status ?? 1 }}" label="Hiển thị"
                             :messages="$errors->get('status')" />
+                        @endif
                         <x-forms.switch name="is_hot" value="{{ $post->is_hot ?? 1 }}" label="Nổi bật"
                             :messages="$errors->get('is_hot')" />
                             <x-forms.input name="published_at" label="Ngày xuất bản" type="date"

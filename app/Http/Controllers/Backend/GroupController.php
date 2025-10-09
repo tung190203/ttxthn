@@ -73,6 +73,8 @@ class GroupController extends Controller
         $group->permission_data = $permission_data;
         $scope_data = [];
         $scope_data['project'] = $request->get('scope_data_project', []);
+        $scope_data['post'] = $request->get('scope_data_post', []);
+        $scope_data['investment_guide'] = $request->get('scope_data_investment_guide', []);
         $group->scope_data = $scope_data;
         $group->save();
 

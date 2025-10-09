@@ -64,6 +64,8 @@
                                         :messages="$errors->get('status')"/>
                         <x-forms.switch name="is_super_admin" value="{{ $user->is_super_admin ?? 1 }}" label="Is Super Admin"
                                         :messages="$errors->get('is_super_admin')"/>
+                        <x-forms.switch name="is_approve" value="{{ $user->is_approve ?? 1 }}" label="Is Approve"
+                                        :messages="$errors->get('is_approve')"/>
 
                         <x-forms.input name="password" value="" label="Password"
                                        :messages="$errors->get('password')" type="password"

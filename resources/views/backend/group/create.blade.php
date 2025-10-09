@@ -62,7 +62,23 @@
                         :selected="$group->scope_data['project'] ?? []"
                         :messages="$errors->get('scope_data.project')"
                         help="Chọn những project mà group này được phép thao tác."
-                    />                    
+                        />   
+                        <x-forms.select-multiple
+                        name="scope_data_post"
+                        label="Posts Scope"
+                        :options="$posts->pluck('name','id')"
+                        :selected="$group->scope_data['post'] ?? []"
+                        :messages="$errors->get('scope_data.post')"
+                        help="Chọn những bài viết mà group này được phép thao tác."
+                        />
+                        <x-forms.select-multiple
+                        name="scope_data_investment_guide"
+                        label="Investment Guide Scope"
+                        :options="$investment_guides->pluck('name','id')"
+                        :selected="$group->scope_data['investment_guide'] ?? []"
+                        :messages="$errors->get('scope_data.investment_guide')"
+                        help="Chọn những cẩm nang đâu tư mà group này được phép thao tác."
+                        />
                         <div class="frm-grid">
                             <div>
                                 <label>Permission Grant</label>

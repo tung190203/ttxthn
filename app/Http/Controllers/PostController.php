@@ -22,6 +22,7 @@ class PostController extends Controller
         $cat_ids[] = (int)$category->id;
 
         $query_post = Post::with(['category', 'interests'])
+            ->whereNull('parent_id')
             ->where('published_at' , '<=', Carbon::now())
             ->where('status', Post::STATUS_ACTIVE)
             ->where('language', $language)
@@ -68,6 +69,7 @@ class PostController extends Controller
         $key = $request->get('key');
 
         $query_post = Post::with('category')
+            ->whereNull('parent_id')
             ->where('published_at' , '<=', Carbon::now())
             ->where('status', Post::STATUS_ACTIVE)
             ->where('language', $language)
@@ -99,8 +101,7 @@ class PostController extends Controller
     public function detail(Request $request, $slug, $id)
     {
         /* @var $post Post */
-        $post = Post::where('status', Post::STATUS_ACTIVE)
-            ->where('language', App::getLocale())
+        $post = Post::where('language', App::getLocale())
             ->where('id', $id)->firstOrFail();
 
         $category = Category::where('id', data_get($post, 'cat_id'))->first();
@@ -114,6 +115,7 @@ class PostController extends Controller
         $setting['meta_description'] = ($post->meta_description) ?: $setting['meta_description'];
         $setting['og_image'] = ($post->image) ?: ($setting['og_image'] ?? '');
         $list_post_popular = Post::with('interests')->where('status', Post::STATUS_ACTIVE)
+            ->whereNull('parent_id')
             ->where('published_at' , '<=', Carbon::now())
             ->where('language', App::getLocale())
             ->where('id', '<>', $post->id)
