@@ -876,14 +876,11 @@
             if (totalPages <= 1) return;
 
             function createPageBtn(label, pageNum, active = false) {
-                const $li = $("<li></li>");
-                li.className = `page-item ${active ? "active" : ""}`;
-                li.innerHTML = `<button class="page-link">${label}</button>`;
-                li.querySelector('button').disabled = active;
+                const $li = $("<li></li>").addClass(`page-item ${active ? "active" : ""}`).html(`<button class="page-link" ${active ? "disabled" : ""}>${label}</button>`);
                 if (!active && pageNum !== null) {
-                    li.addEventListener("click", () => renderList(pageNum));
+                 $li.on("click", () => renderList(pageNum));
                 }
-                pagination.appendChild(li);
+                $("#pagination") .append($li);
             }
 
             // Previous
