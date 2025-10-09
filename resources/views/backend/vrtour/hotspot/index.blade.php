@@ -36,7 +36,7 @@
                             </div>
                             <div class="col-md-3 text-left">
                                 <div class="form-group">
-                                    <button type="button" class="btn btn-primary btn-sm" id="btn_search_tour">Lấy dữ liệu</button>
+                                    <button type="button" class="btn btn-danger btn-sm" id="btn_reset" style="display:none;">Reset</button>
                                 </div>
                             </div>
                         </div>
@@ -85,32 +85,46 @@
         if (getParam("vrtour") != null && getParam("type") != null) {
             $('#slt_vrtour').val(getParam("vrtour")).change();
             $('#slt_vrtour_type').val(getParam("type")).change();
-            renderTable(false);
         }
-        $('#btn_search_tour').on('click', function() {
+
+        $(document).on('click', '#btn_reset', function(){
+            if (confirm("Bạn có chắc chắn muốn reset toàn bộ Hotspot của dự án này không?")) {
+                renderTable(true, true);
+            }
+        });
+
+        $('#slt_vrtour').on('change', function() {
             renderTable();
         });
 
-        function renderTable(notify = true)
+        $('#slt_vrtour_type').on('change', function() {
+            renderTable();
+        });
+
+        function renderTable(notify = true, reset = false)
         {
             var vrtour  = $('#slt_vrtour').val();
             var type    = $('#slt_vrtour_type').val();
             if (vrtour != 'all') {
                 $.ajax({
-                    url: assetUrl+'vrtour/hotspot/get-hotspot/'+vrtour+'?type='+type,
+                    url: assetUrl+'vrtour/hotspot/get-hotspot/'+vrtour+'?type='+type+'&reset='+reset,
                     type: "GET",
                     success: function(response) {
                         $('#dataGrid').html(response.data);
                         if (notify == true) {
                             toastr["success"]('Lấy dữ liệu thành công','Success')
                         }
+                        $('#btn_reset').show();
                     },
                     error: function(xhr, status, error) {
+                         $('#btn_reset').hide();
+                        $('#dataGrid').html('');
                         toastr["error"]('Có lỗi xảy ra ! Vui lòng thử lại','Error')
                     }
                 });
             } else {
-                toastr["error"]('Vui lòng chọn dự án','Error')
+                $('#btn_reset').hide();
+                $('#dataGrid').html('');
             }
         }
     </script>
