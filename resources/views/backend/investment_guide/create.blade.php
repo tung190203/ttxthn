@@ -38,6 +38,46 @@
                                 <x-forms.button-url title="Xóa" class="btn-danger" icon="fa fa-trash"
                                                     url="{{ route('backend_investment_guide_delete', $investment_guide->id) }}"/>
                             @endcan
+                            @if(
+                                (auth('web')->user()->is_super_admin || auth('web')->user()->is_approve) &&
+                                $investment_guide->status_approve === 'pending'
+                            )
+                                <!-- Button trigger modal -->
+                                <button type="button" class="btn btn-sm fw-bold btn-success" data-toggle="modal" data-target="#approveModal-{{ $investment_guide->id }}">
+                                    <i class="fa fa-check" aria-hidden="true"></i> Duyệt
+                                </button>
+
+                                <!-- Modal -->
+                                <div class="modal fade" id="approveModal-{{ $investment_guide->id }}" tabindex="-1" aria-labelledby="approveModalLabel-{{ $investment_guide->id }}" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-success text-white">
+                                                <h5 class="modal-title" id="approveModalLabel-{{ $investment_guide->id }}">
+                                                    Xác nhận duyệt dự án
+                                                </h5>
+                                                <button type="button" class="btn-close btn-close-white" data-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Bạn có chắc chắn muốn duyệt dự án: <strong>{{ $investment_guide->name }}</strong>?
+                                                <p class="text-muted mt-2">
+                                                    @if(auth('web')->user()->is_super_admin)
+                                                        Sau khi duyệt, dự án sẽ được cập nhật trạng thái và hiển thị cho người dùng.
+                                                    @elseif(auth('web')->user()->is_approve)
+                                                        Sau khi duyệt thành công, dự án sẽ chờ duyệt lần cuối bởi admin.
+                                                    @endif
+                                                </p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                                                <form action="{{ route('backend_investment_guide_approve', $investment_guide->id) }}" method="post" class="d-inline">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-success fw-bold">Duyệt dự án</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
                         @endif
                     </div>
                 </div>
@@ -65,8 +105,10 @@
                         <x-forms.upload name="image" value="{{ old('image') ?: $investment_guide->image }}" label="Image"
                                         type="image" :messages="$errors->get('image')"/>
 
+                        @if(auth('web')->user()->is_super_admin)
                         <x-forms.switch name="status" value="{{ $investment_guide->status ?? 1 }}" label="Hiển thị"
-                                        :messages="$errors->get('status')"/>
+                            :messages="$errors->get('status')"/>
+                        @endif
                         <x-forms.switch name="is_hot" value="{{ $investment_guide->is_hot ?? 1 }}" label="Nổi bật"
                                         :messages="$errors->get('is_hot')"/>
                                         <x-forms.input name="published_at" label="Ngày xuất bản" type="date"

@@ -44,7 +44,12 @@ class Project extends Model
         'is_invest',
         'is_pinned',
         'pin_order',
-        'link_sand_table'
+        'link_sand_table',
+        'approval_level',
+        'max_approval',
+        'is_draft',
+        'parent_id',
+        'status',
     ];
 
     const LAYOUTS = [
@@ -96,6 +101,16 @@ class Project extends Model
     public function industrialProjects()
     {
         return $this->hasMany(IndustrialProject::class);
+    }
+
+    public function draft()
+    {
+        return $this->hasOne(Project::class, 'parent_id')->where('is_draft', true);
+    }
+
+    public function parent()
+    {
+        return $this->belongsTo(Project::class, 'parent_id');
     }
 
     public static function makeListProject($selected_id = '')

@@ -6,13 +6,11 @@ use App\Libs\Util;
 use App\Traits\HasGlobalScopes;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Gate;
 
 class InvestmentGuide extends Model
 {
-    use SoftDeletes;
     use HasGlobalScopes;
 
     protected $table = 'investment_guides';
@@ -38,7 +36,12 @@ class InvestmentGuide extends Model
         'language',
         'project_type',
         'project_id',
-        'published_at'
+        'published_at',
+        'approval_level',
+        'max_approval',
+        'is_draft',
+        'parent_id',
+        'status_approve',
     ];
 
     protected $dates = ['created_at', 'updated_at', 'deleted_at', 'published_at'];
@@ -65,6 +68,16 @@ class InvestmentGuide extends Model
 
         static::saved(function ($investment_guide) {
         });
+    }
+
+    public function draft()
+    {
+        return $this->hasOne(InvestmentGuide::class, 'parent_id')->where('is_draft', true);
+    }
+
+    public function parent()
+    {
+        return $this->belongsTo(InvestmentGuide::class, 'parent_id');
     }
 
     public function interests()

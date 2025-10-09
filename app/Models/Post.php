@@ -6,13 +6,11 @@ use App\Libs\Util;
 use App\Traits\HasGlobalScopes;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Gate;
 
 class Post extends Model
 {
-    use SoftDeletes;
     use HasGlobalScopes;
 
     protected $dates = ['created_at', 'updated_at', 'deleted_at', 'published_at'];
@@ -36,7 +34,16 @@ class Post extends Model
         'language',
         'project_type',
         'project_id',
-        'published_at'
+        'published_at',
+        'approval_level',
+        'max_approval',
+        'is_draft',
+        'parent_id',
+        'status_approve',
+    ];
+
+    protected $casts = [
+        'is_draft' => 'boolean',
     ];
 
     const POSTS_PER_PAGE = 9;
@@ -65,6 +72,16 @@ class Post extends Model
         static::saved(function ($post) {
 //            Slug::insertOrUpdateSlug($post->slug, Slug::MODULE['POST'], $post->id);
         });
+    }
+
+    public function draft()
+    {
+        return $this->hasOne(Post::class, 'parent_id')->where('is_draft', true);
+    }
+
+    public function parent()
+    {
+        return $this->belongsTo(Post::class, 'parent_id');
     }
 
     public function interests()

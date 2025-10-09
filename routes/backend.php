@@ -81,6 +81,7 @@ Route::localized(function () {
             Route::get('force-delete/{id}', [PostController::class, 'forceDelete'])->name('backend_post_force_delete');
             Route::get('import', [PostController::class, 'showImportForm'])->name('backend_post_show_import_form');
             Route::post('import', [PostController::class, 'importFromUrl'])->name('backend_post_import');
+            Route::post('approve/{post}', [PostController::class, 'approve'])->name('backend_post_approve');
         });
 
         Route::prefix('investment_guide')->group(function () {
@@ -96,6 +97,7 @@ Route::localized(function () {
             Route::get('force-delete/{id}', [InvestMentGuideController::class, 'forceDelete'])->name('backend_investment_guide_force_delete');
             Route::get('import', [InvestMentGuideController::class, 'showImportForm'])->name('backend_investment_guide_show_import_form');
             Route::post('import', [InvestMentGuideController::class, 'importFromUrl'])->name('backend_investment_guide_import');
+            Route::post('approve/{investment_guide}', [InvestMentGuideController::class, 'approve'])->name('backend_investment_guide_approve');
         });
 
         Route::get('file-manager', [FileManagerController::class, 'index'])->name('backend_file_manager');
@@ -150,6 +152,7 @@ Route::localized(function () {
             Route::post('save/{project?}', [ProjectController::class, 'save'])->name('backend_project_save');
             Route::get('delete/{id}', [ProjectController::class, 'delete'])->name('backend_project_delete');
             Route::post('bulk_delete', [ProjectController::class, 'bulkDelete'])->name('backend_project_bulk_delete');
+            Route::post('/approve/{project}', [ProjectController::class, 'approve'])->name('backend_project_approve');
         });
 
         Route::prefix('vrtour')->group(function () {

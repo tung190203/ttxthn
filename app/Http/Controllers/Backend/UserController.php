@@ -102,6 +102,7 @@ class UserController extends Controller
 
         $user->status = intval($request->get('status'));
         $user->is_super_admin = intval($request->get('is_super_admin'));
+        $user->is_approve = intval($request->get('is_approve'));
         $user->group_id = intval($request->get('group_id'));
 
         $user->save();
