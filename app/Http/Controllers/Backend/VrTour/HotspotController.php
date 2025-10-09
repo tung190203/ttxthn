@@ -10,7 +10,9 @@ use App\Libs\DataGrid;
 use App\Libs\Util;
 use App\Models\Project;
 use App\Models\Hotspot;
+use App\Models\IndustrialProject;
 use Auth;
+use Illuminate\Support\Facades\DB;
 
 class HotspotController extends Controller
 {
@@ -37,42 +39,71 @@ class HotspotController extends Controller
 
     public function getHotspot(Request $request, $vrtour_id)
     {
-        //get tour
-        $vrtour         = Project::find($vrtour_id);
-        $link_vrtour    = $vrtour->link_vrtour;
-        //get hotspot from db
-        $hotspot_db = Hotspot::where('vrtour_id', $vrtour_id)->whereIn('type', $request->type == 0 ? [1,2] : [1,2,3])->get();
-        if (count($hotspot_db) == 0) {
-            $hotspot       = json_decode(getDataVrtour($link_vrtour.'vista3d/hotspot.json'), true);
-            foreach ($hotspot as $hp) {
-                $new_hp             = new Hotspot;
-                $new_hp->vrtour_id  = $vrtour_id;
-                $new_hp->potision   = $hp['position'];
-                $new_hp->url        = $hp['url'];
-                $new_hp->opacity    = $hp['opacity'];
-                $new_hp->tooltip    = (!str_contains($hp['position'], 'cms_eye') && !str_contains($hp['position'], 'cms_fly')) ? $hp['tooltip'] : '';
-                $new_hp->type       = str_contains($hp['position'], 'cms_') ? 1 : (str_contains($hp['position'], 'cmss_') ? 2 : 3);
-                $new_hp->user_id    = Auth::id();
-                $new_hp->save();
+        try {
+            DB::beginTransaction();
+            //get tour
+            $vrtour         = Project::find($vrtour_id);
+            $link_vrtour    = $vrtour->link_vrtour;
+            $media_index    = $vrtour->media_index;
+            //get hotspot from db
+            $hotspot_db = Hotspot::where('vrtour_id', $vrtour_id)->whereIn('type', $request->type == 0 ? [1,2] : [1,2,3])->get();
+            if ($request->reset == 'true') {
+                Hotspot::where('vrtour_id', $vrtour_id)->delete();
             }
-            $hotspot_db = Hotspot::where('vrtour_id', $vrtour_id)->whereIn('type', $request->type == 0 ? [1,2] : [3])->get();
-            createFile('vrtour/'.$vrtour->name, 'hotspot.js');
-            file_put_contents('vrtour/'.$vrtour->name.'/hotspot.js', Hotspot::where('vrtour_id', $vrtour_id)->get());
-        } 
-        $html = '';
-        foreach ($hotspot_db as $key => $hp) {
-            $html .= '<tr>';
-            $html .= '<td>'.(++$key).'</td>';
-            $html .= '<td><img src="'.$hp->url.'" style="width:100px;height:100px;""></td>';
-            $html .= '<td>'.$hp->potision.'</td>';
-            $html .= '<td>'.$hp->tooltip.'</td>';
-            $html .= '<td>'.$hp->opacity.'</td>';
-            $html .= '<td class="grid_row1">';
-            $html .=    '<a class="btn btn-info btn-sm mr-1" href="'.route('backend_vrtour_hotspot_edit', $hp->id).'" title="Chỉnh sửa"><i class="fas fa-pencil-alt"></i></a>';
-            $html .= '</td>';
-            $html .= '</tr>';
+            if (count($hotspot_db) == 0) {
+                $response       = getDataVrtour($link_vrtour.'vista3d/hotspot.json');
+                $hotspot        = json_decode($response['data'], true);
+                $media_index    =  $response['media_index'];
+                $vrtour->media_index = $media_index;
+                $vrtour->save();
+                foreach ($hotspot as $hp) {
+                    $new_hp             = new Hotspot;
+                    $new_hp->vrtour_id  = $vrtour_id;
+                    $new_hp->potision   = $hp['position'];
+                    $new_hp->url        = $hp['url'];
+                    $new_hp->opacity    = $hp['opacity'];
+                    $new_hp->tooltip    = (!str_contains($hp['position'], 'cms_eye') && !str_contains($hp['position'], 'cms_fly')) ? $hp['tooltip'] : '';
+                    $new_hp->type       = str_contains($hp['position'], 'cms_') ? 1 : (str_contains($hp['position'], 'cmss_') ? 2 : 3);
+                    $new_hp->user_id    = Auth::id();
+                    $new_hp->save();
+                }
+                $hotspot_db = Hotspot::where('vrtour_id', $vrtour_id)->whereIn('type', $request->type == 0 ? [1,2] : [3])->get();
+                createFile('vrtour/'.$vrtour->name, 'hotspot.js');
+                file_put_contents('vrtour/'.$vrtour->name.'/hotspot.js', Hotspot::where('vrtour_id', $vrtour_id)->get());
+            }
+            foreach (Hotspot::where('vrtour_id', $vrtour_id)->where('type', 2)->get() as $key => $value) {
+                $indus                  = IndustrialProject::where('project_id', $vrtour_id)->where('code', $value->potision)->first();
+                if ($indus != null) {
+                    $_indus = $indus;
+                } else {
+                    $_indus = new IndustrialProject();
+                }
+                $_indus->project_id      = $vrtour_id;
+                $_indus->name            = $value->tooltip;
+                $_indus->code            = $value->potision;
+                $_indus->link            = $link_vrtour.'vista3d/search.html?search_link='.$link_vrtour.'?media-index='.$media_index.'&hct=HOLDER_SELECT_LANGUAGE_CN2&trigger-overlay-name='.$value->potision.'&focus-overlay-name='.$value->potision.'&skip-loading';
+                $_indus->description     = $value->tooltip;
+                $_indus->save();
+            }
+            $html = '';
+            foreach ($hotspot_db as $key => $hp) {
+                $html .= '<tr>';
+                $html .= '<td>'.(++$key).'</td>';
+                $html .= '<td><img src="'.$hp->url.'" style="width:100px;height:100px;""></td>';
+                $html .= '<td>'.$hp->potision.'</td>';
+                $html .= '<td>'.$hp->tooltip.'</td>';
+                $html .= '<td>'.$hp->opacity.'</td>';
+                $html .= '<td class="grid_row1">';
+                $html .=    '<a class="btn btn-info btn-sm mr-1" href="'.route('backend_vrtour_hotspot_edit', $hp->id).'" title="Chỉnh sửa"><i class="fas fa-pencil-alt"></i></a>';
+                $html .= '</td>';
+                $html .= '</tr>';
+            }
+            DB::commit();
+            return response()->json(['data' => $html]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['data' => $html]);
         }
-        return response()->json(['data' => $html]);
     }
 
     public function edit($hotspot_id)
