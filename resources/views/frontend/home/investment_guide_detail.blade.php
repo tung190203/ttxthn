@@ -19,7 +19,7 @@
                 </div>
             </nav>
         </div>
-        <article class="section post custom-news">
+        <article class="post custom-news">
             <div class="container text-justify">
                 <h1 class="section__title fw-700 text-justify">{{ $investment_guide->name }}</h1>
 
@@ -74,7 +74,7 @@
                 @endif
             </div>
         </article>
-        <section class="section">
+        <section class="">
             {{-- <img class="texture-1" src="./images/texture-1.png" alt="">
             <img class="texture-2" src="./images/texture-2.png" alt=""> --}}
             <div class="container">
