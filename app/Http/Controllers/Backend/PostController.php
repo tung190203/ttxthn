@@ -169,31 +169,37 @@ class PostController extends Controller
     $validated = $request->validate([
         'name' => 'required|string',
         'slug' => 'nullable|alpha_dash', // unique sẽ check thủ công
+        'cat_id' => 'nullable|integer',
+        'relic_id' => 'nullable|integer',
+        'image' => 'nullable|string|max:2048',
+        'priority' => 'nullable|integer',
         'description' => 'required|string',
         'content' => 'required|string',
+        'source' => 'nullable|string|max:255',
+        'is_hot' => 'nullable|boolean',
+        'view_num' => 'nullable|integer',
+        'meta_title' => 'nullable|string',
+        'meta_keywords' => 'nullable|string',
+        'meta_description' => 'nullable|string',
+        'project_type' => 'nullable',
         'project_id' => 'nullable|integer',
         'published_at' => 'nullable|date',
         'projects' => 'nullable|array',
         'projects.*' => 'integer|exists:projects,id',
-        'image' => 'nullable|string|max:2048',
-        'cat_id' => 'nullable|integer',
-        'status' => 'nullable|integer',
-        'is_hot' => 'nullable|boolean',
-        'meta_title' => 'nullable|string',
-        'meta_keywords' => 'nullable|string',
-        'meta_description' => 'nullable|string',
     ]);
 
     try {
         // 🟩 Tạo mới (bản chính)
         if (!$post->exists) {
             $post->fill($validated);
-            $post->approval_level = 0;
+            $post->approval_level = $user->is_super_admin ? 2 : ($user->is_approve ? 1 : 0);
             $post->max_approval = 2;
             $post->is_draft = false;
-            $post->status_approve = 'pending';
-            $post->status = Post::STATUS_INACTIVE;
+            $post->status_approve = $user->is_super_admin ? 'approved' : ($user->is_approve ? 'pending' : 'pending');
+            $post->status = $user->is_super_admin ? Post::STATUS_ACTIVE : Post::STATUS_INACTIVE;
             $post->language = App::getLocale();
+            $post->project_type = $validated['project_type'] ?? null;
+            $post->project_id = $validated['project_id'] ?? 0;
 
             // Sinh slug unique
             $slug = Str::slug($post->slug ?: $post->name);
