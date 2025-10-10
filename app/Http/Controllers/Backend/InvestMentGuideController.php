@@ -357,7 +357,7 @@ public function save(InvestmentGuide $investment_guide, Request $request)
         'description' => 'required|string',
         'content' => 'required|string',
         'source' => 'nullable|string',
-        'status' => 'nullable|integer',
+        // 'status' => 'nullable|integer',
         'is_hot' => 'nullable|boolean',
         'view_num' => 'nullable|integer',
         'meta_title' => 'nullable|string',
@@ -379,12 +379,14 @@ public function save(InvestmentGuide $investment_guide, Request $request)
         // ==== KHỞI TẠO BẢN MỚI ====
         if (!$investment_guide->exists) {
             $investment_guide->fill($validated);
-            $investment_guide->approval_level = 0;
+            $investment_guide->approval_level = $user->is_super_admin ? 2 : ($user->is_approve ? 1 : 0);
             $investment_guide->max_approval = 2;
             $investment_guide->is_draft = false;
-            $investment_guide->status_approve = 'pending';
-            $investment_guide->status = InvestmentGuide::STATUS_INACTIVE;
+            $investment_guide->status_approve = $user->is_super_admin ? 'approved' : ($user->is_approve ? 'pending' : 'pending');
+            $investment_guide->status = $user->is_super_admin ? InvestmentGuide::STATUS_ACTIVE : InvestmentGuide::STATUS_INACTIVE;
             $investment_guide->language = App::getLocale();
+            $investment_guide->project_type = $validated['project_type'] ?? null;
+            $investment_guide->project_id = $validated['project_id'] ?? 0;
 
             // Sinh slug unique
             $slug = Str::slug($investment_guide->slug ?: $investment_guide->name);
@@ -404,6 +406,13 @@ public function save(InvestmentGuide $investment_guide, Request $request)
             }
 
             $investment_guide->save();
+
+            if ($request->filled('projects')) {
+                $investment_guide->projects()->syncWithPivotValues(
+                    $request->input('projects'),
+                    ['created_at' => now(), 'updated_at' => now()]
+                );
+            }
 
             if (Gate::allows('investment_guide/add')) {
                 $this->addInvestmentGuideToScope($user, $investment_guide->id);
