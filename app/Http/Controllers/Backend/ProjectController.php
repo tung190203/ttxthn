@@ -260,10 +260,13 @@ class ProjectController extends Controller
         if (!$project->exists) {
             // 🟩 Tạo bản chính mới
             $project->fill($validated);
-            $project->approval_level = 0;
+            $project->advantage_descriptions = $validated['advantage_descs'] ?? null;
+            $project->design_description = $validated['design_descs'] ?? null;
+            $project->legal_description = $validated['files_descs'] ?? null;
+            $project->approval_level = $user->is_super_admin ? 2 : ($user->is_approve ? 1 : 0);
             $project->max_approval = 2;
             $project->is_draft = false;
-            $project->status = 'pending';
+            $project->status = $user->is_super_admin ? 'approved' : ($user->is_approve ? 'pending' : 'pending');
 
             // Tạo slug unique
             $slug = Str::slug($project->name);
@@ -275,6 +278,10 @@ class ProjectController extends Controller
             $project->slug = $slug;
             $project->save();
 
+            if($request->filled('districts')) {
+                $project->districts()->sync($request->input('districts'));
+            }
+
             if (Gate::allows('project/add')) {
                 $this->addProjectToScope($user, $project->id);
             }
@@ -285,6 +292,9 @@ class ProjectController extends Controller
 
                 // Merge dữ liệu validated (ưu tiên data mới)
                 $mainProject->fill($validated);
+                $mainProject->advantage_descriptions = $validated['advantage_descs'] ?? $mainProject->advantage_descriptions;
+                $mainProject->design_description = $validated['design_descs'] ?? $mainProject->design_description;
+                $mainProject->legal_description = $validated['files_descs'] ?? $mainProject->legal_description;
 
                 // Reset duyệt
                 $mainProject->approval_level = $mainProject->max_approval;
@@ -343,6 +353,9 @@ class ProjectController extends Controller
                 } else {
                     // Cập nhật bản hiện tại (nháp/chưa duyệt)
                     $project->fill($validated);
+                    $project->advantage_descriptions = $validated['advantage_descs'] ?? $project->advantage_descriptions;
+                    $project->design_description = $validated['design_descs'] ?? $project->design_description;
+                    $project->legal_description = $validated['files_descs'] ?? $project->legal_description;
                     $project->save();
 
                     if ($request->filled('districts')) {
