@@ -27,8 +27,20 @@
                                     </span>
                                 </li>
                                 <li>
-                                    <img class="me-2" src="./images/icon-dimension.svg" alt=""/>
-                                    <span>{{$item->area ?? 0}} {{$item->unit_type_text ?? ''}}</span>
+                                    <img class="me-2" src="./images/icon-dimension.svg" alt="" />
+                                    @php
+                                        $locale = app()->getLocale();
+                                        if ($locale === 'vn') {
+                                            $locale = 'vi_VN';
+                                        } elseif ($locale === 'en') {
+                                            $locale = 'en_US';
+                                        }
+
+                                        $fmt = new \NumberFormatter($locale, \NumberFormatter::DECIMAL);
+                                        $fmt->setAttribute(\NumberFormatter::FRACTION_DIGITS, 2);
+                                        $formattedArea = $fmt->format($item->area ?? 0);
+                                    @endphp
+                                    <span>{{ $formattedArea }} {{ $item->unit_type_text ?? '' }}</span>
                                 </li>
                                 <li>
                                     <img class="me-2" src="./images/icon-save-money.svg" alt=""/>
