@@ -29,8 +29,8 @@ class HomeController extends Controller
         $setting = Setting::getAllSetting();
 
         $banners = Widget::getByPosition('HOME_BANNER');
-        $list_post_popular = Post::where('published_at', '<=', Carbon::now())->popular(4)->get();
-        $rawProjects = Project::withRelations()->whereNull('parent_id')->get();
+        $list_post_popular = Post::where('published_at', '<=', Carbon::now())->popular(4)->whereNull('parent_id')->where('status_approve','approved')->get();
+        $rawProjects = Project::withRelations()->whereNull('parent_id')->where('status','approved')->get();
         $projects = $rawProjects->map([ProjectTransformer::class, 'transform']);
         $types = ProjectType::all()->map(function ($type) {
             return [
@@ -44,7 +44,7 @@ class HomeController extends Controller
                 'name' => $industry->name,
             ];
         })->toArray();
-        $list_projects = Project::where('industry_number', 6)->whereNull('parent_id')->get()->map(function ($project) {
+        $list_projects = Project::where('industry_number', 6)->whereNull('parent_id')->where('status','approved')->get()->map(function ($project) {
             return [
                 'id' => $project->id,
                 'name' => $project->name,
@@ -58,6 +58,7 @@ class HomeController extends Controller
         })->toArray();
         $posts = Post::with('interests')->where('published_at', '<=', Carbon::now())
             ->whereNull('parent_id')
+            ->where('status_approve','approved')
             ->orderBy('published_at', 'desc')
             ->take(10)
             ->get()
@@ -78,7 +79,7 @@ class HomeController extends Controller
                 'name' => $industry->name,
             ];
         })->toArray();
-        $filteredProjectsQuery = Project::withRelations()->whereNull('parent_id');
+        $filteredProjectsQuery = Project::withRelations()->whereNull('parent_id')->where('status','approved');
 
         if ($request->industry) {
             $filteredProjectsQuery->where('industry_number', $request->industry);
@@ -102,7 +103,7 @@ class HomeController extends Controller
             ];
         })->toArray();
         $maxPrice = $rawProjects->max('price');
-        $maxPriceSp = Project::where('industry_number', 6)->whereNull('parent_id')->max('price');
+        $maxPriceSp = Project::where('industry_number', 6)->where('status','approved')->max('price');
         return view(
             'frontend.home.index',
             compact(
@@ -129,7 +130,7 @@ class HomeController extends Controller
         $setting['menu_active'] = 'du-an-keu-goi-dau-tu';
 
         $banners = Widget::getByPosition('HOME_BANNER');
-        $list_post_popular = Post::popular(Post::POSTS_TAKE)->whereNull('parent_id')->where('published_at', '<=', Carbon::now())->get();
+        $list_post_popular = Post::popular(Post::POSTS_TAKE)->whereNull('parent_id')->where('status_approve','approved')->where('published_at', '<=', Carbon::now())->get();
 
         $list_types = ProjectType::all()->map(function ($type) {
             return [
@@ -152,7 +153,7 @@ class HomeController extends Controller
             ];
         })->toArray();
 
-        $projects = Project::withRelations()->whereNull('parent_id')
+        $projects = Project::withRelations()->whereNull('parent_id')->where('status','approved')
             ->when($request->keyword, function ($query) use ($request) {
                 $query->where('name', 'like', '%' . $request->keyword . '%');
             })
@@ -202,7 +203,7 @@ class HomeController extends Controller
         $setting['menu_active'] = 'du-an-keu-goi-dau-tu';
 
         $banners = Widget::getByPosition('HOME_BANNER');
-        $list_post_popular = Post::popular(Post::POSTS_TAKE)->whereNull('parent_id')->where('published_at', '<=', Carbon::now())
+        $list_post_popular = Post::popular(Post::POSTS_TAKE)->whereNull('parent_id')->where('status_approve','approved')->where('published_at', '<=', Carbon::now())
             ->orderBy('published_at', 'desc')
             ->get();
 
@@ -222,6 +223,7 @@ class HomeController extends Controller
         $guestId = Auth::guard('guest')->id();
         $preferential = InvestmentGuide::whereIn('cat_id', $categoryIds)
             ->whereNull('parent_id')
+            ->where('status_approve','approved')
             ->where('published_at', '<=', Carbon::now())
             ->whereHas('projects', function ($q) use ($slug) {
                 $q->where('slug', $slug);
@@ -238,6 +240,7 @@ class HomeController extends Controller
         $posts = Post::where('cat_id', Category::CATEGORY_TYPE_POST)
             ->where('published_at', '<=', Carbon::now())
             ->whereNull('parent_id')
+            ->where('status_approve','approved')
             ->whereHas('projects', function ($q) use ($slug) {
                 $q->where('slug', $slug);
             })
@@ -376,6 +379,7 @@ class HomeController extends Controller
 
         $query = InvestmentGuide::with('interests')->whereIn('cat_id', $catIds)
             ->whereNull('parent_id')
+            ->where('status_approve','approved')
             ->where('published_at', '<=', Carbon::now())
             ->where('status', InvestmentGuide::STATUS_ACTIVE)
             ->orderBy('published_at', 'desc');
@@ -664,6 +668,7 @@ class HomeController extends Controller
         $postPage = $request->input('post_page', 1);
         $posts = Post::with('interests')
             ->whereNull('parent_id')
+            ->where('status_approve','approved')
             ->where('published_at', '<=', Carbon::now())
             ->when($keyword, function ($query, $keyword) {
                 return $query->where('name', 'like', "%{$keyword}%");
@@ -686,6 +691,7 @@ class HomeController extends Controller
         $projectPage = $request->input('project_page', 1);
         $projects = Project::withRelations()
             ->whereNull('parent_id')
+            ->where('status','approved')
             ->when($keyword, function ($query, $keyword) {
                 return $query->where('name', 'like', "%{$keyword}%");
             })
@@ -709,6 +715,7 @@ class HomeController extends Controller
         $guidePage = $request->input('guide_page', 1);
         $investment_guides = InvestmentGuide::with('interests')
             ->whereNull('parent_id')
+            ->where('status_approve','approved')
             ->where('published_at', '<=', Carbon::now())
             ->when($keyword, function ($query, $keyword) {
                 return $query->where('name', 'like', "%{$keyword}%");
@@ -745,9 +752,9 @@ class HomeController extends Controller
         $page = $request->input($ajax_type . '_page', $request->input('page', 1));
 
         $query = match ($ajax_type) {
-            'post' => Post::with('interests')->whereNull('parent_id')->where('published_at', '<=', Carbon::now())->where('status', Post::STATUS_ACTIVE),
-            'project' => Project::withRelations()->whereNull('parent_id'),
-            'guide' => InvestmentGuide::with('interests')->whereNull('parent_id')->where('published_at', '<=', Carbon::now())->where('status', InvestmentGuide::STATUS_ACTIVE),
+            'post' => Post::with('interests')->whereNull('parent_id')->where('status_approve','approved')->where('published_at', '<=', Carbon::now())->where('status', Post::STATUS_ACTIVE),
+            'project' => Project::withRelations()->whereNull('parent_id')->where('status','approved'),
+            'guide' => InvestmentGuide::with('interests')->whereNull('parent_id')->where('status_approve','approved')->where('published_at', '<=', Carbon::now())->where('status', InvestmentGuide::STATUS_ACTIVE),
             default => null,
         };
 

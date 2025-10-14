@@ -31,6 +31,7 @@ class InvestMentGuideController extends Controller
         $setting['og_image'] = ($investment_guide->image) ?: ($setting['og_image'] ?? '');
         $list_investment_guide_popular = InvestmentGuide::with('interests')->where('status', InvestmentGuide::STATUS_ACTIVE)
             ->whereNull('parent_id')
+            ->where('status_approve','approved')
             ->where('published_at', '<=', Carbon::now())
             ->where('language', App::getLocale())
             ->where('id', '<>', $investment_guide->id)

@@ -32,23 +32,23 @@ return [
             'import' => 'Import từ URL',
         ]
     ],
-    'page' => [
-        'label' => 'Trang nội dung',
-        'items' => [
-            'add' => 'Thêm',
-            'edit' => 'Sửa',
-            'delete' => 'Xóa',
-        ]
-    ],
-    'widget' => [
-        'label' => 'Widget',
-        'items' => [
-            'add' => 'Thêm',
-            'edit' => 'Sửa',
-            'delete' => 'Xóa',
-            'clone' => 'Nhân bản',
-        ]
-    ],
+    // 'page' => [
+    //     'label' => 'Trang nội dung',
+    //     'items' => [
+    //         'add' => 'Thêm',
+    //         'edit' => 'Sửa',
+    //         'delete' => 'Xóa',
+    //     ]
+    // ],
+    // 'widget' => [
+    //     'label' => 'Widget',
+    //     'items' => [
+    //         'add' => 'Thêm',
+    //         'edit' => 'Sửa',
+    //         'delete' => 'Xóa',
+    //         'clone' => 'Nhân bản',
+    //     ]
+    // ],
     'menu' => [
         'label' => 'Menu',
         'items' => [

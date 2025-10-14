@@ -605,8 +605,8 @@ class PostController extends Controller
         $scopeData = $group->scope_data ?? [];
         $resource = 'post';
 
-        if (!isset($scopeData[$resource]) || !is_array($scopeData[$resource])) {
-            $scopeData[$resource] = [];
+        if (empty($scopeData[$resource])) {
+            return;
         }
 
         if (!in_array((string)$postId, $scopeData[$resource])) {
@@ -621,16 +621,23 @@ class PostController extends Controller
         $groups = Group::whereJsonContains('scope_data->post', (string)$postId)->get();
 
         foreach ($groups as $group) {
-            $scope = $group->scope_data ?? [];
-            if (isset($scope['post']) && is_array($scope['post'])) {
-                $scope['post'] = array_filter(
-                    $scope['post'],
-                    fn($id) => (string)$id !== (string)$postId
-                );
-                $scope['post'] = array_values($scope['post']);
-                $group->scope_data = $scope;
-                $group->save();
+            $scopeData = $group->scope_data ?? [];
+    
+            if (!isset($scopeData['post']) || !is_array($scopeData['post'])) {
+                continue;
             }
+
+            if (empty($scopeData['post'])) {
+                continue;
+            }
+
+            $scopeData['post'] = array_values(array_filter(
+                $scopeData['post'],
+                fn($id) => (string)$id !== (string)$postId
+            ));
+    
+            $group->scope_data = $scopeData;
+            $group->save();
         }
     }
 }

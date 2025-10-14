@@ -57,7 +57,7 @@ class MapController extends Controller
             }
         }
 
-        $projects = $query->whereNull('parent_id')->get();
+        $projects = $query->whereNull('parent_id')->where('status','approved')->get();
         $data = $this->returnData($projects);
         return response()->json($data);
     }
