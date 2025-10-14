@@ -59,6 +59,18 @@ class User extends Authenticatable
     }
 
 
+    public function getAllPermissionsFromGroup(): array
+    {
+        $group = $this->group;
+        if (!$group) return [];
+
+        $permissions = $group->permission_data ?? [];
+        if (is_string($permissions)) {
+            $permissions = json_decode($permissions, true);
+        }
+
+        return $permissions ?? [];
+    }
     public function getGroupNameAttribute(): string
     {
         if ($this->isSuperAdmin()) {
@@ -108,32 +120,45 @@ class User extends Authenticatable
     }
 
     /**
-     * Kiểm tra có thể thao tác trên record cụ thể
+     * Kiểm tra có thể thao tác trên record cụ thể hay không
      */
-    public function canDoOn(string $perm_key, ?string $record_id = null): bool
+    public function canDoOn(string $permissionKey, ?int $recordId = null): bool
     {
-        if (!$this->hasPermission($perm_key)) {
+        if (!$this->hasPermission($permissionKey)) {
             return false;
         }
 
-        $scope = $this->getScope($perm_key);
+        $module = explode('/', $permissionKey)[0];
+        $scopeData = $this->getScopeData();
 
-        // Nếu scope null => không giới hạn
-        if ($scope === null) {
-            return true;
-        }
-
-        // Quyền "add" thì luôn cho phép
-        if (str_ends_with($perm_key, '/add')) {
-            return true;
-        }
-
-        // Các action khác phải có record_id nằm trong scope
-        if ($record_id === null) {
+        if (!array_key_exists($module, $scopeData)) {
             return false;
         }
 
-        return in_array((string) $record_id, $scope, true);
+        $scope = $scopeData[$module];
+
+        if (empty($scope)) {
+            return true;
+        }
+
+        if ($recordId !== null) {
+            return in_array($recordId, $scope);
+        }
+
+        return true;
+    }
+
+    public function getScopeData(): array
+    {
+        $group = $this->group;
+        if (!$group) return [];
+
+        $data = $group->scope_data ?? [];
+        if (is_string($data)) {
+            $data = json_decode($data, true);
+        }
+
+        return $data ?? [];
     }
 
     /**

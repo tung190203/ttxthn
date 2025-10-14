@@ -23,6 +23,7 @@ class PostController extends Controller
 
         $query_post = Post::with(['category', 'interests'])
             ->whereNull('parent_id')
+            ->where('status_approve','approved')
             ->where('published_at' , '<=', Carbon::now())
             ->where('status', Post::STATUS_ACTIVE)
             ->where('language', $language)
@@ -70,6 +71,7 @@ class PostController extends Controller
 
         $query_post = Post::with('category')
             ->whereNull('parent_id')
+            ->where('status_approve','approved')
             ->where('published_at' , '<=', Carbon::now())
             ->where('status', Post::STATUS_ACTIVE)
             ->where('language', $language)
@@ -116,6 +118,7 @@ class PostController extends Controller
         $setting['og_image'] = ($post->image) ?: ($setting['og_image'] ?? '');
         $list_post_popular = Post::with('interests')->where('status', Post::STATUS_ACTIVE)
             ->whereNull('parent_id')
+            ->where('status_approve','approved')
             ->where('published_at' , '<=', Carbon::now())
             ->where('language', App::getLocale())
             ->where('id', '<>', $post->id)

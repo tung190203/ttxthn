@@ -444,12 +444,12 @@ class ProjectController extends Controller
         $scopeData = $group->scope_data ?? [];
         $resource = 'project';
 
-        if (!isset($scopeData[$resource]) || !is_array($scopeData[$resource])) {
-            $scopeData[$resource] = [];
+        if (empty($scopeData[$resource])) {
+            return;
         }
 
-        if (!in_array((string)$projectId, $scopeData[$resource])) {
-            $scopeData[$resource][] = (string)$projectId;
+        if (!in_array((string) $projectId, $scopeData[$resource])) {
+            $scopeData[$resource][] = (string) $projectId;
             $group->scope_data = $scopeData;
             $group->save();
         }
@@ -460,16 +460,23 @@ class ProjectController extends Controller
         $groups = Group::whereJsonContains('scope_data->project', (string)$projectId)->get();
 
         foreach ($groups as $group) {
-            $scope = $group->scope_data ?? [];
-            if (isset($scope['project']) && is_array($scope['project'])) {
-                $scope['project'] = array_filter(
-                    $scope['project'],
-                    fn($id) => (string)$id !== (string)$projectId
-                );
-                $scope['project'] = array_values($scope['project']);
-                $group->scope_data = $scope;
-                $group->save();
+            $scopeData = $group->scope_data ?? [];
+    
+            if (!isset($scopeData['project']) || !is_array($scopeData['project'])) {
+                continue;
             }
+
+            if (empty($scopeData['project'])) {
+                continue;
+            }
+
+            $scopeData['project'] = array_values(array_filter(
+                $scopeData['project'],
+                fn($id) => (string)$id !== (string)$projectId
+            ));
+    
+            $group->scope_data = $scopeData;
+            $group->save();
         }
     }
 
