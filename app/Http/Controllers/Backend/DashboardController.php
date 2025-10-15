@@ -16,14 +16,16 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $user = auth('web')->user();
-        if($user->status_approve != 'approved') {
+        if ($user->status_approve != 'approved') {
             auth('web')->logout();
             return redirect()->route('login')->with('error', 'Tài khoản của bạn đang chờ phê duyệt hoặc bị từ chối. Vui lòng liên hệ quản trị viên.');
         }
         $permissions = $user->getAllPermissionsFromGroup();
         $permissions = array_values(array_filter($permissions, fn($p) => $p !== 'backend_access'));
         if (empty($permissions)) {
-            return redirect()->route('backend_home');
+            return view('backend.no_permission', [
+                'message' => 'Bạn chưa được cấp quyền truy cập bất kỳ chức năng nào. Vui lòng liên hệ quản trị viên.'
+            ]);
         }
         $firstPermission = $permissions[0];
         $routeName = 'backend_' . str_replace('/', '_', $firstPermission);
@@ -31,6 +33,8 @@ class DashboardController extends Controller
             return redirect()->route($routeName);
         }
 
-        return redirect()->route('backend_home');
+        return view('backend.no_permission', [
+            'message' => 'Không tìm thấy trang phù hợp với quyền của bạn.'
+        ]);
     }
 }
