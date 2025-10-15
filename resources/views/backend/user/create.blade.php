@@ -34,6 +34,49 @@
                                 <x-forms.button-url title="Xóa" class="btn-danger" icon="fa fa-trash"
                                                     url="{{ route('backend_user_delete', $user->id) }}"/>
                             @endcan
+                            @if(
+                                (auth('web')->user()->is_super_admin || auth('web')->user()->is_approve) &&
+                                $user->status_approve === 'pending'
+                            )
+                                <!-- Button trigger modal -->
+                                <button type="button" class="btn btn-sm fw-bold btn-success" data-toggle="modal" data-target="#approveModal-{{ $user->id }}">
+                                    <i class="fa fa-check" aria-hidden="true"></i> Duyệt
+                                </button>
+
+                                <!-- Modal -->
+                                <div class="modal fade" id="approveModal-{{ $user->id }}" tabindex="-1" aria-labelledby="approveModalLabel-{{ $user->id }}" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-success text-white">
+                                                <h5 class="modal-title" id="approveModalLabel-{{ $user->id }}">
+                                                    Xác nhận duyệt user
+                                                </h5>
+                                                <button type="button" class="btn-close btn-close-white" data-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Bạn có chắc chắn muốn duyệt user: <strong>{{ $user->name }}</strong>?
+                                                <p class="text-muted mt-2">
+                                                    @if(auth('web')->user()->is_super_admin)
+                                                        Sau khi duyệt, user sẽ được cập nhật trạng thái và hiển thị cho người dùng.
+                                                    @elseif(auth('web')->user()->is_approve)
+                                                        Sau khi duyệt thành công, user sẽ chờ duyệt lần cuối bởi admin.
+                                                    @endif
+                                                </p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <form action="{{ route('backend_user_reject', $user->id) }}" method="post" class="d-inline">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-danger fw-bold">Yêu cầu chỉnh sửa</button>
+                                                </form>
+                                                <form action="{{ route('backend_user_approve', $user->id) }}" method="post" class="d-inline">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-success fw-bold">Duyệt user</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
                         @endif
                     </div>
                 </div>

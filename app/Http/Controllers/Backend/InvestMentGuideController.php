@@ -125,12 +125,12 @@ class InvestMentGuideController extends Controller
 
     public function saveDataIndex(Request $request)
     {
-        foreach($request->ids as $id) {
-            $p = InvestmentGuide::find($id);
-            if(!Gate::allows('investment_guide/edit', $p)) {
-                abort(403);
-            }
-        }
+        // foreach($request->ids as $id) {
+        //     $p = InvestmentGuide::find($id);
+        //     if(!Gate::allows('investment_guide/edit', $p)) {
+        //         abort(403);
+        //     }
+        // }
 
         $update = $request->get('update', []);
         foreach ($update as $key => $value) {
@@ -296,7 +296,7 @@ class InvestMentGuideController extends Controller
                         $draft->fill($validated);
                         $draft->is_draft = true;
                         $draft->status_approve = 'pending';
-                        $draft->approval_level = 0;
+                        $draft->approval_level = $user->is_approve ? 1 : 0;
                         $draft->parent_id = $investment_guide->id;
                         $draft->status = InvestmentGuide::STATUS_INACTIVE;
                         $draft->slug = Str::slug($draft->name) . '-draft';
@@ -409,7 +409,23 @@ class InvestMentGuideController extends Controller
 
         return redirect()
             ->route('backend_investment_guide_edit', $investment_guide->id)
-            ->with('success', 'Duyệt bài viết thành công ' . ($user->is_super_admin ? '(Đã duyệt)' : '(Chờ duyệt cấp 2)'));
+            ->with('success', 'Duyệt cẩm nang đầu tư thành công ' . ($user->is_super_admin ? '(Đã duyệt)' : '(Chờ duyệt cấp 2)'));
+    }
+
+    public function reject(InvestmentGuide $investment_guide)
+    {
+        $user = auth('web')->user();
+
+        if (!($user->is_super_admin || $user->is_approve)) {
+            abort(403, 'Bạn không có quyền từ chối duyệt cẩm nang đầu tư.');
+        }
+
+        $investment_guide->status_approve = 'rejected';
+        $investment_guide->save();
+
+        return redirect()
+            ->route('backend_investment_guide_edit', ['investment_guide' => $investment_guide->id])
+            ->with('success', 'Từ chối duyệt cẩm nang đầu tư thành công');
     }
 
     public function clone(InvestmentGuide $investment_guide)

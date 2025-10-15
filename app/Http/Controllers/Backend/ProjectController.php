@@ -146,12 +146,12 @@ class ProjectController extends Controller
 
     public function saveDataIndex(Request $request)
     {
-        foreach ($request->ids as $id) {
-            $p = Project::find($id);
-            if (!Gate::allows('project/edit', $p)) {
-                abort(403);
-            }
-        }
+        // foreach ($request->ids as $id) {
+        //     $p = Project::find($id);
+        //     if (!Gate::allows('project/edit', $p)) {
+        //         abort(403);
+        //     }
+        // }
 
         $update = $request->get('update', []);
         foreach ($update as $key => $value) {
@@ -336,7 +336,7 @@ class ProjectController extends Controller
                     $draft->fill($validated);
                     $draft->is_draft = true;
                     $draft->status = 'pending';
-                    $draft->approval_level = 0;
+                    $draft->approval_level = $user->is_approve ? 1 : 0;
                     $draft->parent_id = $project->id;
                     $draft->slug = Str::slug($draft->name) . '-draft';
                     $draft->save();
@@ -434,6 +434,22 @@ class ProjectController extends Controller
         return redirect()
             ->route('backend_project_edit', $project->id)
             ->with('success', 'Duyệt dự án thành công ' . ($user->is_super_admin ? '(Đã duyệt)' : '(Chờ duyệt cấp 2)'));
+    }
+
+    public function reject(Project $project)
+    {
+        $user = auth('web')->user();
+
+        if (!($user->is_super_admin || $user->is_approve)) {
+            abort(403, 'Bạn không có quyền từ chối duyệt dự án.');
+        }
+
+        $project->status_approve = 'rejected';
+        $project->save();
+
+        return redirect()
+            ->route('backend_category_edit', ['project' => $project->id])
+            ->with('success', 'Từ chối duyệt dự án thành công');
     }
 
     protected function addProjectToScope($user, $projectId)

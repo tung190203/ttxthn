@@ -16,6 +16,9 @@ class Category extends Model
     const CATEGORY_TYPE_POST = 1;
     const CATEGORY_TYPE_INVESTMENT_HANDBOOK = 2;
 
+    const STATUS_ACTIVE = 1;
+    const STATUS_INACTIVE = 0;
+
     protected $fillable = ['slug', 'name', 'type'];
 
     const OPTIONS_CATEGORY = [
@@ -46,6 +49,11 @@ class Category extends Model
             'priority',
             'parent_id',
             'image',
+            'approval_level',
+            'max_approval',
+            'is_draft',
+            'main_id',
+            'status_approve',
         ];
     }
 
@@ -89,7 +97,7 @@ class Category extends Model
     public static function makeListCategoryForInvestMent($parent_id = 0, $type = -1, $selected_id = '', $include_default = false)
     {
         $language = App::getLocale();
-        $parentIds = Category::where('parent_id', 2)->pluck('id')->toArray();
+        $parentIds = Category::where('parent_id', 2)->where('status_approve', 'approved')->pluck('id')->toArray();
         $query = Category::where('language', $language)->whereIn('id',[2,...$parentIds]);
         if ($type > -1) {
             $query = $query->where('type', $type);
@@ -117,7 +125,7 @@ class Category extends Model
     public static function makeListCategoryForPost($parent_id = 0, $type = -1, $selected_id = '', $include_default = false)
     {
         $language = App::getLocale();
-        $query = Category::where('language', $language)->where('id',1);
+        $query = Category::where('language', $language)->where('id',1)->where('status_approve','approved');
         if ($type > -1) {
             $query = $query->where('type', $type);
         }
@@ -144,7 +152,7 @@ class Category extends Model
     public static function makeListCategory($parent_id = 0, $type = -1, $selected_id = '', $include_default = false)
     {
         $language = App::getLocale();
-        $query = Category::where('language', $language);
+        $query = Category::where('language', $language)->where('status_approve', 'approved');
         if ($type > -1) {
             $query = $query->where('type', $type);
         }
@@ -366,5 +374,13 @@ class Category extends Model
         }
         return $results;
     }
+    public function draft()
+    {
+        return $this->hasOne(Category::class, 'main_id')->where('is_draft', true);
+    }
 
+    public function main()
+    {
+        return $this->belongsTo(Category::class, 'main_id');
+    }
 }

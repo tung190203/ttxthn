@@ -53,25 +53,28 @@
                                         <div class="modal-content">
                                             <div class="modal-header bg-success text-white">
                                                 <h5 class="modal-title" id="approveModalLabel-{{ $investment_guide->id }}">
-                                                    Xác nhận duyệt dự án
+                                                    Xác nhận duyệt cẩm nang đầu tư
                                                 </h5>
                                                 <button type="button" class="btn-close btn-close-white" data-dismiss="modal" aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body">
-                                                Bạn có chắc chắn muốn duyệt dự án: <strong>{{ $investment_guide->name }}</strong>?
+                                                Bạn có chắc chắn muốn duyệt cẩm nang đầu tư: <strong>{{ $investment_guide->name }}</strong>?
                                                 <p class="text-muted mt-2">
                                                     @if(auth('web')->user()->is_super_admin)
-                                                        Sau khi duyệt, dự án sẽ được cập nhật trạng thái và hiển thị cho người dùng.
+                                                        Sau khi duyệt, cẩm nang đầu tư sẽ được cập nhật trạng thái và hiển thị cho người dùng.
                                                     @elseif(auth('web')->user()->is_approve)
-                                                        Sau khi duyệt thành công, dự án sẽ chờ duyệt lần cuối bởi admin.
+                                                        Sau khi duyệt thành công, cẩm nang đầu tư sẽ chờ duyệt lần cuối bởi admin.
                                                     @endif
                                                 </p>
                                             </div>
                                             <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                                                <form action="{{ route('backend_investment_guide_reject', $investment_guide->id) }}" method="post" class="d-inline">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-danger fw-bold">Yêu cầu chỉnh sửa</button>
+                                                </form>
                                                 <form action="{{ route('backend_investment_guide_approve', $investment_guide->id) }}" method="post" class="d-inline">
                                                     @csrf
-                                                    <button type="submit" class="btn btn-success fw-bold">Duyệt dự án</button>
+                                                    <button type="submit" class="btn btn-success fw-bold">Duyệt cẩm nang đầu tư</button>
                                                 </form>
                                             </div>
                                         </div>

@@ -34,6 +34,49 @@
                                 <x-forms.button-url title="Xóa" class="btn-danger" icon="fa fa-trash"
                                                     url="{{ route('backend_category_delete', $category->id) }}"/>
                             @endcan
+                            @if(
+                                (auth('web')->user()->is_super_admin || auth('web')->user()->is_approve) &&
+                                $category->status_approve === 'pending'
+                            )
+                                <!-- Button trigger modal -->
+                                <button type="button" class="btn btn-sm fw-bold btn-success" data-toggle="modal" data-target="#approveModal-{{ $category->id }}">
+                                    <i class="fa fa-check" aria-hidden="true"></i> Duyệt
+                                </button>
+
+                                <!-- Modal -->
+                                <div class="modal fade" id="approveModal-{{ $category->id }}" tabindex="-1" aria-labelledby="approveModalLabel-{{ $category->id }}" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-success text-white">
+                                                <h5 class="modal-title" id="approveModalLabel-{{ $category->id }}">
+                                                    Xác nhận duyệt danh mục
+                                                </h5>
+                                                <button type="button" class="btn-close btn-close-white" data-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Bạn có chắc chắn muốn duyệt danh mục: <strong>{{ $category->name }}</strong>?
+                                                <p class="text-muted mt-2">
+                                                    @if(auth('web')->user()->is_super_admin)
+                                                        Sau khi duyệt, danh mục sẽ được cập nhật trạng thái và hiển thị cho người dùng.
+                                                    @elseif(auth('web')->user()->is_approve)
+                                                        Sau khi duyệt thành công, danh mục sẽ chờ duyệt lần cuối bởi admin.
+                                                    @endif
+                                                </p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <form action="{{ route('backend_category_reject', $category->id) }}" method="post" class="d-inline">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-danger fw-bold">Yêu cầu chỉnh sửa</button>
+                                                </form>
+                                                <form action="{{ route('backend_category_approve', $category->id) }}" method="post" class="d-inline">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-success fw-bold">Duyệt danh mục</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
                         @endif
                     </div>
                 </div>

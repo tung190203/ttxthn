@@ -127,7 +127,7 @@ class Project extends Model
 
     public static function makeListProjectArray()
     {
-        return Project::pluck('name', 'id')->toArray();
+        return Project::where('status','approved')->pluck('name', 'id')->toArray();
     }
 
     public function scopeInBounds($query, $minLat, $maxLat, $minLng, $maxLng)

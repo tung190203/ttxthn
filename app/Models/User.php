@@ -21,7 +21,21 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'phone',
+        'avatar',
+        'email_verified_at',
         'password',
+        'password',
+        'is_approve',
+        'remember_token',
+        'is_super_admin',
+        'status',
+        'group_id',
+        'approval_level',
+        'max_approval',
+        'is_draft',
+        'main_id',
+        'status_approve'
     ];
 
     /**
@@ -33,6 +47,9 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    const STATUS_ACTIVE = 1;
+    const STATUS_INACTIVE = 0;
 
     /**
      * Get the attributes that should be cast.
@@ -177,5 +194,14 @@ class User extends Authenticatable
         }
 
         return $options;
+    }
+    public function draft()
+    {
+        return $this->hasOne(User::class, 'main_id')->where('is_draft', true);
+    }
+
+    public function main()
+    {
+        return $this->belongsTo(User::class, 'main_id');
     }
 }

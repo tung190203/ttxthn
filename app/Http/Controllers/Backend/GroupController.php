@@ -71,10 +71,30 @@ class GroupController extends Controller
 
         $group->name = strip_tags($request->get('name'));
         $group->permission_data = $permission_data;
+
+        $scopePermissionMap = [
+            'project' => 'project',
+            'post' => 'post',
+            'investment_guide' => 'investment_guide',
+            'popup' => 'popup',
+            'user' => 'user',
+            'group' => 'group',
+            'setting' => 'setting',
+            'category' => 'category',
+            'menu' => 'menu',
+            'file_manager' => 'file_manager',
+        ];
+
         $scope_data = [];
-        $scope_data['project'] = $request->get('scope_data_project', []);
-        $scope_data['post'] = $request->get('scope_data_post', []);
-        $scope_data['investment_guide'] = $request->get('scope_data_investment_guide', []);
+
+        foreach ($scopePermissionMap as $scopeKey => $permissionKey) {
+            if (in_array($permissionKey, $permission_data)) {
+                $scope_data[$scopeKey] = $request->get('scope_data_' . $scopeKey, []);
+            } else {
+                $scope_data[$scopeKey] = [];
+            }
+        }
+
         $group->scope_data = $scope_data;
         $group->save();
 

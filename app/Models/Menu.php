@@ -11,6 +11,29 @@ class Menu extends Model
 {
     protected $table = 'menus';
 
+    protected $fillable = [
+        'name',
+        'slug',
+        'custom_link',
+        'image',
+        'page_id',
+        'cat_id',
+        'parent_id',
+        'priority',
+        'status',
+        'type',
+        'is_mega',
+        'language',
+        'approval_level',
+        'max_approval',
+        'is_draft',
+        'main_id',
+        'status_approve',
+    ];
+
+    const STATUS_ACTIVE = 1;
+    const STATUS_INACTIVE = 0;
+
     public function category()
     {
         return $this->belongsTo(Category::class, 'cat_id', 'id');
@@ -25,11 +48,11 @@ class Menu extends Model
     {
         parent::boot();
 
-        static::saving(function ($menu) {
-            if (empty($menu->slug)) {
-                $menu->slug = Str::slug($menu->name);
-            }
-        });
+        // static::saving(function ($menu) {
+        //     if (empty($menu->slug)) {
+        //         $menu->slug = Str::slug($menu->name);
+        //     }
+        // });
     }
 
     public function showMenus($menus, $parent_id = 0, $char = '')
@@ -51,7 +74,7 @@ class Menu extends Model
     public static function makeListMenu($parent_id = 0, $type = 'main', $selected_id = '', $include_default = false)
     {
         $language = App::getLocale();
-        $query = Menu::where('language', $language)->where('type', $type);
+        $query = Menu::where('language', $language)->where('type', $type)->where('status_approve', 'approved');
         $list_menu = $query->get(['id', 'parent_id', 'name']);
         $menus = (new self())->showMenus($list_menu, $parent_id);
         $html = '';
@@ -76,6 +99,8 @@ class Menu extends Model
         } else {
             $language = App::getLocale();
             $menus = Menu::with(['category', 'page'])
+                ->where('is_draft', false)
+                ->where('status_approve', 'approved')
                 ->where('language', $language)
                 ->where('status', 1)
                 ->orderBy('priority')
@@ -122,5 +147,15 @@ class Menu extends Model
             }
         }
         return $results;
+    }
+
+    public function draft()
+    {
+        return $this->hasOne(Menu::class, 'main_id')->where('is_draft', true);
+    }
+
+    public function main()
+    {
+        return $this->belongsTo(Menu::class, 'main_id');
     }
 }

@@ -345,23 +345,6 @@
                 </nav>
             </div>
         </section>
-        {{-- <section class="section section--medium-blue">
-            <div class="container">
-                <h2 class="section__title text-white">Liên kết</h2>
-                @if (!empty($setting['banners']))
-                    <div class="partners">
-                        @foreach ($setting['banners'] as $banner)
-                            <div class="partners__item">
-                                <a href="{{ $banner['link'] ?? '#' }}" target="_blank">
-                                    <img src="{{ $banner['image'] ?? '' }}" alt="" />
-                                </a>
-                            </div>
-                        @endforeach
-                    </div>
-                @endif
-
-            </div>
-        </section> --}}
         <section class="section section--medium-blue">
             <div class="container">
                 <h2 class="section__title text-white">Liên kết</h2>

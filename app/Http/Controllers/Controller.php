@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
+use App\Models\Group;
 use App\Models\InvestmentGuide;
 use App\Models\Nation;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -9,9 +11,11 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\View;
 use App\Models\Setting;
 use App\Models\Menu;
+use App\Models\Popup;
 use App\Models\Post;
 use App\Models\Project;
 use App\Models\ProjectIndustries;
+use App\Models\User;
 
 abstract class Controller
 {
@@ -42,9 +46,17 @@ abstract class Controller
         View::share('current_locale', $current_locale);
         View::share('nations', Nation::all());
         View::share('project_industries', ProjectIndustries::orderBy('created_at', 'desc')->get());
-        View::share('projects', Project::orderBy('created_at', 'desc')->get());
-        View::share('posts', Post::orderBy('created_at', 'desc')->get());
-        View::share('investment_guides', InvestmentGuide::orderBy('created_at', 'desc')->get());
+        View::share('projects', Project::orderBy('created_at', 'desc')->where('status', 'approved')->get());
+        View::share('posts', Post::orderBy('created_at', 'desc')->where('status_approve', 'approved')->get());
+        View::share('investment_guides', InvestmentGuide::orderBy('created_at', 'desc')->where('status_approve', 'approved')->get());
+        View::share('category',Category::where('status_approve','approved')->get());
+        View::share('menus',Menu::where('status_approve','approved')->get());
+        View::share('popups',Popup::where('status_approve','approved')->get());
+        View::share('users', User::where('status_approve', 'approved')
+    ->where('id', '<>', auth('web')->id())
+    ->when(auth('web')->check() && !auth('web')->user()->is_super_admin, function($query) {
+        $query->where('is_super_admin', false);
+    })->get());
         //End code dự án
 
     }

@@ -126,12 +126,12 @@ class PostController extends Controller
 
     public function saveDataIndex(Request $request)
     {
-        foreach($request->ids as $id) {
-            $p = Post::find($id);
-            if(!Gate::allows('post/edit', $p)) {
-                abort(403);
-            }
-        }
+        // foreach($request->ids as $id) {
+        //     $p = Post::find($id);
+        //     if(!Gate::allows('post/edit', $p)) {
+        //         abort(403);
+        //     }
+        // }
 
         $update = $request->get('update', []);
         foreach ($update as $key => $value) {
@@ -156,159 +156,156 @@ class PostController extends Controller
     }
 
     public function save(Post $post, Request $request)
-{
-    $user = auth('web')->user();
+    {
+        $user = auth('web')->user();
 
-    if ($post->exists && !Gate::allows('post/edit', $post)) {
-        abort(403, self::MESSAGE_UNAUTHORIZED);
-    }
-    if (!$post->exists && !Gate::allows('post/add')) {
-        abort(403, self::MESSAGE_UNAUTHORIZED);
-    }
-
-    $validated = $request->validate([
-        'name' => 'required|string',
-        'slug' => 'nullable|alpha_dash', // unique sẽ check thủ công
-        'cat_id' => 'nullable|integer',
-        'relic_id' => 'nullable|integer',
-        'image' => 'nullable|string|max:2048',
-        'priority' => 'nullable|integer',
-        'description' => 'required|string',
-        'content' => 'required|string',
-        'source' => 'nullable|string|max:255',
-        'is_hot' => 'nullable|boolean',
-        'view_num' => 'nullable|integer',
-        'meta_title' => 'nullable|string',
-        'meta_keywords' => 'nullable|string',
-        'meta_description' => 'nullable|string',
-        'project_type' => 'nullable',
-        'project_id' => 'nullable|integer',
-        'published_at' => 'nullable|date',
-        'projects' => 'nullable|array',
-        'projects.*' => 'integer|exists:projects,id',
-    ]);
-
-    try {
-        // 🟩 Tạo mới (bản chính)
-        if (!$post->exists) {
-            $post->fill($validated);
-            $post->approval_level = $user->is_super_admin ? 2 : ($user->is_approve ? 1 : 0);
-            $post->max_approval = 2;
-            $post->is_draft = false;
-            $post->status_approve = $user->is_super_admin ? 'approved' : ($user->is_approve ? 'pending' : 'pending');
-            $post->status = $user->is_super_admin ? Post::STATUS_ACTIVE : Post::STATUS_INACTIVE;
-            $post->language = App::getLocale();
-            $post->project_type = $validated['project_type'] ?? null;
-            $post->project_id = $validated['project_id'] ?? 0;
-
-            // Sinh slug unique
-            $slug = Str::slug($post->slug ?: $post->name);
-            $originalSlug = $slug;
-            $counter = 1;
-            while (Post::where('slug', $slug)->exists()) {
-                $slug = $originalSlug . '-' . $counter++;
-            }
-            $post->slug = $slug;
-
-            $post->save();
-
-            // Đồng bộ project liên quan
-            if ($request->filled('projects')) {
-                $post->projects()->syncWithPivotValues(
-                    $request->input('projects'),
-                    ['created_at' => now(), 'updated_at' => now()]
-                );
-            }
-
-            if (Gate::allows('post/add')) {
-                $this->addPostToScope($user, $post->id);
-            }
-
-        } else {
-            // 🟦 Super admin merge
-            if ($user->is_super_admin) {
-                $mainPost = $post->parent_id ? Post::find($post->parent_id) : $post;
-
-                $mainPost->fill($validated);
-                $mainPost->approval_level = $mainPost->max_approval;
-                $mainPost->status_approve = 'approved';
-                $mainPost->is_draft = false;
-                $mainPost->parent_id = null;
-                // $mainPost->status = Post::STATUS_ACTIVE;
-
-                // Slug unique (remove -draft)
-                $slug = preg_replace('/-draft$/', '', Str::slug($mainPost->slug ?: $mainPost->name));
-                $originalSlug = $slug;
-                $counter = 1;
-                while (Post::where('slug', $slug)->where('id', '<>', $mainPost->id)->exists()) {
-                    $slug = $originalSlug . '-' . $counter++;
-                }
-                $mainPost->slug = $slug;
-                $mainPost->save();
-
-                // Sync projects
-                if ($request->filled('projects')) {
-                    $mainPost->projects()->sync($request->input('projects'));
-                } else {
-                    $mainPost->projects()->detach();
-                }
-
-                // Xoá nháp
-                $drafts = Post::where('parent_id', $mainPost->id)->get();
-                foreach ($drafts as $draft) {
-                    $this->removePostFromScope($draft->id);
-                    $draft->delete();
-                }
-
-                $post = $mainPost;
-
-            } else {
-                // 🟨 Người dùng thường
-                if ($post->status_approve === 'approved' && !$post->is_draft) {
-                    // Bản chính đã duyệt → tạo bản nháp
-                    $draft = $post->replicate();
-                    $draft->fill($validated);
-                    $draft->is_draft = true;
-                    $draft->status_approve = 'pending';
-                    $draft->approval_level = 0;
-                    $draft->parent_id = $post->id;
-                    $draft->status = Post::STATUS_INACTIVE;
-                    $draft->slug = Str::slug($draft->slug ?: $draft->name) . '-draft';
-                    $draft->save();
-
-                    if ($request->filled('projects')) {
-                        $draft->projects()->sync($request->input('projects'));
-                    }
-
-                    if (Gate::allows('post/add')) {
-                        $this->addPostToScope($user, $draft->id);
-                    }
-
-                    $post = $draft;
-                } else {
-                    // Cập nhật bản hiện tại (chưa duyệt hoặc nháp)
-                    $post->fill($validated);
-                    $post->save();
-
-                    if ($request->filled('projects')) {
-                        $post->projects()->sync($request->input('projects'));
-                    } else {
-                        $post->projects()->detach();
-                    }
-                }
-            }
+        if ($post->exists && !Gate::allows('post/edit', $post)) {
+            abort(403, self::MESSAGE_UNAUTHORIZED);
+        }
+        if (!$post->exists && !Gate::allows('post/add')) {
+            abort(403, self::MESSAGE_UNAUTHORIZED);
         }
 
-        return redirect()
-            ->route('backend_post_edit', $post)
-            ->with('success', 'Lưu dữ liệu thành công ' . (
-                $user->is_super_admin ? '(Đã duyệt)' : ($user->is_approve ? '(Chờ duyệt cấp 2)' : '')
-            ));
+        $validated = $request->validate([
+            'name' => 'required|string',
+            'slug' => 'nullable|alpha_dash', // unique sẽ check thủ công
+            'cat_id' => 'nullable|integer',
+            'relic_id' => 'nullable|integer',
+            'image' => 'nullable|string|max:2048',
+            'priority' => 'nullable|integer',
+            'description' => 'required|string',
+            'content' => 'required|string',
+            'source' => 'nullable|string|max:255',
+            'is_hot' => 'nullable|boolean',
+            'view_num' => 'nullable|integer',
+            'meta_title' => 'nullable|string',
+            'meta_keywords' => 'nullable|string',
+            'meta_description' => 'nullable|string',
+            'project_type' => 'nullable',
+            'project_id' => 'nullable|integer',
+            'published_at' => 'nullable|date',
+            'projects' => 'nullable|array',
+            'projects.*' => 'integer|exists:projects,id',
+        ]);
 
-    } catch (\Exception $e) {
-        return redirect()->back()->withErrors(['error' => 'Lỗi khi lưu dữ liệu: ' . $e->getMessage()]);
+        try {
+            // 🟩 Tạo mới (bản chính)
+            if (!$post->exists) {
+                $post->fill($validated);
+                $post->approval_level = $user->is_super_admin ? 2 : ($user->is_approve ? 1 : 0);
+                $post->max_approval = 2;
+                $post->is_draft = false;
+                $post->status_approve = $user->is_super_admin ? 'approved' : ($user->is_approve ? 'pending' : 'pending');
+                $post->status = $user->is_super_admin ? Post::STATUS_ACTIVE : Post::STATUS_INACTIVE;
+                $post->language = App::getLocale();
+                $post->project_type = $validated['project_type'] ?? null;
+                $post->project_id = $validated['project_id'] ?? 0;
+
+                // Sinh slug unique
+                $slug = Str::slug($post->slug ?: $post->name);
+                $originalSlug = $slug;
+                $counter = 1;
+                while (Post::where('slug', $slug)->exists()) {
+                    $slug = $originalSlug . '-' . $counter++;
+                }
+                $post->slug = $slug;
+
+                $post->save();
+
+                // Đồng bộ project liên quan
+                if ($request->filled('projects')) {
+                    $post->projects()->syncWithPivotValues(
+                        $request->input('projects'),
+                        ['created_at' => now(), 'updated_at' => now()]
+                    );
+                }
+
+                if (Gate::allows('post/add')) {
+                    $this->addPostToScope($user, $post->id);
+                }
+            } else {
+                // 🟦 Super admin merge
+                if ($user->is_super_admin) {
+                    $mainPost = $post->parent_id ? Post::find($post->parent_id) : $post;
+
+                    $mainPost->fill($validated);
+                    $mainPost->approval_level = $mainPost->max_approval;
+                    $mainPost->status_approve = 'approved';
+                    $mainPost->is_draft = false;
+                    $mainPost->parent_id = null;
+                    // $mainPost->status = Post::STATUS_ACTIVE;
+
+                    // Slug unique (remove -draft)
+                    $slug = preg_replace('/-draft$/', '', Str::slug($mainPost->slug ?: $mainPost->name));
+                    $originalSlug = $slug;
+                    $counter = 1;
+                    while (Post::where('slug', $slug)->where('id', '<>', $mainPost->id)->exists()) {
+                        $slug = $originalSlug . '-' . $counter++;
+                    }
+                    $mainPost->slug = $slug;
+                    $mainPost->save();
+
+                    // Sync projects
+                    if ($request->filled('projects')) {
+                        $mainPost->projects()->sync($request->input('projects'));
+                    } else {
+                        $mainPost->projects()->detach();
+                    }
+
+                    // Xoá nháp
+                    $drafts = Post::where('parent_id', $mainPost->id)->get();
+                    foreach ($drafts as $draft) {
+                        $this->removePostFromScope($draft->id);
+                        $draft->delete();
+                    }
+
+                    $post = $mainPost;
+                } else {
+                    // 🟨 Người dùng thường
+                    if ($post->status_approve === 'approved' && !$post->is_draft) {
+                        // Bản chính đã duyệt → tạo bản nháp
+                        $draft = $post->replicate();
+                        $draft->fill($validated);
+                        $draft->is_draft = true;
+                        $draft->status_approve = 'pending';
+                        $draft->approval_level = $user->is_approve ? 1 : 0;
+                        $draft->parent_id = $post->id;
+                        $draft->status = Post::STATUS_INACTIVE;
+                        $draft->slug = Str::slug($draft->slug ?: $draft->name) . '-draft';
+                        $draft->save();
+
+                        if ($request->filled('projects')) {
+                            $draft->projects()->sync($request->input('projects'));
+                        }
+
+                        if (Gate::allows('post/add')) {
+                            $this->addPostToScope($user, $draft->id);
+                        }
+
+                        $post = $draft;
+                    } else {
+                        // Cập nhật bản hiện tại (chưa duyệt hoặc nháp)
+                        $post->fill($validated);
+                        $post->save();
+
+                        if ($request->filled('projects')) {
+                            $post->projects()->sync($request->input('projects'));
+                        } else {
+                            $post->projects()->detach();
+                        }
+                    }
+                }
+            }
+
+            return redirect()
+                ->route('backend_post_edit', $post)
+                ->with('success', 'Lưu dữ liệu thành công ' . (
+                    $user->is_super_admin ? '(Đã duyệt)' : ($user->is_approve ? '(Chờ duyệt cấp 2)' : '')
+                ));
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['error' => 'Lỗi khi lưu dữ liệu: ' . $e->getMessage()]);
+        }
     }
-}
 
     public function approve(Post $post)
     {
@@ -363,6 +360,22 @@ class PostController extends Controller
         return redirect()
             ->route('backend_post_edit', $post->id)
             ->with('success', 'Duyệt bài viết thành công ' . ($user->is_super_admin ? '(Đã duyệt)' : '(Chờ duyệt cấp 2)'));
+    }
+
+    public function reject(Post $post)
+    {
+        $user = auth('web')->user();
+
+        if (!($user->is_super_admin || $user->is_approve)) {
+            abort(403, 'Bạn không có quyền từ chối duyệt bài viết.');
+        }
+
+        $post->status_approve = 'rejected';
+        $post->save();
+
+        return redirect()
+            ->route('backend_post_edit', ['post' => $post->id])
+            ->with('success', 'Từ chối duyệt bài viết thành công');
     }
 
     public function clone(Post $post)
@@ -641,4 +654,3 @@ class PostController extends Controller
         }
     }
 }
-

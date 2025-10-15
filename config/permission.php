@@ -2,7 +2,8 @@
 
 return [
     'backend_access' => [
-        'label' => 'Truy cập backend'
+        'label' => 'Truy cập backend',
+        'super_admin_only' => false,
     ],
     'category' => [
         'label' => 'Danh mục',
@@ -10,7 +11,8 @@ return [
             'add' => 'Thêm',
             'edit' => 'Sửa',
             'delete' => 'Xóa',
-        ]
+        ],
+        'super_admin_only' => false,
     ],
     'post' => [
         'label' => 'Bài viết',
@@ -20,7 +22,8 @@ return [
             'delete' => 'Xóa',
             'clone' => 'Nhân bản',
             'import' => 'Import từ URL',
-        ]
+        ],
+        'super_admin_only' => false,
     ],
     'investment_guide' => [
         'label' => 'Cẩm nang đầu tư',
@@ -30,16 +33,18 @@ return [
             'delete' => 'Xóa',
             'clone' => 'Nhân bản',
             'import' => 'Import từ URL',
-        ]
+        ],
+        'super_admin_only' => false,
     ],
-    // 'page' => [
-    //     'label' => 'Trang nội dung',
-    //     'items' => [
-    //         'add' => 'Thêm',
-    //         'edit' => 'Sửa',
-    //         'delete' => 'Xóa',
-    //     ]
-    // ],
+    'popup' => [
+        'label' => 'Popup',
+        'items' => [
+            'add' => 'Thêm',
+            'edit' => 'Sửa',
+            'delete' => 'Xóa',
+        ],
+        'super_admin_only' => false,
+    ],
     // 'widget' => [
     //     'label' => 'Widget',
     //     'items' => [
@@ -55,7 +60,8 @@ return [
             'add' => 'Thêm',
             'edit' => 'Sửa',
             'delete' => 'Xóa',
-        ]
+        ],
+        'super_admin_only' => false,
     ],
     'project' => [
         'label' => 'Dự án',
@@ -64,7 +70,8 @@ return [
             'edit' => 'Sửa',
             'delete' => 'Xóa',
             'clone' => 'Nhân bản',
-        ]
+        ],
+        'super_admin_only' => false,
     ],
 //    'member' => [
 //        'label' => 'Đại lý/cửa hàng',
@@ -90,7 +97,8 @@ return [
             'add' => 'Thêm',
             'edit' => 'Sửa',
             'delete' => 'Xóa',
-        ]
+        ],
+        'super_admin_only' => false,
     ],
     'group' => [
         'label' => 'User Group',
@@ -98,7 +106,8 @@ return [
             'add' => 'Thêm',
             'edit' => 'Sửa',
             'delete' => 'Xóa',
-        ]
+        ],
+        'super_admin_only' => true,
     ],
     'setting' => [
         'label' => 'Setting',
@@ -106,6 +115,7 @@ return [
             'general' => 'Cài đặt chung',
             'seo' => 'Cài đặt SEO',
             'social' => 'Cài đặt mạng xã hội',
-        ]
+        ],
+        'super_admin_only' => true,
     ]
 ];
