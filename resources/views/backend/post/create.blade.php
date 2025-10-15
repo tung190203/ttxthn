@@ -53,25 +53,28 @@
                                         <div class="modal-content">
                                             <div class="modal-header bg-success text-white">
                                                 <h5 class="modal-title" id="approveModalLabel-{{ $post->id }}">
-                                                    Xác nhận duyệt dự án
+                                                    Xác nhận duyệt tin tức
                                                 </h5>
                                                 <button type="button" class="btn-close btn-close-white" data-dismiss="modal" aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body">
-                                                Bạn có chắc chắn muốn duyệt dự án: <strong>{{ $post->name }}</strong>?
+                                                Bạn có chắc chắn muốn duyệt tin tức: <strong>{{ $post->name }}</strong>?
                                                 <p class="text-muted mt-2">
                                                     @if(auth('web')->user()->is_super_admin)
-                                                        Sau khi duyệt, dự án sẽ được cập nhật trạng thái và hiển thị cho người dùng.
+                                                        Sau khi duyệt, tin tức sẽ được cập nhật trạng thái và hiển thị cho người dùng.
                                                     @elseif(auth('web')->user()->is_approve)
-                                                        Sau khi duyệt thành công, dự án sẽ chờ duyệt lần cuối bởi admin.
+                                                        Sau khi duyệt thành công, tin tức sẽ chờ duyệt lần cuối bởi admin.
                                                     @endif
                                                 </p>
                                             </div>
                                             <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                                                <form action="{{ route('backend_post_reject', $post->id) }}" method="post" class="d-inline">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-danger fw-bold">Yêu cầu chỉnh sửa</button>
+                                                </form>
                                                 <form action="{{ route('backend_post_approve', $post->id) }}" method="post" class="d-inline">
                                                     @csrf
-                                                    <button type="submit" class="btn btn-success fw-bold">Duyệt dự án</button>
+                                                    <button type="submit" class="btn btn-success fw-bold">Duyệt tin tức</button>
                                                 </form>
                                             </div>
                                         </div>
@@ -97,8 +100,6 @@
                             label="Sắp xếp" type="number" :messages="$errors->get('priority')" />
                         <x-forms.select name="cat_id" label="Danh mục cha" :options="new HtmlString($option_categories)"
                             :messages="$errors->get('cat_id')" />
-                        {{-- <x-forms.select name="project_id" label="Thuộc dự án" :options="new HtmlString($option_projects)"
-                            :messages="$errors->get('project_id')" /> --}}
                             <x-forms.select-multiple name="projects" label="Thuộc các dự án" :options="$option_projects" :selected="old('projects', $post->projects->pluck('id')->toArray())"
                                 :messages="$errors->get('projects')" help="Chọn các dự án trực thuộc" />
 

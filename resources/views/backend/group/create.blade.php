@@ -55,31 +55,89 @@
                                 @endif
                             </div>
                         </div>
-                        <x-forms.select-multiple
-                        name="scope_data_project"
-                        label="Project Scope"
-                        :options="$projects->pluck('name','id')"
-                        :selected="$group->scope_data['project'] ?? []"
-                        :messages="$errors->get('scope_data.project')"
-                        help="Chọn những project mà group này được phép thao tác."
-                        />   
-                        <x-forms.select-multiple
-                        name="scope_data_post"
-                        label="Posts Scope"
-                        :options="$posts->pluck('name','id')"
-                        :selected="$group->scope_data['post'] ?? []"
-                        :messages="$errors->get('scope_data.post')"
-                        help="Chọn những bài viết mà group này được phép thao tác."
-                        />
-                        <x-forms.select-multiple
-                        name="scope_data_investment_guide"
-                        label="Investment Guide Scope"
-                        :options="$investment_guides->pluck('name','id')"
-                        :selected="$group->scope_data['investment_guide'] ?? []"
-                        :messages="$errors->get('scope_data.investment_guide')"
-                        help="Chọn những cẩm nang đâu tư mà group này được phép thao tác."
-                        />
-                        <div class="frm-grid">
+
+                        <div id="scope-container">
+                            <div class="scope-item" data-permission="category">
+                                <x-forms.select-multiple
+                                name="scope_data_category"
+                                label="Category Scope"
+                                :options="$category->pluck('name','id')"
+                                :selected="$group->scope_data['category'] ?? []"
+                                :messages="$errors->get('scope_data.category')"
+                                help="Chọn những danh mục mà group này được phép thao tác."
+                                />
+                            </div>
+
+                            <div class="scope-item" data-permission="project">
+                                <x-forms.select-multiple
+                                name="scope_data_project"
+                                label="Project Scope"
+                                :options="$projects->pluck('name','id')"
+                                :selected="$group->scope_data['project'] ?? []"
+                                :messages="$errors->get('scope_data.project')"
+                                help="Chọn những project mà group này được phép thao tác."
+                                />
+                            </div>
+
+                            <div class="scope-item" data-permission="post">
+                                <x-forms.select-multiple
+                                name="scope_data_post"
+                                label="Posts Scope"
+                                :options="$posts->pluck('name','id')"
+                                :selected="$group->scope_data['post'] ?? []"
+                                :messages="$errors->get('scope_data.post')"
+                                help="Chọn những bài viết mà group này được phép thao tác."
+                                />
+                            </div>
+
+                            <div class="scope-item" data-permission="investment_guide">
+                                <x-forms.select-multiple
+                                name="scope_data_investment_guide"
+                                label="Investment Guide Scope"
+                                :options="$investment_guides->pluck('name','id')"
+                                :selected="$group->scope_data['investment_guide'] ?? []"
+                                :messages="$errors->get('scope_data.investment_guide')"
+                                help="Chọn những cẩm nang đâu tư mà group này được phép thao tác."
+                                />
+                            </div>
+
+                            <div class="scope-item" data-permission="menu">
+                                <x-forms.select-multiple
+                                name="scope_data_menu"
+                                label="Menu Scope"
+                                :options="$menus->pluck('name','id')"
+                                :selected="$group->scope_data['menu'] ?? []"
+                                :messages="$errors->get('scope_data.menu')"
+                                help="Chọn những menu mà group này được phép thao tác."
+                                />
+                            </div>
+
+                            <div class="scope-item" data-permission="popup">
+                                <x-forms.select-multiple-image
+                                name="scope_data_popup"
+                                label="Popup Scope"
+                                :options="$popups->pluck('image','id')"
+                                :selected="$group->scope_data['popup'] ?? []"
+                                :messages="$errors->get('scope_data.popup')"
+                                help="Chọn những popup mà group này được phép thao tác."
+                                displayType="image"
+                                imageHeight="50px"
+                                />
+                            </div>
+
+                            <div class="scope-item" data-permission="user">
+                                <x-forms.select-multiple
+                                name="scope_data_user"
+                                label="User Scope"
+                                :options="$users->pluck('name','id')"
+                                :selected="$group->scope_data['user'] ?? []"
+                                :messages="$errors->get('scope_data.user')"
+                                help="Chọn những user mà group này được phép thao tác."
+                                />
+                            </div>
+                        </div>
+
+                        {{-- <div class="frm-grid">
                             <div>
                                 <label>Permission Grant</label>
                                 @if($errors->has('permission'))
@@ -89,8 +147,12 @@
                                     <ul>
                                         @foreach($permission_configs as $module_key => $permission_data)
                                             <li>
-                                                <input type="checkbox" name="permission[{{ $module_key }}]"
-                                                       id="permission_{{ $module_key }}" value="1"
+                                                <input type="checkbox" 
+                                                       name="permission[{{ $module_key }}]"
+                                                       id="permission_{{ $module_key }}" 
+                                                       value="1"
+                                                       data-module="{{ $module_key }}"
+                                                       class="permission-checkbox"
                                                        @if(in_array($module_key , ($group->permission_data ?? [])))
                                                            checked="checked"
                                                         @endif
@@ -123,8 +185,63 @@
                                     </ul>
                                 </div>
                             </div>
+                        </div> --}}
+                        <div class="frm-grid">
+                            <div>
+                                <label>Permission Grant</label>
+                                @if($errors->has('permission'))
+                                    <div class="text-danger">{{ $errors->first('permission') }}</div>
+                                @endif
+                                <div class="backend-perm-tree js-permission_tree">
+                                    <ul>
+                                        @foreach($permission_configs as $module_key => $permission_data)
+                                            @php
+                                                $requireSuperAdmin = $permission_data['super_admin_only'] ?? false;
+                                                $canView = !$requireSuperAdmin || auth('web')->user()->is_super_admin;
+                                            @endphp
+                                            
+                                            @if($canView)
+                                                <li>
+                                                    <input type="checkbox" 
+                                                           name="permission[{{ $module_key }}]"
+                                                           id="permission_{{ $module_key }}" 
+                                                           value="1"
+                                                           data-module="{{ $module_key }}"
+                                                           class="permission-checkbox"
+                                                           @if(in_array($module_key , ($group->permission_data ?? [])))
+                                                               checked="checked"
+                                                            @endif
+                                                    >
+                                                    <label class="label-inline" for="permission_{{ $module_key }}">
+                                                        {{ $permission_data['label'] }}
+                                                    </label>
+                                                    @if(!empty($permission_data['items']))
+                                                        <ul>
+                                                            @foreach($permission_data['items'] as $per_lv1_key => $per_lv1_value)
+                                                                <li>
+                                                                    <input type="checkbox"
+                                                                           name="permission[{{ $module_key }}][{{ $per_lv1_key }}]"
+                                                                           id="permission_{{ $module_key }}_{{ $per_lv1_key }}"
+                                                                           value="1"
+                                                                           @if(in_array($module_key . '/' . $per_lv1_key , ($group->permission_data ?? [])))
+                                                                               checked="checked"
+                                                                            @endif
+                                                                    >
+                                                                    <label class="label-inline"
+                                                                           for="permission_{{ $module_key }}_{{ $per_lv1_key }}">
+                                                                        {{ $per_lv1_value }}
+                                                                    </label>
+                                                                </li>
+                                                            @endforeach
+                                                        </ul>
+                                                    @endif
+                                                </li>
+                                            @endif
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
-
                     </div>
                 </form>
             </div>
@@ -213,15 +330,42 @@
         .backend-perm-tree li > input:checked + label + ul {
             display: block;
         }
+
+        .scope-item {
+            display: none;
+        }
+
+        .scope-item.active {
+            display: block;
+        }
     </style>
     <script>
         $(document).ready(function () {
+            function toggleScopes() {
+                $('.scope-item').each(function() {
+                    const permission = $(this).data('permission');
+                    const checkbox = $(`#permission_${permission}`);
+                    
+                    if (checkbox.length && checkbox.is(':checked')) {
+                        $(this).addClass('active');
+                    } else {
+                        $(this).removeClass('active');
+                    }
+                });
+            }
+
+            toggleScopes();
+
+            $('.permission-checkbox').on('change', function() {
+                toggleScopes();
+            });
+
             $('input[type="checkbox"]').change(function () {
                 if (!$(this).is(':checked')) {
                     $(this).closest('li').find('ul input[type="checkbox"]').prop('checked', false);
                 }
+                toggleScopes();
             });
         });
-
     </script>
 @endsection

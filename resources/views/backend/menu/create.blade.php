@@ -34,6 +34,49 @@
                                 <x-forms.button-url title="Xóa" class="btn-danger" icon="fa fa-trash"
                                                     url="{{ route('backend_menu_delete', $menu->id) }}"/>
                             @endcan
+                            @if(
+                                (auth('web')->user()->is_super_admin || auth('web')->user()->is_approve) &&
+                                $menu->status_approve === 'pending'
+                            )
+                                <!-- Button trigger modal -->
+                                <button type="button" class="btn btn-sm fw-bold btn-success" data-toggle="modal" data-target="#approveModal-{{ $menu->id }}">
+                                    <i class="fa fa-check" aria-hidden="true"></i> Duyệt
+                                </button>
+
+                                <!-- Modal -->
+                                <div class="modal fade" id="approveModal-{{ $menu->id }}" tabindex="-1" aria-labelledby="approveModalLabel-{{ $menu->id }}" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-success text-white">
+                                                <h5 class="modal-title" id="approveModalLabel-{{ $menu->id }}">
+                                                    Xác nhận duyệt menu
+                                                </h5>
+                                                <button type="button" class="btn-close btn-close-white" data-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Bạn có chắc chắn muốn duyệt menu: <strong>{{ $menu->name }}</strong>?
+                                                <p class="text-muted mt-2">
+                                                    @if(auth('web')->user()->is_super_admin)
+                                                        Sau khi duyệt, menu sẽ được cập nhật trạng thái và hiển thị cho người dùng.
+                                                    @elseif(auth('web')->user()->is_approve)
+                                                        Sau khi duyệt thành công, menu sẽ chờ duyệt lần cuối bởi admin.
+                                                    @endif
+                                                </p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <form action="{{ route('backend_menu_reject', $menu->id) }}" method="post" class="d-inline">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-danger fw-bold">Yêu cầu chỉnh sửa</button>
+                                                </form>
+                                                <form action="{{ route('backend_menu_approve', $menu->id) }}" method="post" class="d-inline">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-success fw-bold">Duyệt menu</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
                         @endif
                     </div>
                 </div>
@@ -58,7 +101,7 @@
                                         :messages="$errors->get('status')"/>
                         {{-- <x-forms.select name="page_id" label="[1]. Trang" :options="new HtmlString($option_pages)"
                                         :messages="$errors->get('page_id')"/>
-                        <x-forms.select name="cat_id" label="[2]. Danh mục"
+                        <x-forms.select name="cat_id" label="[2]. menu"
                                         :options="new HtmlString($option_categories)"
                                         :messages="$errors->get('cat_id')"/>
                         <x-forms.input name="custom_link" value="{{ old('custom_link') ?: $menu->custom_link }}"

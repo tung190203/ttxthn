@@ -66,7 +66,10 @@
                                                 </p>
                                             </div>
                                             <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                                                <form action="{{ route('backend_project_reject', $project->id) }}" method="post" class="d-inline">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-danger fw-bold">Yêu cầu chỉnh sửa</button>
+                                                </form>
                                                 <form action="{{ route('backend_project_approve', $project->id) }}" method="post" class="d-inline">
                                                     @csrf
                                                     <button type="submit" class="btn btn-success fw-bold">Duyệt dự án</button>

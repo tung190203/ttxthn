@@ -27,11 +27,11 @@ return [
                     'route' => 'backend_investment_guide',
                     'title' => 'Cẩm nang đầu tư',
                 ],
-                'widget' => [
-                    'icon' => 'fas fa-puzzle-piece',
-                    'route' => 'backend_widget',
-                    'title' => 'Widgets',
-                ],
+                // 'widget' => [
+                //     'icon' => 'fas fa-puzzle-piece',
+                //     'route' => 'backend_widget',
+                //     'title' => 'Widgets',
+                // ],
                 'menu' => [
                     'icon' => 'fas fa-bars',
                     'route' => 'backend_menu',
@@ -47,11 +47,11 @@ return [
 //                    'route' => 'backend_member',
 //                    'title' => 'Đại lý/cửa hàng',
 //                ],
-                // 'page' => [
-                //     'icon' => 'far fa-file',
-                //     'route' => 'backend_page',
-                //     'title' => 'Trang nội dung',
-                // ],
+                'popup' => [
+                    'icon' => 'fas fa-window-restore',
+                    'route' => 'backend_popup',
+                    'title' => 'Popup',
+                ],
                'vr_tour' => [
                    'icon' => 'fas fa-vr-cardboard',
                    'title' => 'VrTour',

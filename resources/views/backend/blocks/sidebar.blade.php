@@ -31,10 +31,13 @@
                                     </a>
                                     <ul class="nav nav-treeview">
                                         @foreach($backend_items['items'] as $backend_key => $backend_item )
-                                            @can($backend_parent_key . '/' . $backend_key)
+                                            @php
+                                                $permissionKey = $backend_parent_key === 'user' ? $backend_key : $backend_parent_key . '/' . $backend_key;
+                                            @endphp
+                                            @can($permissionKey)
                                                 <li class="nav-item">
                                                     <a href="{{ route($backend_item['route']) }}"
-                                                       class="nav-link @if(!empty($selectedSubMenu) && $selectedSubMenu == $backend_key) active @endif">
+                                                    class="nav-link @if(!empty($selectedSubMenu) && $selectedSubMenu == $backend_key) active @endif">
                                                         <i class="nav-icon fas fa-angle-right"></i>
                                                         <p>{{ $backend_item['title'] }}</p>
                                                     </a>

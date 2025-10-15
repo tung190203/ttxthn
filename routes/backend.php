@@ -5,6 +5,7 @@ use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\MenuController;
 use App\Http\Controllers\Backend\PageController;
 use App\Http\Controllers\Backend\MemberController;
+use App\Http\Controllers\Backend\PopupController;
 use App\Http\Controllers\Backend\PostController;
 use App\Http\Controllers\Backend\FeedbackController;
 use App\Http\Controllers\Backend\FileManagerController;
@@ -18,6 +19,7 @@ use App\Http\Controllers\Backend\InvestMentGuideController;
 use App\Http\Controllers\Backend\VrTour\SkinController;
 use App\Http\Controllers\Backend\VrTour\HotspotController;
 use App\Http\Controllers\Backend\VrTour\ContentController;
+use App\Models\InvestmentGuide;
 use Illuminate\Support\Facades\Route;
 
 Route::localized(function () {
@@ -36,6 +38,8 @@ Route::localized(function () {
             Route::post('/save/{category?}', [CategoryController::class, 'save'])->name('backend_category_save');
             Route::get('/delete/{id}', [CategoryController::class, 'delete'])->name('backend_category_delete');
             Route::post('/bulk_delete', [CategoryController::class, 'bulkDelete'])->name('backend_category_bulk_delete');
+            Route::post('approve/{category}', [CategoryController::class, 'approve'])->name('backend_category_approve');
+            Route::post('/reject/{category}', [CategoryController::class, 'reject'])->name('backend_category_reject');
         });
 
         Route::prefix('menu')->group(function () {
@@ -46,6 +50,8 @@ Route::localized(function () {
             Route::post('/save/{menu?}', [MenuController::class, 'save'])->name('backend_menu_save');
             Route::get('/delete/{id}', [MenuController::class, 'delete'])->name('backend_menu_delete');
             Route::post('/bulk_delete', [MenuController::class, 'bulkDelete'])->name('backend_menu_bulk_delete');
+            Route::post('approve/{menu}', [MenuController::class, 'approve'])->name('backend_menu_approve');
+            Route::post('/reject/{menu}', [MenuController::class, 'reject'])->name('backend_menu_reject');
         });
 
         Route::prefix('page')->group(function () {
@@ -56,6 +62,18 @@ Route::localized(function () {
             Route::post('/save/{page?}', [PageController::class, 'save'])->name('backend_page_save');
             Route::get('/delete/{id}', [PageController::class, 'delete'])->name('backend_page_delete');
             Route::post('/bulk_delete', [PageController::class, 'bulkDelete'])->name('backend_page_bulk_delete');
+        });
+
+        Route::prefix('popup')->group(function () {
+            Route::get('/', [PopupController::class, 'index'])->name('backend_popup');
+            Route::post('/', [PopupController::class, 'saveDataIndex'])->name('backend_popup_save_data_index');
+            Route::get('/create', [PopupController::class, 'edit'])->name('backend_popup_create');
+            Route::get('/edit/{popup}', [PopupController::class, 'edit'])->name('backend_popup_edit');
+            Route::post('/save/{popup?}', [PopupController::class, 'save'])->name('backend_popup_save');
+            Route::get('/delete/{id}', [PopupController::class, 'delete'])->name('backend_popup_delete');
+            Route::post('/bulk_delete', [PopupController::class, 'bulkDelete'])->name('backend_popup_bulk_delete');
+            Route::post('approve/{popup}', [PopupController::class, 'approve'])->name('backend_popup_approve');
+            Route::post('/reject/{popup}', [PopupController::class, 'reject'])->name('backend_popup_reject');
         });
 
         Route::prefix('member')->group(function () {
@@ -82,6 +100,7 @@ Route::localized(function () {
             Route::get('import', [PostController::class, 'showImportForm'])->name('backend_post_show_import_form');
             Route::post('import', [PostController::class, 'importFromUrl'])->name('backend_post_import');
             Route::post('approve/{post}', [PostController::class, 'approve'])->name('backend_post_approve');
+            Route::post('/reject/{post}', [PostController::class, 'reject'])->name('backend_post_reject');
         });
 
         Route::prefix('investment_guide')->group(function () {
@@ -98,6 +117,7 @@ Route::localized(function () {
             Route::get('import', [InvestMentGuideController::class, 'showImportForm'])->name('backend_investment_guide_show_import_form');
             Route::post('import', [InvestMentGuideController::class, 'importFromUrl'])->name('backend_investment_guide_import');
             Route::post('approve/{investment_guide}', [InvestMentGuideController::class, 'approve'])->name('backend_investment_guide_approve');
+            Route::post('/reject/{investment_guide}', [InvestmentGuideController::class, 'reject'])->name('backend_investment_guide_reject');
         });
 
         Route::get('file-manager', [FileManagerController::class, 'index'])->name('backend_file_manager');
@@ -123,6 +143,8 @@ Route::localized(function () {
             Route::get('create', [UserController::class, 'edit'])->name('backend_user_create');
             Route::get('edit/{user}', [UserController::class, 'edit'])->name('backend_user_edit');
             Route::get('delete/{user}', [UserController::class, 'delete'])->name('backend_user_delete');
+            Route::post('approve/{user}', [UserController::class, 'approve'])->name('backend_user_approve');
+            Route::post('/reject/{user}', [UserController::class, 'reject'])->name('backend_user_reject');
         });
 
         Route::prefix('group')->group(function () {
@@ -153,6 +175,7 @@ Route::localized(function () {
             Route::get('delete/{id}', [ProjectController::class, 'delete'])->name('backend_project_delete');
             Route::post('bulk_delete', [ProjectController::class, 'bulkDelete'])->name('backend_project_bulk_delete');
             Route::post('/approve/{project}', [ProjectController::class, 'approve'])->name('backend_project_approve');
+            Route::post('/reject/{project}', [ProjectController::class, 'reject'])->name('backend_project_reject');
         });
 
         Route::prefix('vrtour')->group(function () {
