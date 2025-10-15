@@ -9,7 +9,6 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <link href="{{ asset('backend_assets/vendor/fontawesome/all.min.css') }}" rel="stylesheet">
-    {{--    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">--}}
     <link href="{{ asset('backend_assets/vendor/bootstrap/tempusdominus-bootstrap-4.min.css') }}" rel="stylesheet">
     <link href="{{ asset('backend_assets/vendor/bootstrap/icheck-bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('backend_assets/css/adminlte.min.css') }}" rel="stylesheet">
@@ -18,7 +17,6 @@
     <link rel="stylesheet" href="{{ asset('backend_assets/vendor/toastr/toastr.min.css') }}">
     <link href="{{ asset('backend_assets/css/style.css') }}?v=1.1.1" rel="stylesheet">
 
-    <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
 
     <script src="{{ asset('backend_assets/js/jquery.min.js') }}"></script>
@@ -38,19 +36,37 @@
     </script>
     <base href="{{ url('/') }}">
 
+    {{-- Style cho trang không có sidebar --}}
+    @if(!empty($hideSidebar))
+    <style>
+        .main-sidebar {
+            display: none !important;
+        }
+        .content-wrapper {
+            margin-left: 0 !important;
+        }
+    </style>
+    @endif
+
 </head>
-<body class="hold-transition sidebar-mini layout-fixed">
+<body class="hold-transition sidebar-mini layout-fixed {{ !empty($hideSidebar) ? 'sidebar-collapse' : '' }}">
 <div class="wrapper">
-    @include('backend.header')
-    @include('backend.blocks.sidebar')
+    @if(empty($hideHeader))
+        @include('backend.header')
+    @endif
+    
+    @if(empty($hideSidebar))
+        @include('backend.blocks.sidebar')
+    @endif
 
     <div class="content-wrapper">
+        @if(empty($hideBreadcrumb))
         <div class="content-header">
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-sm-6">
                         <h1 class="m-0 text-dark">@yield('title')</h1>
-                    </div><!-- /.col -->
+                    </div>
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
                             <li class="breadcrumb-item"><a href="{{ route('backend_home') }}">Home</a></li>
@@ -60,13 +76,16 @@
                 </div>
             </div>
         </div>
+        @endif
 
         <section class="content">
             @yield('content')
         </section>
     </div>
 
-    @include('backend.footer')
+    @if(empty($hideFooter))
+        @include('backend.footer')
+    @endif
 
 </div>
 
@@ -77,10 +96,6 @@
 <script src="{{ asset('backend_assets/vendor/toastr/toastr.min.js') }}"></script>
 
 <script src="{{ asset('backend_assets/js/app.js') }}"></script>
-
-<script>
-    // $.ajaxSetup({headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')}});
-</script>
 
 <x-forms.notification success="{{ session('success') }}" error="{{ session('error') }}"/>
 

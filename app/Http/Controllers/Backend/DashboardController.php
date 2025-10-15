@@ -24,7 +24,11 @@ class DashboardController extends Controller
         $permissions = array_values(array_filter($permissions, fn($p) => $p !== 'backend_access'));
         if (empty($permissions)) {
             return view('backend.no_permission', [
-                'message' => 'Bạn chưa được cấp quyền truy cập bất kỳ chức năng nào. Vui lòng liên hệ quản trị viên.'
+                'message' => 'Bạn chưa được cấp quyền truy cập bất kỳ chức năng nào. Vui lòng liên hệ quản trị viên.',
+                'hideSidebar' => true,
+                'hideHeader' => true,
+                'hideFooter' => true,
+                'hideBreadcrumb' => true
             ]);
         }
         $firstPermission = $permissions[0];
@@ -34,7 +38,8 @@ class DashboardController extends Controller
         }
 
         return view('backend.no_permission', [
-            'message' => 'Không tìm thấy trang phù hợp với quyền của bạn.'
+            'message' => 'Không tìm thấy trang phù hợp với quyền của bạn.',
+            'hideSidebar' => true
         ]);
     }
 }
