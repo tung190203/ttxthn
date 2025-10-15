@@ -444,7 +444,7 @@ class ProjectController extends Controller
             abort(403, 'Bạn không có quyền từ chối duyệt dự án.');
         }
 
-        $project->status_approve = 'rejected';
+        $project->status = 'rejected';
         $project->save();
 
         return redirect()
