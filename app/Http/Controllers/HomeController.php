@@ -10,6 +10,7 @@ use App\Models\District;
 use App\Models\Post;
 use App\Models\InvestmentGuide;
 use App\Models\Page;
+use App\Models\Popup;
 use App\Models\ProductType;
 use App\Models\Project;
 use App\Models\ProjectIndustries;
@@ -104,6 +105,7 @@ class HomeController extends Controller
         })->toArray();
         $maxPrice = $rawProjects->max('price');
         $maxPriceSp = Project::where('industry_number', 6)->where('status','approved')->max('price');
+        $popups = Popup::where('status_approve', 'approved')->get();
         return view(
             'frontend.home.index',
             compact(
@@ -119,7 +121,8 @@ class HomeController extends Controller
                 'posts',
                 'maxPrice',
                 'maxPriceSp',
-                'list_industries'
+                'list_industries',
+                'popups'
             )
         );
     }
@@ -365,10 +368,11 @@ class HomeController extends Controller
         $banners = Widget::getByPosition('HOME_BANNER');
         $setting['menu_active'] = 'cam-nang-dau-tu';
         $parentCategory = Category::where('slug', $setting['menu_active'])
+            ->where('status_approve', 'approved')
             ->where('type', Category::CATEGORY_TYPE_INVESTMENT_HANDBOOK)
             ->firstOrFail();
 
-        $subQuery = Category::where('parent_id', $parentCategory->id);
+        $subQuery = Category::where('parent_id', $parentCategory->id)->where('status_approve', 'approved');
 
         $subCategories = $subQuery->pluck('id')->toArray();
 

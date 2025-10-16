@@ -384,6 +384,36 @@
                 </div>
             </div>
         </div>
+        <div id="homePopup" 
+        style="display:none; position: fixed; inset: 0;
+               background: rgba(0,0,0,0.6); z-index: 9999;
+               justify-content: center; align-items: center;">
+   
+       <div id="popupBox" 
+            style="position: relative; width: 70%; height: 60%;
+                   background: #fff; border-radius: 12px; overflow: hidden;
+                   box-shadow: 0 4px 20px rgba(0,0,0,0.3); display: flex; flex-direction: column; margin: 10px;">
+           
+           {{-- Header --}}
+           <div id="popupHeader" 
+                style="height: 40px; background: #f5f5f5; display: flex; 
+                       align-items: center; justify-content: flex-end; padding: 0 10px;">
+               <button id="closePopup"
+                       style="border: none; background: transparent; font-size: 22px; 
+                              font-weight: bold; cursor: pointer; color: #333;">
+                   ×
+               </button>
+           </div>
+   
+           {{-- Body (ảnh cover + link) --}}
+           <div id="popupBody" style="flex: 1; position: relative;">
+               <a id="popupLink" href="#" target="_blank" 
+                  style="display:block; width:100%; height:100%;
+                         background-size: cover; background-position: center;">
+               </a>
+           </div>
+       </div>
+   </div>
     </div>
 @endsection
 
@@ -1133,6 +1163,56 @@
             function closeFullForm() {
                 $fullBox.removeClass("show").hide();
                 $miniBox.show();
+            }
+        });
+        $(document).ready(function () {
+            const popup = $('#homePopup');
+            const closeBtn = $('#closePopup');
+            const popupBody = $('#popupBody');
+            const popupLink = $('#popupLink');
+
+            // Danh sách popup (ảnh + link)
+            const popups = [
+                @foreach($popups as $popup)
+                    {
+                        image: "{{ asset($popup->image) }}",
+                        link: "{{ $popup->link }}"
+                    },
+                @endforeach
+            ];
+
+            // Hiện popup nếu chưa tắt
+            if (!localStorage.getItem('home_popup_closed') && popups.length > 0) {
+                let current = 0;
+
+                function showPopup(index) {
+                    const item = popups[index];
+                    popupLink.css('background-image', 'url(' + item.image + ')');
+                    popupLink.attr('href', item.link);
+                    popup.css('display', 'flex').hide().fadeIn(300);
+                }
+
+                showPopup(current);
+
+                // Nếu có nhiều popup thì tự chuyển
+                if (popups.length > 1) {
+                    setInterval(() => {
+                        current = (current + 1) % popups.length;
+                        popupBody.fadeOut(200, function () {
+                            const item = popups[current];
+                            popupLink.css('background-image', 'url(' + item.image + ')');
+                            popupLink.attr('href', item.link);
+                            popupBody.fadeIn(300);
+                        });
+                    }, 4000);
+                }
+
+                // Đóng popup
+                closeBtn.on('click', function (e) {
+                    e.preventDefault();
+                    popup.fadeOut(200);
+                    localStorage.setItem('home_popup_closed', 'true');
+                });
             }
         });
     </script>
