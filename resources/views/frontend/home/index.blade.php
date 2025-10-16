@@ -385,35 +385,34 @@
             </div>
         </div>
         <div id="homePopup" 
-        style="display:none; position: fixed; inset: 0;
-               background: rgba(0,0,0,0.6); z-index: 9999;
-               justify-content: center; align-items: center;">
-   
-       <div id="popupBox" 
-            style="position: relative; width: 70%; height: 60%;
-                   background: #fff; border-radius: 12px; overflow: hidden;
-                   box-shadow: 0 4px 20px rgba(0,0,0,0.3); display: flex; flex-direction: column; margin: 10px;">
-           
-           {{-- Header --}}
-           <div id="popupHeader" 
-                style="height: 40px; background: #f5f5f5; display: flex; 
-                       align-items: center; justify-content: flex-end; padding: 0 10px;">
-               <button id="closePopup"
-                       style="border: none; background: transparent; font-size: 22px; 
-                              font-weight: bold; cursor: pointer; color: #333;">
-                   ×
-               </button>
-           </div>
-   
-           {{-- Body (ảnh cover + link) --}}
-           <div id="popupBody" style="flex: 1; position: relative;">
-               <a id="popupLink" href="#" target="_blank" 
-                  style="display:block; width:100%; height:100%;
-                         background-size: cover; background-position: center;">
-               </a>
-           </div>
-       </div>
-   </div>
+            style="display:none; position: fixed; inset: 0;
+                    background: rgba(0,0,0,0.6); z-index: 9999;
+                    justify-content: center; align-items: center;">
+
+            <div id="popupBox" 
+                style="position: relative; width: 70%; height: 60%;
+                        background: #fff; border-radius: 12px; overflow: hidden;
+                        box-shadow: 0 4px 20px rgba(0,0,0,0.3); display: flex; flex-direction: column; margin: 10px;">
+
+                {{-- Body (ảnh cover + link + nút đóng) --}}
+                <div id="popupBody" style="flex: 1; position: relative;">
+                    <a id="popupLink" href="#" target="_blank" 
+                    style="display:block; width:100%; height:100%;
+                            background-size: cover; background-position: center;">
+                    </a>
+
+                    <!-- Nút đóng nằm trên góc phải ảnh -->
+                    <button id="closePopup"
+                            style="position: absolute; top: 10px; right: 10px;
+                                border: none; background: rgba(0,0,0,0.5);
+                                color: #fff; font-size: 24px; font-weight: bold;
+                                cursor: pointer; border-radius: 50%; width: 36px; height: 36px;
+                                line-height: 32px; text-align: center;">
+                        ×
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 @endsection
 
