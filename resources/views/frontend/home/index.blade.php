@@ -1211,7 +1211,7 @@
                 closeBtn.on('click', function (e) {
                     e.preventDefault();
                     popup.fadeOut(200);
-                    localStorage.setItem('home_popup_closed', 'true');
+                    sessionStorage.setItem('home_popup_closed', 'true');
                 });
             }
         });
