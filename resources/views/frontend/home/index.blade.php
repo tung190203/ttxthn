@@ -398,7 +398,7 @@
                 <div id="popupBody" style="flex: 1; position: relative;">
                     <a id="popupLink" href="#" target="_blank" 
                     style="display:block; width:100%; height:100%;
-                            background-size: cover; background-position: center;">
+                            background-size: 100% 100%; background-position: center;">
                     </a>
 
                     <!-- Nút đóng nằm trên góc phải ảnh -->
