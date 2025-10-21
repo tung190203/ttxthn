@@ -340,11 +340,10 @@ class CategoryController extends Controller
             abort(403, 'Bạn không có quyền từ chối duyệt danh mục.');
         }
 
-        $category->status_approve = 'rejected';
-        $category->save();
+        $category->delete();
 
         return redirect()
-            ->route('backend_category_edit', ['category' => $category->id])
+            ->route('backend_category')
             ->with('success', 'Từ chối duyệt danh mục thành công');
     }
 

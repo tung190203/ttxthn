@@ -248,9 +248,9 @@
                 
                                                                 $fmt = new \NumberFormatter($locale, \NumberFormatter::DECIMAL);
                                                                 $fmt->setAttribute(\NumberFormatter::FRACTION_DIGITS, 2);
-                                                                $formattedArea = $fmt->format($item->area ?? 0);
+                                                                $formattedArea = $fmt->format($item['area'] ?? 0);
                                                             @endphp
-                                                            <span>{{ $formattedArea }} {{ $item->unit ?? '' }}</span>
+                                                            <span>{{ $formattedArea }} {{ $item['unit'] ?? '' }}</span>
                                                         </li>                                                                 
                                                         </li>
                                                         <li><img class="me-2" src="./images/icon-save-money.svg"
@@ -385,34 +385,36 @@
             </div>
         </div>
         <div id="homePopup" 
-            style="display:none; position: fixed; inset: 0;
-                    background: rgba(0,0,0,0.6); z-index: 9999;
-                    justify-content: center; align-items: center;">
-
-            <div id="popupBox" 
-                style="position: relative; width: 70%; height: 60%;
-                        background: #fff; border-radius: 12px; overflow: hidden;
-                        box-shadow: 0 4px 20px rgba(0,0,0,0.3); display: flex; flex-direction: column; margin: 10px;">
-
-                {{-- Body (ảnh cover + link + nút đóng) --}}
-                <div id="popupBody" style="flex: 1; position: relative;">
-                    <a id="popupLink" href="#" target="_blank" 
-                    style="display:block; width:100%; height:100%;
-                            background-size: 100% 100%; background-position: center;">
-                    </a>
-
-                    <!-- Nút đóng nằm trên góc phải ảnh -->
-                    <button id="closePopup"
-                            style="position: absolute; top: 10px; right: 10px;
-                                border: none; background: rgba(0,0,0,0.5);
-                                color: #fff; font-size: 24px; font-weight: bold;
-                                cursor: pointer; border-radius: 50%; width: 36px; height: 36px;
-                                line-height: 32px; text-align: center;">
-                        ×
-                    </button>
-                </div>
-            </div>
+        style="display:none; position:fixed; inset:0;
+               background:rgba(0,0,0,0.6); z-index:9999;
+               justify-content:center; align-items:center;">
+      
+        <div id="popupBox"
+          style="position:relative; width:80%; max-width:900px;
+                 background:#fff; border-radius:12px; overflow:hidden;
+                 box-shadow:0 4px 20px rgba(0,0,0,0.3);">
+      
+          <div id="popupBody" 
+            style="position:relative; width:100%; aspect-ratio:16/9; overflow:hidden;">
+            
+            <a id="popupLink" href="#" target="_blank"
+              style="display:block; width:100%; height:100%;
+                     background-position:center; background-repeat:no-repeat;
+                     background-size:cover;">
+            </a>
+      
+            <button id="closePopup"
+              style="position:absolute; top:10px; right:10px;
+                     border:none; background:rgba(0,0,0,0.5);
+                     color:#fff; font-size:24px; font-weight:bold;
+                     cursor:pointer; border-radius:50%; width:36px; height:36px;
+                     line-height:32px; text-align:center;">
+              ×
+            </button>
+          </div>
         </div>
+      </div>
+      
     </div>
 @endsection
 

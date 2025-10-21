@@ -419,12 +419,10 @@ class InvestMentGuideController extends Controller
         if (!($user->is_super_admin || $user->is_approve)) {
             abort(403, 'Bạn không có quyền từ chối duyệt cẩm nang đầu tư.');
         }
-
-        $investment_guide->status_approve = 'rejected';
-        $investment_guide->save();
+        $investment_guide->delete();
 
         return redirect()
-            ->route('backend_investment_guide_edit', ['investment_guide' => $investment_guide->id])
+            ->route('backend_investment_guide')
             ->with('success', 'Từ chối duyệt cẩm nang đầu tư thành công');
     }
 
