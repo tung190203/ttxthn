@@ -369,12 +369,10 @@ class PostController extends Controller
         if (!($user->is_super_admin || $user->is_approve)) {
             abort(403, 'Bạn không có quyền từ chối duyệt bài viết.');
         }
-
-        $post->status_approve = 'rejected';
-        $post->save();
+        $post->delete();
 
         return redirect()
-            ->route('backend_post_edit', ['post' => $post->id])
+            ->route('backend_post')
             ->with('success', 'Từ chối duyệt bài viết thành công');
     }
 

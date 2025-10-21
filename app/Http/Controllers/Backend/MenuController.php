@@ -301,11 +301,10 @@ class MenuController extends Controller
             abort(403, 'Bạn không có quyền từ chối menu.');
         }
 
-        $menu->status_approve = 'rejected';
-        $menu->save();
+        $menu->delete();
 
         return redirect()
-            ->route('backend_menu_edit', ['menu' => $menu->id])
+            ->route('backend_menu')
             ->with('success', 'Từ chối duyệt menu thành công');
     }
 

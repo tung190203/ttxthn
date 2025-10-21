@@ -443,12 +443,10 @@ class ProjectController extends Controller
         if (!($user->is_super_admin || $user->is_approve)) {
             abort(403, 'Bạn không có quyền từ chối duyệt dự án.');
         }
-
-        $project->status = 'rejected';
-        $project->save();
+        $project->delete();
 
         return redirect()
-            ->route('backend_category_edit', ['project' => $project->id])
+            ->route('backend_category')
             ->with('success', 'Từ chối duyệt dự án thành công');
     }
 

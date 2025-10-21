@@ -237,12 +237,10 @@ class PopupController extends Controller
         if (!($user->is_super_admin || $user->is_approve)) {
             abort(403, 'Bạn không có quyền từ chối duyệt popup.');
         }
-
-        $popup->status_approve = 'rejected';
-        $popup->save();
+        $popup->delete();
 
         return redirect()
-            ->route('backend_popup_edit', ['popup' => $popup->id])
+            ->route('backend_popup')
             ->with('success', 'Từ chối duyệt popup thành công');
     }
 

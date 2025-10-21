@@ -318,12 +318,10 @@ class UserController extends Controller
         if (!($checkUser->is_super_admin || $checkUser->is_approve)) {
             abort(403, 'Bạn không có quyền từ chối duyệt user.');
         }
-
-        $user->status_approve = 'rejected';
-        $user->save();
+        $user->delete();
 
         return redirect()
-            ->route('backend_user_edit', ['user' => $user->id])
+            ->route('backend_user')
             ->with('success', 'Từ chối duyệt user thành công');
     }
 
