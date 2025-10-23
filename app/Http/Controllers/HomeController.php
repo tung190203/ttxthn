@@ -98,6 +98,7 @@ class HomeController extends Controller
                 'industry_number' => $project->industry_number,
                 'area' => $project->area,
                 'unit' => $project->unit_type_text,
+                'price' => $project->price,
                 'districts' => $project->districts->pluck('name')->implode(', '),
                 'is_invest' => $project->is_invest,
                 'is_interested' => $project->interests()->where('guest_id', Auth::guard('guest')->id())->exists(),

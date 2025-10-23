@@ -147,7 +147,7 @@
                                                     @endphp
                                                     <span>{{ $formattedArea }} {{ $item->unit_type_text ?? '' }}</span>
                                                 </li>
-                                                <li><img class="me-2" src="./images/icon-save-money.svg" alt=""/><span>Theo đề xuất</span>
+                                                <li><img class="me-2" src="./images/icon-save-money.svg" alt=""/><span>{{ number_format($item->price, 0, ',','.' )}} tỷ đồng</span>
                                                 </li>
                                             </ul>
                                         </div>
