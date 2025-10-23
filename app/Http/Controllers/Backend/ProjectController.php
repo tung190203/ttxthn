@@ -44,14 +44,7 @@ class ProjectController extends Controller
 
         $query = $this->project
         ->with(['type', 'industry', 'districts', 'draft', 'parent'])
-        ->where(function ($q) {
-            $q->where(function ($sub) {
-                $sub->where('is_draft', false)
-                    ->whereDoesntHave('draft');
-            })->orWhere(function ($sub) {
-                $sub->where('is_draft', true);
-            });
-        })
+        ->visibleFor($user)
         ->orderBy('is_pinned', 'desc')
         ->orderByRaw('CASE WHEN pin_order IS NULL THEN 999999 ELSE pin_order END ASC')
         ->orderBy('updated_at', 'desc');
@@ -93,8 +86,6 @@ class ProjectController extends Controller
             // Hiển thị nhãn trạng thái
             if ($row->is_draft) {
                 $html .= " <span class='badge bg-warning'>Bản chỉnh sửa</span>";
-            } elseif ($row->draft) {
-                $html .= " <span class='badge bg-info'>Có bản nháp</span>";
             }
     
             // Hiển thị trạng thái duyệt

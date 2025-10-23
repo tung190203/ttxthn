@@ -30,20 +30,14 @@ class UserController extends Controller
 
     public function index(Request $request)
     {
-        $user = Auth::user();
+        $user = Auth::guard('web')->user();
         $paginate = 20;
 
         $query = $this->user
             ->where('id', '<>', User::ROOT_ADMIN_ID)
             ->where('id', '<>', $user->id)
-            ->where(function ($q) {
-                $q->where(function ($sub) {
-                    $sub->where('is_draft', false)
-                        ->whereDoesntHave('draft');
-                })->orWhere(function ($sub) {
-                    $sub->where('is_draft', true);
-                });
-            })->orderBy('id', 'desc');
+            ->visibleFor($user)
+            ->orderBy('id', 'desc');
 
         if (!$user->isSuperAdmin()) {
             $query->where('is_super_admin', false);
@@ -69,8 +63,6 @@ class UserController extends Controller
             // Hiển thị nhãn trạng thái
             if ($row->is_draft) {
                 $html .= " <span class='badge bg-warning'>Bản chỉnh sửa</span>";
-            } elseif ($row->draft) {
-                $html .= " <span class='badge bg-info'>Có bản nháp</span>";
             }
     
             // Hiển thị trạng thái duyệt
@@ -318,7 +310,9 @@ class UserController extends Controller
         if (!($checkUser->is_super_admin || $checkUser->is_approve)) {
             abort(403, 'Bạn không có quyền từ chối duyệt user.');
         }
-        $user->delete();
+        // $user->delete();
+        $user->status_approve = 'rejected';
+        $user->save();
 
         return redirect()
             ->route('backend_user')

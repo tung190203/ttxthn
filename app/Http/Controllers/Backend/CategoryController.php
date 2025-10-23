@@ -39,17 +39,10 @@ class CategoryController extends Controller
         }
         $type = session('category_type', Category::CATEGORY_TYPE_POST);
         $filter['name'] = $request->get('name', '');
-
         $query = $this->category
         ->where('language', App::getLocale())
-        ->where(function ($q) {
-            $q->where(function ($sub) {
-                $sub->where('is_draft', false)
-                    ->whereDoesntHave('draft');
-            })->orWhere(function ($sub) {
-                $sub->where('is_draft', true);
-            });
-        })->orderBy('name');
+        ->visibleFor(auth('web')->user())
+        ->orderBy('name');    
         if (!empty($filter['name'])) {
             $query->where('name', 'like', '%' . $filter['name'] . '%');
         }
@@ -76,8 +69,6 @@ class CategoryController extends Controller
             // Hiển thị nhãn trạng thái
             if ($row->is_draft) {
                 $html .= " <span class='badge bg-warning'>Bản chỉnh sửa</span>";
-            } elseif ($row->draft) {
-                $html .= " <span class='badge bg-info'>Có bản nháp</span>";
             }
     
             // Hiển thị trạng thái duyệt
@@ -340,7 +331,9 @@ class CategoryController extends Controller
             abort(403, 'Bạn không có quyền từ chối duyệt danh mục.');
         }
 
-        $category->delete();
+        // $category->delete();
+        $category->status_approve = 'rejected';
+        $category->save();
 
         return redirect()
             ->route('backend_category')
