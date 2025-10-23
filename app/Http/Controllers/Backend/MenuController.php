@@ -48,14 +48,8 @@ class MenuController extends Controller
         $parent_id = $request->get('parent_id', 0);
         $menu_raw = $this->menu->where('type', $menu_type)
             ->where('language', $language)
-            ->where(function ($q) {
-                $q->where(function ($sub) {
-                    $sub->where('is_draft', false)
-                        ->whereDoesntHave('draft');
-                })->orWhere(function ($sub) {
-                    $sub->where('is_draft', true);
-                });
-            })->orderBy('priority')->get();
+            ->visibleFor(auth('web')->user())
+            ->orderBy('priority')->get();
         $user = auth('web')->user();
 
         $scope = $user->getScope('menu');
@@ -78,8 +72,6 @@ class MenuController extends Controller
             // Hiển thị nhãn trạng thái
             if ($row->is_draft) {
                 $html .= " <span class='badge bg-warning'>Bản chỉnh sửa</span>";
-            } elseif ($row->draft) {
-                $html .= " <span class='badge bg-info'>Có bản nháp</span>";
             }
     
             // Hiển thị trạng thái duyệt
@@ -301,7 +293,9 @@ class MenuController extends Controller
             abort(403, 'Bạn không có quyền từ chối menu.');
         }
 
-        $menu->delete();
+        // $menu->delete();
+        $menu->status_approve = 'rejected';
+        $menu->save();
 
         return redirect()
             ->route('backend_menu')

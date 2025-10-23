@@ -29,15 +29,10 @@ class PopupController extends Controller
     public function index(Request $request)
     {
         $paginate = 20;
-        $query = $this->popup->where(function ($q) {
-            $q->where(function ($sub) {
-                $sub->where('is_draft', false)
-                    ->whereDoesntHave('draft');
-            })->orWhere(function ($sub) {
-                $sub->where('is_draft', true);
-            });
-        })->orderBy('id', 'desc');
         $user = auth('web')->user();
+        $query = $this->popup
+        ->visibleFor($user)
+        ->orderBy('id', 'desc');
         $scope = $user->getScope('popup');
         if (!empty($scope)) {
             $query->whereIn('id', $scope);
@@ -55,8 +50,6 @@ class PopupController extends Controller
             // Hiển thị nhãn trạng thái
             if ($row->is_draft) {
                 $html .= " <span class='badge bg-warning'>Bản chỉnh sửa</span>";
-            } elseif ($row->draft) {
-                $html .= " <span class='badge bg-info'>Có bản nháp</span>";
             }
     
             // Hiển thị trạng thái duyệt
@@ -237,7 +230,9 @@ class PopupController extends Controller
         if (!($user->is_super_admin || $user->is_approve)) {
             abort(403, 'Bạn không có quyền từ chối duyệt popup.');
         }
-        $popup->delete();
+        // $popup->delete();
+        $popup->status_approve = 'rejected';
+        $popup->save();
 
         return redirect()
             ->route('backend_popup')

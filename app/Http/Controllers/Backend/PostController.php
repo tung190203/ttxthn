@@ -49,14 +49,7 @@ class PostController extends Controller
         $filter['status'] = $request->get('status', -1);
         $query = $this->post->with(['category', 'user'])
             ->where('language', $language)
-            ->where(function ($q) {
-                $q->where(function ($sub) {
-                    $sub->where('is_draft', false)
-                        ->whereDoesntHave('draft');
-                })->orWhere(function ($sub) {
-                    $sub->where('is_draft', true);
-                });
-            })
+            ->visibleFor(auth('web')->user())
             ->orderBy('id', 'desc');
         if ($filter['name'] !== '') {
             $query->where('name', 'like', '%' . $filter['name'] . '%');
@@ -97,8 +90,6 @@ class PostController extends Controller
             // Hiển thị nhãn trạng thái
             if ($row->is_draft) {
                 $html .= " <span class='badge bg-warning'>Bản chỉnh sửa</span>";
-            } elseif ($row->draft) {
-                $html .= " <span class='badge bg-info'>Có bản nháp</span>";
             }
     
             // Hiển thị trạng thái duyệt
@@ -369,7 +360,9 @@ class PostController extends Controller
         if (!($user->is_super_admin || $user->is_approve)) {
             abort(403, 'Bạn không có quyền từ chối duyệt bài viết.');
         }
-        $post->delete();
+        // $post->delete();
+        $post->status_approve = 'rejected';
+        $post->save();
 
         return redirect()
             ->route('backend_post')

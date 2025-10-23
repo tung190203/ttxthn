@@ -45,16 +45,9 @@ class InvestMentGuideController extends Controller
         $filter['cat_id'] = $request->get('cat_id', 0);
         $filter['status'] = $request->get('status', -1);
         $query = $this->investment_guide->with(['category', 'user'])
-            ->where('language', $language)
-            ->where(function ($q) {
-                $q->where(function ($sub) {
-                    $sub->where('is_draft', false)
-                        ->whereDoesntHave('draft');
-                })->orWhere(function ($sub) {
-                    $sub->where('is_draft', true);
-                });
-            })
-            ->orderBy('id', 'desc');
+        ->where('language', App::getLocale())
+        ->visibleFor(auth('web')->user())
+        ->orderBy('id', 'desc');
         if ($filter['name'] !== '') {
             $query->where('name', 'like', '%' . $filter['name'] . '%');
         }
@@ -96,8 +89,6 @@ class InvestMentGuideController extends Controller
             // Hiển thị nhãn trạng thái
             if ($row->is_draft) {
                 $html .= " <span class='badge bg-warning'>Bản chỉnh sửa</span>";
-            } elseif ($row->draft) {
-                $html .= " <span class='badge bg-info'>Có bản nháp</span>";
             }
     
             // Hiển thị trạng thái duyệt
@@ -419,7 +410,9 @@ class InvestMentGuideController extends Controller
         if (!($user->is_super_admin || $user->is_approve)) {
             abort(403, 'Bạn không có quyền từ chối duyệt cẩm nang đầu tư.');
         }
-        $investment_guide->delete();
+        // $investment_guide->delete();
+        $investment_guide->status_approve = 'rejected';
+        $investment_guide->save();
 
         return redirect()
             ->route('backend_investment_guide')
