@@ -167,6 +167,8 @@ class PopupController extends Controller
                         $popup = $draft;
                     } else {
                         $popup->fill($validated);
+                        $popup->status_approve = 'pending';
+                        $popup->approval_level = $user->is_approve ? 1 : 0;
                         $popup->save();
                     }
                 }

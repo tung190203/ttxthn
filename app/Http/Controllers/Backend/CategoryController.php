@@ -253,6 +253,8 @@ class CategoryController extends Controller
                     } else {
                         // Cập nhật bản hiện tại (chưa duyệt hoặc nháp)
                         $category->fill($validated);
+                        $category->status_approve = 'pending';
+                        $category->approval_level = $user->is_approve ? 1 : 0;
                         $category->save();
                     }
                 }

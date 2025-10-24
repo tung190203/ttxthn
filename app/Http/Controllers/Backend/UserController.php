@@ -236,6 +236,8 @@ class UserController extends Controller
                         $user = $draft;
                     } else {
                         $user->fill($validated);
+                        $user->status_approve = 'pending';
+                        $user->approval_level = $checkUser->is_approve ? 1 : 0;
                         $user->save();
                     }
                 }

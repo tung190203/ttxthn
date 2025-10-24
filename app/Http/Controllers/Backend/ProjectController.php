@@ -347,6 +347,8 @@ class ProjectController extends Controller
                     $project->advantage_descriptions = $validated['advantage_descs'] ?? $project->advantage_descriptions;
                     $project->design_description = $validated['design_descs'] ?? $project->design_description;
                     $project->legal_description = $validated['files_descs'] ?? $project->legal_description;
+                    $project->status = 'pending';
+                    $project->approval_level = $user->is_approve ? 1 : 0;
                     $project->save();
 
                     if ($request->filled('districts')) {

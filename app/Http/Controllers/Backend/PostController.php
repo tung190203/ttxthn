@@ -277,6 +277,8 @@ class PostController extends Controller
                     } else {
                         // Cập nhật bản hiện tại (chưa duyệt hoặc nháp)
                         $post->fill($validated);
+                        $post->status_approve = 'pending';
+                        $post->approval_level = $user->is_approve ? 1 : 0;
                         $post->save();
 
                         if ($request->filled('projects')) {
