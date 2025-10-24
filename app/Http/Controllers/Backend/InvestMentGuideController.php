@@ -323,6 +323,8 @@ class InvestMentGuideController extends Controller
                         if ($request->filled('files_descs')) {
                             $investment_guide->short_file_descs = json_encode(array_map('trim', $request->files_descs));
                         }
+                        $investment_guide->status_approve = 'pending';
+                        $investment_guide->approval_level = $user->is_approve ? 1 : 0;
 
                         $investment_guide->save();
 

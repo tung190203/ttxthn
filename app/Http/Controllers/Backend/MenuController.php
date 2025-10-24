@@ -225,6 +225,8 @@ class MenuController extends Controller
                         $menu = $draft;
                     } else {
                         $menu->fill($validated);
+                        $menu->status_approve = 'pending';
+                        $menu->approval_level = $user->is_approve ? 1 : 0;
                         $menu->save();
                     }
                 }
