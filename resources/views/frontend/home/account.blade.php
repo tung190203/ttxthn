@@ -194,7 +194,7 @@
                             </div>
                         </div>
                     </div>
-                    <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="#!">Xem thêm</a></nav>
+                    <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="#!" style="text-transform: capitalize;">Xem thêm</a></nav>
                     @endif
                 </div>
             </section>
@@ -267,7 +267,7 @@
                             </div>
                         </div>
                         <nav class="d-flex justify-content-center mt-40 mt-lg-60">
-                            <a class="button" href="#!">Xem thêm</a>
+                            <a class="button" href="#!" style="text-transform: capitalize;">Xem thêm</a>
                         </nav>
                     @endif
                 </div>

@@ -391,7 +391,7 @@
                         </div>
                     </div>
                 </div>
-                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="/tin-tuc">Xem thêm</a>
+                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="/tin-tuc" style="text-transform: capitalize;">Xem thêm</a>
                 </nav>
             </div>
         </section>

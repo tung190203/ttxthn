@@ -157,7 +157,7 @@
         </div>
         <section class="section" id="investment-section">
             <div class="container">
-                <h2 class="section__title mb-3">Danh mục đầu tư</h2>
+                <h2 class="section__title mb-3 text-uppercase">Danh mục đầu tư</h2>
 
                 <div class="project-nav-wrapper mb-60">
                     <!-- "Tất cả" cố định -->
@@ -268,12 +268,12 @@
                     </div>
 
                     <nav class="d-flex justify-content-center mt-40 mt-lg-60">
-                        <a class="button" href="/projects">Xem thêm</a>
+                        <a class="button" href="/projects" style="text-transform: capitalize;">Xem thêm</a>
                     </nav>
                 @endif
             </div>
         </section>
-        <section class="section section--bg-pattern">
+        <section class="section section--bg-pattern" style="padding: 23px 0">
             <div class="container">
                 <div class="features-slider">
                     <div class="features-slider__container swiper-container">
@@ -300,7 +300,7 @@
             {{-- <img class="texture-1" src="./images/texture-1.png" alt="" />
             <img class="texture-2" src="./images/texture-2.png" alt="" /> --}}
             <div class="container">
-                <h2 class="section__title">Tin tức</h2>
+                <h2 class="section__title text-uppercase">Tin tức</h2>
                 <div class="news-slider">
                     <div class="news-slider__nav">
                         <div class="news-slider__prev"><i class="fal fa-fw fa-lg fa-angle-left"></i></div>
@@ -341,13 +341,13 @@
                         </div>
                     </div>
                 </div>
-                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="/tin-tuc">Xem thêm</a>
+                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="/tin-tuc" style="text-transform: capitalize;">Xem thêm</a>
                 </nav>
             </div>
         </section>
         <section class="section section--medium-blue">
             <div class="container">
-                <h2 class="section__title text-white">Liên kết</h2>
+                <h2 class="section__title text-white text-uppercase">Liên kết</h2>
                 @if (!empty($setting['banners']))
                     <div class="partners-slider">
                         <div class="partners-slider__container swiper-container">

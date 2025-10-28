@@ -1,6 +1,6 @@
 <section class="section section--bg-pattern">
     <div class="container">
-        <h2 class="section__title text-white mb-4">Đăng ký nhận thông tin dự án</h2>
+        <h2 class="section__title text-white mb-4 text-uppercase">Đăng ký nhận thông tin dự án</h2>
         <div class="text-center"><a class="button" href="/lien-he">Đăng ký</a></div>
     </div>
 </section>
