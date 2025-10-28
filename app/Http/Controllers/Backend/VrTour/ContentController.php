@@ -36,6 +36,9 @@ class ContentController extends Controller
         if (count($panorama) == 0) {
             $pano            = getDataVrtour($link_vrtour.'vista3d/pano.json');
 
+            if (empty($pano)) {
+                return response()->json(['data' => "Hiện tại data pano không tồn tại"]);
+            }
             foreach ($pano as $key => $pn) {
                 $new_pano                = new Panorama();
                 $new_pano->vrtour_id     = $vrtour_id;
@@ -50,10 +53,11 @@ class ContentController extends Controller
         }
         $html = '';
         foreach ($panorama as $key => $pn) {
+            $content = preg_replace('/<!--.*?-->/s', '', $pn->content);
             $html .= '<tr>';
             $html .= '<td>'.(++$key).'</td>';
             $html .= '<td>'.$pn->title.'</td>';
-            $html .= '<td>'.mb_substr($pn->content, 0, 100, "UTF-8").'...</td>';
+            $html .= '<td>'.mb_substr($content, 0, 100, "UTF-8").'...</td>';
             $html .= '<td class="grid_row1">';
             $html .=    '<a class="btn btn-info btn-sm mr-1" href="'.route('backend_vrtour_content_edit', $pn->id).'" title="Chỉnh sửa"><i class="fas fa-pencil-alt"></i></a>';
             $html .= '</td>';
