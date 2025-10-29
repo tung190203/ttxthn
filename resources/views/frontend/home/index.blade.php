@@ -817,9 +817,11 @@
                     industry: industryFilter
                 })
             };
+            let lang = document.documentElement.lang || 'vn';
+            if (lang === 'vi') lang = 'vn';
 
             $.ajax({
-                url: `/${document.documentElement.lang}/map/bounds`,
+                url: `/${lang}/map/bounds`,
                 method: 'GET',
                 data: params,
                 success: function(data) {
@@ -936,8 +938,10 @@
         }
 
         function loadAllDistricts() {
+            let lang = document.documentElement.lang || 'vn';
+            if (lang === 'vi') lang = 'vn';
             $.ajax({
-                url: `/${document.documentElement.lang}/api/districts`,
+                url: `/${lang}/map/districts`,
                 method: 'GET',
                 success: function(res) {
                     allDistricts = res.sort();
