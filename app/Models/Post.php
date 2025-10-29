@@ -8,10 +8,12 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Gate;
+use Spatie\Translatable\HasTranslations;
 
 class Post extends Model
 {
-    use HasGlobalScopes;
+    use HasGlobalScopes, HasTranslations;
+    
 
     protected $dates = ['created_at', 'updated_at', 'deleted_at', 'published_at'];
 
@@ -40,6 +42,16 @@ class Post extends Model
         'is_draft',
         'parent_id',
         'status_approve',
+    ];
+
+    public $translatable = [
+        'name',
+        'slug',
+        'description',
+        'content',
+        'meta_title',
+        'meta_keywords',
+        'meta_description',
     ];
 
     protected $casts = [

@@ -40,7 +40,6 @@ class CategoryController extends Controller
         $type = session('category_type', Category::CATEGORY_TYPE_POST);
         $filter['name'] = $request->get('name', '');
         $query = $this->category
-        ->where('language', App::getLocale())
         ->visibleFor(auth('web')->user())
         ->orderBy('name');    
         if (!empty($filter['name'])) {
@@ -141,46 +140,74 @@ class CategoryController extends Controller
             abort(403, self::MESSAGE_UNAUTHORIZED);
         }
 
-        $validated = $request->validate([
-            'name' => 'required|string',
-            'slug' => 'required|alpha_dash|unique:categories,slug,' . $category->id,
-            'priority' => 'integer',
-        ]);
+        // --- Validation for translatable fields ---
+        $locales = config('app.locales', ['vi' => 'Tiếng Việt', 'en' => 'Tiếng Anh']);
+        $firstLocale = array_key_first($locales);
+        $validationRules = [];
+        
+        foreach (array_keys($locales) as $locale) {
+            // Name: Bắt buộc cho ngôn ngữ chính
+            $validationRules["name.{$locale}"] = $locale === $firstLocale ? 'required|string' : 'nullable|string';
+            
+            // Slug: Bắt buộc cho ngôn ngữ chính, phải là alpha_dash
+            // **Quan trọng:** Ta không validate unique ở đây vì logic unique sẽ được xử lý thủ công bên dưới.
+            $validationRules["slug.{$locale}"] = $locale === $firstLocale ? 'required|alpha_dash' : 'nullable|alpha_dash';
+            
+            // Các trường khác: không bắt buộc
+            $validationRules["description.{$locale}"] = 'nullable|string';
+            $validationRules["meta_title.{$locale}"] = 'nullable|string';
+            $validationRules["meta_keywords.{$locale}"] = 'nullable|string';
+            $validationRules["meta_description.{$locale}"] = 'nullable|string';
+        }
+
+        // Validation cho các trường đơn ngữ
+        $validationRules['priority'] = 'integer';
+
+        $validated = $request->validate($validationRules);
+
+        // Các trường đa ngôn ngữ từ request
+        $translatableData = $request->only('name', 'slug', 'description', 'meta_title', 'meta_keywords', 'meta_description');
+        
         try {
             // 🟩 Tạo mới (bản chính)
             if (!$category->exists) {
-                $category->fill($validated);
+                // --- Trạng thái duyệt ---
                 $category->approval_level = $user->is_super_admin ? 2 : ($user->is_approve ? 1 : 0);
                 $category->max_approval = 2;
                 $category->is_draft = false;
-                $category->status_approve = $user->is_super_admin ? 'approved' : ($user->is_approve ? 'pending' : 'pending');
+                $category->status_approve = $user->is_super_admin ? 'approved' : 'pending';
                 $category->status = $user->is_super_admin ? Category::STATUS_ACTIVE : Category::STATUS_INACTIVE;
                 $category->language = App::getLocale();
+                // --- Trường đơn ngữ ---
                 $parent_id = intval($request->get('parent_id', 0));
                 if ($category->exists && $category->id == $parent_id) {
                     return back()->withInput()->withErrors(['parent_id' => 'Danh mục cha không thể là chính nó']);
                 }
-                $category->description = $request->get('description');
-                $category->content = $request->get('content');
                 $category->image = $request->get('image');
                 $category->parent_id = $parent_id;
                 $category->priority = intval($request->get('priority', 0));
                 $category->status = intval($request->get('status', 0));
                 $category->at_home = intval($request->get('at_home', 0));
-
-                $category->meta_title = strip_tags($request->get('meta_title'));
-                $category->meta_keywords = strip_tags($request->get('meta_keywords'));
-                $category->meta_description = strip_tags($request->get('meta_description'));
-
-                // Sinh slug unique
-                $slug = Str::slug($category->slug ?: $category->name);
-                $originalSlug = $slug;
-                $counter = 1;
-                while (Category::where('slug', $slug)->exists()) {
-                    $slug = $originalSlug . '-' . $counter++;
-                }
-                $category->slug = $slug;
                 $category->type = session('category_type', Category::CATEGORY_TYPE_POST);;
+                // --- Trường đa ngôn ngữ ---
+                foreach ($translatableData as $key => $values) {
+                    $category->setTranslations($key, $values);
+                }
+
+                // --- Xử lý Slug Unique cho từng ngôn ngữ ---
+                foreach (array_keys($locales) as $locale) {
+                    $requestedSlug = $category->getTranslation('slug', $locale, false);
+                    if ($requestedSlug) {
+                        $slug = Str::slug($requestedSlug);
+                        $originalSlug = $slug;
+                        $counter = 1;
+                        // Kiểm tra tính duy nhất, ngoại trừ bản thân nó
+                        while (Category::where('slug', $slug)->exists()) {
+                            $slug = $originalSlug . '-' . $counter++;
+                        }
+                        $category->setTranslation('slug', $locale, $slug);
+                    }
+                }
 
                 $category->save();
 
@@ -192,35 +219,45 @@ class CategoryController extends Controller
                 if ($user->is_super_admin) {
                     $mainCategory = $category->main_id ? Category::find($category->main_id) : $category;
 
-                    $mainCategory->fill($validated);
                     $mainCategory->approval_level = $mainCategory->max_approval;
                     $mainCategory->status_approve = 'approved';
                     $mainCategory->is_draft = false;
                     $mainCategory->main_id = null;
+                    
+                    // --- Trường đơn ngữ ---
                     $parent_id = intval($request->get('parent_id', 0));
                     if ($category->exists && $category->id == $parent_id) {
                         return back()->withInput()->withErrors(['parent_id' => 'Danh mục cha không thể là chính nó']);
                     }
-                    $mainCategory->description = $request->get('description');
-                    $mainCategory->content = $request->get('content');
                     $mainCategory->image = $request->get('image');
                     $mainCategory->parent_id = $parent_id;
                     $mainCategory->priority = intval($request->get('priority', 0));
                     $mainCategory->status = intval($request->get('status', 0));
                     $mainCategory->at_home = intval($request->get('at_home', 0));
 
-                    $mainCategory->meta_title = strip_tags($request->get('meta_title'));
-                    $mainCategory->meta_keywords = strip_tags($request->get('meta_keywords'));
-                    $mainCategory->meta_description = strip_tags($request->get('meta_description'));
-
-                    // Slug unique (remove -draft)
-                    $slug = preg_replace('/-draft$/', '', Str::slug($mainCategory->slug ?: $mainCategory->name));
-                    $originalSlug = $slug;
-                    $counter = 1;
-                    while (Category::where('slug', $slug)->where('id', '<>', $mainCategory->id)->exists()) {
-                        $slug = $originalSlug . '-' . $counter++;
+                    // --- Trường đa ngôn ngữ ---
+                    foreach ($translatableData as $key => $values) {
+                        $mainCategory->setTranslations($key, $values);
                     }
-                    $mainCategory->slug = $slug;
+
+                    // --- Xử lý Slug Unique cho từng ngôn ngữ (Loại bỏ -draft) ---
+                    foreach (array_keys($locales) as $locale) {
+                        $requestedSlug = $mainCategory->getTranslation('slug', $locale, false);
+                        if ($requestedSlug) {
+                            // Loại bỏ -draft ở cuối nếu có
+                            $requestedSlug = preg_replace('/-draft$/', '', $requestedSlug);
+
+                            $slug = Str::slug($requestedSlug);
+                            $originalSlug = $slug;
+                            $counter = 1;
+                            // Kiểm tra tính duy nhất, ngoại trừ bản thân nó
+                            while (Category::where('slug', $slug)->where('id', '<>', $mainCategory->id)->exists()) {
+                                $slug = $originalSlug . '-' . $counter++;
+                            }
+                            $mainCategory->setTranslation('slug', $locale, $slug);
+                        }
+                    }
+                    
                     $mainCategory->save();
 
                     // Xoá nháp
@@ -236,13 +273,33 @@ class CategoryController extends Controller
                     if ($category->status_approve === 'approved' && !$category->is_draft) {
                         // Bản chính đã duyệt → tạo bản nháp
                         $draft = $category->replicate();
-                        $draft->fill($validated);
+                        
+                        // Copy dữ liệu đa ngôn ngữ từ bản chính sang bản nháp
+                        $translatableFields = ['name', 'slug', 'description', 'meta_title', 'meta_keywords', 'meta_description'];
+                        foreach ($translatableFields as $field) {
+                            $draft->setTranslations($field, $category->getTranslations($field));
+                        }
+                        
                         $draft->is_draft = true;
                         $draft->status_approve = 'pending';
                         $draft->approval_level = $user->is_approve ? 1 : 0;
                         $draft->main_id = $category->id;
                         $draft->status = Category::STATUS_INACTIVE;
-                        $draft->slug = Str::slug($draft->slug ?: $draft->name) . '-draft';
+                        
+                        // Thêm hậu tố '-draft' vào slug của bản nháp
+                        foreach (array_keys($locales) as $locale) {
+                            $currentSlug = $draft->getTranslation('slug', $locale, false);
+                            if ($currentSlug) {
+                                $draft->setTranslation('slug', $locale, $currentSlug . '-draft');
+                            }
+                        }
+
+                        $draft->save();
+
+                        // Cập nhật bản nháp với dữ liệu mới từ request
+                        foreach ($translatableData as $key => $values) {
+                            $draft->setTranslations($key, $values);
+                        }
                         $draft->save();
 
                         if (Gate::allows('category/add')) {
@@ -252,7 +309,9 @@ class CategoryController extends Controller
                         $category = $draft;
                     } else {
                         // Cập nhật bản hiện tại (chưa duyệt hoặc nháp)
-                        $category->fill($validated);
+                        foreach ($translatableData as $key => $values) {
+                            $category->setTranslations($key, $values);
+                        }
                         $category->status_approve = 'pending';
                         $category->approval_level = $user->is_approve ? 1 : 0;
                         $category->save();
@@ -266,10 +325,10 @@ class CategoryController extends Controller
                     $user->is_super_admin ? '(Đã duyệt)' : ($user->is_approve ? '(Chờ duyệt cấp 2)' : '')
                 ));
         } catch (\Exception $ex) {
-            return back()->withInput()->withErrors(['slug' => $ex->getMessage()]);
+            // Chuyển lỗi về slug nếu nó liên quan đến unique hoặc validation
+            return back()->withInput()->withErrors(['error' => $ex->getMessage()]);
         }
     }
-
     public function approve(Category $category)
     {
         $user = auth('web')->user();

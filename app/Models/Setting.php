@@ -11,11 +11,10 @@ class Setting extends Model
 
     public static function check_exists_skey($skey = '')
     {
-        $language = App::getLocale();
         if ($skey == '') {
             return false;
         }
-        $setting = self::where('language', $language)->where('skey', $skey)->first();
+        $setting = self::where('skey', $skey)->first();
         if (isset($setting)) {
             return true;//Đã tồn tại
         }
@@ -29,8 +28,7 @@ class Setting extends Model
         if (isset($cached['all_setting'])) {
             return $cached['all_setting'];
         } else {
-            $language = App::getLocale();
-            $settings = self::where('language', $language)->get();
+            $settings = self::get();
             $results = [];
     
             foreach ($settings as $setting) {
@@ -50,9 +48,7 @@ class Setting extends Model
 
     public static function getSettingByKey($key, $default = '')
     {
-        $language = App::getLocale();
-        $setting = Setting::where('language', $language)
-            ->where('skey', $key)
+        $setting = Setting::where('skey', $key)
             ->first();
         return data_get($setting, 'svalue', $default);
     }

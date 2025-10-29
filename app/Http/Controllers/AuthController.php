@@ -144,5 +144,4 @@ class AuthController extends Controller
             return redirect()->route('guest_login')->withErrors(['msg' => 'Đăng nhập Google thất bại.']);
         }
     }
-    
 }

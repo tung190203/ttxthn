@@ -8,21 +8,21 @@
                     <li class="breadcrumb-item">
                         <a class="link-unstyled" href="{{ route('home_page') }}">
                             <i class="fal fa-fw fa-home me-2"></i>
-                            <span>Trang chủ</span>
+                            <span>{{ __('app.home') }}</span>
                         </a>
                     </li>
-                    <li class="breadcrumb-item active">Tìm kiếm</li>
+                    <li class="breadcrumb-item active">{{ __('app.search') }}</li>
                 </ol>
             </div>
         </nav>
         <section class="pt-10 pb-60 search-min-height">
             <div class="container">
-                <h1 class="section__title">Kết quả tìm kiếm cho: "{{ $key ?? '...' }}"</h1>
+                <h1 class="section__title">{{ __('app.search_results_for') }}: "{{ $key ?? '...' }}"</h1>
                 <div class="mx-auto mt-4" style="max-width: 800px">
                     <form class="search-field" method="GET" action="{{ route('search') }}" id="search-form">
                         <div class="input-group">
                             <input class="form-control" type="text" name="keyword" value="{{ $key ?? '' }}"
-                                placeholder="Tìm kiếm..." style="padding: 10px" />
+                                placeholder="{{ __('app.search') }}" style="padding: 10px" />
                             <input type="hidden" name="type" value="{{ $type ?? 'all' }}">
                             <button class="input-group-text"><i class="fal fa-fw fa-search"></i></button>
                         </div>
@@ -31,9 +31,9 @@
 
                 @if(empty($groupedResults) || collect($groupedResults)->isEmpty())
                     <p class="text-center text-danger fs-5 pt-5 pb-5">
-                        <i class="fas fa-search-minus me-2"></i> Không tìm thấy kết quả nào phù hợp với từ khóa
-                        **"{{ $key ?? '...' }}"**.
-                    </p>
+                        <i class="fas fa-search-minus me-2"></i>
+                        {{ __('messages.no_results_for_keyword', ['key' => $key ?? '...']) }}
+                    </p>                
                 @else
                     @foreach($groupedResults as $categoryName => $paginator)
                         @php
@@ -137,7 +137,6 @@
                 },
                 error: function (xhr) {
                     console.error('Lỗi AJAX khi phân trang:', xhr);
-                    alert('Đã xảy ra lỗi khi tải trang mới. Kiểm tra console/network để debug.');
                 },
                 complete: function () {
                     resultsDiv.css('opacity', '1');

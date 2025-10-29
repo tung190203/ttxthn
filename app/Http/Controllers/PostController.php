@@ -7,14 +7,13 @@ use Illuminate\Http\Request;
 use App\Models\Setting;
 use App\Models\Category;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Lang;
 
 class PostController extends Controller
 {
     public function index(Request $request, Category $category)
     {
-        $language = App::getLocale();
         $clsCategory = new Category();
         $clsPost = new Post();
         $clsCategory->getParentArray();
@@ -26,7 +25,6 @@ class PostController extends Controller
             ->where('status_approve','approved')
             ->where('published_at' , '<=', Carbon::now())
             ->where('status', Post::STATUS_ACTIVE)
-            ->where('language', $language)
             ->whereIn('cat_id', $cat_ids)
             ->orderBy('published_at', 'desc')
             ->orderBy('priority')
@@ -63,7 +61,6 @@ class PostController extends Controller
 
     public function search(Request $request)
     {
-        $language = App::getLocale();
         $category = new Category();
         $clsPost = new Post();
 
@@ -74,7 +71,6 @@ class PostController extends Controller
             ->where('status_approve','approved')
             ->where('published_at' , '<=', Carbon::now())
             ->where('status', Post::STATUS_ACTIVE)
-            ->where('language', $language)
             ->where('name', 'like', '%' . $key . '%')
             ->orderBy('priority')
             ->orderBy('id', 'desc');
@@ -103,8 +99,7 @@ class PostController extends Controller
     public function detail(Request $request, $slug, $id)
     {
         /* @var $post Post */
-        $post = Post::where('language', App::getLocale())
-            ->where('id', $id)->firstOrFail();
+        $post = Post::where('id', $id)->firstOrFail();
 
         $category = Category::where('id', data_get($post, 'cat_id'))->first();
 
@@ -120,7 +115,6 @@ class PostController extends Controller
             ->whereNull('parent_id')
             ->where('status_approve','approved')
             ->where('published_at' , '<=', Carbon::now())
-            ->where('language', App::getLocale())
             ->where('id', '<>', $post->id)
             ->orderBy('view_num', 'desc')
             ->take(Post::POSTS_TAKE)
@@ -134,6 +128,11 @@ class PostController extends Controller
 
         $backUrl = url()->previous();
         $backLabel = $request->get('ref');
+        if ($backLabel && Lang::has($backLabel)) {
+            $backLabel = __($backLabel); 
+        } else {
+            $backLabel = $backLabel;
+        }
         if (rtrim($backUrl, '/') === rtrim(url('/'), '/')) {
             $backUrl = null;
             $backLabel = null;

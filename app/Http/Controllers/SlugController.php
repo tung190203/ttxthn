@@ -10,7 +10,19 @@ class SlugController extends Controller
 {
     public function index(Request $request, $slug)
     {
-        $category = Category::where('status', 1)->where('slug', $slug)->firstOrFail();
+        $locale = app()->getLocale();
+        $availableLocales = config('app.available_locales', ['vi', 'en']);
+    
+        $category = Category::where('status', 1)
+            ->where(function ($query) use ($slug, $locale, $availableLocales) {
+                $query->where("slug->{$locale}", $slug);
+                foreach ($availableLocales as $loc) {
+                    if ($loc !== $locale) {
+                        $query->orWhere("slug->{$loc}", $slug);
+                    }
+                }
+            })
+            ->firstOrFail();
 
         $type = $category->type;
 
@@ -21,10 +33,11 @@ class SlugController extends Controller
             case Category::CATEGORY_TYPE_INVESTMENT_HANDBOOK:
                 $controller = new HomeController();
                 return $controller->introducePotential($request);
-            default :
+    
+            default:
                 return view('errors.404');
         }
-    }
+    }    
 
     public function slug(Request $request, $slug)
     {

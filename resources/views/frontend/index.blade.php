@@ -94,41 +94,42 @@
                     @csrf
                     <button class="md-form__close" type="button" data-bs-dismiss="modal"><i
                             class="far fa-lg fa-times"></i></button>
-                    <div class="md-form__banner"><img src="./images/banner-login.jpg" alt="" /></div>
+                    <div class="md-form__banner"><img src="{{ asset('/images/banner-login.jpg') }}" alt="" /></div>
                     <div class="md-form__content">
-                        <a class="md-form__logo" href="#!"><img src="./images/logo_sce.png" alt="" /></a>
-                        <div class="md-form__title">Đăng nhập</div>
+                        <a class="md-form__logo" href="#!"><img src="{{ asset('/images/logo_sce.png') }}" alt="" /></a>
+                        <div class="md-form__title">{{ __('app.login') }}</div>
 
                         <div class="md-form__group">
-                            <label class="form-label mb-0">Địa chỉ Email</label>
+                            <label class="form-label mb-0">{{ __('app.email_address') }}</label>
                             <input class="form-control" type="email" name="email" />
                             <div class="text-danger mt-1 error-email"></div>
                         </div>
 
                         <div class="md-form__group">
-                            <label class="form-label mb-0">Mật khẩu</label>
+                            <label class="form-label mb-0">{{ __('app.password') }}</label>
                             <input class="form-control" type="password" name="password" />
                             <div class="text-danger mt-1 error-password"></div>
                         </div>
 
                         <div class="md-form__btns">
-                            <button class="md-form__btn" type="submit">Đăng nhập</button>
+                            <button class="md-form__btn" type="submit">{{ __('app.login') }}</button>
                             <a class="md-form__btn-2" href="{{route('google_login')}}"><i
-                                    class="fab fa-google me-3"></i><span>Đăng nhập bằng
-                                    tài khoản Google</span></a>
+                                    class="fab fa-google me-3"></i><span>{{ __('app.login_with_goolge') }}</span></a>
                         </div>
 
                         <div class="md-form__footer">
                             <div class="d-flex justify-content-center">
                                 <label class="checkbox-styled">
                                     <input class="checkbox-styled__input" type="checkbox" name="remember" value="1" />
-                                    <span class="checkbox-styled__icon"></span><span>Lưu thông tin đăng nhập</span>
+                                    <span class="checkbox-styled__icon"></span><span>{{ __('app.remember_me') }}</span>
                                 </label>
                             </div>
-                            <div class="mt-2 text-center">Bạn chưa có tài khoản?
-                                <a class="d-inline-block text-primary fw-700 js-switch-modal" href="#md-sign-up">Đăng ký
-                                    tài khoản</a>
-                            </div>
+                            <div class="mt-2 text-center">
+                                {{ __('app.no_account') }}
+                                <a class="d-inline-block text-primary fw-700 js-switch-modal" href="#md-sign-up">
+                                    {{ __('app.sign_up') }}
+                                </a>
+                            </div>                            
                         </div>
                     </div>
                 </form>
@@ -144,34 +145,34 @@
                     @csrf
                     <button class="md-form__close" type="button" data-bs-dismiss="modal"><i
                             class="far fa-lg fa-times"></i></button>
-                    <div class="md-form__banner"><img src="./images/banner-login.jpg" alt="" /></div>
+                    <div class="md-form__banner"><img src="{{ asset('/images/banner-login.jpg') }}" alt="" /></div>
                     <div class="md-form__content">
-                        <a class="md-form__logo" href="#!"><img src="./images/logo_sce.png" alt="" /></a>
-                        <div class="md-form__title">Đăng ký tài khoản</div>
-                        <div class="md-form__desc">Tài khoản dùng thử hoàn toàn miễn phí</div>
+                        <a class="md-form__logo" href="#!"><img src="{{ asset('/images/logo_sce.png') }}" alt="" /></a>
+                        <div class="md-form__title">{{ __('app.sign_up') }}</div>
+                        <div class="md-form__desc">{{ __('app.free_trial_account') }}</div>
 
                         <div class="md-form__group">
-                            <label class="form-label mb-0">Họ và Tên</label>
+                            <label class="form-label mb-0">{{ __('app.full_name') }}</label>
                             <input class="form-control" name="name" type="text" />
                             <div class="text-danger mt-1 error-name"></div>
                         </div>
 
                         <div class="md-form__group">
-                            <label class="form-label mb-0">VNeID / Passport</label>
+                            <label class="form-label mb-0">{{ __('app.vneid_or_passport') }}</label>
                             <input class="form-control" name="identification_number" type="text" />
                             <div class="text-danger mt-1 error-identification_number"></div>
                         </div>
 
                         <div class="md-form__group">
-                            <label class="form-label mb-0">Địa chỉ Email</label>
+                            <label class="form-label mb-0">{{ __('app.email_address') }}</label>
                             <input class="form-control" name="email" type="email" />
                             <div class="text-danger mt-1 error-email"></div>
                         </div>
 
                         <div class="md-form__group">
-                            <label class="form-label mb-0">Quốc tịch</label>
+                            <label class="form-label mb-0">{{ __('app.nationality') }}</label>
                             <select class="form-control" name="nation_id" id="">
-                                <option value="">Chọn quốc tịch</option>
+                                <option value="">{{ __('app.choice_nationality') }}</option>
                                 @foreach ($nations as $n)
                                     <option value="{{ $n->id }}">{{ $n->name }}</option>
                                 @endforeach
@@ -180,29 +181,26 @@
                         </div>
 
                         <div class="md-form__group">
-                            <label class="form-label mb-0">Mật khẩu</label>
+                            <label class="form-label mb-0">{{ __('app.password') }}</label>
                             <input class="form-control" name="password" type="password" />
                             <div class="text-danger mt-1 error-password"></div>
                         </div>
 
                         <div class="md-form__btns">
-                            <button class="md-form__btn" type="submit">Đăng ký tài khoản</button>
+                            <button class="md-form__btn" type="submit">{{ __('app.sign_up') }}</button>
                             <a class="md-form__btn-2" href="{{route('google_login')}}"><i
-                                    class="fab fa-google me-3"></i><span>Đăng ký bằng tài
-                                    khoản Google</span></a>
+                                    class="fab fa-google me-3"></i><span>{{ __('app.register_with_goolge') }}</span></a>
                         </div>
 
                         <div class="md-form__footer">
                             <div class="d-flex justify-content-center">
                                 <label class="checkbox-styled">
                                     <input class="checkbox-styled__input" type="checkbox" name="checkbox" />
-                                    <span class="checkbox-styled__icon"></span><span>Đăng ký nhận thông tin các dự
-                                        án</span>
+                                    <span class="checkbox-styled__icon"></span><span>{{ __('app.subscribe_project_updates') }}</span>
                                 </label>
                             </div>
-                            <div class="mt-2 text-center">Bạn đã có tài khoản?
-                                <a class="d-inline-block text-primary fw-700 js-switch-modal" href="#md-sign-in">Đăng
-                                    nhập</a>
+                            <div class="mt-2 text-center">{{ __('app.have_account') }}
+                                <a class="d-inline-block text-primary fw-700 js-switch-modal" href="#md-sign-in">{{ __('app.login') }}</a>
                             </div>
                         </div>
                     </div>

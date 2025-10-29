@@ -13,8 +13,8 @@
                     </div>
                 </nav>
             </div>
-            <img class="banner__bg" src="./images/banner-project.jpg" alt="" />
-            <div class="banner__title">Cẩm nang đầu tư</div>
+            <img class="banner__bg" src="{{ asset('images/banner-project.jpg') }}" alt="" />
+            <div class="banner__title">{{ __('app.investment_guide') }}</div>
         </article>
         <nav class="project-nav">
             <div class="container">
@@ -23,7 +23,7 @@
                         <a 
                             href="{{ route('category', array_merge(['slug' => $setting['menu_active']], request()->only('keyword'), ['cat_id' => null])) }}" 
                             class="{{ empty($selectedCatId) ? 'active' : '' }}">
-                            Tất cả
+                            {{ __('app.all') }}
                         </a>
                     </li>
                     @foreach($childCategories as $id => $name)
@@ -45,16 +45,16 @@
                         <form class="aside-form" method="GET" action="{{ route('category',['slug' => $setting['menu_active']]) }}">
                             <div class="mb-4">
                                 <div class="input-group">
-                                    <input class="form-control" type="text" name="keyword" placeholder="Tìm kiếm"
+                                    <input class="form-control" type="text" name="keyword" placeholder="{{ __('app.search') }}"
                                            value="{{ request('keyword') }}">
                                     <div class="input-group-text"><i class="fal fa-fw fa-search"></i></div>
                                 </div>
                             </div>
                         
                             <div class="mb-4">
-                                <div class="fw-600 text-uppercase mb-2">Bộ lọc danh mục</div>
+                                <div class="fw-600 text-uppercase mb-2">{{ __('app.category_filter') }}</div>
                                 <select class="form-select" name="cat_id">
-                                    <option value="">Toàn bộ</option>
+                                    <option value="">{{ __('app.all') }}</option>
                                     @foreach($childCategories as $id => $name)
                                         <option value="{{ $id }}" {{ (int)$selectedCatId === $id ? 'selected' : '' }}>
                                             {{ $name }}
@@ -63,20 +63,22 @@
                                 </select>
                             </div>
                         
-                            <button class="button button--block" type="submit">Tìm kiếm</button>
+                            <button class="button button--block" type="submit">{{ __('app.search') }}</button>
                         </form>                        
                     </div>
                     <div class="col-lg-9">
                         <div class="row g-20">
                     @if ($list_investment->isEmpty())
                         <div class="col-12">
-                            <p class="text-center fs-2">Chưa có cẩm nang đầu tư</p>
+                            <p class="text-center fs-2">
+                                {{ __('app.no_investment_guide') }}
+                            </p>
                         </div>
                     @else
                         @foreach ($list_investment as $item)
                             <div class="col-6 col-lg-4">
                                 <div class="news"><a class="news__frame"
-                                        href="{{ route('investment_guide_detail',['id' => $item->id, 'slug' => $item->slug, 'ref' => 'Cẩm nang đầu tư']) }}"><img
+                                        href="{{ route('investment_guide_detail',['id' => $item->id, 'slug' => $item->slug, 'ref' => 'app.investment_guide']) }}"><img
                                             src="{{ $item->image }}" alt="" /></a>
                                     <div class="news__body">
                                         <div class="news__info">
@@ -89,7 +91,7 @@
                                          </a>
                                         </div>
                                         <h3 class="news__title custom-desc"><a
-                                                href="{{ route('investment_guide_detail',['id' => $item->id, 'slug' => $item->slug, 'ref' => 'Cẩm nang đầu tư']) }}" data-tippy-content="{{$item->name}}">{{ $item->name }}</a></h3>
+                                                href="{{ route('investment_guide_detail',['id' => $item->id, 'slug' => $item->slug, 'ref' => 'app.investment_guide']) }}" data-tippy-content="{{$item->name}}">{{ $item->name }}</a></h3>
                                         <div class="news__desc">{{ $item->description }}</div>
                                     </div>
                                 </div>

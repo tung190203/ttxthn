@@ -8,10 +8,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Gate;
+use Spatie\Translatable\HasTranslations;
 
 class Project extends Model
 {
-    use HasFactory;
+    use HasFactory, HasTranslations;
     protected $table = 'projects';
 
     protected $fillable = [
@@ -50,6 +51,20 @@ class Project extends Model
         'is_draft',
         'parent_id',
         'status',
+    ];
+
+    public $translatable = [
+        'name',
+        'slug',
+        'short_desc',
+        'description',
+        'advantage_titles',
+        'advantage_descriptions',
+        'design_short_desc',
+        'design_description',
+        'legal_short_desc',
+        'legal_file',
+        'legal_description',
     ];
 
     const LAYOUTS = [

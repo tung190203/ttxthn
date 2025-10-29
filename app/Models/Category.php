@@ -5,13 +5,23 @@ namespace App\Models;
 use App\Libs\Util;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Gate;
+use Spatie\Translatable\HasTranslations;
 
 class Category extends Model
 {
+    use HasTranslations;
     protected $table = "categories";
     public array $parents = [];
+
+    public $translatable = [
+        'name',
+        'slug',
+        'description',
+        'meta_title',
+        'meta_keywords',
+        'meta_description',
+    ];
 
     const CATEGORY_TYPE_POST = 1;
     const CATEGORY_TYPE_INVESTMENT_HANDBOOK = 2;
@@ -64,10 +74,8 @@ class Category extends Model
 
     public function getAll($type = -1)
     {
-        $language = App::getLocale();
         $query = Category::select($this->getSimpleField())
-            ->where('status', 1)
-            ->where('language', $language);
+            ->where('status', 1);
         if ($type > -1) {
             $query->where('type', $type);
         }
@@ -96,9 +104,8 @@ class Category extends Model
 
     public static function makeListCategoryForInvestMent($parent_id = 0, $type = -1, $selected_id = '', $include_default = false)
     {
-        $language = App::getLocale();
         $parentIds = Category::where('parent_id', 2)->where('status_approve', 'approved')->pluck('id')->toArray();
-        $query = Category::where('language', $language)->whereIn('id',[2,...$parentIds]);
+        $query = Category::whereIn('id',[2,...$parentIds]);
         if ($type > -1) {
             $query = $query->where('type', $type);
         }
@@ -124,8 +131,7 @@ class Category extends Model
 
     public static function makeListCategoryForPost($parent_id = 0, $type = -1, $selected_id = '', $include_default = false)
     {
-        $language = App::getLocale();
-        $query = Category::where('language', $language)->where('id',1)->where('status_approve','approved');
+        $query = Category::where('id',1)->where('status_approve','approved');
         if ($type > -1) {
             $query = $query->where('type', $type);
         }
@@ -151,8 +157,7 @@ class Category extends Model
 
     public static function makeListCategory($parent_id = 0, $type = -1, $selected_id = '', $include_default = false)
     {
-        $language = App::getLocale();
-        $query = Category::where('language', $language)->where('status_approve', 'approved');
+        $query = Category::where('status_approve', 'approved');
         if ($type > -1) {
             $query = $query->where('type', $type);
         }
@@ -178,7 +183,7 @@ class Category extends Model
 
     public static function makeArrayListCategory($parent_id = 0, $type = -1): array
     {
-        $query = Category::where('language', App::getLocale());
+        $query = Category::query();
 
         if ($type > -1) {
             $query = $query->where('type', $type);
@@ -298,11 +303,8 @@ class Category extends Model
     //code dự án
     public function getChildrenCategories($type = self::CATEGORY_TYPE_POST)
     {
-        $language = App::getLocale();
-
         $children = Category::where('status', 1)
             ->where('parent_id', data_get($this, 'id', 0))
-            ->where('language', $language)
             ->where('type', $type)
             ->orderBy('priority', 'DESC')
             ->orderBy('name')
@@ -321,8 +323,6 @@ class Category extends Model
 
     public function getParentCategory()
     {
-        $language = App::getLocale();
-
         $parent_id = data_get($this, 'parent_id', 0);
 
         if (!$parent_id) {
@@ -331,16 +331,14 @@ class Category extends Model
 
         return Category::where('status', 1)
             ->where('id', $parent_id)
-            ->where('language', $language)
             ->first();
     }
 
     public function getCategoryPostHome($limit_post = 12)
     {
-        $language = App::getLocale();
         $clsPost = new Post();
         $category = Category::where('at_home', 1)
-            ->where('status', 1)->where('language', $language)
+            ->where('status', 1)
             ->where('type', Category::CATEGORY_TYPE_POST)
             ->orderBy('priority')
             ->orderBy('id', 'DESC')

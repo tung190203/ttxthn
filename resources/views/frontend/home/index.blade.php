@@ -18,18 +18,18 @@
                     <div class="pj-search__top">
                         <div class="pj-search__col">
                             <div class="input-group">
-                                <input class="form-control" type="text" id="searchInput" placeholder="Nhập tên dự án">
+                                <input class="form-control" type="text" id="searchInput" placeholder="{{ __('app.enter_project_name') }}">
                                 <div class="input-group-text"><i class="fal fa-lg fa-search"></i></div>
                             </div>
                         </div>
                         <div class="pj-search__col">
-                            <button class="pj-search__btn" id="applyBtn" type="button">Tìm kiếm</button>
+                            <button class="pj-search__btn" id="applyBtn" type="button">{{__('app.search')}}</button>
                         </div>
                     </div>
                     <div class="pj-search__bottom">
                         <div class="pj-search__col custom-select" style="position: relative;">
                             <div class="input-group">
-                                <input class="form-control" type="text" id="districtFilter" placeholder="Địa điểm"
+                                <input class="form-control" type="text" id="districtFilter" placeholder="{{ __('app.locations') }}"
                                     autocomplete="off">
                                 <div class="input-group-text cursor-pointer" id="openDropdown">
                                     <i class="fal fa-lg fa-map-marker-alt cursor-pointer"></i>
@@ -42,7 +42,7 @@
                         </div>
                         <div class="pj-search__col">
                             <select class="form-select" id="typeFilter">
-                                <option value="all">Loại dự án</option>
+                                <option value="all">{{__('app.project_types')}}</option>
                                 @foreach ($types as $type)
                                     <option value="{{ $type['id'] }}">{{ $type['name'] }}</option>
                                 @endforeach
@@ -50,7 +50,7 @@
                         </div>
                         <div class="pj-search__col">
                             <select class="form-select" id="industryFilter">
-                                <option value="all">Ngành/Lĩnh vực</option>
+                                <option value="all">{{__('app.industry_field')}}</option>
                                 @foreach ($industries as $industry)
                                     <option value="{{ $industry['id'] }}">{{ $industry['name'] }}</option>
                                 @endforeach
@@ -59,7 +59,7 @@
                         <div class="pj-search__col">
                             <div class="range-input">
                                 <div class="range-input__content">
-                                    <div class="range-input__label">Quy mô vốn đầu tư</div>
+                                    <div class="range-input__label">{{__('app.investment_scale')}}</div>
                                     <div class="range-input__price">0</div>
                                 </div>
                                 <input class="range-input__input" id="priceRange" type="range" value="0"
@@ -76,18 +76,18 @@
                         <div class="pj-search__col">
                             <div class="input-group">
                                 <input class="form-control" type="text" id="searchInputSp"
-                                    placeholder="Từ khóa tìm kiếm">
+                                    placeholder="{{ __('app.search_keyword') }}">
                                 <div class="input-group-text"><i class="fal fa-lg fa-search"></i></div>
                             </div>
                         </div>
                         <div class="pj-search__col">
-                            <button class="pj-search__btn orange-btn" id="applyBtnSp" type="button">Tìm kiếm</button>
+                            <button class="pj-search__btn orange-btn" id="applyBtnSp" type="button">{{__('app.search')}}</button>
                         </div>
                     </div>
                     <div class="pj-search__bottom">
                         <div class="pj-search__col custom-select" style="position: relative;">
                             <div class="input-group">
-                                <input class="form-control" type="text" id="districtFilterSp" placeholder="Địa điểm"
+                                <input class="form-control" type="text" id="districtFilterSp" placeholder="{{ __('app.locations') }}"
                                     autocomplete="off">
                                 <div class="input-group-text cursor-pointer" id="openDropdownSp">
                                     <i class="fal fa-lg fa-map-marker-alt cursor-pointer"></i>
@@ -100,7 +100,7 @@
                         </div>
                         <div class="pj-search__col">
                             <select class="form-select" id="project_id">
-                                <option value="all">Chọn dự án</option>
+                                <option value="all">{{ __('app.choice_project') }}</option>
                                 @foreach ($list_projects as $project)
                                     <option value="{{ $project['id'] }}">{{ $project['name'] }}</option>
                                 @endforeach
@@ -108,7 +108,7 @@
                         </div>
                         <div class="pj-search__col">
                             <select class="form-select" id="product_type">
-                                <option value="all">Loại hình sản phẩm</option>
+                                <option value="all">{{ __('app.product_type') }}</option>
                                 @foreach ($product_types as $type)
                                     <option value="{{ $type['id'] }}">{{ $type['name'] }}</option>
                                 @endforeach
@@ -117,7 +117,7 @@
                         <div class="pj-search__col">
                             <div class="range-input">
                                 <div class="range-input__content">
-                                    <div class="range-input__label text-white">Giá thuê</div>
+                                    <div class="range-input__label text-white">{{ __('app.rental_price') }}</div>
                                     <div class="range-input__price1 text-white">0</div>
                                 </div>
                                 <input class="white-range" id="priceRangeSp" type="range" value="0"
@@ -129,10 +129,8 @@
 
                 <!-- Tabs dưới form -->
                 <div class="custom_tabs">
-                    <button class="custom-btn active" id="projectTab" onclick="showTab('project')">TÌM KIẾM DỰ
-                        ÁN</button>
-                    <button class="custom-btn" id="industrialTab" onclick="showTab('industrial')">SẢN PHẨM KHU, CỤM CÔNG
-                        NGHIỆP</button>
+                    <button class="custom-btn active text-uppercase" id="projectTab" onclick="showTab('project')">{{ __('app.search_project') }}</button>
+                    <button class="custom-btn text-uppercase" id="industrialTab" onclick="showTab('industrial')">{{ __('app.industrial_products') }}</button>
                 </div>
             </div>
         </div>
@@ -144,12 +142,12 @@
                         <div class="pj-search__col">
                             <div class="input-group">
                                 <input class="form-control" type="text" id="searchInput"
-                                    placeholder="Nhập tên dự án">
+                                    placeholder="{{ __('app.enter_project_name') }}">
                                 <div class="input-group-text"><i class="fal fa-lg fa-search"></i></div>
                             </div>
                         </div>
                         <div class="pj-search__col">
-                            <button class="pj-search__btn" id="applyBtn" type="button">Tìm kiếm</button>
+                            <button class="pj-search__btn" id="applyBtn" type="button">{{__('app.search')}}</button>
                         </div>
                     </div>
                 </div>
@@ -157,14 +155,14 @@
         </div>
         <section class="section" id="investment-section">
             <div class="container">
-                <h2 class="section__title mb-3 text-uppercase">Danh mục đầu tư</h2>
+                <h2 class="section__title mb-3 text-uppercase">{{ __('app.investment_portfolio') }}</h2>
 
                 <div class="project-nav-wrapper mb-60">
                     <!-- "Tất cả" cố định -->
                     <div class="project-nav-fixed">
                         <a class="{{ request('industry') ? '' : 'active' }}"
                             href="{{ route('home_page') }}#investment-section">
-                            Tất cả
+                            {{ __('app.all') }}
                         </a>
                     </div>
 
@@ -184,7 +182,9 @@
                 </div>
 
                 @if (empty($project_category))
-                    <p class="text-center">Chưa có dự án phù hợp</p>
+                    <p class="text-center">
+                        {{ __('app.no_suitable_project') }}
+                    </p>
                 @else
                     <!-- phần slider giữ nguyên -->
                     <div class="news-slider">
@@ -212,7 +212,7 @@
                                                     </h3>
                                                     @if ($item['is_invest'] == 0)
                                                         <div class="project__overlay">
-                                                            <span>Dự án đang kêu gọi đầu tư</span>
+                                                            <span>{{ __('app.projects_calling_for_investment') }}</span>
                                                             <a class="project__like" href="javascript:void(0)"
                                                                 data-id="{{ $item['id'] }}"
                                                                 data-type="App\Models\Project"><i
@@ -220,7 +220,7 @@
                                                         </div>
                                                     @else
                                                         <div class="project__overlay">
-                                                            <span>Dự án đã có chủ đầu tư</span>
+                                                            <span>{{ __('app.projects_with_investors') }}</span>
                                                             <a class="project__like" href="javascript:void(0)"
                                                                 data-id="{{ $item['id'] }}"
                                                                 data-type="App\Models\Project"><i
@@ -229,15 +229,15 @@
                                                     @endif
                                                     <ul class="project__info">
                                                         <li>
-                                                            <img class="me-2" src="./images/icon-map-marker.svg"
+                                                            <img class="me-2" src="{{ asset('/images/icon-map-marker.svg') }}"
                                                                 alt="" />
                                                             <span
-                                                                data-tippy-content="Dự án thuộc {{ $item['districts'] }}">
-                                                                Dự án thuộc {{ $item['districts'] }}
+                                                                data-tippy-content="{{ __('app.project_under') }} {{ $item['districts'] }}">
+                                                                {{ __('app.project_under') }} {{ $item['districts'] }}
                                                             </span>
                                                         </li>
                                                         <li>
-                                                            <img class="me-2" src="./images/icon-dimension.svg" alt="" />
+                                                            <img class="me-2" src="{{ asset('/images/icon-dimension.svg') }}" alt="" />
                                                             @php
                                                                 $locale = app()->getLocale();
                                                                 if ($locale === 'vn') {
@@ -253,9 +253,9 @@
                                                             <span>{{ $formattedArea }} {{ $item['unit'] ?? '' }}</span>
                                                         </li>                                                                 
                                                         </li>
-                                                        <li><img class="me-2" src="./images/icon-save-money.svg"
+                                                        <li><img class="me-2" src="{{ asset('/images/icon-save-money.svg') }}"
                                                                 alt="" />
-                                                            <span>{{ number_format($item['price'], 0, ',', '.') }} tỷ đồng</span>
+                                                            <span>{{ number_format($item['price'], 0, ',', '.') }} {{ __('app.billion_vnd') }}</span>
                                                         </li>
                                                     </ul>
                                                 </div>
@@ -268,7 +268,7 @@
                     </div>
 
                     <nav class="d-flex justify-content-center mt-40 mt-lg-60">
-                        <a class="button" href="/projects" style="text-transform: capitalize;">Xem thêm</a>
+                        <a class="button" href="/projects" style="text-transform: capitalize;">{{ __('app.view_more') }}</a>
                     </nav>
                 @endif
             </div>
@@ -300,7 +300,7 @@
             {{-- <img class="texture-1" src="./images/texture-1.png" alt="" />
             <img class="texture-2" src="./images/texture-2.png" alt="" /> --}}
             <div class="container">
-                <h2 class="section__title text-uppercase">Tin tức</h2>
+                <h2 class="section__title text-uppercase">{{ __('app.news') }}</h2>
                 <div class="news-slider">
                     <div class="news-slider__nav">
                         <div class="news-slider__prev"><i class="fal fa-fw fa-lg fa-angle-left"></i></div>
@@ -341,13 +341,13 @@
                         </div>
                     </div>
                 </div>
-                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="/tin-tuc" style="text-transform: capitalize;">Xem thêm</a>
+                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="/tin-tuc" style="text-transform: capitalize;">{{ __('app.view_more') }}</a>
                 </nav>
             </div>
         </section>
         <section class="section section--medium-blue">
             <div class="container">
-                <h2 class="section__title text-white text-uppercase">Liên kết</h2>
+                <h2 class="section__title text-white text-uppercase">{{ __('app.link') }}</h2>
                 @if (!empty($setting['banners']))
                     <div class="partners-slider">
                         <div class="partners-slider__container swiper-container">
@@ -372,8 +372,8 @@
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Kết quả lọc</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                        <h5 class="modal-title">{{ __('app.filter_results') }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('app.close') }}"></button>
                     </div>
                     <div class="modal-body">
                         <ul id="resultList" class="list-group"></ul>
@@ -427,17 +427,16 @@
     <script>
         // Tile layers
         const defaults = L.tileLayer('https://api.maptiler.com/maps/outdoor-v2/{z}/{x}/{y}.png?key=ziR13X4sfKXctiAkrRRQ');
-        // const defaults = L.tileLayer('https://api.maptiler.com/maps/basic-v2/{z}/{x}/{y}.png?key=ziR13X4sfKXctiAkrRRQ');
         const streets = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
         const satellite = L.tileLayer(
             'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}');
         const topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png');
 
         const baseLayers = {
-            "Bản đồ mặc định": defaults,
-            "Bản đồ giao thông": streets,
-            "Bản đồ vệ tinh": satellite,
-            "Bản đồ địa hình": topo
+            "{{ __('app.default_map') }}": defaults,
+            "{{ __('app.traffic_map') }}": streets,
+            "{{ __('app.satellite_map') }}": satellite,
+            "{{ __('app.topo_map') }}": topo
         };
 
         const defaultCenter = [21.0285, 105.8542];
@@ -499,7 +498,7 @@
         resetControl.onAdd = function(map) {
             const btn = L.DomUtil.create('button', 'leaflet-bar leaflet-control leaflet-control-custom');
             btn.innerHTML = '<i class="fas fa-redo-alt"></i>';
-            btn.title = 'Reset bản đồ';
+            btn.title = '{{ __("app.reset_map") }}';
 
             btn.style.backgroundColor = 'white';
             btn.style.width = '48px';
@@ -524,7 +523,7 @@
         currentLocation.onAdd = function(map) {
             const btn = L.DomUtil.create('button', 'leaflet-bar leaflet-control leaflet-control-custom');
             btn.innerHTML = '<i class="fas fa-crosshairs"></i>';
-            btn.title = 'Vị trí hiện tại';
+            btn.title = '{{ __("app.current_location") }}';
 
             btn.style.backgroundColor = 'white';
             btn.style.width = '48px';
@@ -551,14 +550,14 @@
                         map._currentLocationMarker = L.marker(latLng, {
                                 icon: redIcon
                             }).addTo(map)
-                            .bindPopup("Vị trí hiện tại")
+                            .bindPopup("{{ __('app.current_location') }}")
                             .openPopup();
 
                     }, function() {
-                        alert('Không thể lấy vị trí hiện tại.');
+                        alert('{{ __('app.unable_to_get_current_location') }}');
                     });
                 } else {
-                    alert('Trình duyệt không hỗ trợ Geolocation.');
+                    alert('{{ __('app.browser_not_support_geolocation') }}');
                 }
             };
 
@@ -592,11 +591,11 @@
 
         function getTypeName(typeNumber) {
             const types = {
-                1: "Đối tác công tư (PPP)",
-                2: "Vốn ngoài ngân sách (NNS)",
-                3: "Đầu tư công"
+                1: "{{ __('app.public_private_partnership') }}",
+                2: "{{ __('app.off_budget_capital') }}",
+                3: "{{ __('app.public_investment') }}",
             };
-            return types[typeNumber] || "Không rõ";
+            return types[typeNumber] || "{{ __('app.unknown') }}";
         }
 
         // Lấy ngôn ngữ hiện tại
@@ -620,9 +619,9 @@
 
         // Format riêng cho giá trị tiền (tỷ đồng)
         function fmtPrice(value) {
-            if (value === null || value === undefined || value === '') return 'Chưa có giá';
+            if (value === null || value === undefined || value === '') return '{{ __('app.no_price') }}';
             const n = Number(value);
-            if (!isFinite(n)) return 'Chưa có giá';
+            if (!isFinite(n)) return '{{ __('app.no_price') }}';
             return numberFormatter.format(n);
         }
 
@@ -645,6 +644,7 @@
         }
 
         function createMarker(loc) {
+            console.log(loc);
             const industryStyles = {
                 1: { color: "#2a84d0", icon: "/images/custom-icon-map/bridge.png" },
                 2: { color: "#2a84d0", icon: "/images/custom-icon-map/anchor.png" },
@@ -680,7 +680,7 @@
 
             const districtText = Array.isArray(loc.districts) ?
                 loc.districts.join(", ") :
-                loc.district || "Không rõ";
+                loc.district || "{{ __('app.unknown') }}";
 
             const priceText = fmtPrice(loc.price);
 
@@ -691,9 +691,9 @@
             if (loc.area !== null && loc.area !== undefined && loc.area !== '') {
                 const areaText = fmtNumber(loc.area);
                 if (loc.unit === 'ha') {
-                    areaHtml = `Diện tích: ${areaText} ha`;
+                    areaHtml = `{{ __('app.area') }}: ${areaText} ha`;
                 } else if (loc.unit === 'km') {
-                    areaHtml = `Chiều dài: ${areaText} km`;
+                    areaHtml = `{{ __('app.length') }}: ${areaText} km`;
                 }
             }
 
@@ -701,13 +701,13 @@
         <div class='info-box' style="max-width:250px;">
             <img src="${imageUrl}" alt="${loc.name}" style="width:100%; height:120px; object-fit:cover; border-radius:6px; margin-bottom:8px;">
             <strong>${loc.name}</strong><br>
-            Loại: ${getTypeName(loc.type_number)}<br>
-            Khu vực: ${districtText}<br>
-            Quy mô vốn đầu tư: ${priceText} tỷ đồng<br>
+            {{ __('app.type') }}: ${getTypeName(loc.type_number)}<br>
+            {{ __('app.zone') }}: ${districtText}<br>
+            {{ __('app.investment_scale') }}: ${priceText} {{ __('app.billion_vnd') }}<br>
             ${areaHtml}
             <div style="margin-top:10px; display:flex; gap:8px; justify-content:flex-end;">
-                <a href="${tourUrl}" target="_blank" class="btn btn-sm btn-secondary text-white">Tour thực tế ảo</a>
-                <a href="${detailUrl}" target="_blank" class="btn btn-sm btn-primary text-white">Thông tin</a>
+                <a href="${tourUrl}" target="_blank" class="btn btn-sm btn-secondary text-white">{{ __('app.virtual_tour') }}</a>
+                <a href="${detailUrl}" target="_blank" class="btn btn-sm btn-primary text-white">{{ __('app.information') }}</a>
             </div>
         </div>
     `;
@@ -819,7 +819,7 @@
             };
 
             $.ajax({
-                url: '/map/bounds',
+                url: `/${document.documentElement.lang}/map/bounds`,
                 method: 'GET',
                 data: params,
                 success: function(data) {
@@ -854,7 +854,7 @@
                     }
                 },
                 error: function(err) {
-                    console.error("Lỗi khi tải dữ liệu:", err);
+                    console.error("{{ __('app.error_loading_data') }}:", err);
                 }
             });
         }
@@ -870,7 +870,7 @@
             if (allItems.length === 0) {
                 resultList.innerHTML = `
                             <li class="list-group-item text-muted justify-content-center">
-                                Chưa có kết quả tìm kiếm phù hợp.
+                                {{ __('app.no_matching_results') }}
                             </li>
                         `;
                 $('#pagination').empty();
@@ -881,8 +881,8 @@
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <div>
                                 <strong>${item.name}</strong><br>
-                                <small>Dự án: ${item.project_name}</small> - Mã dự án: ${item.code}<br>
-                                <small>Diện tích: ${item.acreage} - Loại hình: ${item.product_type_name}</small>
+                                <small>{{ __('app.projects') }}: ${item.project_name}</small> - {{ __('app.code') }}: ${item.code}<br>
+                                <small>{{ __('app.area') }}: ${item.acreage} - {{ __('app.project_types') }}: ${item.product_type_name}</small>
                             </div>
                             <a href="${item.link}" target="_blank" class="btn custom-btn btn-sm">Vị trí</a>
                         </li>
@@ -937,14 +937,14 @@
 
         function loadAllDistricts() {
             $.ajax({
-                url: '/api/districts',
+                url: `/${document.documentElement.lang}/api/districts`,
                 method: 'GET',
                 success: function(res) {
                     allDistricts = res.sort();
                     allDistrictsLoaded = true;
                 },
                 error: function(err) {
-                    console.error("Lỗi khi tải danh sách quận:", err);
+                    console.error("{{ __('app.error_loading_districts') }}:", err);
                 }
             });
         }
@@ -979,12 +979,12 @@
             dropdown.empty();
 
             if (!allDistrictsLoaded) {
-                dropdown.append('<div class="px-3 py-2 text-gray-400 italic">Đang tải...</div>');
+                dropdown.append('<div class="px-3 py-2 text-gray-400 italic">{{ __('app.loading') }}</div>');
                 return;
             }
 
             if (filtered.length === 0) {
-                dropdown.append('<div class="px-3 py-2 text-gray-500">Không có kết quả</div>');
+                dropdown.append('<div class="px-3 py-2 text-gray-500">{{ __('app.no_matching_results') }}</div>');
                 return;
             }
 
