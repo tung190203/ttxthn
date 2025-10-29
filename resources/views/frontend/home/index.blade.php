@@ -881,11 +881,11 @@
             resultList.innerHTML = items.map(item => `
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <div>
-                                <strong>${item.name}</strong><br>
+                                <strong>${item.description}</strong><br>
                                 <small>{{ __('app.projects') }}: ${item.project_name}</small> - {{ __('app.code') }}: ${item.code}<br>
                                 <small>{{ __('app.area') }}: ${item.acreage} - {{ __('app.project_types') }}: ${item.product_type_name}</small>
                             </div>
-                            <a href="${item.link}" target="_blank" class="btn custom-btn btn-sm">Vị trí</a>
+                            <a href="${item.link}" target="_blank" class="btn custom-btn btn-sm">{{ __('app.location') }}</a>
                         </li>
                     `).join('');
 
