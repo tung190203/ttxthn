@@ -644,7 +644,6 @@
         }
 
         function createMarker(loc) {
-            console.log(loc);
             const industryStyles = {
                 1: { color: "#2a84d0", icon: "/images/custom-icon-map/bridge.png" },
                 2: { color: "#2a84d0", icon: "/images/custom-icon-map/anchor.png" },
@@ -941,7 +940,7 @@
             let lang = document.documentElement.lang || 'vn';
             if (lang === 'vi') lang = 'vn';
             $.ajax({
-                url: `/${lang}/map/districts`,
+                url: `/${lang}/api/districts`,
                 method: 'GET',
                 success: function(res) {
                     allDistricts = res.sort();
