@@ -118,4 +118,7 @@ return [
     'nationality' => 'Quốc tịch',
     'choice_nationality' => 'Chọn quốc tịch',
     'subscribe_project_updates' => 'Đăng ký nhận thông tin các dự án',
+    'investment_guide_link' => 'cam-nang-dau-tu',
+    'contact_link' => 'lien-he',
+    'project_link' => 'du-an-keu-goi-dau-tu'
 ];

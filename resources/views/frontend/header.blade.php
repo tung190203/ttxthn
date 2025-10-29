@@ -10,7 +10,7 @@
                     <img src="{{$setting['logo'] ?? ''}}" alt="" />
                 </a>
                 <div class="header__elements">
-                    <div class="header__text">{{$setting['site_name'] ?? ''}}</div>
+                    <div class="header__text">{{ \App\Models\Setting::getSettingByKey('site_name') }}</div>
                 </div>
                 <button class="btn-toggle text-white d-xl-none js-navbar-toggle ms-1"></button>
             </div>
@@ -31,27 +31,27 @@
                                 <ul class="menu menu-root">
                                     @foreach($share['main_menu'] as $item)
                                         <li
-                                            class="menu-item @if($item['name'] == 'Dự án kêu gọi đầu tư') menu-item-group @endif">
+                                            class="menu-item @if($item['name'] == __('app.investment_projects')) menu-item-group @endif">
                                             <a class="menu-link 
-                                                    @if(empty($setting['menu_active']) && $item['name'] == 'Trang chủ') active
+                                                    @if(empty($setting['menu_active']) && $item['name'] == __('app.home')) active
                                                     @elseif(($setting['menu_active'] ?? '') == \Str::slug($item['name'])) active
                                                     @endif" href="{{ $item['href'] }}">
                                                 {{ $item['name'] }}
 
                                                 {{-- Hiển thị badge cho menu nhóm --}}
-                                                @if($item['name'] == 'Dự án kêu gọi đầu tư')
+                                                @if($item['name'] == __('app.investment_projects'))
                                                     <span class="badge bg-danger ms-2">{{ $countAllProject ?? 0 }}</span>
                                                 @endif
                                             </a>
 
                                             {{-- Menu nhóm dự án --}}
-                                            @if($item['name'] == 'Dự án kêu gọi đầu tư')
+                                            @if($item['name'] == __('app.investment_projects'))
                                                 <span class="menu-toggle"></span>
                                                 <ul class="menu menu-sub custom-menu-header">
                                                     @foreach($listProjectHeader as $project)
                                                         <li class="menu-item">
                                                             <a class="menu-link"
-                                                                href="{{ route('project_detail', ['slug' => $project->slug, 'ref' => "Dự án kêu gọi đầu tư"]) }}">
+                                                                href="{{ route('project_detail', ['slug' => $project->slug, 'ref' => __('app.investment_projects')]) }}">
                                                                 {{ $project->name }}
                                                             </a>
                                                         </li>

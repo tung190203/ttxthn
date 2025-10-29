@@ -1,7 +1,5 @@
 <?php
 
-namespace App\Modules\Setting\Controllers;
-
 namespace App\Http\Controllers\Backend;
 
 use App\Models\Page;
@@ -15,6 +13,11 @@ use Illuminate\Support\Facades\Gate;
 class SettingController extends Controller
 {
     private Setting $setting;
+    // Định nghĩa các key cần được coi là đa ngôn ngữ đơn giản (vi, en)
+    const MULTI_LANGUAGE_KEYS = ['site_name', 'footer_info', 'copyright_notice', 'copyright', 'address', 'social_title']; 
+
+    // Định nghĩa các key là mảng JSON phức tạp (chứa đa ngôn ngữ bên trong nó)
+    const COMPLEX_JSON_KEYS = ['banners', 'features']; 
 
     public function __construct(Setting $setting)
     {
@@ -33,7 +36,6 @@ class SettingController extends Controller
         if (!Gate::allows('setting/general')) {
             abort(403, self::MESSAGE_UNAUTHORIZED);
         }
-
 
         $this->selectedSubMenu('general');
         $settings = Setting::getAllSetting();
@@ -79,30 +81,53 @@ class SettingController extends Controller
 
     public function save(Request $request)
     {
-        $language = App::getLocale();
         $arrListKey = $request->settings;
         if (!isset($arrListKey['noindex'])) {
             $arrListKey['noindex'] = 0;
         }
+
         foreach ($arrListKey as $skey => $svalue) {
-            if (is_array($svalue)) {
-                // Reset key để luôn là array tuần tự
-                $svalue = array_values($svalue);
-                $svalue = json_encode($svalue, JSON_UNESCAPED_UNICODE);
+            $setting_item = Setting::where('skey', $skey)->first();
+
+            if ($setting_item === null) {
+                $setting_item = new Setting;
+                $setting_item->skey = $skey;
             }
 
-            if (Setting::check_exists_skey($skey)) {
-                Setting::where('skey', $skey)
-                    ->where('language', $language)
-                    ->update(['svalue' => $svalue]);
+            // --- Logic xử lý 3 loại input ---
+            if (in_array($skey, self::COMPLEX_JSON_KEYS) && is_array($svalue)) {
+                // 1. Trường phức tạp (banners, features): Lưu mảng đã encode vào ngôn ngữ hiện tại
+                // Input: array của objects, Output DB: JSON string của array đó
+                $svalue = array_values($svalue); // Đảm bảo array tuần tự
+                $json_value = json_encode($svalue, JSON_UNESCAPED_UNICODE);
+                
+                // Lưu vào ngôn ngữ hiện tại
+                $setting_item->setTranslation('svalue', App::getLocale(), $json_value);
+
+            } elseif (in_array($skey, self::MULTI_LANGUAGE_KEYS) && is_array($svalue)) {
+                // 2. Trường đa ngôn ngữ đơn giản (site_name, footer_info,...)
+                // Input: mảng ['vi' => '...', 'en' => '...'], Output DB: JSON string {"vi": "...", "en": "..."}
+                
+                // Spatie sẽ tự động lưu mảng này dưới dạng JSON
+                $setting_item->setTranslations('svalue', $svalue);
+
             } else {
-                Setting::insert([
-                    "skey" => $skey,
-                    "svalue" => $svalue,
-                    "language" => $language
-                ]);
+                // 3. Trường đơn ngữ (favicon, logo, address, noindex,...)
+                // Input: string, Output DB: JSON string {"vi": "giá trị", "en": "value"}
+                
+                // Lưu giá trị đơn giản vào ngôn ngữ hiện tại
+                $setting_item->setTranslation('svalue', App::getLocale(), $svalue);
             }
+            // --- Kết thúc Logic xử lý ---
+
+            $setting_item->save();
         }
+
+        // Xóa cache sau khi lưu thành công
+        if (isset(Setting::$cached['all_setting'])) {
+            unset(Setting::$cached['all_setting']);
+        }
+        
         return redirect()->back()->with('success', 'Cập nhật thông tin thành công');
     }
 }

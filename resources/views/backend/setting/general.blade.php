@@ -31,28 +31,82 @@
                     @csrf
                     <div class="card-body">
 
-                        {{-- các field khác --}}
-                        <x-forms.input name="settings[site_name]" value="{{ $settings['site_name'] ?? '' }}"
-                            label="Site name" />
+                        {{-- ================================================================= --}}
+                        {{-- KHỐI TAB NGÔN NGỮ CHO CÁC FIELD ĐƠN GIẢN CẦN DỊCH --}}
+                        {{-- **Đã thêm ADDRESS vào đây** --}}
+                        {{-- ================================================================= --}}
+                        <ul class="nav nav-tabs" id="settingTabs" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="vi-tab" data-toggle="tab" href="#tab-vi" role="tab"
+                                    aria-controls="tab-vi" aria-selected="true">Tiếng Việt (VI)</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="en-tab" data-toggle="tab" href="#tab-en" role="tab"
+                                    aria-controls="tab-en" aria-selected="false">Tiếng Anh (EN)</a>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content" id="settingTabsContent">
+                            
+                            {{-- TAB TIẾNG VIỆT --}}
+                            <div class="tab-pane fade show active" id="tab-vi" role="tabpanel" aria-labelledby="vi-tab">
+                                <h4 class="mt-3">Cài đặt cơ bản (VI)</h4>
+                                <x-forms.input name="settings[site_name][vi]" 
+                                    value="{{ $settings['site_name']['vi'] ?? '' }}"
+                                    label="Site name (VI)" />
+                                <x-forms.textarea name="settings[footer_info][vi]" :required="true" editor="true"
+                                    value="{{ $settings['footer_info']['vi'] ?? '' }}" label="Footer info (VI)" />
+                                <x-forms.textarea name="settings[copyright_notice][vi]" :required="true" editor="true"
+                                    value="{{ $settings['copyright_notice']['vi'] ?? '' }}" label="Copyright notice (VI)" />
+                                <x-forms.textarea name="settings[copyright][vi]" :required="true"
+                                    value="{{ $settings['copyright']['vi'] ?? '' }}" label="Copyright (VI)" />
+                                
+                                {{-- ADDRESS ĐÃ ĐƯỢC CHUYỂN VÀO ĐÂY --}}
+                                <x-forms.input name="settings[address][vi]" value="{{ $settings['address']['vi'] ?? '' }}" label="Address (VI)" />
+                                <x-forms.input name="settings[social_title][vi]" value="{{ $settings['social_title']['vi'] ?? '' }}" label="Social Title (VI)" />
+                            </div>
+
+                            {{-- TAB TIẾNG ANH --}}
+                            <div class="tab-pane fade" id="tab-en" role="tabpanel" aria-labelledby="en-tab">
+                                <h4 class="mt-3">Cài đặt cơ bản (EN)</h4>
+                                <x-forms.input name="settings[site_name][en]" 
+                                    value="{{ $settings['site_name']['en'] ?? '' }}"
+                                    label="Site name (EN)" />
+                                <x-forms.textarea name="settings[footer_info][en]" :required="true" editor="true"
+                                    value="{{ $settings['footer_info']['en'] ?? '' }}" label="Footer info (EN)" />
+                                <x-forms.textarea name="settings[copyright_notice][en]" :required="true" editor="true"
+                                    value="{{ $settings['copyright_notice']['en'] ?? '' }}" label="Copyright notice (EN)" />
+                                <x-forms.textarea name="settings[copyright][en]" :required="true"
+                                    value="{{ $settings['copyright']['en'] ?? '' }}" label="Copyright (EN)" />
+                                    
+                                {{-- ADDRESS ĐÃ ĐƯỢC CHUYỂN VÀO ĐÂY --}}
+                                <x-forms.input name="settings[address][en]" value="{{ $settings['address']['en'] ?? '' }}" label="Address (EN)" />
+                                <x-forms.input name="settings[social_title][en]" value="{{ $settings['social_title']['en'] ?? '' }}" label="Social Title (EN)" />
+                            </div>
+                        </div>
+
+                        {{-- ================================================================= --}}
+                        {{-- KHỐI FIELDS ĐƠN NGỮ (Images, Inputs không cần dịch) --}}
+                        {{-- **ADDRESS đã được loại bỏ** --}}
+                        {{-- ================================================================= --}}
+                        <h4 class="mt-4">Cài đặt Đơn ngữ</h4>
                         <x-forms.upload name="settings[favicon]" value="{{ $settings['favicon'] ?? '' }}" label="Favicon"
                             type="image" />
                         <x-forms.upload name="settings[logo]" value="{{ $settings['logo'] ?? '' }}" label="Logo"
                             type="image" />
                         <x-forms.upload name="settings[logo_footer]" value="{{ $settings['logo_footer'] ?? '' }}"
                             label="Logo Footer" type="image" />
-                        <x-forms.textarea name="settings[footer_info]" :required="true" editor="true"
-                            value="{{ $settings['footer_info'] ?? '' }}" label="Footer info" />
-                        <x-forms.input name="settings[address]" value="{{ $settings['address'] ?? '' }}" label="Address" />
+                        {{-- <x-forms.input name="settings[address]" value="{{ $settings['address'] ?? '' }}" label="Address" /> <-- Đã xóa --}}
                         <x-forms.input name="settings[website]" value="{{ $settings['website'] ?? '' }}" label="Website" />
                         <x-forms.input name="settings[phone]" value="{{ $settings['phone'] ?? '' }}" label="Phone" />
                         <x-forms.input name="settings[email]" value="{{ $settings['email'] ?? '' }}" label="Email" />
-                        <x-forms.textarea name="settings[copyright_notice]" :required="true" editor="true"
-                            value="{{ $settings['copyright_notice'] ?? '' }}" label="Copyright notice" />
-                        <x-forms.textarea name="settings[copyright]" :required="true"
-                            value="{{ $settings['copyright'] ?? '' }}" label="Copyright" />
-
                         <x-forms.switch name="settings[noindex]" value="{{ !empty($settings['noindex']) ? 1 : 0 }}"
                             label="Chặn index" :messages="$errors->get('noindex')" />
+
+
+                        {{-- ================================================================= --}}
+                        {{-- KHỐI DỮ LIỆU PHỨC TẠP (BANNERS) --}}
+                        {{-- ================================================================= --}}
 
                         {{-- Danh sách link + ảnh --}}
                         @php
@@ -87,15 +141,18 @@
                             </div>
                         </div>
 
-                        {{-- Danh sách feature / thành tựu --}}
+                        {{-- ================================================================= --}}
+                        {{-- KHỐI DỮ LIỆU PHỨC TẠP (FEATURES) - ĐÃ LÀM ĐA NGÔN NGỮ --}}
+                        {{-- ================================================================= --}}
                         @php
                             $features = $settings['features'] ?? [];
                             if (!is_array($features)) $features = [];
-                            if (empty($features)) $features = [['icon' => '', 'title' => '', 'content' => '']];
+                            // Khởi tạo fields đa ngôn ngữ bên trong
+                            if (empty($features)) $features = [['icon' => '', 'title' => ['vi' => '', 'en' => ''], 'content' => ['vi' => '', 'en' => '']]];
                         @endphp
 
                         <div class="form-group row mt-4">
-                            <label class="col-sm-3 col-form-label">Danh sách thành tựu</label>
+                            <label class="col-sm-3 col-form-label">Danh sách thành tựu (Đa ngôn ngữ)</label>
                             <div class="col-sm-9">
                                 <input type="hidden" name="settings[features]" value="">
 
@@ -104,10 +161,16 @@
                                         <div class="feature-item border p-3 mb-3 rounded" data-index="{{ $i }}">
                                             <x-forms.upload name="settings[features][{{ $i }}][icon]"
                                                 value="{{ $item['icon'] ?? '' }}" label="Icon" type="image" />
-                                            <x-forms.input name="settings[features][{{ $i }}][title]"
-                                                value="{{ $item['title'] ?? '' }}" label="Tiêu đề" />
-                                            <x-forms.textarea name="settings[features][{{ $i }}][content]"
-                                                value="{{ $item['content'] ?? '' }}" label="Nội dung" />
+                                            
+                                            <x-forms.input name="settings[features][{{ $i }}][title][vi]"
+                                                value="{{ $item['title']['vi'] ?? '' }}" label="Tiêu đề (VI)" />
+                                            <x-forms.input name="settings[features][{{ $i }}][title][en]"
+                                                value="{{ $item['title']['en'] ?? '' }}" label="Tiêu đề (EN)" />
+
+                                            <x-forms.textarea name="settings[features][{{ $i }}][content][vi]"
+                                                value="{{ $item['content']['vi'] ?? '' }}" label="Nội dung (VI)" />
+                                            <x-forms.textarea name="settings[features][{{ $i }}][content][en]"
+                                                value="{{ $item['content']['en'] ?? '' }}" label="Nội dung (EN)" />
 
                                             <div class="form-group row">
                                                 <div class="col-sm-9 offset-sm-3">
@@ -129,7 +192,7 @@
     </section>
 
     <script>
-        // ==================== Banner ====================
+        // ==================== Banner (Giữ nguyên) ====================
         function inputIdFromIndex(index) { return `settings_banners_${index}_image`; }
 
         function createLinkItemHtml(index) {
@@ -204,7 +267,13 @@
             });
         });
 
-        // ==================== Feature / Thành tựu ====================
+        // Bind uploader cho các link cũ
+        @foreach($links as $i => $item)
+        bindUploaderForIndex({{ $i }});
+        @endforeach
+
+
+        // ==================== Feature / Thành tựu (Đã cập nhật JS) ====================
         function inputFeatureIdFromIndex(index) { return `settings_features_${index}_icon`; }
 
         function createFeatureItemHtml(index) {
@@ -227,16 +296,30 @@
                     </div>
 
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label">Tiêu đề</label>
+                        <label class="col-sm-3 col-form-label">Tiêu đề (VI)</label>
                         <div class="col-sm-9">
-                            <input type="text" name="settings[features][${index}][title]" class="form-control" placeholder="Tiêu đề">
+                            <input type="text" name="settings[features][${index}][title][vi]" class="form-control" placeholder="Tiêu đề (VI)">
                         </div>
                     </div>
 
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label">Nội dung</label>
+                        <label class="col-sm-3 col-form-label">Tiêu đề (EN)</label>
                         <div class="col-sm-9">
-                            <textarea name="settings[features][${index}][content]" class="form-control" placeholder="Nội dung"></textarea>
+                            <input type="text" name="settings[features][${index}][title][en]" class="form-control" placeholder="Tiêu đề (EN)">
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Nội dung (VI)</label>
+                        <div class="col-sm-9">
+                            <textarea name="settings[features][${index}][content][vi]" class="form-control" placeholder="Nội dung (VI)"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Nội dung (EN)</label>
+                        <div class="col-sm-9">
+                            <textarea name="settings[features][${index}][content][en]" class="form-control" placeholder="Nội dung (EN)"></textarea>
                         </div>
                     </div>
 
