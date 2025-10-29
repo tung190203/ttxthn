@@ -4,11 +4,19 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Spatie\Translatable\HasTranslations;
 
 class ProjectType extends Model
 {
-    use HasFactory;
+    use HasFactory, HasTranslations;
     protected $table = 'project_types';
+
+    protected $fillable = [
+        'name',
+    ];
+    public $translatable = [
+        'name',
+    ];
 
     public function projects()
     {

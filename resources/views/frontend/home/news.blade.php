@@ -13,8 +13,8 @@
                     </div>
                 </nav>
             </div>
-            <img class="banner__bg" src="./images/tin-tuc-banner.jpg" alt=""/>
-            <div class="banner__title">Tin tức</div>
+            <img class="banner__bg" src="{{ asset('images/tin-tuc-banner.jpg') }}" alt=""/>
+            <div class="banner__title">{{ __('app.news') }}</div>
         </article>
         <section class=" pt-40 pb-40">
             <div class="container">
@@ -22,7 +22,7 @@
                     @forelse($posts as $item)
                         <div class="col-6 col-lg-4">
                             <div class="news">
-                                <a class="news__frame" href="{{ route('post_detail',['id' => $item->id, 'slug' => $item->slug, 'ref' => 'Tin tức']) }}">
+                                <a class="news__frame" href="{{ route('post_detail',['id' => $item->id, 'slug' => $item->slug, 'ref' => 'app.news']) }}">
                                     <img src="{{$item->image}}" alt=""/>
                                 </a>
                                 <div class="news__body">
@@ -37,7 +37,7 @@
                                             </a>
                                     </div>
                                     <h3 class="news__title custom-desc">
-                                        <a href="{{ route('post_detail',['id' => $item->id, 'slug' => $item->slug, 'ref' => 'Tin tức']) }}" data-tippy-content="{{$item->name}}">
+                                        <a href="{{ route('post_detail',['id' => $item->id, 'slug' => $item->slug, 'ref' => 'app.news']) }}" data-tippy-content="{{$item->name}}">
                                             {{ $item->name }}
                                         </a>
                                     </h3>
@@ -47,7 +47,7 @@
                         </div>
                     @empty
                         <div class="col-12 text-center py-5">
-                            <p class="text-muted">Không có tin tức nào để hiển thị.</p>
+                            <p class="text-muted">{{ __('app.no_news_to_display') }}</p>
                         </div>
                     @endforelse
                 </div>

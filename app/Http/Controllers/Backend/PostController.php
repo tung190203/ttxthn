@@ -48,7 +48,6 @@ class PostController extends Controller
         $filter['cat_id'] = $request->get('cat_id', 0);
         $filter['status'] = $request->get('status', -1);
         $query = $this->post->with(['category', 'user'])
-            ->where('language', $language)
             ->visibleFor(auth('web')->user())
             ->orderBy('id', 'desc');
         if ($filter['name'] !== '') {
@@ -149,40 +148,61 @@ class PostController extends Controller
     public function save(Post $post, Request $request)
     {
         $user = auth('web')->user();
-
+    
         if ($post->exists && !Gate::allows('post/edit', $post)) {
             abort(403, self::MESSAGE_UNAUTHORIZED);
         }
         if (!$post->exists && !Gate::allows('post/add')) {
             abort(403, self::MESSAGE_UNAUTHORIZED);
         }
-
+    
         $validated = $request->validate([
-            'name' => 'required|string',
-            'slug' => 'nullable|alpha_dash', // unique sẽ check thủ công
+            'name' => 'required|array', // Thay đổi thành array
+            'name.*' => 'required|string',
+            'slug' => 'nullable|array',
+            'slug.*' => 'nullable|alpha_dash',
             'cat_id' => 'nullable|integer',
             'relic_id' => 'nullable|integer',
             'image' => 'nullable|string|max:2048',
             'priority' => 'nullable|integer',
-            'description' => 'required|string',
-            'content' => 'required|string',
+            'description' => 'required|array',
+            'description.*' => 'required|string',
+            'content' => 'required|array',
+            'content.*' => 'required|string',
             'source' => 'nullable|string|max:255',
             'is_hot' => 'nullable|boolean',
             'view_num' => 'nullable|integer',
-            'meta_title' => 'nullable|string',
-            'meta_keywords' => 'nullable|string',
-            'meta_description' => 'nullable|string',
+            'meta_title' => 'nullable|array',
+            'meta_title.*' => 'nullable|string',
+            'meta_keywords' => 'nullable|array',
+            'meta_keywords.*' => 'nullable|string',
+            'meta_description' => 'nullable|array',
+            'meta_description.*' => 'nullable|string',
             'project_type' => 'nullable',
             'project_id' => 'nullable|integer',
             'published_at' => 'nullable|date',
             'projects' => 'nullable|array',
             'projects.*' => 'integer|exists:projects,id',
         ]);
-
+    
         try {
             // 🟩 Tạo mới (bản chính)
             if (!$post->exists) {
-                $post->fill($validated);
+                // Xử lý dữ liệu đa ngôn ngữ
+                $translatableData = [];
+                foreach ($post->translatable as $field) {
+                    if (isset($validated[$field])) {
+                        $translatableData[$field] = $validated[$field];
+                    }
+                }
+    
+                $post->fill(array_diff_key($validated, array_flip($post->translatable)));
+                
+                // Set translatable fields
+                foreach ($translatableData as $field => $translations) {
+                    $post->setTranslations($field, $translations);
+                }
+    
                 $post->approval_level = $user->is_super_admin ? 2 : ($user->is_approve ? 1 : 0);
                 $post->max_approval = 2;
                 $post->is_draft = false;
@@ -191,18 +211,19 @@ class PostController extends Controller
                 $post->language = App::getLocale();
                 $post->project_type = $validated['project_type'] ?? null;
                 $post->project_id = $validated['project_id'] ?? 0;
-
-                // Sinh slug unique
-                $slug = Str::slug($post->slug ?: $post->name);
+    
+                // Sinh slug unique cho ngôn ngữ mặc định
+                $defaultLocale = config('app.locale');
+                $slug = Str::slug($post->getTranslation('slug', $defaultLocale) ?: $post->getTranslation('name', $defaultLocale));
                 $originalSlug = $slug;
                 $counter = 1;
-                while (Post::where('slug', $slug)->exists()) {
+                while (Post::where("slug->{$defaultLocale}", $slug)->exists()) {
                     $slug = $originalSlug . '-' . $counter++;
                 }
-                $post->slug = $slug;
-
+                $post->setTranslation('slug', $defaultLocale, $slug);
+    
                 $post->save();
-
+    
                 // Đồng bộ project liên quan
                 if ($request->filled('projects')) {
                     $post->projects()->syncWithPivotValues(
@@ -210,7 +231,7 @@ class PostController extends Controller
                         ['created_at' => now(), 'updated_at' => now()]
                     );
                 }
-
+    
                 if (Gate::allows('post/add')) {
                     $this->addPostToScope($user, $post->id);
                 }
@@ -218,22 +239,37 @@ class PostController extends Controller
                 // 🟦 Super admin merge
                 if ($user->is_super_admin) {
                     $mainPost = $post->parent_id ? Post::find($post->parent_id) : $post;
-
-                    $mainPost->fill($validated);
+    
+                    // Xử lý dữ liệu đa ngôn ngữ
+                    $translatableData = [];
+                    foreach ($post->translatable as $field) {
+                        if (isset($validated[$field])) {
+                            $translatableData[$field] = $validated[$field];
+                        }
+                    }
+    
+                    $mainPost->fill(array_diff_key($validated, array_flip($post->translatable)));
+                    
+                    // Set translatable fields
+                    foreach ($translatableData as $field => $translations) {
+                        $mainPost->setTranslations($field, $translations);
+                    }
+    
                     $mainPost->approval_level = $mainPost->max_approval;
                     $mainPost->status_approve = 'approved';
                     $mainPost->is_draft = false;
                     $mainPost->parent_id = null;
-                    // $mainPost->status = Post::STATUS_ACTIVE;
 
                     // Slug unique (remove -draft)
-                    $slug = preg_replace('/-draft$/', '', Str::slug($mainPost->slug ?: $mainPost->name));
+                    $defaultLocale = config('app.locale');
+                    $currentSlug = $mainPost->getTranslation('slug', $defaultLocale) ?: $mainPost->getTranslation('name', $defaultLocale);
+                    $slug = preg_replace('/-draft$/', '', Str::slug($currentSlug));
                     $originalSlug = $slug;
                     $counter = 1;
-                    while (Post::where('slug', $slug)->where('id', '<>', $mainPost->id)->exists()) {
+                    while (Post::where("slug->{$defaultLocale}", $slug)->where('id', '<>', $mainPost->id)->exists()) {
                         $slug = $originalSlug . '-' . $counter++;
                     }
-                    $mainPost->slug = $slug;
+                    $mainPost->setTranslation('slug', $defaultLocale, $slug);
                     $mainPost->save();
 
                     // Sync projects
@@ -256,13 +292,31 @@ class PostController extends Controller
                     if ($post->status_approve === 'approved' && !$post->is_draft) {
                         // Bản chính đã duyệt → tạo bản nháp
                         $draft = $post->replicate();
-                        $draft->fill($validated);
+                        
+                        // Xử lý dữ liệu đa ngôn ngữ
+                        $translatableData = [];
+                        foreach ($post->translatable as $field) {
+                            if (isset($validated[$field])) {
+                                $translatableData[$field] = $validated[$field];
+                            }
+                        }
+    
+                        $draft->fill(array_diff_key($validated, array_flip($post->translatable)));
+                        
+                        // Set translatable fields
+                        foreach ($translatableData as $field => $translations) {
+                            $draft->setTranslations($field, $translations);
+                        }
+
                         $draft->is_draft = true;
                         $draft->status_approve = 'pending';
                         $draft->approval_level = $user->is_approve ? 1 : 0;
                         $draft->parent_id = $post->id;
                         $draft->status = Post::STATUS_INACTIVE;
-                        $draft->slug = Str::slug($draft->slug ?: $draft->name) . '-draft';
+                        
+                        $defaultLocale = config('app.locale');
+                        $draftSlug = Str::slug($draft->getTranslation('slug', $defaultLocale) ?: $draft->getTranslation('name', $defaultLocale)) . '-draft';
+                        $draft->setTranslation('slug', $defaultLocale, $draftSlug);
                         $draft->save();
 
                         if ($request->filled('projects')) {
@@ -276,7 +330,20 @@ class PostController extends Controller
                         $post = $draft;
                     } else {
                         // Cập nhật bản hiện tại (chưa duyệt hoặc nháp)
-                        $post->fill($validated);
+                        $translatableData = [];
+                        foreach ($post->translatable as $field) {
+                            if (isset($validated[$field])) {
+                                $translatableData[$field] = $validated[$field];
+                            }
+                        }
+
+                        $post->fill(array_diff_key($validated, array_flip($post->translatable)));
+
+                        // Set translatable fields
+                        foreach ($translatableData as $field => $translations) {
+                            $post->setTranslations($field, $translations);
+                        }
+
                         $post->status_approve = 'pending';
                         $post->approval_level = $user->is_approve ? 1 : 0;
                         $post->save();
@@ -299,7 +366,6 @@ class PostController extends Controller
             return redirect()->back()->withErrors(['error' => 'Lỗi khi lưu dữ liệu: ' . $e->getMessage()]);
         }
     }
-
     public function approve(Post $post)
     {
         $user = auth('web')->user();

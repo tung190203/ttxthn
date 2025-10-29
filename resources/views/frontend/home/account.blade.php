@@ -5,21 +5,14 @@
 
         @guest('guest') {{-- nếu chưa login bằng guard guest --}}
             <div class="alert alert-warning text-center my-4">
-                Bạn cần 
-                <a href="javascript:void(0)" 
-                   class="text-primary fw-bold" 
-                   data-bs-toggle="modal" 
-                   data-bs-target="#md-sign-in">
-                   đăng nhập
-                </a> 
-                để tiếp tục.
+                {!! __('app.login_required') !!}
             </div>
         @endguest
 
         @auth('guest') {{-- nếu đã login --}}
             <!-- main content-->
             <article class="banner d-block px-0">
-                <img class="banner__bg" src="./images/banner-project.jpg" alt="">
+                <img class="banner__bg" src="{{ asset('images/banner-project.jpg') }}" alt="">
             </article>
             <section class="acc-info">
                 <div class="container">
@@ -27,7 +20,7 @@
                         <div class="acc-info__left">
                             <div class="acc-info__avatar">
                                 <img id="avatarPreview"
-                                    src="{{ optional($user)->avatar ? asset('storage/' . $user->avatar) : '/images/avatar-placeholder.png' }}"
+                                    src="{{ optional($user)->avatar ? asset('storage/' . $user->avatar) : asset('images/avatar-placeholder.png') }}"
                                     alt="avatar" />
                             </div>
                             <label class="upload-img acc-info__upload"><i class="fal fa-camera"></i>
@@ -69,45 +62,45 @@
 
                         <div class="row gx-4 gy-30">
                             <div class="col-md-6 col-xl-4">
-                                <label class="form-label">Họ và Tên</label>
+                                <label class="form-label">{{ __('app.full_name') }}</label>
                                 <input class="form-control" type="text" name="name"
                                     value="{{ old('name', $user->name ?? '') }}">
                             </div>
                             <div class="col-md-6 col-xl-4">
-                                <label class="form-label">Địa chỉ Email</label>
+                                <label class="form-label">{{ __('app.email_address') }}</label>
                                 <input class="form-control" type="email" name="email"
                                     value="{{ old('email', $user->email ?? '') }}">
                             </div>
                             <div class="col-md-6 col-xl-4">
-                                <label class="form-label">Số điện thoại</label>
+                                <label class="form-label">{{ __('app.phone_number') }}</label>
                                 <input class="form-control" type="text" name="phone"
                                     value="{{ old('phone', $user->phone ?? '') }}">
                             </div>
                             <div class="col-md-6 col-xl-4">
-                                <label class="form-label">Địa chỉ</label>
+                                <label class="form-label">{{ __('app.address') }}</label>
                                 <input class="form-control" type="text" name="address"
                                     value="{{ old('address', $user->address ?? '') }}">
                             </div>
                             <div class="col-md-6 col-xl-4">
-                                <label class="form-label">Mật khẩu</label>
+                                <label class="form-label">{{ __('app.password') }}</label>
                                 <input class="form-control" type="password" name="password">
                             </div>
                         </div>
                         <div class="text-center mt-30">
-                            <button class="button" type="submit">Chỉnh sửa</button>
+                            <button class="button" type="submit">{{ __('app.edit') }}</button>
                         </div>
                     </form>
                 </div>
             </section>
             <section class="section" id="project-interest">
                 <div class="container">
-                    <h2 class="section__title mb-3">Dự án quan tâm</h2>
+                    <h2 class="section__title mb-3 text-uppercase">{{ __('app.interested_projects') }}</h2>
                     <div class="project-nav-wrapper mb-60">
                         <!-- "Tất cả" cố định -->
                         <div class="project-nav-fixed">
                           <a class="{{ request('industry') ? '' : 'active' }}"
                              href="{{ route('account', ['keyword' => request('keyword')]) }}#project-interest">
-                            Tất cả
+                            {{ __('app.all') }}
                           </a>
                         </div>
                     
@@ -129,7 +122,7 @@
 
                     <form class="pj-search mb-60" action="{{ route('account') }}#project-interest" method="GET" style="padding: 0; background: 0;">
                         <div class="input-group">
-                            <input name="keyword" value="{{ request('keyword') }}" class="form-control" type="text" placeholder="Tìm kiếm">
+                            <input name="keyword" value="{{ request('keyword') }}" class="form-control" type="text" placeholder="{{ __('app.search') }}" />
                             <div class="input-group-text">
                                 <button type="submit" class="btn p-0"><i class="fal fa-lg fa-search"></i></button>
                             </div>
@@ -139,7 +132,7 @@
                         @endif
                     </form>                    
                     @if(count($list_project_interest) === 0)
-                    <p class="text-center">Chưa có dự án quan tâm</p>
+                    <p class="text-center">{{ __('app.no_interested_projects') }}</p>
                 @else                 
                     <div class="news-slider">
                         <div class="news-slider__nav">
@@ -156,19 +149,19 @@
                                                 <div class="project__body">
                                                     <h3 class="project__title"><a href="{{ route('project_detail',['slug' => $item['slug'], 'ref' => 'Dự án kêu gọi đầu tư']) }}" data-tippy-content="{{$item['name']}}">{{$item['name']}}</a></h3>
                                                     @if($item['is_invest'] == 0)
-                                                    <div class="project__overlay"><span>Dự án đang kêu gọi đầu tư</span>
+                                                    <div class="project__overlay"><span>{{ __('app.projects_calling_for_investment') }}</span>
                                                         <a class="project__like" href="javascript:void(0)" data-id="{{ $item['id'] }}" data-type="App\Models\Project"><i class="fas fa-fw fa-lg fa-heart {{ $item['is_interested'] ? 'text-danger' : '' }}"></i></a>
                                                     </div>
                                                 @else
-                                                    <div class="project__overlay"><span>Dự án đã có chủ đầu tư</span>
+                                                    <div class="project__overlay"><span>{{ __('app.projects_with_investors') }}</span>
                                                         <a class="project__like" href="javascript:void(0)" data-id="{{ $item['id'] }}" data-type="App\Models\Project"><i class="fas fa-fw fa-lg fa-heart {{ $item['is_interested'] ? 'text-danger' : '' }}"></i></a>
                                                     </div>
                                                 @endif
                                                     <ul class="project__info">
-                                                        <li><img class="me-2" src="./images/icon-map-marker.svg"
-                                                                alt="" /><span data-tippy-content="Dự án nằm trên địa bàn {{ $item->districts->pluck('name')->join(', ') }}, thành phố Hà Nội">Dự án nằm trên địa bàn {{ $item->districts->pluck('name')->join(', ') }}, thành phố Hà Nội</span></li>
+                                                        <li><img class="me-2" src="{{ asset('/images/icon-map-marker.svg') }}"
+                                                                alt="" /><span data-tippy-content="{{ __('app.project_under') }} {{ $item->districts->pluck('name')->join(', ') }}, {{ __('app.hanoi_city') }}">{{ __('app.project_under') }} {{ $item->districts->pluck('name')->join(', ') }}, {{ __('app.hanoi_city') }}</span></li>
                                                         <li>
-                                                            <img class="me-2" src="./images/icon-dimension.svg" alt="" />
+                                                            <img class="me-2" src="{{ asset('/images/icon-dimension.svg') }}" alt="" />
                                                             @php
                                                                 $locale = app()->getLocale();
                                                                 if ($locale === 'vn') {
@@ -183,8 +176,7 @@
                                                             @endphp
                                                             <span>{{ $formattedArea }} {{ $item->unit_type_text ?? '' }}</span>
                                                         </li>
-                                                        <li><img class="me-2" src="./images/icon-save-money.svg" alt="" /><span>Theo
-                                                                đề xuất</span></li>
+                                                        <li><img class="me-2" src="{{ asset('/images/icon-save-money.svg') }}" alt="" /><span>{{ number_format($item->price, 0, ',', '.') }} {{ __('app.billion_vnd') }}</span></li>
                                                     </ul>
                                                 </div>
                                             </div>
@@ -194,7 +186,7 @@
                             </div>
                         </div>
                     </div>
-                    <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="#!" style="text-transform: capitalize;">Xem thêm</a></nav>
+                    <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="#!" style="text-transform: capitalize;">{{ __('app.view_more') }}</a></nav>
                     @endif
                 </div>
             </section>
@@ -223,10 +215,10 @@
             </section>
             <section class="section" id="post-interest">
                 <div class="container">
-                    <h2 class="section__title">Tin tức quan tâm</h2>
+                    <h2 class="section__title">{{ __('app.interested_news') }}</h2>
                 
                     @if(count($list_post_interest) === 0)
-                        <p class="text-center">Chưa có tin tức quan tâm</p>
+                        <p class="text-center">{{ __('app.no_interested_news') }}</p>
                     @else
                         <div class="news-slider">
                             <div class="news-slider__nav">
@@ -267,7 +259,7 @@
                             </div>
                         </div>
                         <nav class="d-flex justify-content-center mt-40 mt-lg-60">
-                            <a class="button" href="#!" style="text-transform: capitalize;">Xem thêm</a>
+                            <a class="button" href="#!" style="text-transform: capitalize;">{{ __('app.view_more') }}</a>
                         </nav>
                     @endif
                 </div>

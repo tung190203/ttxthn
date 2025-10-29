@@ -8,7 +8,7 @@
                 <div class="container">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a class="link-unstyled" href="#!"><i
-                                        class="fal fa-home me-2"></i><span>Trang chủ</span></a></li>
+                                        class="fal fa-home me-2"></i><span>{{ __('app.home') }}</span></a></li>
                                         @if (!empty($backUrl) && $backUrl !== url()->current())
                                         <li class="breadcrumb-item">
                                             <a href="{{ $backUrl }}">{{$backLabel}}</a>
@@ -44,7 +44,7 @@
             {{-- <img class="texture-1" src="./images/texture-1.png" alt="">
             <img class="texture-2" src="./images/texture-2.png" alt=""> --}}
             <div class="container">
-                <h2 class="section__title">Tin tức liên quan</h2>
+                <h2 class="section__title">{{ __('app.related_news') }}</h2>
                 <div class="news-slider">
                     <div class="news-slider__nav">
                         <div class="news-slider__prev"><i class="fal fa-fw fa-lg fa-angle-left"></i></div>
@@ -77,7 +77,7 @@
                         </div>
                     </div>
                 </div>
-                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="/tin-tuc" style="text-transform: capitalize;">Xem thêm</a></nav>
+                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="/tin-tuc" style="text-transform: capitalize;">{{ __('app.view_more') }}</a></nav>
             </div>
         </section>
     </div>

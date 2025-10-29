@@ -18,7 +18,7 @@
             {!! $post->description !!}
         </div>
         <div class="mt-auto">
-            <a class="news__link" href="{{ $post->getUrl() }}">Xem thêm</a>
+            <a class="news__link" href="{{ $post->getUrl() }}">{{ __('app.view_more') }}</a>
         </div>
     </div>
 </article>

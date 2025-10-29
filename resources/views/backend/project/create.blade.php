@@ -19,6 +19,12 @@
             connectorPath: '/ckfinder/connector'
         });
     </script>
+
+    @php
+        $locales = config('app.locales', ['vi' => 'Tiếng Việt', 'en' => 'Tiếng Anh']);
+        $firstLocale = array_key_first($locales);
+    @endphp
+
     <section class="content">
         <div class="container-fluid">
             <div class="row">
@@ -40,12 +46,10 @@
                                 (auth('web')->user()->is_super_admin || auth('web')->user()->is_approve) &&
                                 $project->status === 'pending'
                             )
-                                <!-- Button trigger modal -->
                                 <button type="button" class="btn btn-sm fw-bold btn-success" data-toggle="modal" data-target="#approveModal-{{ $project->id }}">
                                     <i class="fa fa-check" aria-hidden="true"></i> Duyệt
                                 </button>
 
-                                <!-- Modal -->
                                 <div class="modal fade" id="approveModal-{{ $project->id }}" tabindex="-1" aria-labelledby="approveModalLabel-{{ $project->id }}" aria-hidden="true">
                                     <div class="modal-dialog modal-dialog-centered">
                                         <div class="modal-content">
@@ -88,23 +92,26 @@
                     class="form-horizontal" id="formDataGrid">
                     @csrf
                     <div class="card-body">
-                        <x-forms.input name="name" value="{!! old('name') ?: $project->name !!}" label="Tên dự án" :required="true"
-                            onkeyup="changeNameToSlug('name', 'slug', false)" :messages="$errors->get('name')" />
-                        <x-forms.input name="slug" value="{{ old('slug') ?: $project->slug }}" label="Slug"
-                            :messages="$errors->get('slug')" />
+
+                        {{-- --- CÁC TRƯỜNG ĐƠN NGỮ (NON-TRANSLATABLE FIELDS) --- --}}
+                        <h4 class="mb-3">Thông tin Chung (Đơn ngữ)</h4>
+                        
                         <x-forms.upload name="banner_image" value="{{ old('banner_image') ?: $project->banner_image }}"
-                            label="Ảnh Chính" type="image" :messages="$errors->get('banner_image')" />
+                            label="Ảnh Chính (Banner)" type="image" :messages="$errors->get('banner_image')" />
                         <x-forms.upload name="detail_image" value="{{ old('detail_image') ?: $project->detail_image }}"
                             label="Ảnh Phụ (nhỏ)" type="image" :messages="$errors->get('detail_image')" />
-                        <x-forms.textarea name="short_desc" :required="true"
-                            value="{{ old('short_desc') ?: $project->short_desc }}" label="Mô tả ngắn" :messages="$errors->get('short_desc')" />
-                        <x-forms.textarea name="description" :required="true"
-                            value="{{ old('description') ?: $project->description }}" label="Nội dung chi tiết"
-                            editor="true" :messages="$errors->get('description')" />
-                        <x-forms.input name="lat" value="{{ old('lat') ?: $project->lat }}" label="Kinh độ"
-                            :messages="$errors->get('lat')" />
-                        <x-forms.input name="lng" value="{{ old('lng') ?: $project->lng }}" label="Vĩ độ"
-                            :messages="$errors->get('lng')" />
+                            
+                        <div class="row">
+                            <div class="col-md-12">
+                                <x-forms.input name="lat" value="{{ old('lat') ?: $project->lat }}" label="Kinh độ (Lat)"
+                                    :messages="$errors->get('lat')" />
+                            </div>
+                            <div class="col-md-12">
+                                <x-forms.input name="lng" value="{{ old('lng') ?: $project->lng }}" label="Vĩ độ (Lng)"
+                                    :messages="$errors->get('lng')" />
+                            </div>
+                        </div>
+                        
                         <x-forms.input name="area" value="{{ old('area') ?: $project->area }}" label="Giá trị"
                             :messages="$errors->get('area')" />
                         <x-forms.select name="unit" label="Đơn vị tính" :required="true" :options="new HtmlString($option_units)"
@@ -128,38 +135,164 @@
                             :messages="$errors->get('is_pinned')" />
                         <x-forms.input name="pin_order" value="{{ old('pin_order') ?: $project->pin_order }}"
                             label="Thứ tự ghim dự án" :messages="$errors->get('pin_order')" />
-                        <x-forms.upload-multi-combo name="advantage" :value="[
-                            'images' => explode(';', $project->advantage_images ?? ''),
-                            'titles' => json_decode($project->advantage_titles ?? '[]', true),
-                            'descs' => json_decode($project->advantage_descriptions ?? '[]', true),
-                        ]" label="Ảnh và mô tả lợi thế nổi bật"
-                            :editor="true" :messages="$errors->get('advantage_images')" />
                         <x-forms.input name="link_vrtour" value="{{ old('link_vrtour') ?: $project->link_vrtour }}"
                             label="Link vrtour dự án" :messages="$errors->get('link_vrtour')" />
                         <x-forms.input name="link_sand_table"
                             value="{{ old('link_sand_table') ?: $project->link_sand_table }}" label="Link sa bàn ảo dự án"
                             :messages="$errors->get('link_sand_table')" />
-                        <x-forms.textarea name="design_short_desc" :required="true"
-                            value="{{ old('design_short_desc') ?: $project->design_short_desc }}"
-                            label="Mô tả ngắn thiết kế mặt bằng" :messages="$errors->get('design_short_desc')" />
-                        <x-forms.upload-multi-combo name="design" :value="[
-                            'images' => explode(';', $project->design_images ?? ''),
-                            'descs' => json_decode($project->design_description ?? '[]', true),
-                        ]" label="Ảnh và mô tả thiết kế mặt bằng"
-                            :messages="$errors->get('design_images')" />
-                        <x-forms.input name="legal_short_desc"
-                            value="{{ old('legal_short_desc') ?: $project->legal_short_desc }}"
-                            label="Mô tả văn bản pháp quy" :messages="$errors->get('legal_short_desc')" />
-                            <x-forms.upload-multi-combo name="files" :value="[
-                                'images' => explode(';', $project->legal_file ?? ''),
-                                'descs' => json_decode($project->legal_description ?? '[]', true),
-                            ]" label="Tệp đính kèm văn bản pháp quy"
-                                :messages="$errors->get('files')" />
                         <x-forms.select name="layout_id" label="Lựa chọn layout dự án" :required="true" :options="new HtmlString($option_layouts)"
                             :selected="old('layout_id', $project->layout_id)" :messages="$errors->get('layout_id')" />
+                            
+                        <hr class="my-4">
+
+                        {{-- --- TABS ĐA NGÔN NGỮ (TRANSLATABLE FIELDS) --- --}}
+                        <h4 class="mb-3">Nội dung Dự án (Đa ngôn ngữ)</h4>
+
+                        <div class="form-group">
+                            <ul class="nav nav-tabs" role="tablist">
+                                @foreach($locales as $locale => $label)
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ $locale === $firstLocale ? 'active' : '' }}" 
+                                           data-toggle="tab" 
+                                           href="#lang-{{ $locale }}"
+                                           role="tab">
+                                            <i class="fas fa-language mr-1"></i> {{ $label }}
+                                        </a>
+                                    </li>
+                                @endforeach
+                            </ul>
+
+                            <div class="tab-content border border-top-0 p-3">
+                                @foreach($locales as $locale => $label)
+                                    <div id="lang-{{ $locale }}" 
+                                         class="tab-pane fade {{ $locale === $firstLocale ? 'show active' : '' }}"
+                                         role="tabpanel">
+                                        
+                                        {{-- 1. Name & Slug --}}
+                                        <x-forms.input name="name[{{ $locale }}]" 
+                                            value="{!! old('name.'.$locale) ?: $project->getTranslation('name', $locale, false) !!}" 
+                                            label="Tên dự án ({{ $label }})" :required="$locale === $firstLocale"
+                                            onkeyup="changeNameToSlug('name[{{ $locale }}]', 'slug[{{ $locale }}]', false)" 
+                                            :messages="$errors->get('name.'.$locale)" />
+                                            
+                                        <x-forms.input name="slug[{{ $locale }}]" 
+                                            value="{{ old('slug.'.$locale) ?: $project->getTranslation('slug', $locale, false) }}" 
+                                            label="Slug ({{ $label }})"
+                                            :messages="$errors->get('slug.'.$locale)" />
+
+                                        {{-- 2. Mô tả ngắn & Nội dung chi tiết --}}
+                                        <x-forms.textarea name="short_desc[{{ $locale }}]" :required="$locale === $firstLocale"
+                                            value="{{ old('short_desc.'.$locale) ?: $project->getTranslation('short_desc', $locale, false) }}" 
+                                            label="Mô tả ngắn ({{ $label }})" :messages="$errors->get('short_desc.'.$locale)" />
+                                            
+                                        <x-forms.textarea name="description[{{ $locale }}]" :required="$locale === $firstLocale"
+                                            value="{{ old('description.'.$locale) ?: $project->getTranslation('description', $locale, false) }}" 
+                                            label="Nội dung chi tiết ({{ $label }})"
+                                            editor="true" :messages="$errors->get('description.'.$locale)" />
+
+                                        <hr class="my-4">
+                                        
+                                        {{-- 3. Lợi thế nổi bật (Advantage) --}}
+                                        <h6 class="text-info">Lợi thế nổi bật ({{ $label }})</h6>
+                                        @php
+                                            // Lấy data đa ngôn ngữ cho Advantage
+                                            $advTitles = json_decode(old('advantage_titles.'.$locale) ?: $project->getTranslation('advantage_titles', $locale, false) ?? '[]', true);
+                                            $advDescs = json_decode(old('advantage_descs.'.$locale) ?: $project->getTranslation('advantage_descriptions', $locale, false) ?? '[]', true);
+                                        @endphp
+                                        <x-forms.upload-multi-combo name="advantage" :locale="$locale" 
+                                            :value="[
+                                                'images' => explode(';', $project->advantage_images ?? ''), // Ảnh là đơn ngữ
+                                                'titles' => $advTitles, // Titles là đa ngôn ngữ
+                                                'descs' => $advDescs, // Descriptions là đa ngôn ngữ
+                                            ]" label="Ảnh và mô tả lợi thế nổi bật"
+                                            :editor="true" :messages="$errors->get('advantage_titles.'.$locale)" />
+
+                                        <hr class="my-4">
+
+                                        {{-- 4. Thiết kế mặt bằng (Design) --}}
+                                        <h6 class="text-info">Thiết kế mặt bằng ({{ $label }})</h6>
+                                        <x-forms.textarea name="design_short_desc[{{ $locale }}]" :required="false"
+                                            value="{{ old('design_short_desc.'.$locale) ?: $project->getTranslation('design_short_desc', $locale, false) }}"
+                                            label="Mô tả ngắn thiết kế mặt bằng ({{ $label }})" :messages="$errors->get('design_short_desc.'.$locale)" />
+                                        @php
+                                            $designDescs = json_decode(old('design_descs.'.$locale) ?: $project->getTranslation('design_description', $locale, false) ?? '[]', true);
+                                        @endphp
+                                        <x-forms.upload-multi-combo name="design" :locale="$locale"
+                                            :value="[
+                                                'images' => explode(';', $project->design_images ?? ''), // Ảnh là đơn ngữ
+                                                'descs' => $designDescs, // Descriptions là đa ngôn ngữ
+                                            ]" label="Ảnh và mô tả thiết kế mặt bằng"
+                                            :messages="$errors->get('design_descs.'.$locale)" />
+
+                                        <hr class="my-4">
+
+                                        {{-- 5. Văn bản pháp quy (Legal) --}}
+                                        <h6 class="text-info">Văn bản pháp quy ({{ $label }})</h6>
+                                        <x-forms.input name="legal_short_desc[{{ $locale }}]"
+                                            value="{{ old('legal_short_desc.'.$locale) ?: $project->getTranslation('legal_short_desc', $locale, false) }}"
+                                            label="Mô tả văn bản pháp quy ({{ $label }})" :messages="$errors->get('legal_short_desc.'.$locale)" />
+                                        @php
+                                            $filesDescs = json_decode(old('files_descs.'.$locale) ?: $project->getTranslation('legal_description', $locale, false) ?? '[]', true);
+                                        @endphp
+                                        <x-forms.upload-multi-combo name="files" :locale="$locale"
+                                            :value="[
+                                                'images' => explode(';', $project->legal_file ?? ''), // Tệp/Ảnh là đơn ngữ
+                                                'descs' => $filesDescs, // Descriptions là đa ngôn ngữ
+                                            ]" label="Tệp đính kèm văn bản pháp quy"
+                                            :messages="$errors->get('files_descs.'.$locale)" />
+
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+
                     </div>
                 </form>
             </div>
         </div>
     </section>
+
+    {{-- Script để khởi tạo CKEditor và tự động tạo Slug cho từng locale --}}
+    <script>
+        // Hàm chuyển đổi chuỗi có dấu (bao gồm tiếng Việt) thành slug không dấu.
+        function convertToSlug(text) {
+            text = text.toLowerCase().trim();
+            text = text.replace(/á|à|ả|ã|ạ|ă|ắ|ằ|ẳ|ẵ|ặ|â|ấ|ầ|ẩ|ẫ|ậ/gi, 'a');
+            text = text.replace(/é|è|ẻ|ẽ|ẹ|ê|ế|ề|ể|ễ|ệ/gi, 'e');
+            text = text.replace(/i|í|ì|ỉ|ĩ|ị/gi, 'i');
+            text = text.replace(/ó|ò|ỏ|õ|ọ|ô|ố|ồ|ổ|ỗ|ộ|ơ|ớ|ờ|ở|ỡ|ợ/gi, 'o');
+            text = text.replace(/ú|ù|ủ|ũ|ụ|ư|ứ|ừ|ử|ữ|ự/gi, 'u');
+            text = text.replace(/ý|ỳ|ỷ|ỹ|ỵ/gi, 'y');
+            text = text.replace(/đ/gi, 'd');
+            text = text.replace(/[^a-z0-9\s-]/g, '');
+            text = text.replace(/\s+/g, '-');
+            text = text.replace(/-+/g, '-');
+            text = text.replace(/^-+|-+$/g, '');
+            return text;
+        }
+
+        // Tự động tạo slug khi gõ tên
+        function changeNameToSlug(nameFieldName, slugFieldName, allowDraftSuffix) {
+            var nameInput = document.querySelector('input[name="' + nameFieldName + '"]');
+            var slugInput = document.querySelector('input[name="' + slugFieldName + '"]');
+
+            if (nameInput && slugInput) {
+                var slug = convertToSlug(nameInput.value);
+                slugInput.value = slug;
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Khởi tạo CKEditor cho từng trường description trong mỗi locale
+            @foreach($locales as $locale => $label)
+                var descriptionTextarea = document.querySelector('textarea[name="description[{{ $locale }}]"][editor="true"]');
+                if (descriptionTextarea) {
+                    CKEDITOR.replace('description[{{ $locale }}]', {
+                        filebrowserBrowseUrl: '/ckfinder/browser',
+                        filebrowserUploadUrl: '/ckfinder/connector?command=QuickUpload&type=Files'
+                    });
+                }
+            @endforeach
+        });
+    </script>
 @endsection

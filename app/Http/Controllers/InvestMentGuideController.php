@@ -9,6 +9,7 @@ use App\Models\Category;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Lang;
 
 class InvestMentGuideController extends Controller
 {
@@ -16,7 +17,6 @@ class InvestMentGuideController extends Controller
     {
         $investment_guide = InvestmentGuide::
             where('published_at' , '<=', Carbon::now())
-            ->where('language', App::getLocale())
             ->where('id', $id)->firstOrFail();
 
         $category = Category::where('id', data_get($investment_guide, 'cat_id'))->first();
@@ -33,7 +33,6 @@ class InvestMentGuideController extends Controller
             ->whereNull('parent_id')
             ->where('status_approve','approved')
             ->where('published_at', '<=', Carbon::now())
-            ->where('language', App::getLocale())
             ->where('id', '<>', $investment_guide->id)
             ->orderBy('published_at', 'desc')
             ->take(InvestmentGuide::INVESTMENT_TAKE)
@@ -46,6 +45,11 @@ class InvestMentGuideController extends Controller
             });
         $backUrl = url()->previous();
         $backLabel = $request->get('ref');
+        if ($backLabel && Lang::has($backLabel)) {
+            $backLabel = __($backLabel); 
+        } else {
+            $backLabel = $backLabel;
+        }
 
         return view('frontend.home.investment_guide_detail',
             compact(

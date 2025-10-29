@@ -33,22 +33,22 @@ class RegisterRequest extends FormRequest
     public function messages()
     {
         return [
-            'name.required' => 'Vui lòng nhập họ và tên',
-            'name.string' => 'Họ và tên không hợp lệ',
-            'name.max' => 'Họ và tên không được vượt quá 255 ký tự',
-            'identification_number.required' => 'Vui lòng nhập số VNeID/Passport',
-            'identification_number.string' => 'Số VNeID / Passport không hợp lệ',
-            'identification_number.max' => 'Số VNeID / Passport không được vượt quá 20 ký tự',
-            'identification_number.unique' => 'Số VNeID / Passport đã được sử dụng',
-            'email.required' => 'Vui lòng nhập email',
-            'email.email' => 'Email không hợp lệ',
-            'email.unique' => 'Email đã được sử dụng',
-            'nation_id.required' => 'Vui lòng chọn quốc tịch',
-            'nation_id.exists' => 'Quốc tịch không hợp lệ',
-            'password.required' => 'Vui lòng nhập mật khẩu',
-            'password.string' => 'Mật khẩu không hợp lệ',
-            'password.min' => 'Mật khẩu phải có ít nhất 6 ký tự',
-            'password.confirmed' => 'Xác nhận mật khẩu không khớp',
+            'name.required' => __('validation.name.required'),
+            'name.string' => __('validation.name.string'),
+            'name.max' => __('validation.name.max'),
+            'identification_number.required' => __('validation.identification_number.required'),
+            'identification_number.string' => __('validation.identification_number.string'),
+            'identification_number.max' => __('validation.identification_number.max'),
+            'identification_number.unique' => __('validation.identification_number.unique'),
+            'email.required' => __('validation.email.required'),
+            'email.email' => __('validation.email.email'),
+            'email.unique' => __('validation.email.unique'),
+            'nation_id.required' => __('validation.nation_id.required'),
+            'nation_id.exists' => __('validation.nation_id.exists'),
+            'password.required' => __('validation.password.required'),
+            'password.string' => __('validation.password.string'),
+            'password.min' => __('validation.password.min'),
+            'password.confirmed' => __('validation.password.confirmed'),
         ];
     }
 }

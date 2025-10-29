@@ -9,7 +9,7 @@
                     <div class="container">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a class="link-unstyled" href="/"><i
-                                        class="fal fa-home me-2"></i><span>Trang chủ</span></a></li>
+                                        class="fal fa-home me-2"></i><span>{{ __('app.home') }}</span></a></li>
                             @if (!empty($backUrl) && $backUrl !== url()->current())
                                 <li class="breadcrumb-item">
                                     <a href="{{ $backUrl }}">{{$backLabel}}</a>
@@ -22,7 +22,7 @@
                 <img class="pj-banner__bg" src="{{ $project->banner_image ?? 'default-banner.jpg' }}" alt="">
                 <div class="pj-banner__wrapper">
                     <div class="container">
-                        <div class="pj-banner__subtitle">Dự án</div>
+                        <div class="pj-banner__subtitle">{{ __('app.projects') }}</div>
                         <div class="pj-banner__title">{{ $project->name }}</div>
                         <div class="pj-banner__separator"></div>
                         <div class="pj-banner__desc">{{ $project->short_desc ?? '' }}</div>
@@ -36,15 +36,15 @@
                     <div class="container">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a class="link-unstyled" href="/"><i
-                                        class="fal fa-home me-2"></i><span>Trang chủ</span></a></li>
-                            <li class="breadcrumb-item active">Danh mục dự án đầu tư</li>
+                                        class="fal fa-home me-2"></i><span>{{ __('app.home') }}</span></a></li>
+                            <li class="breadcrumb-item active">{{ __('app.investment_project_list') }}</li>
                         </ol>
                     </div>
                 </nav>
                 <img class="pj-banner__bg" src="{{ $project->banner_image ?? 'default-banner.jpg' }}" alt="">
                 <div class="pj-banner__wrapper custom-wrapper">
                     <div class="container">
-                        <div class="pj-banner__subtitle text-end">Dự án</div>
+                        <div class="pj-banner__subtitle text-end">{{ __('app.projects') }}</div>
                         <div class="pj-banner__title text-end">{{ $project->name }}</div>
                         <div class="custom_desc">{{ $project->short_desc ?? '' }}</div>
                     </div>
@@ -56,15 +56,15 @@
                     <div class="container">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a class="link-unstyled" href="/"><i
-                                        class="fal fa-home me-2"></i><span>Trang chủ</span></a></li>
-                            <li class="breadcrumb-item active">Danh mục dự án đầu tư</li>
+                                        class="fal fa-home me-2"></i><span>{{ __('app.home') }}</span></a></li>
+                            <li class="breadcrumb-item active">{{ __('app.investment_project_list') }}</li>
                         </ol>
                     </div>
                 </nav>
                 <img class="pj-banner__bg" src="{{ $project->banner_image ?? 'default-banner.jpg' }}" alt="">
                 <div class="pj-banner__wrapper custom-wrapper">
                     <div class="container">
-                        <div class="pj-banner__subtitle text-start">Dự án</div>
+                        <div class="pj-banner__subtitle text-start">{{ __('app.projects') }}</div>
                         <div class="pj-banner__title text-start">{{ $project->name }}</div>
                         <div class="d-flex justify-content-end">
                             <div class="custom_desc">{{ $project->short_desc ?? '' }}</div>
@@ -76,22 +76,22 @@
         <nav class="project-nav">
             <div class="container">
                 <ul class="project-nav__list">
-                    <li><a class="active" href="#thong-tin-chung">Thông tin chung</a></li>
-                    <li><a href="#vi-tri">Vị trí</a></li>
-                    <li><a href="#loi-the-noi-bat">Lợi thế nổi bật</a></li>
-                    <li><a href="#sa-ban-ao">Sa bàn ảo</a></li>
-                    <li><a href="#thiet-ke-va-mat-bang">Thiết kế & mặt bằng</a></li>
-                    <li><a href="#phap-ly">Văn bản pháp quy</a></li>
-                    <li><a href="#thu-tuc-dau-tu">Thủ tục đầu tư</a></li>
-                    <li><a href="#ke-hoach-trien-khai">Kế hoạch triển khai</a></li>
-                    <li><a href="#tin-tuc">Tin tức</a></li>
-                </ul>
+                    <li><a class="active" href="#thong-tin-chung">{{ __('app.general_info') }}</a></li>
+                    <li><a href="#vi-tri">{{ __('app.location') }}</a></li>
+                    <li><a href="#loi-the-noi-bat">{{ __('app.key_advantages') }}</a></li>
+                    <li><a href="#sa-ban-ao">{{ __('app.virtual_map') }}</a></li>
+                    <li><a href="#thiet-ke-va-mat-bang">{{ __('app.design_and_layout') }}</a></li>
+                    <li><a href="#phap-ly">{{ __('app.legal_documents') }}</a></li>
+                    <li><a href="#thu-tuc-dau-tu">{{ __('app.investment_procedure') }}</a></li>
+                    <li><a href="#ke-hoach-trien-khai">{{ __('app.implementation_plan') }}</a></li>
+                    <li><a href="#tin-tuc">{{ __('app.news') }}</a></li>
+                </ul>                
             </div>
         </nav>
         <section class="section" id="thong-tin-chung"><img class="section__bg" src="{{ asset('./images/achitect-bg.png') }}"
                 alt="">
             <div class="container">
-                <h2 class="section__title">Thông tin chung</h2>
+                <h2 class="section__title">{{ __('app.general_info') }}</h2>
                 <div class="mx-auto" style="max-width: 800px;">
                     {!! $project->description !!}
                 </div>
@@ -99,13 +99,13 @@
         </section>
         <section class="section pb-0" id="vi-tri">
             <div class="container">
-                <h2 class="section__title">Vị trí</h2><img class="w-100"
+                <h2 class="section__title">{{ __('app.location') }}</h2><img class="w-100"
                     src="{{ $project->location_image ?? asset('./images/position.jpg') }}" alt="">
             </div>
         </section>
         <section class="section section--light-blue" id="loi-the-noi-bat">
             <div class="container">
-                <h2 class="section__title">Lợi thế nổi bật</h2>
+                <h2 class="section__title">{{ __('app.key_advantages') }}</h2>
                 <div>
                     @php
                         $images = $project->advantage_images ? explode(';', $project->advantage_images) : [];
@@ -139,13 +139,13 @@
         <section class="position-relative" id="sa-ban-ao">
             <div class="section section--overlay">
                 <div class="container">
-                    <h2 class="section__title text-white">Sa bàn ảo</h2>
+                    <h2 class="section__title text-white">{{ __('app.virtual_map') }}</h2>
                     @if($project->link_vrtour)
                         <div class="mt-3">
                             {{-- <a href="{{ route('show_Vrtour', $project->slug) }}" class="btn btn-warning text-white custom-btn-vrtour" --}}
                              <a href="{{ $project->link_vrtour }}" class="btn btn-warning text-white custom-btn-vrtour"
                                 target="_blank" rel="noopener noreferrer">
-                                Xem VR Tour
+                                {{ __('app.view_vr_tour') }}
                             </a>
                         </div>
                     @endif
@@ -157,12 +157,12 @@
                 </div>
             @endif
             <div class="container">
-                <h2 class="section__title text-white">Sa bàn ảo</h2>
+                <h2 class="section__title text-white">{{ __('app.virtual_map') }}</h2>
             </div>
         </section>
         <section class="section" id="thiet-ke-va-mat-bang">
             <div class="container">
-                <h2 class="section__title">Thiết kế & mặt bằng</h2>
+                <h2 class="section__title">{{ __('app.design_and_layout') }}</h2>
                 <div class="section__desc">{{ $project->design_short_desc }}</div>
                 <div class="design-slider">
                     <div class="design-slider__container swiper-container">
@@ -204,7 +204,7 @@
         </section>
         <section class="section section--light-blue" id="phap-ly">
             <div class="container">
-                <h2 class="section__title">Văn bản pháp quy</h2>
+                <h2 class="section__title">{{ __('app.legal_documents') }}</h2>
                 <div class="section__desc">{{ $project->legal_short_desc }}</div>
                 <div class="legal-grid">
                     @php
@@ -237,7 +237,7 @@
             {{-- <img class="texture-1" src="{{ asset('./images/texture-1.png') }}" alt="">
             <img class="texture-2" src="{{ asset('./images/texture-2.png') }}" alt=""> --}}
             <div class="container">
-                <h2 class="section__title pb-2">Ưu đãi, quy trình, thủ tục đầu tư</h2>
+                <h2 class="section__title pb-2">{{ __('app.incentives_process_procedures') }}</h2>
                 <div class="news-slider">
                     <div class="news-slider__nav">
                         <div class="news-slider__prev"><i class="fal fa-fw fa-lg fa-angle-left"></i></div>
@@ -271,8 +271,7 @@
                         </div>
                     </div>
                 </div>
-                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="/cam-nang-dau-tu">Xem
-                        thêm</a>
+                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="/cam-nang-dau-tu">{{ __('app.view_more') }}</a>
                 </nav>
             </div>
         </section>
@@ -280,7 +279,7 @@
             <img src="{{asset('/images/texture-8.png')}}" class="texture texture-bottom-left" alt="">
             <img src="{{asset('/images/texture-9.png')}}" class="texture texture-top-right" alt="">
             <div class="container">
-                <h2 class="section__title text-center mb-5">Kế hoạch triển khai</h2>
+                <h2 class="section__title text-center mb-5">{{ __('app.implementation_plan') }}</h2>
                 <div class="row g-2 align-items-stretch justify-content-center position-relative">
 
                     <!-- Bước 1 -->
@@ -289,10 +288,14 @@
                                 <img src="{{asset('images/search-icon.png')}}" alt="">
                             <h5 class="fw-bold text-uppercase mb-3 text-center">
                                 {{-- {{ optional($project->plan)->title1 ?? '' }} --}}
-                                CHUẨN BỊ DỰ ÁN
+                                {{ __('app.project_preparation') }}
                             </h5>
                             <ul class="list-unstyled flex-fill">
-                                {!! optional($project->plan)->content1 ?? '' !!}
+                                @if (app()->getLocale() === 'vi' || app()->getLocale() === 'vn')
+                                    {!! optional($project->plan)->content1 ?? '' !!}
+                                @else
+                                    {!! optional($project->plan)->content1_en ?? '' !!}
+                                @endif
                             </ul>
                         </div>
                     </div>
@@ -310,10 +313,14 @@
                                 <img src="{{asset('images/partner-icon.png')}}" alt="">
                             <h5 class="fw-bold text-uppercase mb-3 text-center">
                                 {{-- {{ optional($project->plan)->title2 ?? '' }} --}}
-                                XÚC TIẾN ĐẦU TƯ
+                                {{ __('app.investment_promotion') }}
                             </h5>
                             <ul class="list-unstyled flex-fill">
+                                @if (app()->getLocale() === 'vi' || app()->getLocale() === 'vn')
                                 {!! optional($project->plan)->content2 ?? '' !!}
+                            @else
+                                {!! optional($project->plan)->content2_en ?? '' !!}
+                            @endif
                             </ul>
                         </div>
                     </div>
@@ -331,10 +338,14 @@
                                 <img src="{{asset('images/analytic-icon.png')}}" alt="">
                             <h5 class="fw-bold text-uppercase mb-3 text-center">
                                 {{-- {{ optional($project->plan)->title3 ?? '' }} --}}
-                                GIÁM SÁT THỰC HIỆN
+                                {{ __('app.implementation_monitoring') }}
                             </h5>
                             <ul class="list-unstyled flex-fill">
+                                @if (app()->getLocale() === 'vi' || app()->getLocale() === 'vn')
                                 {!! optional($project->plan)->content3 ?? '' !!}
+                            @else
+                                {!! optional($project->plan)->content3_en ?? '' !!}
+                            @endif
                             </ul>
                         </div>
                     </div>
@@ -343,11 +354,11 @@
                 <div class="d-flex justify-content-end align-items-start align-items-md-center mt-4 mt-lg-5 gap-2 gap-md-4 note">
                     <div>
                         <img src="{{asset('images/warning-arrow.svg')}}" style="width:15px;height:15px" alt="">
-                        <div class="d-inline-block ms-2">Đang tiến hành</div>
+                        <div class="d-inline-block ms-2">{{ __('app.in_progress') }}</div>
                     </div>
                     <div>
                         <img src="{{asset('images/success-traces.svg')}}" style="width:15px;height:15px" alt="">
-                        <div class="d-inline-block ms-2">Hoàn thành</div>
+                        <div class="d-inline-block ms-2">{{ __('app.completed') }}</div>
                     </div>
                 </div>
             </div>
@@ -357,7 +368,7 @@
             {{-- <img class="texture-1" src="{{ asset('./images/texture-1.png') }}" alt="">
             <img class="texture-2" src="{{ asset('./images/texture-2.png') }}" alt=""> --}}
             <div class="container">
-                <h2 class="section__title">Tin tức</h2>
+                <h2 class="section__title">{{ __('app.news') }}</h2>
                 <div class="news-slider">
                     <div class="news-slider__nav">
                         <div class="news-slider__prev"><i class="fal fa-fw fa-lg fa-angle-left"></i></div>
@@ -391,7 +402,7 @@
                         </div>
                     </div>
                 </div>
-                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="/tin-tuc" style="text-transform: capitalize;">Xem thêm</a>
+                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="/tin-tuc" style="text-transform: capitalize;">{{ __('app.view_more') }}</a>
                 </nav>
             </div>
         </section>

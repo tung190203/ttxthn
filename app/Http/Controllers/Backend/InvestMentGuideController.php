@@ -45,7 +45,6 @@ class InvestMentGuideController extends Controller
         $filter['cat_id'] = $request->get('cat_id', 0);
         $filter['status'] = $request->get('status', -1);
         $query = $this->investment_guide->with(['category', 'user'])
-        ->where('language', App::getLocale())
         ->visibleFor(auth('web')->user())
         ->orderBy('id', 'desc');
         if ($filter['name'] !== '') {
@@ -144,212 +143,337 @@ class InvestMentGuideController extends Controller
         return view('backend.investment_guide.create', compact('investment_guide', 'option_categories', 'option_projects'));
     }
 
-    public function save(InvestmentGuide $investment_guide, Request $request)
-    {
-        $user = auth('web')->user();
+public function save(InvestmentGuide $investment_guide, Request $request)
+{
+    $user = auth('web')->user();
 
-        // ==== PHÂN QUYỀN ====
-        if ($investment_guide->exists && !Gate::allows('investment_guide/edit', $investment_guide)) {
-            abort(403, self::MESSAGE_UNAUTHORIZED);
-        }
-        if (!$investment_guide->exists && !Gate::allows('investment_guide/add')) {
-            abort(403, self::MESSAGE_UNAUTHORIZED);
-        }
+    // ==== PHÂN QUYỀN ====
+    if ($investment_guide->exists && !Gate::allows('investment_guide/edit', $investment_guide)) {
+        abort(403, self::MESSAGE_UNAUTHORIZED);
+    }
+    if (!$investment_guide->exists && !Gate::allows('investment_guide/add')) {
+        abort(403, self::MESSAGE_UNAUTHORIZED);
+    }
 
-        // ==== VALIDATE ====
-        $validated = $request->validate([
-            'name' => 'required|string',
-            'slug' => 'nullable|alpha_dash',
-            'cat_id' => 'nullable|integer',
-            'relic_id' => 'nullable|integer',
-            'image' => 'nullable|string',
-            'priority' => 'nullable|integer',
-            'description' => 'required|string',
-            'content' => 'required|string',
-            'source' => 'nullable|string',
-            // 'status' => 'nullable|integer',
-            'is_hot' => 'nullable|boolean',
-            'view_num' => 'nullable|integer',
-            'meta_title' => 'nullable|string',
-            'meta_keywords' => 'nullable|string',
-            'meta_description' => 'nullable|string',
-            'language' => 'nullable|string',
-            'project_type' => 'nullable|string',
-            'project_id' => 'nullable|integer',
-            'projects' => 'nullable|array',
-            'project.*' => 'integer|exists:projects,id',
-            'files_images' => 'nullable|array',
-            'files_images.*' => 'nullable|string',
-            'files_descs' => 'nullable|array',
-            'files_descs.*' => 'nullable|string',
-            'published_at' => 'nullable|date',
-        ]);
+    // ==== VALIDATE ====
+    $validated = $request->validate([
+        'name' => 'required|array',
+        'name.*' => 'required|string',
+        'slug' => 'nullable|array',
+        'slug.*' => 'nullable|alpha_dash',
+        'cat_id' => 'nullable|integer',
+        'relic_id' => 'nullable|integer',
+        'image' => 'nullable|string',
+        'priority' => 'nullable|integer',
+        'description' => 'required|array',
+        'description.*' => 'required|string',
+        'content' => 'required|array',
+        'content.*' => 'required|string',
+        'source' => 'nullable|string',
+        'is_hot' => 'nullable|boolean',
+        'view_num' => 'nullable|integer',
+        'meta_title' => 'nullable|array',
+        'meta_title.*' => 'nullable|string',
+        'meta_keywords' => 'nullable|array',
+        'meta_keywords.*' => 'nullable|string',
+        'meta_description' => 'nullable|array',
+        'meta_description.*' => 'nullable|string',
+        'language' => 'nullable|string',
+        'project_type' => 'nullable|string',
+        'project_id' => 'nullable|integer',
+        'projects' => 'nullable|array',
+        'projects.*' => 'integer|exists:projects,id',
+        
+        // Cập nhật Validation cho files (URL)
+        'files' => 'nullable|array',
+        'files.*' => 'nullable|array', // Mảng URL tệp cho từng locale
+        'files.*.*' => 'nullable|string',
 
-        try {
-            // ==== KHỞI TẠO BẢN MỚI ====
-            if (!$investment_guide->exists) {
-                $investment_guide->fill($validated);
-                $investment_guide->approval_level = $user->is_super_admin ? 2 : ($user->is_approve ? 1 : 0);
-                $investment_guide->max_approval = 2;
-                $investment_guide->is_draft = false;
-                $investment_guide->status_approve = $user->is_super_admin ? 'approved' : ($user->is_approve ? 'pending' : 'pending');
-                $investment_guide->status = $user->is_super_admin ? InvestmentGuide::STATUS_ACTIVE : InvestmentGuide::STATUS_INACTIVE;
-                $investment_guide->language = App::getLocale();
-                $investment_guide->project_type = $validated['project_type'] ?? null;
-                $investment_guide->project_id = $validated['project_id'] ?? 0;
+        // Cập nhật Validation cho files_descs (Mô tả)
+        'files_descs' => 'nullable|array',
+        'files_descs.*' => 'nullable|array', // Mảng mô tả cho từng locale
+        'files_descs.*.*' => 'nullable|string',
 
-                // Sinh slug unique
-                $slug = Str::slug($investment_guide->slug ?: $investment_guide->name);
-                $originalSlug = $slug;
-                $counter = 1;
-                while (InvestmentGuide::where('slug', $slug)->exists()) {
-                    $slug = $originalSlug . '-' . $counter++;
-                }
-                $investment_guide->slug = $slug;
+        'published_at' => 'nullable|date',
+    ]);
 
-                // Files + descs
-                if ($request->filled('files_images')) {
-                    $investment_guide->files = implode(';', array_map('trim', $request->files_images));
-                }
-                if ($request->filled('files_descs')) {
-                    $investment_guide->short_file_descs = json_encode(array_map('trim', $request->files_descs));
-                }
+    try {
+        // Hàm xử lý chung để chuyển mảng dữ liệu đa ngôn ngữ thành định dạng lưu trữ
+        $processFileTranslations = function (Request $request, string $requestFieldName, string $modelFieldName) {
+            $inputData = $request->input($requestFieldName);
+            $translations = [];
 
-                $investment_guide->save();
+            if (is_array($inputData)) {
+                foreach ($inputData as $locale => $items) {
+                    if (is_array($items)) {
+                        // Lọc bỏ giá trị rỗng và trim
+                        $cleanedItems = array_map('trim', array_filter($items));
 
-                if ($request->filled('projects')) {
-                    $investment_guide->projects()->syncWithPivotValues(
-                        $request->input('projects'),
-                        ['created_at' => now(), 'updated_at' => now()]
-                    );
-                }
-
-                if (Gate::allows('investment_guide/add')) {
-                    $this->addInvestmentGuideToScope($user, $investment_guide->id);
-                }
-            } else {
-                // ==== ĐÃ TỒN TẠI ====
-                if ($user->is_super_admin) {
-                    // --- SUPER ADMIN MERGE NHÁP ---
-                    $main = $investment_guide->parent_id
-                        ? InvestmentGuide::find($investment_guide->parent_id)
-                        : $investment_guide;
-
-                    $draftData = array_merge($main->toArray(), $validated);
-
-                    // Xoá nháp cũ
-                    $drafts = InvestmentGuide::where('parent_id', $main->id)->get();
-                    foreach ($drafts as $draft) {
-                        $this->removeInvestmentGuideFromScope($draft->id);
-                        $draft->delete();
-                    }
-
-                    // Merge dữ liệu vào bản chính
-                    $main->fill($draftData);
-                    $main->approval_level = $main->max_approval;
-                    $main->status_approve = 'approved';
-                    $main->is_draft = false;
-                    $main->parent_id = null;
-                    // $main->status = InvestmentGuide::STATUS_ACTIVE;
-
-                    // Slug unique (loại bỏ -draft)
-                    $slug = preg_replace('/-draft$/', '', Str::slug($main->slug ?: $main->name));
-                    $originalSlug = $slug;
-                    $counter = 1;
-                    while (InvestmentGuide::where('slug', $slug)->where('id', '<>', $main->id)->exists()) {
-                        $slug = $originalSlug . '-' . $counter++;
-                    }
-                    $main->slug = $slug;
-
-                    // Files + descs
-                    if ($request->filled('files_images')) {
-                        $main->files = implode(';', array_map('trim', $request->files_images));
-                    }
-                    if ($request->filled('files_descs')) {
-                        $main->short_file_descs = json_encode(array_map('trim', $request->files_descs));
-                    }
-
-                    $main->save();
-
-                    if ($request->filled('projects')) {
-                        $main->projects()->syncWithPivotValues(
-                            $request->input('projects', []),
-                            ['created_at' => now(), 'updated_at' => now()]
-                        );
-                    }
-
-                    $investment_guide = $main;
-                } else {
-                    // --- NGƯỜI DÙNG THƯỜNG ---
-                    if ($investment_guide->status_approve === 'approved' && !$investment_guide->is_draft) {
-                        // Tạo bản nháp mới
-                        $draft = $investment_guide->replicate();
-                        $draft->fill($validated);
-                        $draft->is_draft = true;
-                        $draft->status_approve = 'pending';
-                        $draft->approval_level = $user->is_approve ? 1 : 0;
-                        $draft->parent_id = $investment_guide->id;
-                        $draft->status = InvestmentGuide::STATUS_INACTIVE;
-                        $draft->slug = Str::slug($draft->name) . '-draft';
-
-                        if ($request->filled('files_images')) {
-                            $draft->files = implode(';', array_map('trim', $request->files_images));
-                        }
-                        if ($request->filled('files_descs')) {
-                            $draft->short_file_descs = json_encode(array_map('trim', $request->files_descs));
-                        }
-
-                        $draft->save();
-
-                        if ($request->filled('projects')) {
-                            $draft->projects()->syncWithPivotValues(
-                                $request->input('projects', []),
-                                ['created_at' => now(), 'updated_at' => now()]
-                            );
-                        }
-
-                        if (Gate::allows('investment_guide/add')) {
-                            $this->addInvestmentGuideToScope($user, $draft->id);
-                        }
-
-                        $investment_guide = $draft;
-                    } else {
-                        // Cập nhật bản hiện tại / nháp
-                        $investment_guide->fill($validated);
-
-                        if ($request->filled('files_images')) {
-                            $investment_guide->files = implode(';', array_map('trim', $request->files_images));
-                        }
-                        if ($request->filled('files_descs')) {
-                            $investment_guide->short_file_descs = json_encode(array_map('trim', $request->files_descs));
-                        }
-                        $investment_guide->status_approve = 'pending';
-                        $investment_guide->approval_level = $user->is_approve ? 1 : 0;
-
-                        $investment_guide->save();
-
-                        if ($request->filled('projects')) {
-                            $investment_guide->projects()->syncWithPivotValues(
-                                $request->input('projects', []),
-                                ['created_at' => now(), 'updated_at' => now()]
-                            );
+                        if ($modelFieldName === 'short_file_descs') {
+                            // short_file_descs cần lưu trữ mảng (JSON string)
+                            $translations[$locale] = json_encode($cleanedItems);
                         } else {
-                            $investment_guide->projects()->detach();
+                            // files (URL) cần lưu trữ chuỗi phân cách bởi dấu chấm phẩy
+                            $translations[$locale] = implode(';', $cleanedItems);
                         }
                     }
                 }
             }
+            return $translations;
+        };
+        
+        // ==== KHỞI TẠO BẢN MỚI ====
+        if (!$investment_guide->exists) {
+            // Xử lý dữ liệu đa ngôn ngữ
+            $translatableData = [];
+            foreach ($investment_guide->translatable as $field) {
+                if (isset($validated[$field])) {
+                    $translatableData[$field] = $validated[$field];
+                }
+            }
 
-            return redirect()
-                ->route('backend_investment_guide_edit', $investment_guide)
-                ->with('success', 'Lưu dữ liệu thành công ' . (
-                    $user->is_super_admin ? '(Đã duyệt)' : ($user->is_approve ? '(Chờ duyệt cấp 2)' : '')
-                ));
-        } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['error' => 'Lỗi khi lưu dữ liệu: ' . $e->getMessage()]);
+            $investment_guide->fill(array_diff_key($validated, array_flip($investment_guide->translatable)));
+            
+            // Set translatable fields (Trừ các trường files/descs)
+            foreach ($translatableData as $field => $translations) {
+                if ($field !== 'files' && $field !== 'short_file_descs') {
+                    $investment_guide->setTranslations($field, $translations);
+                }
+            }
+
+            // Xử lý files và short_file_descs dưới dạng đa ngôn ngữ
+            $fileTranslations = $processFileTranslations($request, 'files', 'files');
+            if (!empty($fileTranslations)) {
+                $investment_guide->setTranslations('files', $fileTranslations);
+            }
+            
+            $descsTranslations = $processFileTranslations($request, 'files_descs', 'short_file_descs');
+            if (!empty($descsTranslations)) {
+                $investment_guide->setTranslations('short_file_descs', $descsTranslations);
+            }
+            
+            // ... (Phần logic khác giữ nguyên) ...
+
+            $investment_guide->approval_level = $user->is_super_admin ? 2 : ($user->is_approve ? 1 : 0);
+            $investment_guide->max_approval = 2;
+            $investment_guide->is_draft = false;
+            $investment_guide->status_approve = $user->is_super_admin ? 'approved' : ($user->is_approve ? 'pending' : 'pending');
+            $investment_guide->status = $user->is_super_admin ? InvestmentGuide::STATUS_ACTIVE : InvestmentGuide::STATUS_INACTIVE;
+            $investment_guide->language = App::getLocale();
+            $investment_guide->project_type = $validated['project_type'] ?? null;
+            $investment_guide->project_id = $validated['project_id'] ?? 0;
+
+            // Sinh slug unique cho ngôn ngữ mặc định
+            $defaultLocale = config('app.locale');
+            $slug = Str::slug($investment_guide->getTranslation('slug', $defaultLocale) ?: $investment_guide->getTranslation('name', $defaultLocale));
+            $originalSlug = $slug;
+            $counter = 1;
+            while (InvestmentGuide::where("slug->{$defaultLocale}", $slug)->exists()) {
+                $slug = $originalSlug . '-' . $counter++;
+            }
+            $investment_guide->setTranslation('slug', $defaultLocale, $slug);
+
+            $investment_guide->save();
+
+            if ($request->filled('projects')) {
+                $investment_guide->projects()->syncWithPivotValues(
+                    $request->input('projects'),
+                    ['created_at' => now(), 'updated_at' => now()]
+                );
+            }
+
+            if (Gate::allows('investment_guide/add')) {
+                $this->addInvestmentGuideToScope($user, $investment_guide->id);
+            }
+        } else {
+            // ==== ĐÃ TỒN TẠI ====
+            if ($user->is_super_admin) {
+                // --- SUPER ADMIN MERGE NHÁP ---
+                $main = $investment_guide->parent_id
+                    ? InvestmentGuide::find($investment_guide->parent_id)
+                    : $investment_guide;
+
+                // Xử lý dữ liệu đa ngôn ngữ
+                $translatableData = [];
+                foreach ($investment_guide->translatable as $field) {
+                    if (isset($validated[$field])) {
+                        $translatableData[$field] = $validated[$field];
+                    }
+                }
+
+                $main->fill(array_diff_key($validated, array_flip($investment_guide->translatable)));
+                
+                // Set translatable fields (Trừ các trường files/descs)
+                foreach ($translatableData as $field => $translations) {
+                     if ($field !== 'files' && $field !== 'short_file_descs') {
+                        $main->setTranslations($field, $translations);
+                    }
+                }
+
+                // Xử lý files và short_file_descs dưới dạng đa ngôn ngữ
+                $fileTranslations = $processFileTranslations($request, 'files', 'files');
+                if (!empty($fileTranslations)) {
+                    $main->setTranslations('files', $fileTranslations);
+                }
+                
+                $descsTranslations = $processFileTranslations($request, 'files_descs', 'short_file_descs');
+                if (!empty($descsTranslations)) {
+                    $main->setTranslations('short_file_descs', $descsTranslations);
+                }
+
+                $main->approval_level = $main->max_approval;
+                $main->status_approve = 'approved';
+                $main->is_draft = false;
+                $main->parent_id = null;
+
+                // Slug unique (remove -draft)
+                $defaultLocale = config('app.locale');
+                $currentSlug = $main->getTranslation('slug', $defaultLocale) ?: $main->getTranslation('name', $defaultLocale);
+                $slug = preg_replace('/-draft$/', '', Str::slug($currentSlug));
+                $originalSlug = $slug;
+                $counter = 1;
+                while (InvestmentGuide::where("slug->{$defaultLocale}", $slug)->where('id', '<>', $main->id)->exists()) {
+                    $slug = $originalSlug . '-' . $counter++;
+                }
+                $main->setTranslation('slug', $defaultLocale, $slug);
+
+                // BỎ PHẦN LƯU files CŨ (SINGLE-LANGUAGE)
+                // if ($request->filled('files_images')) {
+                //     $main->files = implode(';', array_map('trim', $request->files_images));
+                // }
+
+                $main->save();
+
+                if ($request->filled('projects')) {
+                    $main->projects()->sync($request->input('projects'));
+                } else {
+                    $main->projects()->detach();
+                }
+
+                // Xoá nháp
+                $drafts = InvestmentGuide::where('parent_id', $main->id)->get();
+                foreach ($drafts as $draft) {
+                    $this->removeInvestmentGuideFromScope($draft->id);
+                    $draft->delete();
+                }
+
+                $investment_guide = $main;
+            } else {
+                // --- NGƯỜI DÙNG THƯỜNG ---
+                if ($investment_guide->status_approve === 'approved' && !$investment_guide->is_draft) {
+                    // Tạo bản nháp mới
+                    $draft = $investment_guide->replicate();
+                    
+                    // Xử lý dữ liệu đa ngôn ngữ
+                    $translatableData = [];
+                    foreach ($investment_guide->translatable as $field) {
+                        if (isset($validated[$field])) {
+                            $translatableData[$field] = $validated[$field];
+                        }
+                    }
+
+                    $draft->fill(array_diff_key($validated, array_flip($investment_guide->translatable)));
+                    
+                    // Set translatable fields (Trừ các trường files/descs)
+                    foreach ($translatableData as $field => $translations) {
+                        if ($field !== 'files' && $field !== 'short_file_descs') {
+                            $draft->setTranslations($field, $translations);
+                        }
+                    }
+
+                    // Xử lý files và short_file_descs dưới dạng đa ngôn ngữ
+                    $fileTranslations = $processFileTranslations($request, 'files', 'files');
+                    if (!empty($fileTranslations)) {
+                        $draft->setTranslations('files', $fileTranslations);
+                    }
+                    
+                    $descsTranslations = $processFileTranslations($request, 'files_descs', 'short_file_descs');
+                    if (!empty($descsTranslations)) {
+                        $draft->setTranslations('short_file_descs', $descsTranslations);
+                    }
+
+                    $draft->is_draft = true;
+                    $draft->status_approve = 'pending';
+                    $draft->approval_level = $user->is_approve ? 1 : 0;
+                    $draft->parent_id = $investment_guide->id;
+                    $draft->status = InvestmentGuide::STATUS_INACTIVE;
+                    
+                    $defaultLocale = config('app.locale');
+                    $draftSlug = Str::slug($draft->getTranslation('slug', $defaultLocale) ?: $draft->getTranslation('name', $defaultLocale)) . '-draft';
+                    $draft->setTranslation('slug', $defaultLocale, $draftSlug);
+
+                    // BỎ PHẦN LƯU files CŨ (SINGLE-LANGUAGE)
+                    // if ($request->filled('files_images')) {
+                    //     $draft->files = implode(';', array_map('trim', $request->files_images));
+                    // }
+
+                    $draft->save();
+
+                    if ($request->filled('projects')) {
+                        $draft->projects()->sync($request->input('projects'));
+                    }
+
+                    if (Gate::allows('investment_guide/add')) {
+                        $this->addInvestmentGuideToScope($user, $draft->id);
+                    }
+
+                    $investment_guide = $draft;
+                } else {
+                    // Cập nhật bản hiện tại / nháp
+                    $translatableData = [];
+                    foreach ($investment_guide->translatable as $field) {
+                        if (isset($validated[$field])) {
+                            $translatableData[$field] = $validated[$field];
+                        }
+                    }
+
+                    $investment_guide->fill(array_diff_key($validated, array_flip($investment_guide->translatable)));
+                    
+                    // Set translatable fields (Trừ các trường files/descs)
+                    foreach ($translatableData as $field => $translations) {
+                         if ($field !== 'files' && $field !== 'short_file_descs') {
+                            $investment_guide->setTranslations($field, $translations);
+                        }
+                    }
+
+                    // Xử lý files và short_file_descs dưới dạng đa ngôn ngữ
+                    $fileTranslations = $processFileTranslations($request, 'files', 'files');
+                    if (!empty($fileTranslations)) {
+                        $investment_guide->setTranslations('files', $fileTranslations);
+                    }
+                    
+                    $descsTranslations = $processFileTranslations($request, 'files_descs', 'short_file_descs');
+                    if (!empty($descsTranslations)) {
+                        $investment_guide->setTranslations('short_file_descs', $descsTranslations);
+                    }
+
+                    // BỎ PHẦN LƯU files CŨ (SINGLE-LANGUAGE)
+                    // if ($request->filled('files_images')) {
+                    //     $investment_guide->files = implode(';', array_map('trim', $request->files_images));
+                    // }
+
+                    $investment_guide->status_approve = 'pending';
+                    $investment_guide->approval_level = $user->is_approve ? 1 : 0;
+                    $investment_guide->save();
+
+                    if ($request->filled('projects')) {
+                        $investment_guide->projects()->sync($request->input('projects'));
+                    } else {
+                        $investment_guide->projects()->detach();
+                    }
+                }
+            }
         }
-    }
 
+        return redirect()
+            ->route('backend_investment_guide_edit', $investment_guide)
+            ->with('success', 'Lưu dữ liệu thành công ' . (
+                $user->is_super_admin ? '(Đã duyệt)' : ($user->is_approve ? '(Chờ duyệt cấp 2)' : '')
+            ));
+    } catch (\Exception $e) {
+        return redirect()->back()->withErrors(['error' => 'Lỗi khi lưu dữ liệu: ' . $e->getMessage()]);
+    }
+}
     public function approve(InvestmentGuide $investment_guide)
     {
         $user = auth('web')->user();

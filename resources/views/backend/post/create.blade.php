@@ -17,6 +17,10 @@
     <script src="{{ asset('backend_assets/js/globals.js') }}"></script>
     <script>CKFinder.config({ connectorPath: '/ckfinder/connector' });</script>
 
+    @php
+        $locales = config('app.locales', ['vi' => 'Tiếng Việt', 'en' => 'Tiếng Anh']);
+    @endphp
+
     <section class="content">
         <div class="container-fluid">
             <div class="row">
@@ -91,17 +95,16 @@
                     @csrf
                     <div class="card-body">
 
-                        <x-forms.input name="name" value="{{ old('name') ?: $post->name }}" label="Tên bài viết"
-                            :required="true" onkeyup="changeNameToSlug('name', 'slug', false)"
-                            :messages="$errors->get('name')" />
-                        <x-forms.input name="slug" value="{{ old('slug') ?: $post->slug }}" label="Slug"
-                            :messages="$errors->get('slug')" />
+                        {{-- Các trường không đa ngôn ngữ --}}
                         <x-forms.input name="priority" value="{{ (old('priority') ?: $post->priority) ?: 9999 }}"
                             label="Sắp xếp" type="number" :messages="$errors->get('priority')" />
+                        
                         <x-forms.select name="cat_id" label="Danh mục cha" :options="new HtmlString($option_categories)"
                             :messages="$errors->get('cat_id')" />
-                            <x-forms.select-multiple name="projects" label="Thuộc các dự án" :options="$option_projects" :selected="old('projects', $post->projects->pluck('id')->toArray())"
-                                :messages="$errors->get('projects')" help="Chọn các dự án trực thuộc" />
+                        
+                        <x-forms.select-multiple name="projects" label="Thuộc các dự án" :options="$option_projects" 
+                            :selected="old('projects', $post->projects->pluck('id')->toArray())"
+                            :messages="$errors->get('projects')" help="Chọn các dự án trực thuộc" />
 
                         <x-forms.upload name="image" value="{{ old('image') ?: $post->image }}" label="Image" type="image"
                             :messages="$errors->get('image')" />
@@ -112,29 +115,134 @@
                         @endif
                         <x-forms.switch name="is_hot" value="{{ $post->is_hot ?? 1 }}" label="Nổi bật"
                             :messages="$errors->get('is_hot')" />
-                            <x-forms.input name="published_at" label="Ngày xuất bản" type="date"
+                        
+                        <x-forms.input name="published_at" label="Ngày xuất bản" type="date"
                             :value="$post->published_at ? \Carbon\Carbon::parse($post->published_at)->format('Y-m-d') : null"
                             :messages="$errors->get('published_at')"
                             required />
 
-                        <x-forms.textarea name="description" :required="true"
-                            value="{{ old('description') ?: $post->description }}" label="Mô tả"
-                            :messages="$errors->get('description')" />
-                        <x-forms.textarea name="content" :required="true" value="{{ old('content') ?: $post->content }}"
-                            label="Nội dung chi tiết" editor="true" :messages="$errors->get('content')" />
+                        {{-- Tabs ngôn ngữ --}}
+                        <div class="form-group">
+                            <hr class="my-4">
+                            <h5 class="mb-3">Nội dung đa ngôn ngữ</h5>
+                            
+                            <ul class="nav nav-tabs" role="tablist">
+                                @foreach($locales as $locale => $label)
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ $loop->first ? 'active' : '' }}" 
+                                           data-toggle="tab" 
+                                           href="#lang-{{ $locale }}"
+                                           role="tab">
+                                            <i class="fas fa-language mr-1"></i> {{ $label }}
+                                        </a>
+                                    </li>
+                                @endforeach
+                            </ul>
 
-                        <x-forms.input name="meta_title" value="{{ old('meta_title') ?: $post->meta_title }}"
-                            label="Meta Title" :messages="$errors->get('meta_title')" />
-                        <x-forms.input name="meta_keywords" value="{{ old('meta_keywords') ?: $post->meta_keywords }}"
-                            label="Meta Keywords" :messages="$errors->get('meta_keywords')" />
-                        <x-forms.textarea name="meta_description"
-                            value="{{ old('meta_description') ?: $post->meta_description }}" label="Meta Description"
-                            :messages="$errors->get('meta_description')" />
+                            <div class="tab-content border border-top-0 p-3">
+                                @foreach($locales as $locale => $label)
+                                    <div id="lang-{{ $locale }}" 
+                                         class="tab-pane fade {{ $loop->first ? 'show active' : '' }}"
+                                         role="tabpanel">
+                                        
+                                        <x-forms.input 
+                                            name="name[{{ $locale }}]" 
+                                            value="{{ old('name.'.$locale) ?: $post->getTranslation('name', $locale, false) }}" 
+                                            label="Tên bài viết ({{ $label }})"
+                                            :required="$loop->first" 
+                                            onkeyup="changeNameToSlug('name[{{ $locale }}]', 'slug[{{ $locale }}]', false)"
+                                            :messages="$errors->get('name.'.$locale)" />
+                                            
+                                        <x-forms.input 
+                                            name="slug[{{ $locale }}]" 
+                                            value="{{ old('slug.'.$locale) ?: $post->getTranslation('slug', $locale, false) }}" 
+                                            label="Slug ({{ $label }})"
+                                            :messages="$errors->get('slug.'.$locale)" />
+                                            
+                                        <x-forms.textarea 
+                                            name="description[{{ $locale }}]" 
+                                            :required="$loop->first"
+                                            value="{{ old('description.'.$locale) ?: $post->getTranslation('description', $locale, false) }}" 
+                                            label="Mô tả ({{ $label }})"
+                                            :messages="$errors->get('description.'.$locale)" />
+                                            
+                                        <x-forms.textarea 
+                                            name="content[{{ $locale }}]" 
+                                            :required="$loop->first" 
+                                            value="{{ old('content.'.$locale) ?: $post->getTranslation('content', $locale, false) }}"
+                                            label="Nội dung chi tiết ({{ $label }})" 
+                                            editor="true" 
+                                            :messages="$errors->get('content.'.$locale)" />
+                                            
+                                        <hr class="my-3">
+                                        <h6 class="text-muted">SEO Meta Tags ({{ $label }})</h6>
+                                        
+                                        <x-forms.input 
+                                            name="meta_title[{{ $locale }}]" 
+                                            value="{{ old('meta_title.'.$locale) ?: $post->getTranslation('meta_title', $locale, false) }}"
+                                            label="Meta Title ({{ $label }})" 
+                                            :messages="$errors->get('meta_title.'.$locale)" />
+                                            
+                                        <x-forms.input 
+                                            name="meta_keywords[{{ $locale }}]" 
+                                            value="{{ old('meta_keywords.'.$locale) ?: $post->getTranslation('meta_keywords', $locale, false) }}"
+                                            label="Meta Keywords ({{ $label }})" 
+                                            :messages="$errors->get('meta_keywords.'.$locale)" />
+                                            
+                                        <x-forms.textarea 
+                                            name="meta_description[{{ $locale }}]"
+                                            value="{{ old('meta_description.'.$locale) ?: $post->getTranslation('meta_description', $locale, false) }}" 
+                                            label="Meta Description ({{ $label }})"
+                                            :messages="$errors->get('meta_description.'.$locale)" />
+
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
 
                     </div>
                 </form>
             </div>
         </div>
     </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            function convertToSlug(text) {
+                text = text.toLowerCase();
+                text = text.replace(/á|à|ả|ã|ạ|ă|ắ|ằ|ẳ|ẵ|ặ|â|ấ|ầ|ẩ|ẫ|ậ/gi, 'a');
+                text = text.replace(/é|è|ẻ|ẽ|ẹ|ê|ế|ề|ể|ễ|ệ/gi, 'e');
+                text = text.replace(/i|í|ì|ỉ|ĩ|ị/gi, 'i');
+                text = text.replace(/ó|ò|ỏ|õ|ọ|ô|ố|ồ|ổ|ỗ|ộ|ơ|ớ|ờ|ở|ỡ|ợ/gi, 'o');
+                text = text.replace(/ú|ù|ủ|ũ|ụ|ư|ứ|ừ|ử|ữ|ự/gi, 'u');
+                text = text.replace(/ý|ỳ|ỷ|ỹ|ỵ/gi, 'y');
+                text = text.replace(/đ/gi, 'd');
+                text = text.replace(/[^a-z0-9\s-]/g, '');
+                text = text.replace(/\s+/g, '-');
+                text = text.replace(/-+/g, '-');
+                text = text.replace(/^-+|-+$/g, '');
+                return text;
+            }
+            @foreach($locales as $locale => $label)
+                (function() {
+                    var nameInput = document.querySelector('input[name="name[{{ $locale }}]"]');
+                    var slugInput = document.querySelector('input[name="slug[{{ $locale }}]"]');
+                    
+                    if (nameInput && slugInput) {
+                        nameInput.addEventListener('keyup', function() {
+                            var slug = convertToSlug(this.value);
+                            slugInput.value = slug;
+                        });
+                    }
+                })();
+                if (document.querySelector('textarea[name="content[{{ $locale }}]"]')) {
+                    CKEDITOR.replace('content[{{ $locale }}]', {
+                        filebrowserBrowseUrl: '/ckfinder/browser',
+                        filebrowserUploadUrl: '/ckfinder/connector?command=QuickUpload&type=Files'
+                    });
+                }
+            @endforeach
+        });
+    </script>
 
 @endsection

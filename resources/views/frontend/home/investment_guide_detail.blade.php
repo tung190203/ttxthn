@@ -8,7 +8,7 @@
                 <div class="container">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a class="link-unstyled" href="#!"><i
-                                    class="fal fa-home me-2"></i><span>Trang chủ</span></a></li>
+                                    class="fal fa-home me-2"></i><span>{{ __('app.home') }}</span></a></li>
                         @if (!empty($backUrl) && $backUrl !== url()->current())
                             <li class="breadcrumb-item">
                                 <a href="{{ $backUrl }}">{{$backLabel}}</a>
@@ -50,7 +50,7 @@
 
                 @if (count($files) > 0)
                     <div class="container mb-4">
-                        <h3 class="mb-3">Tài liệu đính kèm</h3>
+                        <h3 class="mb-3">{{ __('app.attached_documents') }}</h3>
                         <div class="row g-3">
                             @foreach ($files as $index => $file)
                                 <div class="col-md-6">
@@ -78,7 +78,7 @@
             {{-- <img class="texture-1" src="./images/texture-1.png" alt="">
             <img class="texture-2" src="./images/texture-2.png" alt=""> --}}
             <div class="container">
-                <h2 class="section__title">Cẩm nang đầu tư liên quan</h2>
+                <h2 class="section__title">{{ __('app.related_investment_guides') }}</h2>
                 <div class="news-slider">
                     <div class="news-slider__nav">
                         <div class="news-slider__prev"><i class="fal fa-fw fa-lg fa-angle-left"></i></div>
@@ -113,8 +113,7 @@
                         </div>
                     </div>
                 </div>
-                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="/cam-nang-dau-tu">Xem
-                        thêm</a>
+                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="/cam-nang-dau-tu">{{ __('app.view_more') }}</a>
                 </nav>
             </div>
         </section>

@@ -47,7 +47,6 @@ class MenuController extends Controller
         $menu_type = session('menu_type', 'main');
         $parent_id = $request->get('parent_id', 0);
         $menu_raw = $this->menu->where('type', $menu_type)
-            ->where('language', $language)
             ->visibleFor(auth('web')->user())
             ->orderBy('priority')->get();
         $user = auth('web')->user();
@@ -139,17 +138,27 @@ class MenuController extends Controller
             abort(403, self::MESSAGE_UNAUTHORIZED);
         }
 
-        $validated = $request->validate([
-            'name' => 'required|string',
-        ]);
+        // --- Validation for translatable fields ---
+        $validationRules = [];
+        $locales = config('app.locales', ['vi' => 'Tiếng Việt', 'en' => 'Tiếng Anh']);
+        foreach (array_keys($locales) as $locale) {
+            // Chỉ bắt buộc trường 'name' cho ngôn ngữ đầu tiên (thường là 'vi')
+            if ($locale === array_key_first($locales)) {
+                $validationRules["name.{$locale}"] = 'required|string';
+            } else {
+                $validationRules["name.{$locale}"] = 'nullable|string';
+            }
+        }
+        
+        $validated = $request->validate($validationRules);
+
         try {
-            // 🟩 Tạo mới (bản chính)
+            $data = $request->only('name');
             if (!$menu->exists) {
-                $menu->fill($validated);
                 $menu->approval_level = $user->is_super_admin ? 2 : ($user->is_approve ? 1 : 0);
                 $menu->max_approval = 2;
                 $menu->is_draft = false;
-                $menu->status_approve = $user->is_super_admin ? 'approved' : ($user->is_approve ? 'pending' : 'pending');
+                $menu->status_approve = $user->is_super_admin ? 'approved' : 'pending'; // Dùng 'pending' cho tất cả cấp dưới Super Admin
                 $menu->status = $user->is_super_admin ? Menu::STATUS_ACTIVE : Menu::STATUS_INACTIVE;
                 $menu->language = App::getLocale();
                 
@@ -157,7 +166,11 @@ class MenuController extends Controller
                 if ($menu->exists && $menu->id == $parent_id) {
                     return back()->withInput()->withErrors(['parent_id' => 'Danh mục cha không thể là chính nó']);
                 }
-                $menu->name = $request->get('name');
+                
+                // Lưu trường đa ngôn ngữ
+                $menu->setTranslations('name', $data['name']);
+
+                // Lưu các trường đơn ngữ
                 $menu->image = $request->get('image');
                 $menu->page_id = $request->get('page_id');
                 $menu->cat_id = $request->get('cat_id');
@@ -177,16 +190,17 @@ class MenuController extends Controller
                 if ($user->is_super_admin) {
                     $mainMenu = $menu->main_id ? Menu::find($menu->main_id) : $menu;
 
-                    $mainMenu->fill($validated);
+                    // Lưu trường đa ngôn ngữ
+                    $mainMenu->setTranslations('name', $data['name']);
+
                     $mainMenu->approval_level = $mainMenu->max_approval;
                     $mainMenu->status_approve = 'approved';
                     $mainMenu->is_draft = false;
-                    $mainMenu->main_id = null;
+                    $mainMenu->main_id = null;   
                     $parent_id = intval($request->get('parent_id', 0));
                     if ($menu->exists && $menu->id == $parent_id) {
                         return back()->withInput()->withErrors(['parent_id' => 'Danh mục cha không thể là chính nó']);
                     }
-                    $mainMenu->name = $request->get('name');
                     $mainMenu->image = $request->get('image');
                     $mainMenu->page_id = $request->get('page_id');
                     $mainMenu->cat_id = $request->get('cat_id');
@@ -210,12 +224,14 @@ class MenuController extends Controller
                     if ($menu->status_approve === 'approved' && !$menu->is_draft) {
                         // Bản chính đã duyệt → tạo bản nháp
                         $draft = $menu->replicate();
-                        $draft->fill($validated);
+                        $draft->setTranslations('name', $menu->getTranslations('name'));
+
                         $draft->is_draft = true;
                         $draft->status_approve = 'pending';
                         $draft->approval_level = $user->is_approve ? 1 : 0;
                         $draft->main_id = $menu->id;
-                        // $draft->status = Menu::STATUS_INACTIVE;
+                        $draft->save();
+                        $draft->setTranslations('name', $data['name']);
                         $draft->save();
 
                         if (Gate::allows('menu/add')) {
@@ -224,7 +240,7 @@ class MenuController extends Controller
 
                         $menu = $draft;
                     } else {
-                        $menu->fill($validated);
+                        $menu->setTranslations('name', $data['name']);
                         $menu->status_approve = 'pending';
                         $menu->approval_level = $user->is_approve ? 1 : 0;
                         $menu->save();
@@ -241,7 +257,6 @@ class MenuController extends Controller
             return back()->withInput()->withErrors(['error' => $ex->getMessage()]);
         }
     }
-
     public function approve(Menu $menu)
     {
         $user = auth('web')->user();

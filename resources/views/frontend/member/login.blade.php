@@ -59,7 +59,7 @@
                             </div>
                         </div>
                         <div class="mt-4">
-                            <button class="md-login__submit button--secondary button" type="submit">Đăng nhập</button>
+                            <button class="md-login__submit button--secondary button" type="submit">{{ __('app.login') }}</button>
                         </div>
                     </form>
                     <div class="md-login__copyright">Copyright © 2024</div>

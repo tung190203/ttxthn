@@ -6,9 +6,11 @@ use App\Libs\Util;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
+use Spatie\Translatable\HasTranslations;
 
 class Menu extends Model
 {
+    use HasTranslations;
     protected $table = 'menus';
 
     protected $fillable = [
@@ -29,6 +31,11 @@ class Menu extends Model
         'is_draft',
         'main_id',
         'status_approve',
+    ];
+
+    public $translatable = [
+        'name',
+        'slug'
     ];
 
     const STATUS_ACTIVE = 1;
@@ -97,11 +104,9 @@ class Menu extends Model
         if (isset($cached[$cache_key])) {
             $menus = $cached[$cache_key];
         } else {
-            $language = App::getLocale();
             $menus = Menu::with(['category', 'page'])
                 ->where('is_draft', false)
                 ->where('status_approve', 'approved')
-                ->where('language', $language)
                 ->where('status', 1)
                 ->orderBy('priority')
                 ->orderBy('created_at')

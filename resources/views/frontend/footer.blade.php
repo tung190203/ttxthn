@@ -1,7 +1,7 @@
 <section class="section section--bg-pattern">
     <div class="container">
-        <h2 class="section__title text-white mb-4 text-uppercase">Đăng ký nhận thông tin dự án</h2>
-        <div class="text-center"><a class="button" href="/lien-he">Đăng ký</a></div>
+        <h2 class="section__title text-white mb-4 text-uppercase">{{ __('app.subscribe_project_info') }}</h2>
+        <div class="text-center"><a class="button" href="/lien-he">{{ __('app.register') }}</a></div>
     </div>
 </section>
 <footer class="footer">
@@ -20,12 +20,12 @@
             <div class="row">
                 <div class="col-lg-7 mb-40 mb-lg-0">
                     <ul class="f-contact">
-                        <li><i class="fal fa-fw fa-map-marker-alt me-2"></i><span>Địa chỉ: {{ $setting['address'] ?? '' }}</span>
+                        <li><i class="fal fa-fw fa-map-marker-alt me-2"></i><span>{{ __('app.address') }}: {{ $setting['address'] ?? '' }}</span>
                         </li>
-                        <li><i class="fal fa-fw fa-globe me-2"></i>Website: <a
+                        <li><i class="fal fa-fw fa-globe me-2"></i>{{ __('app.website') }}: <a
                                 href="{{$setting['website'] ?? ''}}"
                                 target="_blank">{{$setting['website'] ?? ''}}</a></li>
-                        <li><i class="fal fa-fw fa-phone me-2" style="transform: rotate(-270deg);"></i>SĐT: <a
+                        <li><i class="fal fa-fw fa-phone me-2" style="transform: rotate(-270deg);"></i>{{ __('app.phone') }}: <a
                                 href="tel:{{ preg_replace('/\D+/', '', $setting['phone'] ?? '') }}">{{ $setting['phone'] ?? '' }}</a></li>
                     </ul>
                     <div class="footer__content mt-4">

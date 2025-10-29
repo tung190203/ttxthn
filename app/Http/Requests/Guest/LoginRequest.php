@@ -31,11 +31,11 @@ class LoginRequest extends FormRequest
     public function messages()
     {
         return [
-            'email.required' => 'Email là bắt buộc',
-            'email.email' => 'Email không hợp lệ',
-            'password.required' => 'Mật khẩu là bắt buộc',
-            'password.string' => 'Mật khẩu phải là chuỗi ký tự',
-            'password.min' => 'Mật khẩu phải có ít nhất :min ký tự',
+            'email.required' => __('validation.email.required'),
+            'email.email' => __('validation.email.email'),
+            'password.required' => __('validation.password.required'),
+            'password.string' => __('validation.password.string'),
+            'password.min' => __('validation.password.min', ['min' => 6]),
         ];
     }
 }

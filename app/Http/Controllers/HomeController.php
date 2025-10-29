@@ -211,9 +211,17 @@ class HomeController extends Controller
             ->orderBy('published_at', 'desc')
             ->get();
 
+        $local = app()->getLocale();
+        $availableLocales = config('app.available_locales', ['vi', 'en']);
         $project = Project::with(['type', 'industry', 'districts', 'plan'])
-            ->where('slug', $slug)
-            ->firstOrFail();
+            ->where(function ($query) use ($slug, $local, $availableLocales) {
+                $query->where("slug->{$local}", $slug);
+                foreach ($availableLocales as $loc) {
+                    if ($loc !== $local) {
+                        $query->orWhere("slug->{$loc}", $slug);
+                    }
+                }
+            })->firstOrFail();
 
         $preferential = collect(); // default empty
         $posts = collect();        // default empty
@@ -271,8 +279,7 @@ class HomeController extends Controller
             'preferential',
             'posts',
             'project',
-            'backUrl'
-            ,
+            'backUrl',
             'backLabel'
         ));
     }
@@ -294,64 +301,64 @@ class HomeController extends Controller
             'name' => $industry->name,
         ])->toArray();
 
-        // Lấy interest của user và join với projects để filter
-        $interestQuery = $user->interests()
-            ->where('interestable_type', Project::class)
-            ->with([
-                'interestable' => function ($q) {
-                    $q->withRelations();
-                }
-            ]);
+        $list_project_interest = collect();
+        $list_post_interest = []; 
+        if ($user) {
+            $interestQuery = $user->interests()
+                ->where('interestable_type', Project::class)
+                ->with([
+                    'interestable' => function ($q) {
+                        $q->withRelations();
+                    }
+                ]);
 
-        $list_project_interest = $interestQuery->get()
-            ->map(function ($item) {
-                $project = $item->interestable;
-                if ($project) {
-                    $project->is_interested = true;
-                    return $project;
-                }
-                return null;
-            })->filter();
+            $list_project_interest = $interestQuery->get()
+                ->map(function ($item) {
+                    $project = $item->interestable;
+                    if ($project) {
+                        $project->is_interested = true;
+                        $project->name = $project->name; 
+                        return $project;
+                    }
+                    return null;
+                })->filter();
+            if ($request->industry) {
+                $list_project_interest = $list_project_interest->filter(function ($project) use ($request) {
+                    return $project->industry_number == $request->industry;
+                });
+            }
 
-        // Filter theo industry nếu có
-        if ($request->industry) {
-            $list_project_interest = $list_project_interest->filter(function ($project) use ($request) {
-                return $project->industry_number == $request->industry;
-            });
-        }
+            if ($request->keyword) {
+                $keyword = mb_strtolower($request->keyword);
+                $list_project_interest = $list_project_interest->filter(function ($project) use ($keyword) {
+                    return str_contains(mb_strtolower($project->name), $keyword);
+                });
+            }
 
-        // Filter theo search từ input
-        if ($request->keyword) {
-            $keyword = mb_strtolower($request->keyword);
-            $list_project_interest = $list_project_interest->filter(function ($project) use ($keyword) {
-                return str_contains(mb_strtolower($project->name), $keyword);
-            });
-        }
+            $list_project_interest = $list_project_interest->values();
 
-        // Reset keys
-        $list_project_interest = $list_project_interest->values();
-
-        $list_post_interest = $user->interests()
-            ->where('interestable_type', Post::class)
-            ->with('interestable')
-            ->get()
-            ->map(function ($item) {
-                $post = $item->interestable;
-                if ($post) {
-                    return [
-                        'id' => $post->id,
-                        'name' => $post->name,
-                        'slug' => $post->slug,
-                        'image' => $post->image,
-                        'published_at' => $post->published_at,
-                        'description' => $post->description,
-                        'is_interested' => true,
-                    ];
-                }
-                return null;
-            })
-            ->filter()
-            ->toArray();
+            $list_post_interest = $user->interests()
+                ->where('interestable_type', Post::class)
+                ->with('interestable')
+                ->get()
+                ->map(function ($item) {
+                    $post = $item->interestable;
+                    if ($post) {
+                        return [
+                            'id' => $post->id,
+                            'name' => $post->name,
+                            'slug' => $post->slug,
+                            'image' => $post->image,
+                            'published_at' => $post->published_at,
+                            'description' => $post->description,
+                            'is_interested' => true,
+                        ];
+                    }
+                    return null;
+                })
+                ->filter()
+                ->toArray();
+        } 
 
         return view('frontend.home.account', compact(
             'setting',
@@ -362,15 +369,25 @@ class HomeController extends Controller
             'industries'
         ));
     }
-
     public function introducePotential(Request $request)
     {
         $setting = Setting::getAllSetting();
         $banners = Widget::getByPosition('HOME_BANNER');
         $setting['menu_active'] = 'cam-nang-dau-tu';
-        $parentCategory = Category::where('slug', $setting['menu_active'])
-            ->where('status_approve', 'approved')
+        $locale = app()->getLocale();
+        $availableLocales = config('app.available_locales', ['vi', 'en']);
+
+        $parentCategory = Category::where('status_approve', 'approved')
             ->where('type', Category::CATEGORY_TYPE_INVESTMENT_HANDBOOK)
+            ->where(function ($query) use ($setting, $locale, $availableLocales) {
+                $slug = $setting['menu_active'];
+                $query->where("slug->{$locale}", $slug);
+                foreach ($availableLocales as $loc) {
+                    if ($loc !== $locale) {
+                        $query->orWhere("slug->{$loc}", $slug);
+                    }
+                }
+            })
             ->firstOrFail();
 
         $subQuery = Category::where('parent_id', $parentCategory->id)->where('status_approve', 'approved');
@@ -656,97 +673,198 @@ class HomeController extends Controller
     //     ));
     // }
 
+    // public function search(Request $request)
+    // {
+    //     $setting = Setting::getAllSetting();
+    //     $setting['menu_active'] = 'search';
+    //     $keyword = $request->input('keyword');
+
+    //     if ($request->ajax() && $request->filled('ajax_type')) {
+    //         return $this->ajaxSearch($request);
+    //     }
+
+    //     $groupedResults = [];
+    //     $perPage = 6;
+
+    //     // --- 1. Posts ---
+    //     $postPage = $request->input('post_page', 1);
+    //     $posts = Post::with('interests')
+    //         ->whereNull('parent_id')
+    //         ->where('status_approve','approved')
+    //         ->where('published_at', '<=', Carbon::now())
+    //         ->when($keyword, function ($query, $keyword) {
+    //             return $query->where('name', 'like', "%{$keyword}%");
+    //         })
+    //         ->orderBy('published_at', 'desc')
+    //         ->paginate($perPage, ['*'], 'post_page', $postPage)
+    //         ->appends(['keyword' => $keyword]);
+
+    //     if ($posts->total() > 0) {
+    //         $posts->through(function ($post) {
+    //             $item = $post->toArray();
+    //             $item['type'] = 'post';
+    //             $item['is_interested'] = $post->interests()->where('guest_id', Auth::guard('guest')->id())->exists();
+    //             return (object) $item;
+    //         });
+    //         $groupedResults[__('app.news')] = $posts;
+    //     }
+
+    //     // --- 2. Projects ---
+    //     $projectPage = $request->input('project_page', 1);
+    //     $projects = Project::withRelations()
+    //         ->whereNull('parent_id')
+    //         ->where('status','approved')
+    //         ->when($keyword, function ($query, $keyword) {
+    //             return $query->where('name', 'like', "%{$keyword}%");
+    //         })
+    //         ->orderBy('updated_at', 'desc')
+    //         ->paginate($perPage, ['*'], 'project_page', $projectPage)
+    //         ->appends(['keyword' => $keyword]);
+
+    //     if ($projects->total() > 0) {
+    //         $projects->through(function ($project) {
+    //             $item = $project->toArray();
+    //             $item['type'] = 'project';
+    //             $item['districts'] = $project->districts;
+    //             $item['unit_type_text'] = $project->unit_type_text;
+    //             $item['is_interested'] = $project->interests()->where('guest_id', Auth::guard('guest')->id())->exists();
+    //             return (object) $item;
+    //         });
+    //         $groupedResults[__('app.investment_projects')] = $projects;
+    //     }
+
+    //     // --- 3. Investment Guides ---
+    //     $guidePage = $request->input('guide_page', 1);
+    //     $investment_guides = InvestmentGuide::with('interests')
+    //         ->whereNull('parent_id')
+    //         ->where('status_approve','approved')
+    //         ->where('published_at', '<=', Carbon::now())
+    //         ->when($keyword, function ($query, $keyword) {
+    //             return $query->where('name', 'like', "%{$keyword}%");
+    //         })
+    //         ->orderBy('published_at', 'desc')
+    //         ->paginate($perPage, ['*'], 'guide_page', $guidePage)
+    //         ->appends(['keyword' => $keyword]);
+
+    //     if ($investment_guides->total() > 0) {
+    //         $investment_guides->through(function ($item) {
+    //             $data = $item->toArray();
+    //             $data['type'] = 'guide';
+    //             $data['is_interested'] = $item->interests()->where('guest_id', Auth::guard('guest')->id())->exists();
+    //             return (object) $data;
+    //         });
+    //         $groupedResults[__('app.investment_guide')] = $investment_guides;
+    //     }
+
+    //     $key = $keyword ?? '';
+
+    //     return view('frontend.home.search', compact(
+    //         'groupedResults',
+    //         'key',
+    //         'setting'
+    //     ));
+    // }
+
     public function search(Request $request)
-    {
-        $setting = Setting::getAllSetting();
-        $setting['menu_active'] = 'search';
-        $keyword = $request->input('keyword');
+{
+    $setting = Setting::getAllSetting();
+    $setting['menu_active'] = 'search';
+    $keyword = $request->input('keyword');
+    $locale = app()->getLocale(); // lấy ngôn ngữ hiện tại
 
-        if ($request->ajax() && $request->filled('ajax_type')) {
-            return $this->ajaxSearch($request);
-        }
-
-        $groupedResults = [];
-        $perPage = 6;
-
-        // --- 1. Posts ---
-        $postPage = $request->input('post_page', 1);
-        $posts = Post::with('interests')
-            ->whereNull('parent_id')
-            ->where('status_approve','approved')
-            ->where('published_at', '<=', Carbon::now())
-            ->when($keyword, function ($query, $keyword) {
-                return $query->where('name', 'like', "%{$keyword}%");
-            })
-            ->orderBy('published_at', 'desc')
-            ->paginate($perPage, ['*'], 'post_page', $postPage)
-            ->appends(['keyword' => $keyword]);
-
-        if ($posts->total() > 0) {
-            $posts->through(function ($post) {
-                $item = $post->toArray();
-                $item['type'] = 'post';
-                $item['is_interested'] = $post->interests()->where('guest_id', Auth::guard('guest')->id())->exists();
-                return (object) $item;
-            });
-            $groupedResults['Tin tức'] = $posts;
-        }
-
-        // --- 2. Projects ---
-        $projectPage = $request->input('project_page', 1);
-        $projects = Project::withRelations()
-            ->whereNull('parent_id')
-            ->where('status','approved')
-            ->when($keyword, function ($query, $keyword) {
-                return $query->where('name', 'like', "%{$keyword}%");
-            })
-            ->orderBy('updated_at', 'desc')
-            ->paginate($perPage, ['*'], 'project_page', $projectPage)
-            ->appends(['keyword' => $keyword]);
-
-        if ($projects->total() > 0) {
-            $projects->through(function ($project) {
-                $item = $project->toArray();
-                $item['type'] = 'project';
-                $item['districts'] = $project->districts;
-                $item['unit_type_text'] = $project->unit_type_text;
-                $item['is_interested'] = $project->interests()->where('guest_id', Auth::guard('guest')->id())->exists();
-                return (object) $item;
-            });
-            $groupedResults['Dự án kêu gọi đầu tư'] = $projects;
-        }
-
-        // --- 3. Investment Guides ---
-        $guidePage = $request->input('guide_page', 1);
-        $investment_guides = InvestmentGuide::with('interests')
-            ->whereNull('parent_id')
-            ->where('status_approve','approved')
-            ->where('published_at', '<=', Carbon::now())
-            ->when($keyword, function ($query, $keyword) {
-                return $query->where('name', 'like', "%{$keyword}%");
-            })
-            ->orderBy('published_at', 'desc')
-            ->paginate($perPage, ['*'], 'guide_page', $guidePage)
-            ->appends(['keyword' => $keyword]);
-
-        if ($investment_guides->total() > 0) {
-            $investment_guides->through(function ($item) {
-                $data = $item->toArray();
-                $data['type'] = 'guide';
-                $data['is_interested'] = $item->interests()->where('guest_id', Auth::guard('guest')->id())->exists();
-                return (object) $data;
-            });
-            $groupedResults['Cẩm nang Đầu tư'] = $investment_guides;
-        }
-
-        $key = $keyword ?? '';
-
-        return view('frontend.home.search', compact(
-            'groupedResults',
-            'key',
-            'setting'
-        ));
+    if ($request->ajax() && $request->filled('ajax_type')) {
+        return $this->ajaxSearch($request);
     }
+
+    $groupedResults = [];
+    $perPage = 6;
+
+    // --- 1. Posts ---
+    $postPage = $request->input('post_page', 1);
+    $posts = Post::with('interests')
+        ->whereNull('parent_id')
+        ->where('status_approve', 'approved')
+        ->where('published_at', '<=', now())
+        ->when($keyword, function ($query, $keyword) use ($locale) {
+            return $query->where("name->{$locale}", 'like', "%{$keyword}%");
+        })
+        ->orderBy('published_at', 'desc')
+        ->paginate($perPage, ['*'], 'post_page', $postPage)
+        ->appends(['keyword' => $keyword]);
+
+    if ($posts->total() > 0) {
+        $posts->through(function ($post) {
+            $item = $post->toArray();
+            $item['slug'] = $post->slug;
+            $item['name'] = $post->name;
+            $item['description'] = $post->description;
+            $item['type'] = 'post';
+            $item['is_interested'] = $post->interests()->where('guest_id', Auth::guard('guest')->id())->exists();
+            return (object) $item;
+        });
+        $groupedResults[__('app.news')] = $posts;
+    }
+
+    // --- 2. Projects ---
+    $projectPage = $request->input('project_page', 1);
+    $projects = Project::withRelations()
+        ->whereNull('parent_id')
+        ->where('status', 'approved')
+        ->when($keyword, function ($query, $keyword) use ($locale) {
+            return $query->where("name->{$locale}", 'like', "%{$keyword}%");
+        })
+        ->orderBy('updated_at', 'desc')
+        ->paginate($perPage, ['*'], 'project_page', $projectPage)
+        ->appends(['keyword' => $keyword]);
+
+    if ($projects->total() > 0) {
+        $projects->through(function ($project) {
+            $item = $project->toArray();
+            $item['slug'] = $project->slug;
+            $item['name'] = $project->name;
+            $item['type'] = 'project';
+            $item['districts'] = $project->districts;
+            $item['unit_type_text'] = $project->unit_type_text;
+            $item['is_interested'] = $project->interests()->where('guest_id', Auth::guard('guest')->id())->exists();
+            return (object) $item;
+        });
+        $groupedResults[__('app.investment_projects')] = $projects;
+    }
+
+    // --- 3. Investment Guides ---
+    $guidePage = $request->input('guide_page', 1);
+    $investment_guides = InvestmentGuide::with('interests')
+        ->whereNull('parent_id')
+        ->where('status_approve', 'approved')
+        ->where('published_at', '<=', now())
+        ->when($keyword, function ($query, $keyword) use ($locale) {
+            return $query->where("name->{$locale}", 'like', "%{$keyword}%");
+        })
+        ->orderBy('published_at', 'desc')
+        ->paginate($perPage, ['*'], 'guide_page', $guidePage)
+        ->appends(['keyword' => $keyword]);
+
+    if ($investment_guides->total() > 0) {
+        $investment_guides->through(function ($item) {
+            $data = $item->toArray();
+            $data['slug'] = $item->slug;
+            $data['name'] = $item->name;
+            $data['description'] = $item->description;
+            $data['type'] = 'guide';
+            $data['is_interested'] = $item->interests()->where('guest_id', Auth::guard('guest')->id())->exists();
+            return (object) $data;
+        });
+        $groupedResults[__('app.investment_guide')] = $investment_guides;
+    }
+
+    $key = $keyword ?? '';
+
+    return view('frontend.home.search', compact(
+        'groupedResults',
+        'key',
+        'setting'
+    ));
+}
 
     protected function ajaxSearch(Request $request)
     {
