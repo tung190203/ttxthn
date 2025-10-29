@@ -24,7 +24,7 @@ class InvestMentGuideController extends Controller
 
         //SEO MOZ
         $setting = Setting::getAllSetting();
-        $setting['menu_active'] = 'cam-nang-dau-tu';
+        $setting['menu_active'] = __('app.investment_guide_link');
         $setting['meta_title'] = ($investment_guide->meta_title) ?: $investment_guide->name;
         $setting['meta_keywords'] = ($investment_guide->meta_keywords) ?: $setting['meta_keywords'];
         $setting['meta_description'] = ($investment_guide->meta_description) ?: $setting['meta_description'];

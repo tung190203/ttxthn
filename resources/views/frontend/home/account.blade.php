@@ -195,18 +195,26 @@
                     <div class="features-slider">
                         <div class="features-slider__container swiper-container">
                           <div class="swiper-wrapper">
+                            @php
+                                $locale = app()->getLocale();
+                            @endphp
+
                             @foreach ($setting['features'] as $item)
-                              <div class="swiper-slide">
-                                <div class="counter">
-                                  <div class="counter__item">
-                                    <div class="counter__icon">
-                                      <img src="{{ $item['icon'] ?? '' }}" alt="" />
+                                <div class="swiper-slide">
+                                    <div class="counter">
+                                        <div class="counter__item">
+                                            <div class="counter__icon">
+                                                <img src="{{ $item['icon'] ?? '' }}" alt="" />
+                                            </div>
+                                            <div class="counter__number">
+                                                {{ $item['title'][$locale] ?? $item['title']['vi'] ?? '0' }}
+                                            </div>
+                                            <div class="counter__title">
+                                                {{ $item['content'][$locale] ?? $item['content']['vi'] ?? '' }}
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="counter__number">{{ $item['title'] ?? '0' }}</div>
-                                    <div class="counter__title">{{ $item['content'] ?? '' }}</div>
-                                  </div>
                                 </div>
-                              </div>
                             @endforeach
                           </div>
                         </div>

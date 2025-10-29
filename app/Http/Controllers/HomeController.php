@@ -131,7 +131,7 @@ class HomeController extends Controller
     public function projects(Request $request)
     {
         $setting = Setting::getAllSetting();
-        $setting['menu_active'] = 'du-an-keu-goi-dau-tu';
+        $setting['menu_active'] = __('app.project_link');
 
         $banners = Widget::getByPosition('HOME_BANNER');
         $list_post_popular = Post::popular(Post::POSTS_TAKE)->whereNull('parent_id')->where('status_approve','approved')->where('published_at', '<=', Carbon::now())->get();
@@ -373,7 +373,7 @@ class HomeController extends Controller
     {
         $setting = Setting::getAllSetting();
         $banners = Widget::getByPosition('HOME_BANNER');
-        $setting['menu_active'] = 'cam-nang-dau-tu';
+        $setting['menu_active'] = __('app.investment_guide_link');
         $locale = app()->getLocale();
         $availableLocales = config('app.available_locales', ['vi', 'en']);
 
@@ -501,7 +501,7 @@ class HomeController extends Controller
 
         // SEO MOZ Cấu hình SEO
         $setting['meta_title'] = 'Liên hệ với chúng tôi';
-        $setting['menu_active'] = 'lien-he';
+        $setting['menu_active'] = __('app.contact_link');
 
         return view('frontend.home.contact', compact('setting'));
     }

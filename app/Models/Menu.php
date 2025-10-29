@@ -35,7 +35,8 @@ class Menu extends Model
 
     public $translatable = [
         'name',
-        'slug'
+        'slug',
+        'custom_link',
     ];
 
     const STATUS_ACTIVE = 1;

@@ -271,7 +271,7 @@
                         </div>
                     </div>
                 </div>
-                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="/cam-nang-dau-tu">{{ __('app.view_more') }}</a>
+                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="{{ __('app.investment_guide_link') }}">{{ __('app.view_more') }}</a>
                 </nav>
             </div>
         </section>

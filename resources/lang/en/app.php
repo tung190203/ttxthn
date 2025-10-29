@@ -118,4 +118,7 @@ return [
     'nationality' => 'Nationality',
     'choice_nationality' => 'Choice nationality',
     'subscribe_project_updates' => 'Subscribe to project updates',
+    'investment_guide_link' => 'investment-guide',
+    'contact_link' => 'contact',
+    'project_link' => 'investment-projects',
 ];

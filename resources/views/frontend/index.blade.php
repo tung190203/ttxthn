@@ -41,12 +41,13 @@
     <meta property="og:title" content="{{ $setting['meta_title'] }}" />
     <meta property="og:description" content="{{ $setting['meta_description'] }}" />
     <meta property="og:url" content="{{ url()->current() }}" />
-    <meta property="og:site_name" content="{{ $setting['site_name'] }}" />
+    {{-- <meta property="og:site_name" content="{{ $setting['site_name'] }}" /> --}}
+    <meta property="og:site_name" content="{{ \App\Models\Setting::getSettingByKey('site_name') }}" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="{{ $setting['meta_title'] }}" />
     <meta name="twitter:url" content="{{ url()->current() }}">
-    <meta name="twitter:site" content="{{ $setting['site_name'] }}">
+    <meta name="twitter:site" content="{{ \App\Models\Setting::getSettingByKey('site_name') }}" >
     @if(!empty($setting['og_image']))
         <meta name="twitter:image" content="{{ url($setting['og_image']) }}">
     @endif
