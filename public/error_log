@@ -281,3 +281,5 @@ Stack trace:
 [24-Sep-2025 07:04:54 UTC] PHP Warning:  Undefined array key "name_en" in /home/arplus/trungtamxttmhn/public/data.php on line 44
 [24-Sep-2025 07:07:45 UTC] PHP Warning:  file_get_contents(vrtour/Cụm Công nghiệp CN2/connectmap.js): Failed to open stream: No such file or directory in /home/arplus/trungtamxttmhn/public/data.php on line 9
 [24-Sep-2025 07:08:02 UTC] PHP Warning:  file_get_contents(vrtour/Cụm Công nghiệp CN2/connectmap.js): Failed to open stream: No such file or directory in /home/arplus/trungtamxttmhn/public/data.php on line 9
+[29-Oct-2025 04:45:38 UTC] PHP Fatal error:  Trait "Spatie\Translatable\HasTranslations" not found in /home/arplus/trungtamxttmhn/app/Models/Menu.php on line 11
+[29-Oct-2025 04:45:41 UTC] PHP Fatal error:  Trait "Spatie\Translatable\HasTranslations" not found in /home/arplus/trungtamxttmhn/app/Models/Menu.php on line 11
