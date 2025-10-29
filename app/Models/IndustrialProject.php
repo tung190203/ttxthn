@@ -5,11 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Http\Request;
+use Spatie\Translatable\HasTranslations;
 
 class IndustrialProject extends Model
 {
 
-    use HasFactory;
+    use HasFactory, HasTranslations;
     protected $table = 'industrial_projects';
 
     protected $fillable = [
@@ -20,6 +21,10 @@ class IndustrialProject extends Model
         'description',
         'product_type',
         'price',
+    ];
+
+    public $translatable = [
+        'description',
     ];
 
     public function project()
