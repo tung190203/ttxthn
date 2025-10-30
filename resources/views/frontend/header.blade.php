@@ -7,7 +7,7 @@
         <div class="container">
             <div class="header__inner">
                 <a class="header__logo" href="{{ route('home_page') }}">
-                    <img src="{{$setting['logo'] ?? ''}}" alt="" />
+                    <img src="{{ \App\Models\Setting::getSettingByKey('logo') }}" alt="" />
                 </a>
                 <div class="header__elements">
                     <div class="header__text">{{ \App\Models\Setting::getSettingByKey('site_name') }}</div>

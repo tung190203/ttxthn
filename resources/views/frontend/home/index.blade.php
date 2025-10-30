@@ -63,7 +63,7 @@
                                     <div class="range-input__price">0</div>
                                 </div>
                                 <input class="range-input__input" id="priceRange" type="range" value="0"
-                                    min="0" max="{{ $maxPrice ?? 100000000000 }}" step="1000000000">
+                                    min="0" max="{{ $maxPrice ?? 10000 }}" step="50">
                             </div>
                         </div>
                     </div>
@@ -121,7 +121,7 @@
                                     <div class="range-input__price1 text-white">0</div>
                                 </div>
                                 <input class="white-range" id="priceRangeSp" type="range" value="0"
-                                    min="0" max="{{ $maxPriceSp ?? 100000000 }}" step="1000000">
+                                    min="0" max="{{ $maxPriceSp ?? 10000 }}" step="50">
                             </div>
                         </div>
                     </div>

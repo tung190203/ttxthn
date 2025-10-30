@@ -51,6 +51,8 @@
                             {{-- TAB TIẾNG VIỆT --}}
                             <div class="tab-pane fade show active" id="tab-vi" role="tabpanel" aria-labelledby="vi-tab">
                                 <h4 class="mt-3">Cài đặt cơ bản (VI)</h4>
+                                <x-forms.upload name="settings[logo][vi]" value="{{ $settings['logo']['vi'] ?? '' }}" label="Logo[VI]"
+                                type="image" />
                                 <x-forms.input name="settings[site_name][vi]" 
                                     value="{{ $settings['site_name']['vi'] ?? '' }}"
                                     label="Site name (VI)" />
@@ -69,6 +71,8 @@
                             {{-- TAB TIẾNG ANH --}}
                             <div class="tab-pane fade" id="tab-en" role="tabpanel" aria-labelledby="en-tab">
                                 <h4 class="mt-3">Cài đặt cơ bản (EN)</h4>
+                                <x-forms.upload name="settings[logo][en]" value="{{ $settings['logo']['en'] ?? '' }}" label="Logo[EN]"
+                                type="image" />
                                 <x-forms.input name="settings[site_name][en]" 
                                     value="{{ $settings['site_name']['en'] ?? '' }}"
                                     label="Site name (EN)" />
@@ -91,8 +95,6 @@
                         {{-- ================================================================= --}}
                         <h4 class="mt-4">Cài đặt Đơn ngữ</h4>
                         <x-forms.upload name="settings[favicon]" value="{{ $settings['favicon'] ?? '' }}" label="Favicon"
-                            type="image" />
-                        <x-forms.upload name="settings[logo]" value="{{ $settings['logo'] ?? '' }}" label="Logo"
                             type="image" />
                         <x-forms.upload name="settings[logo_footer]" value="{{ $settings['logo_footer'] ?? '' }}"
                             label="Logo Footer" type="image" />
