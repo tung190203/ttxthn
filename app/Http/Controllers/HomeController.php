@@ -144,20 +144,35 @@ class HomeController extends Controller
             ];
         })->toArray();
 
-        $list_districts = District::all()->map(function ($district) {
+        $list_districts = District::withCount([
+            'projects as invest_count' => function ($query) {
+                $query->where('is_invest', 1)->where('is_draft', 0);
+            }
+        ])
+        ->get()
+        ->map(function ($district) {
             return [
                 'id' => $district->id,
                 'name' => $district->name,
+                'invest_count' => $district->invest_count,
             ];
-        })->toArray();
+        })
+        ->toArray();        
 
-        $list_industries = ProjectIndustries::all()->map(function ($industry) {
+        $list_industries = ProjectIndustries::withCount([
+            'projects as invest_count' => function ($query) {
+                $query->where('is_invest', 1);
+            }
+        ])
+        ->get()
+        ->map(function ($industry) {
             return [
                 'id' => $industry->id,
                 'name' => $industry->name,
+                'invest_count' => $industry->invest_count,
             ];
-        })->toArray();
-
+        })
+        ->toArray();
         $projects = Project::withRelations()->whereNull('parent_id')->where('status','approved')
             ->when($request->keyword, function ($query) use ($request) {
                 $query->where('name', 'like', '%' . $request->keyword . '%');
