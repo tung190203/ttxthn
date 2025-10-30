@@ -1,4 +1,4 @@
-@props(['name', 'value' => [], 'label' => '', 'messages' => [], 'help' => '', 'editor' => false])
+@props(['name', 'locale' => null, 'value' => [], 'label' => '', 'messages' => [], 'help' => '', 'editor' => false])
 
 @php
     $hasTitles = array_key_exists('titles', $value);
@@ -10,17 +10,22 @@
         ->all();
     $titles = $value['titles'] ?? [];
     $descs = $value['descs'] ?? [];
+    
+    // ✅ Tạo tên field với locale nếu có
+    $imageFieldName = $name . '_images';
+    $titleFieldName = $name . '_titles' . ($locale ? "[{$locale}]" : '');
+    $descFieldName = $name . '_descs' . ($locale ? "[{$locale}]" : '');
 @endphp
 
 <div class="form-group row">
     <label class="col-sm-3 col-form-label">{{ $label }}</label>
     <div class="col-sm-9">
-        <div id="{{ $name }}_wrapper">
+        <div id="{{ $name }}_{{ $locale }}_wrapper">
             <div class="upload-combo-list mb-3">
                 @foreach ($items as $index => $file)
                     @php
                         $isImage = preg_match('/\.(jpg|jpeg|png|gif|webp)$/i', $file);
-                        $descId = $name . '_desc_' . $index;
+                        $descId = $name . '_' . $locale . '_desc_' . $index;
                     @endphp
                     <div class="upload-combo-item mt-4">
                         <div class="position-relative">
@@ -44,16 +49,19 @@
                                     </button>
                                 </div>
                             @endif
-                            <input type="hidden" name="{{ $name }}_images[]" value="{{ $file }}">
+                            {{-- ✅ Chỉ output input ảnh nếu không có locale (đơn ngữ) hoặc locale là firstLocale --}}
+                            @if(!$locale || $locale === config('app.locales') ? array_key_first(config('app.locales')) : null)
+                                <input type="hidden" name="{{ $imageFieldName }}[]" value="{{ $file }}">
+                            @endif
                         </div>
 
                         @if ($hasTitles)
-                            <input type="text" name="{{ $name }}_titles[]" class="form-control mt-2 mb-2" placeholder="Tiêu đề"
+                            <input type="text" name="{{ $titleFieldName }}[]" class="form-control mt-2 mb-2" placeholder="Tiêu đề"
                                 value="{{ $titles[$index] ?? '' }}">
                         @endif
 
                         @if ($hasDescs)
-                            <textarea name="{{ $name }}_descs[]" id="{{ $descId }}" class="form-control mt-2" rows="3"
+                            <textarea name="{{ $descFieldName }}[]" id="{{ $descId }}" class="form-control mt-2" rows="3"
                                 placeholder="Mô tả">{{ $descs[$index] ?? '' }}</textarea>
                             @if ($editor)
                                 <script>
@@ -69,8 +77,8 @@
 
             <!-- Nút thêm file/ảnh -->
             <div class="d-flex justify-content-start">
-                <div id="{{ $name }}_add" class="upload-combo-add text-muted"
-                    onclick="selectFilesWithCKFinder('{{ $name }}', {{ $hasTitles ? 'true' : 'false' }}, {{ $hasDescs ? 'true' : 'false' }}, {{ $editor ? 'true' : 'false' }})">
+                <div id="{{ $name }}_{{ $locale }}_add" class="upload-combo-add text-muted"
+                    onclick="selectFilesWithCKFinder('{{ $name }}', '{{ $locale }}', {{ $hasTitles ? 'true' : 'false' }}, {{ $hasDescs ? 'true' : 'false' }}, {{ $editor ? 'true' : 'false' }})">
                     +
                 </div>
             </div>
@@ -147,7 +155,7 @@
 </style>
 
 <script>
-    function selectFilesWithCKFinder(name, hasTitles = true, hasDescs = true, useEditor = false) {
+    function selectFilesWithCKFinder(name, locale = null, hasTitles = true, hasDescs = true, useEditor = false) {
         CKFinder.modal({
             chooseFiles: true,
             width: 800,
@@ -155,19 +163,32 @@
             onInit: function (finder) {
                 finder.on('files:choose', function (evt) {
                     const files = evt.data.files.models;
-                    const list = document.querySelector(`#${name}_wrapper .upload-combo-list`);
+                    const list = document.querySelector(`#${name}_${locale}_wrapper .upload-combo-list`);
                     let index = list.querySelectorAll('.upload-combo-item').length;
+
+                    // ✅ Xác định tên field với locale
+                    const imageFieldName = name + '_images';
+                    const titleFieldName = name + '_titles' + (locale ? `[${locale}]` : '');
+                    const descFieldName = name + '_descs' + (locale ? `[${locale}]` : '');
+                    
+                    // ✅ Chỉ cho phép upload ảnh ở ngôn ngữ đầu tiên
+                    const locales = {{ Js::from(array_keys(config('app.locales', ['vi' => 'Tiếng Việt']))) }};
+                    const firstLocale = locales[0];
+                    const canUploadImage = !locale || locale === firstLocale;
 
                     files.forEach(function (file) {
                         const url = file.getUrl();
                         const item = document.createElement('div');
                         item.className = 'upload-combo-item mt-4';
 
-                        const descId = `${name}_desc_${index}`;
+                        const descId = `${name}_${locale}_desc_${index}`;
                         const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
 
-                        let html = `
-                            ${isImage ? `
+                        let html = '';
+                        
+                        // ✅ Chỉ hiển thị ảnh/file nếu là ngôn ngữ đầu tiên
+                        if (canUploadImage) {
+                            html += isImage ? `
                                 <div class="position-relative" style="max-width:200px; max-height:150px;">
                                     <img src="${url}" class="rounded" style="max-width:200px; max-height:150px; object-fit:cover;">
                                     <button type="button"
@@ -175,7 +196,7 @@
                                         onclick="removeUploadComboItem(this)">
                                         &times;
                                     </button>
-                                    <input type="hidden" name="${name}_images[]" value="${url}">
+                                    <input type="hidden" name="${imageFieldName}[]" value="${url}">
                                 </div>
                             ` : `
                                 <div class="d-flex align-items-center border rounded p-2 bg-light position-relative" style="max-width:200px; max-height:150px;">
@@ -186,19 +207,17 @@
                                         onclick="removeUploadComboItem(this)">
                                         &times;
                                     </button>
-                                    <input type="hidden" name="${name}_images[]" value="${url}">
+                                    <input type="hidden" name="${imageFieldName}[]" value="${url}">
                                 </div>
-                            `}
-                        `;
+                            `;
+                        }
 
                         if (hasTitles) {
-                            html +=
-                                `<input type="text" name="${name}_titles[]" class="form-control mt-2 mb-2" placeholder="Tiêu đề">`;
+                            html += `<input type="text" name="${titleFieldName}[]" class="form-control mt-2 mb-2" placeholder="Tiêu đề">`;
                         }
 
                         if (hasDescs) {
-                            html +=
-                                `<textarea name="${name}_descs[]" id="${descId}" class="form-control mt-2" rows="3" placeholder="Mô tả"></textarea>`;
+                            html += `<textarea name="${descFieldName}[]" id="${descId}" class="form-control mt-2" rows="3" placeholder="Mô tả"></textarea>`;
                         }
 
                         item.innerHTML = html;
