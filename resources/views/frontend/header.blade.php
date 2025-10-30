@@ -23,7 +23,7 @@
                         <div class="navbar__wrapper">
                             <div class="navbar__header">
                                 <a class="navbar__logo" href="{{ route('home_page') }}">
-                                    <img src="{{$setting['logo']}}" alt="" />
+                                    <img src="{{ \App\Models\Setting::getSettingByKey('logo') }}" alt="" />
                                 </a>
                                 <button class="btn-toggle js-navbar-toggle ms-auto text-white"></button>
                             </div>
