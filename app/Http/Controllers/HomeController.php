@@ -204,6 +204,8 @@ class HomeController extends Controller
 
     public function industrialProjects(Request $request)
     {
+        $setting = Setting::getAllSetting();
+        $setting['menu_active'] = __('app.investment_products_link');
         $industrialProjects = IndustrialProject::with([
             'project:id,name',
             'hotspots',
@@ -228,6 +230,7 @@ class HomeController extends Controller
         $projects = Project::pluck('name', 'id')->toArray();
 
         return view('frontend.home.industrial_project', compact(
+            'setting',
             'industrialProjects',
             'projects'
         ));

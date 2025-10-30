@@ -20,7 +20,7 @@
                             </div>
                         </div>
                         <div class="mb-4">
-                            <div class="fw-600 text-uppercase mb-2">Tên dự án</div>
+                            <div class="fw-600 text-uppercase mb-2">{{ __('app.project_name') }}</div>
 
                             <select class="form-select" name="project_id">
                                 <option value="">{{ __('app.all') }}</option>
@@ -41,14 +41,14 @@
                         @endif
                         @foreach($industrialProjects as $item)
                         <div class="col-6 col-md-4 col-lg-6 col-xl-4">
-                            <div class="project">
-                                <a class="project__frame" href="{{ $item->link }}">
-                                    <img src="{{ $item->hotspots->url ?? asset('/images/project-1.jpg') }}" alt="" /></a>
+                            <div class="project" style="box-shadow: 0 -3px 8px rgba(11, 11, 11, 0.1); overflow: hidden;">
+                                <a class="project__frame" target="_blank" href="{{ $item->link }}">
+                                    <img src="{{ $item->hotspots->url ?? asset('/images/project-1.jpg') }}" style="object-fit: scale-down" alt="" /></a>
                                 <div class="project__body">
-                                    <h3 class="project__title" data-tippy-content="{{$item->name}}"><a href="{{ $item->link }}">{{$item->name}}</a></h3>
+                                    <h3 class="project__title" data-tippy-content="{{$item->description}}"><a href="{{ $item->link }}" target="_blank">{{$item->description}}</a></h3>
                                     <ul class="project__info">
-                                        <li><img class="me-2" src="{{ asset('/images/icon-map-marker.svg') }}" alt="" />
-                                            <span data-tippy-content="{{$item->project->name}}"> {{ __('app.project_under') }}: {{ $item->project->name }} </span>
+                                        <li>
+                                            <span data-tippy-content="{{ __('app.project_under') }}:{{$item->project->name}}"> {{ __('app.project_under') }}: {{ $item->project->name }} </span>
                                         </li>
                                         <li>
                                             <span>{{ __('app.code') }}: {{ $item->code }}</span>

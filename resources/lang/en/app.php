@@ -121,5 +121,7 @@ return [
     'investment_guide_link' => 'investment-guide',
     'contact_link' => 'contact',
     'project_link' => 'investment-projects',
-    'investment_products' => 'Investment products',
+    'investment_products' => 'Industrial products',
+    'investment_products_link' => 'industrial-projects',
+    'project_name' => 'Project Name',
 ];
