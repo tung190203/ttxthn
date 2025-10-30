@@ -118,6 +118,11 @@ class Project extends Model
         return $this->hasMany(IndustrialProject::class);
     }
 
+    public function hotspots()
+    {
+        return $this->hasMany(Hotspot::class, 'vrtour_id', 'id');
+    }
+
     public function draft()
     {
         return $this->hasOne(Project::class, 'parent_id')->where('is_draft', true);

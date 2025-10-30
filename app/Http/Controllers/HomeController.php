@@ -7,6 +7,7 @@ use App\Libs\Validate;
 use App\Models\Category;
 use App\Models\Contact;
 use App\Models\District;
+use App\Models\IndustrialProject;
 use App\Models\Post;
 use App\Models\InvestmentGuide;
 use App\Models\Page;
@@ -201,6 +202,38 @@ class HomeController extends Controller
         ));
     }
 
+    public function industrialProjects(Request $request)
+    {
+        $industrialProjects = IndustrialProject::with([
+            'project:id,name',
+            'hotspots',
+        ])
+            ->when($request->keyword, function ($query) use ($request) {
+                $keyword = '%' . $request->keyword . '%';
+                $query->where(function ($q) use ($keyword) {
+                    $q->where('name', 'like', $keyword)
+                        ->orWhere('code', 'like', $keyword)
+                        ->orWhereHas('project', function ($sub) use ($keyword) {
+                            $sub->where('name', 'like', $keyword);
+                        });
+                });
+            })
+            ->when($request->project_id, function ($query) use ($request) {
+                $query->where('project_id', $request->project_id);
+            })
+            ->orderByDesc('id')
+            ->paginate(IndustrialProject::INDUSTRIAL_PROJECT_PER_PAGE)
+            ->appends($request->all());
+
+        $projects = Project::pluck('name', 'id')->toArray();
+
+        return view('frontend.home.industrial_project', compact(
+            'industrialProjects',
+            'projects'
+        ));
+    }
+
+
     public function projectDetail(Request $request, $slug = null)
     {
         $setting = Setting::getAllSetting();
@@ -305,7 +338,7 @@ class HomeController extends Controller
         ])->toArray();
 
         $list_project_interest = collect();
-        $list_post_interest = []; 
+        $list_post_interest = [];
         if ($user) {
             $interestQuery = $user->interests()
                 ->where('interestable_type', Project::class)
@@ -320,7 +353,7 @@ class HomeController extends Controller
                     $project = $item->interestable;
                     if ($project) {
                         $project->is_interested = true;
-                        $project->name = $project->name; 
+                        $project->name = $project->name;
                         return $project;
                     }
                     return null;
@@ -361,7 +394,7 @@ class HomeController extends Controller
                 })
                 ->filter()
                 ->toArray();
-        } 
+        }
 
         return view('frontend.home.account', compact(
             'setting',
@@ -522,53 +555,53 @@ class HomeController extends Controller
         $data['contact']['loc'] = route('contact');
         $data['contact']['lastmod'] = Carbon::now();
         //
-//        //Category
-//        $key_categories = 'site_map_categories_' . $lang_code;
-//        $categories = Cache::remember($key_categories, $time_cache, function () use ($lang_code) {
-//            return Category::where('state', 1)
-//                ->where('lang_code', $lang_code)
-//                ->select(['id', 'name', 'slug', 'updated_at'])->get();
-//        });
-//        foreach ($categories as $key_c => $category) {
-//            $data['category' . $key_c]['loc'] = Util::url_category($category);
-//            $data['category' . $key_c]['lastmod'] = $category->updated_at;
-//        }
-//
-//        //Product
-//        $key_products = 'site_map_products_' . $lang_code;
-//        $products = Cache::remember($key_products, $time_cache, function () use ($lang_code) {
-//            return Product::where('state', 1)
-//                ->where('lang_code', $lang_code)
-//                ->select(['id', 'name', 'slug', 'updated_at'])->get();
-//        });
-//        foreach ($products as $key_pr => $product) {
-//            $data['product' . $key_pr]['loc'] = Util::url_product($product);
-//            $data['product' . $key_pr]['lastmod'] = $product->updated_at;
-//        }
-//
-//        //Post
-//        $key_posts = 'site_map_posts_' . $lang_code;
-//        $posts = Cache::remember($key_posts, $time_cache, function () use ($lang_code) {
-//            return Post::where('state', 1)
-//                ->where('lang_code', $lang_code)
-//                ->select(['id', 'name', 'slug', 'updated_at'])->get();
-//        });
-//        foreach ($posts as $key_po => $post) {
-//            $data['post' . $key_po]['loc'] = Util::url_post($post);
-//            $data['post' . $key_po]['lastmod'] = $post->updated_at;
-//        }
-//
-//        //Page
-//        $key_pages = 'site_map_pages_' . $lang_code;
-//        $pages = Cache::remember($key_pages, $time_cache, function () use ($lang_code) {
-//            return Page::where('state', 1)
-//                ->where('lang_code', $lang_code)
-//                ->select(['id', 'name', 'slug', 'updated_at'])->get();
-//        });
-//        foreach ($pages as $key_pa => $page) {
-//            $data['page' . $key_pa]['loc'] = Util::url_page($page);
-//            $data['page' . $key_pa]['lastmod'] = $page->updated_at;
-//        }
+        //        //Category
+        //        $key_categories = 'site_map_categories_' . $lang_code;
+        //        $categories = Cache::remember($key_categories, $time_cache, function () use ($lang_code) {
+        //            return Category::where('state', 1)
+        //                ->where('lang_code', $lang_code)
+        //                ->select(['id', 'name', 'slug', 'updated_at'])->get();
+        //        });
+        //        foreach ($categories as $key_c => $category) {
+        //            $data['category' . $key_c]['loc'] = Util::url_category($category);
+        //            $data['category' . $key_c]['lastmod'] = $category->updated_at;
+        //        }
+        //
+        //        //Product
+        //        $key_products = 'site_map_products_' . $lang_code;
+        //        $products = Cache::remember($key_products, $time_cache, function () use ($lang_code) {
+        //            return Product::where('state', 1)
+        //                ->where('lang_code', $lang_code)
+        //                ->select(['id', 'name', 'slug', 'updated_at'])->get();
+        //        });
+        //        foreach ($products as $key_pr => $product) {
+        //            $data['product' . $key_pr]['loc'] = Util::url_product($product);
+        //            $data['product' . $key_pr]['lastmod'] = $product->updated_at;
+        //        }
+        //
+        //        //Post
+        //        $key_posts = 'site_map_posts_' . $lang_code;
+        //        $posts = Cache::remember($key_posts, $time_cache, function () use ($lang_code) {
+        //            return Post::where('state', 1)
+        //                ->where('lang_code', $lang_code)
+        //                ->select(['id', 'name', 'slug', 'updated_at'])->get();
+        //        });
+        //        foreach ($posts as $key_po => $post) {
+        //            $data['post' . $key_po]['loc'] = Util::url_post($post);
+        //            $data['post' . $key_po]['lastmod'] = $post->updated_at;
+        //        }
+        //
+        //        //Page
+        //        $key_pages = 'site_map_pages_' . $lang_code;
+        //        $pages = Cache::remember($key_pages, $time_cache, function () use ($lang_code) {
+        //            return Page::where('state', 1)
+        //                ->where('lang_code', $lang_code)
+        //                ->select(['id', 'name', 'slug', 'updated_at'])->get();
+        //        });
+        //        foreach ($pages as $key_pa => $page) {
+        //            $data['page' . $key_pa]['loc'] = Util::url_page($page);
+        //            $data['page' . $key_pa]['lastmod'] = $page->updated_at;
+        //        }
         $last_mod = data_get($data, 'category0.lastmod', Carbon::now());
         //        dd($data);
 
@@ -769,105 +802,105 @@ class HomeController extends Controller
     // }
 
     public function search(Request $request)
-{
-    $setting = Setting::getAllSetting();
-    $setting['menu_active'] = 'search';
-    $keyword = $request->input('keyword');
-    $locale = app()->getLocale(); // lấy ngôn ngữ hiện tại
+    {
+        $setting = Setting::getAllSetting();
+        $setting['menu_active'] = 'search';
+        $keyword = $request->input('keyword');
+        $locale = app()->getLocale(); // lấy ngôn ngữ hiện tại
 
-    if ($request->ajax() && $request->filled('ajax_type')) {
-        return $this->ajaxSearch($request);
+        if ($request->ajax() && $request->filled('ajax_type')) {
+            return $this->ajaxSearch($request);
+        }
+
+        $groupedResults = [];
+        $perPage = 6;
+
+        // --- 1. Posts ---
+        $postPage = $request->input('post_page', 1);
+        $posts = Post::with('interests')
+            ->whereNull('parent_id')
+            ->where('status_approve', 'approved')
+            ->where('published_at', '<=', now())
+            ->when($keyword, function ($query, $keyword) use ($locale) {
+                return $query->where("name->{$locale}", 'like', "%{$keyword}%");
+            })
+            ->orderBy('published_at', 'desc')
+            ->paginate($perPage, ['*'], 'post_page', $postPage)
+            ->appends(['keyword' => $keyword]);
+
+        if ($posts->total() > 0) {
+            $posts->through(function ($post) {
+                $item = $post->toArray();
+                $item['slug'] = $post->slug;
+                $item['name'] = $post->name;
+                $item['description'] = $post->description;
+                $item['type'] = 'post';
+                $item['is_interested'] = $post->interests()->where('guest_id', Auth::guard('guest')->id())->exists();
+                return (object) $item;
+            });
+            $groupedResults[__('app.news')] = $posts;
+        }
+
+        // --- 2. Projects ---
+        $projectPage = $request->input('project_page', 1);
+        $projects = Project::withRelations()
+            ->whereNull('parent_id')
+            ->where('status', 'approved')
+            ->when($keyword, function ($query, $keyword) use ($locale) {
+                return $query->where("name->{$locale}", 'like', "%{$keyword}%");
+            })
+            ->orderBy('updated_at', 'desc')
+            ->paginate($perPage, ['*'], 'project_page', $projectPage)
+            ->appends(['keyword' => $keyword]);
+
+        if ($projects->total() > 0) {
+            $projects->through(function ($project) {
+                $item = $project->toArray();
+                $item['slug'] = $project->slug;
+                $item['name'] = $project->name;
+                $item['type'] = 'project';
+                $item['districts'] = $project->districts;
+                $item['unit_type_text'] = $project->unit_type_text;
+                $item['is_interested'] = $project->interests()->where('guest_id', Auth::guard('guest')->id())->exists();
+                return (object) $item;
+            });
+            $groupedResults[__('app.investment_projects')] = $projects;
+        }
+
+        // --- 3. Investment Guides ---
+        $guidePage = $request->input('guide_page', 1);
+        $investment_guides = InvestmentGuide::with('interests')
+            ->whereNull('parent_id')
+            ->where('status_approve', 'approved')
+            ->where('published_at', '<=', now())
+            ->when($keyword, function ($query, $keyword) use ($locale) {
+                return $query->where("name->{$locale}", 'like', "%{$keyword}%");
+            })
+            ->orderBy('published_at', 'desc')
+            ->paginate($perPage, ['*'], 'guide_page', $guidePage)
+            ->appends(['keyword' => $keyword]);
+
+        if ($investment_guides->total() > 0) {
+            $investment_guides->through(function ($item) {
+                $data = $item->toArray();
+                $data['slug'] = $item->slug;
+                $data['name'] = $item->name;
+                $data['description'] = $item->description;
+                $data['type'] = 'guide';
+                $data['is_interested'] = $item->interests()->where('guest_id', Auth::guard('guest')->id())->exists();
+                return (object) $data;
+            });
+            $groupedResults[__('app.investment_guide')] = $investment_guides;
+        }
+
+        $key = $keyword ?? '';
+
+        return view('frontend.home.search', compact(
+            'groupedResults',
+            'key',
+            'setting'
+        ));
     }
-
-    $groupedResults = [];
-    $perPage = 6;
-
-    // --- 1. Posts ---
-    $postPage = $request->input('post_page', 1);
-    $posts = Post::with('interests')
-        ->whereNull('parent_id')
-        ->where('status_approve', 'approved')
-        ->where('published_at', '<=', now())
-        ->when($keyword, function ($query, $keyword) use ($locale) {
-            return $query->where("name->{$locale}", 'like', "%{$keyword}%");
-        })
-        ->orderBy('published_at', 'desc')
-        ->paginate($perPage, ['*'], 'post_page', $postPage)
-        ->appends(['keyword' => $keyword]);
-
-    if ($posts->total() > 0) {
-        $posts->through(function ($post) {
-            $item = $post->toArray();
-            $item['slug'] = $post->slug;
-            $item['name'] = $post->name;
-            $item['description'] = $post->description;
-            $item['type'] = 'post';
-            $item['is_interested'] = $post->interests()->where('guest_id', Auth::guard('guest')->id())->exists();
-            return (object) $item;
-        });
-        $groupedResults[__('app.news')] = $posts;
-    }
-
-    // --- 2. Projects ---
-    $projectPage = $request->input('project_page', 1);
-    $projects = Project::withRelations()
-        ->whereNull('parent_id')
-        ->where('status', 'approved')
-        ->when($keyword, function ($query, $keyword) use ($locale) {
-            return $query->where("name->{$locale}", 'like', "%{$keyword}%");
-        })
-        ->orderBy('updated_at', 'desc')
-        ->paginate($perPage, ['*'], 'project_page', $projectPage)
-        ->appends(['keyword' => $keyword]);
-
-    if ($projects->total() > 0) {
-        $projects->through(function ($project) {
-            $item = $project->toArray();
-            $item['slug'] = $project->slug;
-            $item['name'] = $project->name;
-            $item['type'] = 'project';
-            $item['districts'] = $project->districts;
-            $item['unit_type_text'] = $project->unit_type_text;
-            $item['is_interested'] = $project->interests()->where('guest_id', Auth::guard('guest')->id())->exists();
-            return (object) $item;
-        });
-        $groupedResults[__('app.investment_projects')] = $projects;
-    }
-
-    // --- 3. Investment Guides ---
-    $guidePage = $request->input('guide_page', 1);
-    $investment_guides = InvestmentGuide::with('interests')
-        ->whereNull('parent_id')
-        ->where('status_approve', 'approved')
-        ->where('published_at', '<=', now())
-        ->when($keyword, function ($query, $keyword) use ($locale) {
-            return $query->where("name->{$locale}", 'like', "%{$keyword}%");
-        })
-        ->orderBy('published_at', 'desc')
-        ->paginate($perPage, ['*'], 'guide_page', $guidePage)
-        ->appends(['keyword' => $keyword]);
-
-    if ($investment_guides->total() > 0) {
-        $investment_guides->through(function ($item) {
-            $data = $item->toArray();
-            $data['slug'] = $item->slug;
-            $data['name'] = $item->name;
-            $data['description'] = $item->description;
-            $data['type'] = 'guide';
-            $data['is_interested'] = $item->interests()->where('guest_id', Auth::guard('guest')->id())->exists();
-            return (object) $data;
-        });
-        $groupedResults[__('app.investment_guide')] = $investment_guides;
-    }
-
-    $key = $keyword ?? '';
-
-    return view('frontend.home.search', compact(
-        'groupedResults',
-        'key',
-        'setting'
-    ));
-}
 
     protected function ajaxSearch(Request $request)
     {
