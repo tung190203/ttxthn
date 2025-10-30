@@ -43,7 +43,7 @@ class Setting extends Model
 
         foreach ($settings as $setting) {
             // Danh sách các key đa ngôn ngữ đơn giản (cần lấy full mảng ['vi' => '...', 'en' => '...'] cho View)
-            $multiLangKeys = ['site_name', 'footer_info', 'copyright_notice', 'copyright','address', 'social_title'];
+            $multiLangKeys = ['site_name', 'footer_info', 'copyright_notice', 'copyright','address', 'social_title', 'logo'];
 
             if ($setting->skey === 'banners' || $setting->skey === 'features') {
                 // Các trường phức tạp (JSON array): Chỉ lấy giá trị của ngôn ngữ hiện tại
