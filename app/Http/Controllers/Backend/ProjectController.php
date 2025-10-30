@@ -201,7 +201,7 @@ class ProjectController extends Controller
             $validationRules["name.{$locale}"] = $locale === $firstLocale ? 'required|max:255' : 'nullable|max:255';
             
             // Slug: Không cần validate unique ở đây, xử lý thủ công sau
-            $validationRules["slug.{$locale}"] = 'nullable|alpha_dash|max:255'; 
+            $validationRules["slug.{$locale}"] = 'nullable|alpha_dash|max:255';
 
             // Short_desc & Description: Bắt buộc cho ngôn ngữ chính
             $validationRules["short_desc.{$locale}"] = $locale === $firstLocale ? 'required' : 'nullable';
@@ -275,7 +275,7 @@ class ProjectController extends Controller
         
         foreach (array_keys($locales) as $locale) {
             $translatableData['name'][$locale] = $request->input("name.{$locale}");
-            $translatableData['slug'][$locale] = $request->input("slug.{$locale}");
+            $translatableData['slug'][$locale] = $request->input("slug.vi");
             $translatableData['short_desc'][$locale] = $request->input("short_desc.{$locale}");
             $translatableData['description'][$locale] = $request->input("description.{$locale}");
             $translatableData['design_short_desc'][$locale] = $request->input("design_short_desc.{$locale}");

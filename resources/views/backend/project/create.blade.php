@@ -175,7 +175,9 @@
                                             onkeyup="changeNameToSlug('name[{{ $locale }}]', 'slug[{{ $locale }}]', false)" 
                                             :messages="$errors->get('name.'.$locale)" />
                                             
-                                        <x-forms.input name="slug[{{ $locale }}]" 
+                                        <x-forms.input
+                                            type="hidden"
+                                            name="slug[{{ $locale }}]" 
                                             value="{{ old('slug.'.$locale) ?: $project->getTranslation('slug', $locale, false) }}" 
                                             label="Slug ({{ $label }})"
                                             :messages="$errors->get('slug.'.$locale)" />
