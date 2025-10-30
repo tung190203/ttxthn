@@ -205,19 +205,22 @@ class HomeController extends Controller
     {
         $setting = Setting::getAllSetting();
         $setting['menu_active'] = 'du-an-keu-goi-dau-tu';
+        $locate = app()->getLocale();
+        if($locate == 'vn'){
+            $locate = 'vi';
+        }
 
         $banners = Widget::getByPosition('HOME_BANNER');
         $list_post_popular = Post::popular(Post::POSTS_TAKE)->whereNull('parent_id')->where('status_approve','approved')->where('published_at', '<=', Carbon::now())
             ->orderBy('published_at', 'desc')
             ->get();
 
-        $local = app()->getLocale();
         $availableLocales = config('app.available_locales', ['vi', 'en']);
         $project = Project::with(['type', 'industry', 'districts', 'plan'])
-            ->where(function ($query) use ($slug, $local, $availableLocales) {
-                $query->where("slug->{$local}", $slug);
+            ->where(function ($query) use ($slug, $locate, $availableLocales) {
+                $query->where("slug->{$locate}", $slug);
                 foreach ($availableLocales as $loc) {
-                    if ($loc !== $local) {
+                    if ($loc !== $locate) {
                         $query->orWhere("slug->{$loc}", $slug);
                     }
                 }
@@ -237,8 +240,8 @@ class HomeController extends Controller
             ->whereNull('parent_id')
             ->where('status_approve','approved')
             ->where('published_at', '<=', Carbon::now())
-            ->whereHas('projects', function ($q) use ($slug) {
-                $q->where('slug', $slug);
+            ->whereHas('projects', function ($q) use ($slug, $locate) {
+                $q->where("slug->{$locate}", $slug);
             })
             ->orderBy('published_at', 'desc')
             ->get()
@@ -253,8 +256,8 @@ class HomeController extends Controller
             ->where('published_at', '<=', Carbon::now())
             ->whereNull('parent_id')
             ->where('status_approve','approved')
-            ->whereHas('projects', function ($q) use ($slug) {
-                $q->where('slug', $slug);
+            ->whereHas('projects', function ($q) use ($slug, $locate) {
+                $q->where("slug->{$locate}", $slug);
             })
             ->orderByDesc('published_at')
             ->get()
