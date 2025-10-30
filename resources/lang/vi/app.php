@@ -120,5 +120,6 @@ return [
     'subscribe_project_updates' => 'Đăng ký nhận thông tin các dự án',
     'investment_guide_link' => 'cam-nang-dau-tu',
     'contact_link' => 'lien-he',
-    'project_link' => 'du-an-keu-goi-dau-tu'
+    'project_link' => 'du-an-keu-goi-dau-tu',
+    'investment_products' => 'Sản phẩm đầu tư',
 ];
