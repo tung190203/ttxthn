@@ -122,4 +122,6 @@ return [
     'contact_link' => 'lien-he',
     'project_link' => 'du-an-keu-goi-dau-tu',
     'investment_products' => 'Sản phẩm đầu tư',
+    'investment_products_link' => 'san-pham-dau-tu',
+    'project_name' => 'Tên dự án',
 ];
