@@ -12,7 +12,8 @@ class IndustrialProject extends Model
 
     use HasFactory, HasTranslations;
     protected $table = 'industrial_projects';
-
+    const INDUSTRIAL_PROJECT_PER_PAGE = 9;
+    
     protected $fillable = [
         'project_id',
         'name',
@@ -32,6 +33,10 @@ class IndustrialProject extends Model
         return $this->belongsTo(Project::class, 'project_id', 'id');
     }
 
+    public function hotspots()
+    {
+        return $this->hasOne(Hotspot::class, 'potision', 'code');
+    }
     public function productType()
     {
         return $this->belongsTo(ProductType::class, 'product_type', 'id');
@@ -105,4 +110,10 @@ class IndustrialProject extends Model
                 })
             );
     }
+//     public function hotspots()
+// {
+//     // dd($this);
+//     return $this->hasMany(Hotspot::class, 'vrtour_id', 'vrtour_id')
+//                 ->where('potision', 'like', 'cmss%');
+// }
 }
