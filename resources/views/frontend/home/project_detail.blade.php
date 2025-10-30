@@ -21,12 +21,13 @@
                 </nav>
                 <img class="pj-banner__bg" src="{{ $project->banner_image ?? 'default-banner.jpg' }}" alt="">
                 <div class="pj-banner__wrapper">
-                    <div class="container">
-                        <div class="pj-banner__subtitle">{{ __('app.projects') }}</div>
-                        <div class="pj-banner__title">{{ $project->name }}</div>
+                    <div class="container" style="text-align: center;">
+                        <div style="background: rgba(255, 255, 255, 0.349);border-radius:8px;padding:10px 20px;display: inline-block;">
+                            <div class="pj-banner__subtitle">{{ __('app.projects') }}</div>
+                            <div class="pj-banner__title">{{ $project->name }}</div>
+                        </div>
                         <div class="pj-banner__separator"></div>
-                        <div class="pj-banner__desc">{{ $project->short_desc ?? '' }}</div>
-                        <div class="pj-banner__icon"><i class="fal fa-arrow-down"></i></div>
+                        <div class="pj-banner__desc" style="background: white;border-radius:8px;padding:10px 20px;opacity: 0.9; text-align: justify;">{{ $project->short_desc ?? '' }}</div>
                     </div>
                 </div>
             </section>
@@ -43,10 +44,12 @@
                 </nav>
                 <img class="pj-banner__bg" src="{{ $project->banner_image ?? 'default-banner.jpg' }}" alt="">
                 <div class="pj-banner__wrapper custom-wrapper">
-                    <div class="container">
-                        <div class="pj-banner__subtitle text-end">{{ __('app.projects') }}</div>
-                        <div class="pj-banner__title text-end">{{ $project->name }}</div>
-                        <div class="custom_desc">{{ $project->short_desc ?? '' }}</div>
+                    <div class="container" style="text-align: right;">
+                        <div style="background: rgba(255, 255, 255, 0.349);border-radius:8px;padding:10px 20px;display: inline-block;text-align: right;">
+                            <div class="pj-banner__subtitle text-end">{{ __('app.projects') }}</div>
+                            <div class="pj-banner__title text-end">{{ $project->name }}</div>
+                        </div>
+                        <div class="custom_desc" style="text-align:start">{{ $project->short_desc ?? '' }}</div>
                     </div>
                 </div>
             </section>
@@ -64,8 +67,10 @@
                 <img class="pj-banner__bg" src="{{ $project->banner_image ?? 'default-banner.jpg' }}" alt="">
                 <div class="pj-banner__wrapper custom-wrapper">
                     <div class="container">
-                        <div class="pj-banner__subtitle text-start">{{ __('app.projects') }}</div>
-                        <div class="pj-banner__title text-start">{{ $project->name }}</div>
+                        <div style="background: rgba(255, 255, 255, 0.349);border-radius:8px;padding:10px 20px;display: inline-block;text-align: left;">
+                            <div class="pj-banner__subtitle text-start">{{ __('app.projects') }}</div>
+                            <div class="pj-banner__title text-start">{{ $project->name }}</div>
+                        </div>
                         <div class="d-flex justify-content-end">
                             <div class="custom_desc">{{ $project->short_desc ?? '' }}</div>
                         </div>

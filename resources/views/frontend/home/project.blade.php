@@ -86,7 +86,9 @@
                                             <input class="checkbox-styled__input" type="checkbox" name="industries[]" value="{{ $industry['id'] }}"
                                                 {{ is_array(request('industries')) && in_array($industry['id'], request('industries')) ? 'checked' : '' }}>
                                             <span class="checkbox-styled__icon"></span>
-                                            <span>{{ $industry['name'] }}</span>
+                                            <span>{{ $industry['name'] }}
+                                                <span class="badge bg-danger ms-2">{{ $industry['invest_count'] }}</span>
+                                            </span>
                                         </label>
                                     </div>
                                 @endforeach
@@ -97,7 +99,7 @@
                                 <select class="form-select" name="district_id">
                                     <option value="">{{ __('app.select_ward_commune') }}</option>
                                     @foreach ($list_districts as $item)
-                                        <option value="{{ $item['id'] }}" {{ request('district_id') == $item['id'] ? 'selected' : '' }}>{{ $item['name'] }}</option>
+                                        <option value="{{ $item['id'] }}" {{ request('district_id') == $item['id'] ? 'selected' : '' }}>{{ $item['name'] }} ({{ $item['invest_count'] }})</option>
                                     @endforeach
                                 </select>
                             </div>

@@ -22433,7 +22433,7 @@ a.ratio {
 .header.is-sticky .header__logo img,
 .header.is-sticky .navbar__logo img {
     height: 38px;
-    margin: 0 0 -41px 0;
+    margin: 0 calc(100% - 1.25rem) -41px 0;
 }
 
 .footer__inner {
