@@ -176,572 +176,314 @@ class ProjectController extends Controller
         ));
     }
 
-    // public function save(Project $project, Request $request)
-    // {
-    //     $user = auth('web')->user();
-
-    //     if ($project->exists && !Gate::allows('project/edit', $project)) {
-    //         abort(403, self::MESSAGE_UNAUTHORIZED);
-    //     }
-    //     if (!$project->exists && !Gate::allows('project/add')) {
-    //         abort(403, self::MESSAGE_UNAUTHORIZED);
-    //     }
-
-    //     $locales = config('app.locales', ['vi' => 'Tiếng Việt', 'en' => 'Tiếng Anh']);
-    //     $firstLocale = array_key_first($locales);
-    //     $validationRules = [];
-    //     $translatableFields = [
-    //         'name', 'slug', 'short_desc', 'description', 'design_short_desc', 'legal_short_desc', 
-    //         'advantage_titles', 'advantage_descs', 'design_descs', 'files_descs' // Xử lý các trường array/JSON sau
-    //     ];
-
-    //     // 1. Validation cho các trường đa ngôn ngữ
-    //     foreach (array_keys($locales) as $locale) {
-    //         // Name: Bắt buộc cho ngôn ngữ chính
-    //         $validationRules["name.{$locale}"] = $locale === $firstLocale ? 'required|max:255' : 'nullable|max:255';
-            
-    //         // Slug: Không cần validate unique ở đây, xử lý thủ công sau
-    //         $validationRules["slug.{$locale}"] = 'nullable|alpha_dash|max:255';
-
-    //         // Short_desc & Description: Bắt buộc cho ngôn ngữ chính
-    //         $validationRules["short_desc.{$locale}"] = $locale === $firstLocale ? 'required' : 'nullable';
-    //         $validationRules["description.{$locale}"] = $locale === $firstLocale ? 'required' : 'nullable';
-            
-    //         // Các trường còn lại (mô tả ngắn thiết kế, pháp lý)
-    //         $validationRules["design_short_desc.{$locale}"] = 'nullable';
-    //         $validationRules["legal_short_desc.{$locale}"] = 'nullable|string';
-
-    //         // Các trường dạng array/JSON
-    //         $validationRules["advantage_titles.{$locale}"] = 'nullable|array';
-    //         $validationRules["advantage_titles.{$locale}.*"] = 'nullable|string';
-    //         $validationRules["advantage_descs.{$locale}"] = 'nullable|array';
-    //         $validationRules["advantage_descs.{$locale}.*"] = 'nullable';
-    //         $validationRules["design_descs.{$locale}"] = 'nullable|array';
-    //         $validationRules["design_descs.{$locale}.*"] = 'nullable';
-    //         $validationRules["files_descs.{$locale}"] = 'nullable|array';
-    //         $validationRules["files_descs.{$locale}.*"] = 'nullable';
-    //     }
-
-    //     // 2. Validation cho các trường đơn ngữ
-    //     $validationRules = array_merge($validationRules, [
-    //         'banner_image' => 'nullable|max:2048',
-    //         'detail_image' => 'nullable|max:2048',
-    //         'lat' => 'nullable|numeric',
-    //         'lng' => 'nullable|numeric',
-    //         'area' => 'nullable|numeric|min:0',
-    //         'unit' => 'nullable|integer',
-    //         'type_number' => 'nullable|integer|min:0|exists:project_types,id',
-    //         'industry_number' => 'nullable|integer|min:0|exists:project_industries,id',
-    //         'price' => 'nullable|numeric|min:0',
-    //         'link' => 'nullable|url',
-    //         'location_image' => 'nullable|max:2048',
-    //         'districts' => 'nullable|array',
-    //         'districts.*' => 'integer|exists:districts,id',
-    //         'advantage_images' => 'nullable|array',
-    //         'advantage_images.*' => 'nullable',
-    //         'design_images' => 'nullable|array',
-    //         'design_images.*' => 'nullable|max:2048',
-    //         'files_images' => 'nullable|array',
-    //         'files_images.*' => 'nullable|max:10240',
-    //         'link_vrtour' => 'nullable|url',
-    //         'link_sand_table' => 'nullable|url',
-    //         'layout_id' => 'required|integer|min:1|max:3',
-    //         'is_invest' => 'nullable|boolean',
-    //         'is_pinned' => 'nullable|boolean',
-    //         'pin_order' => 'nullable|integer|min:1',
-    //     ]);
-
-    //     $validated = $request->validate($validationRules);
-
-    //     // ✅ Chuẩn hoá ảnh dạng array → chuỗi nối (TRƯỜNG ĐƠN NGỮ)
-    //     // **Lưu ý:** Chỉ lưu ảnh/file vào các trường đơn ngữ (không đa ngôn ngữ)
-    //     if ($request->filled('advantage_images')) {
-    //         $validated['advantage_images'] = implode(';', array_map('trim', $request->advantage_images));
-    //     }
-    //     if ($request->filled('design_images')) {
-    //         $validated['design_images'] = implode(';', array_map('trim', $request->design_images));
-    //     }
-    //     // $validated['legal_file'] là trường đa ngôn ngữ, chỉ lưu file/ảnh vào trường đơn ngữ
-    //     if ($request->filled('files_images')) {
-    //         $validated['legal_file_single'] = implode(';', array_map('trim', $request->files_images));
-    //     } else {
-    //         // Cần set lại nếu không filled để tránh lỗi
-    //         $validated['legal_file_single'] = null;
-    //     }
-
-    //     // Chuẩn bị data đa ngôn ngữ
-    //     $translatableData = [];
-    //     $translatableJsonFields = ['advantage_titles', 'advantage_descs', 'design_descs', 'files_descs'];
-        
-    //     foreach (array_keys($locales) as $locale) {
-    //         $translatableData['name'][$locale] = $request->input("name.{$locale}");
-    //         $translatableData['slug'][$locale] = $request->input("slug.vi");
-    //         $translatableData['short_desc'][$locale] = $request->input("short_desc.{$locale}");
-    //         $translatableData['description'][$locale] = $request->input("description.{$locale}");
-    //         $translatableData['design_short_desc'][$locale] = $request->input("design_short_desc.{$locale}");
-    //         $translatableData['legal_short_desc'][$locale] = $request->input("legal_short_desc.{$locale}");
-            
-    //         // Xử lý JSON/Array fields: Lấy array, trim và json_encode cho từng ngôn ngữ
-    //         foreach ($translatableJsonFields as $field) {
-    //             $arrayData = $request->input("{$field}.{$locale}");
-    //             if (is_array($arrayData)) {
-    //                 $translatableData[$field][$locale] = json_encode(array_map('trim', $arrayData));
-    //             } else {
-    //                 $translatableData[$field][$locale] = null;
-    //             }
-    //         }
-    //     }
-        
-    //     // Cần ánh xạ lại tên trường trong model so với request
-    //     $translatableData['advantage_descriptions'] = $translatableData['advantage_descs'];
-    //     $translatableData['design_description'] = $translatableData['design_descs'];
-    //     $translatableData['legal_description'] = $translatableData['files_descs'];
-    //     unset($translatableData['advantage_descs'], $translatableData['design_descs'], $translatableData['files_descs']);
-
-    //     try {
-    //         if (!$project->exists) {
-    //             // 🟩 Tạo bản chính mới
-    //             $project->fill($validated);
-    //             // Gán trường đơn ngữ legal_file_single cho trường legal_file (giả định đây là nơi lưu danh sách file)
-    //             $project->legal_file = $validated['legal_file_single'] ?? null;
-                
-    //             // Gán các trường đa ngôn ngữ
-    //             foreach ($translatableData as $key => $values) {
-    //                 $project->setTranslations($key, $values);
-    //             }
-                
-    //             // Trạng thái duyệt
-    //             $project->approval_level = $user->is_super_admin ? 2 : ($user->is_approve ? 1 : 0);
-    //             $project->max_approval = 2;
-    //             $project->is_draft = false;
-    //             $project->status = $user->is_super_admin ? 'approved' : 'pending';
-
-    //             // Tạo slug unique cho ngôn ngữ chính
-    //             $slug = $project->getTranslation('slug', $firstLocale) ?: Str::slug($project->getTranslation('name', $firstLocale));
-    //             $originalSlug = $slug;
-    //             $counter = 1;
-    //             while (Project::where('slug', $slug)->exists()) {
-    //                 $slug = $originalSlug . '-' . $counter++;
-    //             }
-    //             $project->setTranslation('slug', $firstLocale, $slug);
-                
-    //             $project->save();
-
-    //             if ($request->filled('districts')) {
-    //                 $project->districts()->sync($request->input('districts'));
-    //             }
-
-    //             if (Gate::allows('project/add')) {
-    //                 $this->addProjectToScope($user, $project->id);
-    //             }
-    //         } else {
-    //             if ($user->is_super_admin) {
-    //                 // 🟦 Super admin merge nháp vào bản chính
-    //                 $mainProject = $project->parent_id ? Project::find($project->parent_id) : $project;
-
-    //                 // Merge dữ liệu đơn ngữ
-    //                 $mainProject->fill($validated);
-    //                 $mainProject->legal_file = $validated['legal_file_single'] ?? $mainProject->legal_file;
-
-    //                 // Gán các trường đa ngôn ngữ
-    //                 foreach ($translatableData as $key => $values) {
-    //                     $mainProject->setTranslations($key, $values);
-    //                 }
-
-    //                 // Reset duyệt
-    //                 $mainProject->approval_level = $mainProject->max_approval;
-    //                 $mainProject->status = 'approved';
-    //                 $mainProject->is_draft = false;
-    //                 $mainProject->parent_id = null;
-
-    //                 // Slug unique cho ngôn ngữ chính (loại bỏ -draft)
-    //                 $requestedSlug = $mainProject->getTranslation('slug', $firstLocale) ?: Str::slug($mainProject->getTranslation('name', $firstLocale));
-    //                 $slug = preg_replace('/-draft$/', '', Str::slug($requestedSlug));
-    //                 $originalSlug = $slug;
-    //                 $counter = 1;
-    //                 while (Project::where('slug', $slug)->where('id', '<>', $mainProject->id)->exists()) {
-    //                     $slug = $originalSlug . '-' . $counter++;
-    //                 }
-    //                 $mainProject->setTranslation('slug', $firstLocale, $slug);
-
-    //                 $mainProject->save();
-
-    //                 // Đồng bộ districts
-    //                 if (isset($validated['districts'])) {
-    //                     $mainProject->districts()->sync($validated['districts']);
-    //                 } else {
-    //                     $mainProject->districts()->detach();
-    //                 }
-
-    //                 // Xoá toàn bộ nháp cũ
-    //                 $drafts = Project::where('parent_id', $mainProject->id)->get();
-    //                 foreach ($drafts as $draft) {
-    //                     $this->removeProjectFromScope($draft->id);
-    //                     $draft->delete();
-    //                 }
-
-    //                 $project = $mainProject;
-    //             } else {
-    //                 // 🟨 Người dùng thường
-    //                 if ($project->status === 'approved' && !$project->is_draft) {
-    //                     // Bản chính đã duyệt → tạo nháp mới
-    //                     $draft = $project->replicate();
-    //                     $draft->fill($validated); // Sao chép các trường đơn ngữ
-    //                     $draft->legal_file = $validated['legal_file_single'] ?? $project->legal_file;
-                        
-    //                     // Copy các trường đa ngôn ngữ từ bản chính
-    //                     $translatableKeys = array_keys($translatableData);
-    //                     foreach ($translatableKeys as $key) {
-    //                         $draft->setTranslations($key, $project->getTranslations($key));
-    //                     }
-                        
-    //                     $draft->is_draft = true;
-    //                     $draft->status = 'pending';
-    //                     $draft->approval_level = $user->is_approve ? 1 : 0;
-    //                     $draft->parent_id = $project->id;
-                        
-    //                     // Thêm hậu tố '-draft' vào slug của bản nháp (ngôn ngữ chính)
-    //                     $currentSlug = $draft->getTranslation('slug', $firstLocale) ?: Str::slug($draft->getTranslation('name', $firstLocale));
-    //                     $draft->setTranslation('slug', $firstLocale, $currentSlug . '-draft');
-
-    //                     $draft->save();
-
-    //                     // Cập nhật nháp với dữ liệu mới từ request (bao gồm đa ngôn ngữ)
-    //                     $draft->fill($validated);
-    //                     $draft->legal_file = $validated['legal_file_single'] ?? $draft->legal_file;
-    //                     foreach ($translatableData as $key => $values) {
-    //                         $draft->setTranslations($key, $values);
-    //                     }
-    //                     $draft->save();
-
-    //                     if ($request->filled('districts')) {
-    //                         $draft->districts()->sync($request->input('districts'));
-    //                     }
-
-    //                     if (Gate::allows('project/add')) {
-    //                         $this->addProjectToScope($user, $draft->id);
-    //                     }
-
-    //                     $project = $draft;
-    //                 } else {
-    //                     // Cập nhật bản hiện tại (nháp/chưa duyệt)
-    //                     $project->fill($validated);
-    //                     $project->legal_file = $validated['legal_file_single'] ?? $project->legal_file;
-
-    //                     foreach ($translatableData as $key => $values) {
-    //                         $project->setTranslations($key, $values);
-    //                     }
-                        
-    //                     $project->status = 'pending';
-    //                     $project->approval_level = $user->is_approve ? 1 : 0;
-    //                     $project->save();
-
-    //                     if ($request->filled('districts')) {
-    //                         $project->districts()->sync($request->input('districts'));
-    //                     } else {
-    //                         $project->districts()->detach();
-    //                     }
-    //                 }
-    //             }
-    //         }
-
-    //         return redirect()
-    //             ->route('backend_project_edit', $project)
-    //             ->with('success', 'Lưu dữ liệu thành công ' . (
-    //                 $user->is_super_admin ? '(Đã duyệt)' : ($user->is_approve ? '(Chờ duyệt cấp 2)' : '')
-    //             ));
-    //     } catch (\Exception $e) {
-    //         return redirect()->back()->withInput()->withErrors(['error' => 'Lỗi khi lưu dữ liệu: ' . $e->getMessage()]);
-    //     }
-    // }
-
     public function save(Project $project, Request $request)
-{
-    $user = auth('web')->user();
+    {
+        $user = auth('web')->user();
 
-    if ($project->exists && !Gate::allows('project/edit', $project)) {
-        abort(403, self::MESSAGE_UNAUTHORIZED);
-    }
-    if (!$project->exists && !Gate::allows('project/add')) {
-        abort(403, self::MESSAGE_UNAUTHORIZED);
-    }
+        if ($project->exists && !Gate::allows('project/edit', $project)) {
+            abort(403, self::MESSAGE_UNAUTHORIZED);
+        }
+        if (!$project->exists && !Gate::allows('project/add')) {
+            abort(403, self::MESSAGE_UNAUTHORIZED);
+        }
 
-    $locales = config('app.locales', ['vi' => 'Tiếng Việt', 'en' => 'Tiếng Anh']);
-    $firstLocale = array_key_first($locales);
-    $validationRules = [];
-    $translatableFields = [
-        'name', 'slug', 'short_desc', 'description', 'design_short_desc', 'legal_short_desc', 
-        'advantage_titles', 'advantage_descs', 'design_descs', 'files_descs'
-    ];
+        $locales = config('app.locales', ['vi' => 'Tiếng Việt', 'en' => 'Tiếng Anh']);
+        $firstLocale = array_key_first($locales);
+        $validationRules = [];
+        $translatableFields = [
+            'name',
+            'slug',
+            'short_desc',
+            'description',
+            'design_short_desc',
+            'legal_short_desc',
+            'advantage_titles',
+            'advantage_descs',
+            'design_descs',
+        ];
 
-    // 1. Validation cho các trường đa ngôn ngữ
-    foreach (array_keys($locales) as $locale) {
-        // Name: Bắt buộc cho ngôn ngữ chính
-        $validationRules["name.{$locale}"] = $locale === $firstLocale ? 'required|max:255' : 'nullable|max:255';
-        
-        // Slug: Không cần validate unique ở đây, xử lý thủ công sau
-        $validationRules["slug.{$locale}"] = 'nullable|alpha_dash|max:255';
+        // 1. Validation cho các trường đa ngôn ngữ
+        foreach (array_keys($locales) as $locale) {
+            // Name: Bắt buộc cho ngôn ngữ chính
+            $validationRules["name.{$locale}"] = $locale === $firstLocale ? 'required|max:255' : 'nullable|max:255';
 
-        // Short_desc & Description: Bắt buộc cho ngôn ngữ chính
-        $validationRules["short_desc.{$locale}"] = $locale === $firstLocale ? 'required' : 'nullable';
-        $validationRules["description.{$locale}"] = $locale === $firstLocale ? 'required' : 'nullable';
-        
-        // Các trường còn lại (mô tả ngắn thiết kế, pháp lý)
-        $validationRules["design_short_desc.{$locale}"] = 'nullable';
-        $validationRules["legal_short_desc.{$locale}"] = 'nullable|string';
+            // Slug: Không cần validate unique ở đây, xử lý thủ công sau
+            $validationRules["slug.{$locale}"] = 'nullable|alpha_dash|max:255';
 
-        // Các trường dạng array/JSON
-        $validationRules["advantage_titles.{$locale}"] = 'nullable|array';
-        $validationRules["advantage_titles.{$locale}.*"] = 'nullable|string';
-        $validationRules["advantage_descs.{$locale}"] = 'nullable|array';
-        $validationRules["advantage_descs.{$locale}.*"] = 'nullable';
-        $validationRules["design_descs.{$locale}"] = 'nullable|array';
-        $validationRules["design_descs.{$locale}.*"] = 'nullable';
-        $validationRules["files_descs.{$locale}"] = 'nullable|array';
-        $validationRules["files_descs.{$locale}.*"] = 'nullable';
-    }
+            // Short_desc & Description: Bắt buộc cho ngôn ngữ chính
+            $validationRules["short_desc.{$locale}"] = $locale === $firstLocale ? 'required' : 'nullable';
+            $validationRules["description.{$locale}"] = $locale === $firstLocale ? 'required' : 'nullable';
 
-    // 2. Validation cho các trường đơn ngữ
-    $validationRules = array_merge($validationRules, [
-        'banner_image' => 'nullable|max:2048',
-        'detail_image' => 'nullable|max:2048',
-        'lat' => 'nullable|numeric',
-        'lng' => 'nullable|numeric',
-        'area' => 'nullable|numeric|min:0',
-        'unit' => 'nullable|integer',
-        'type_number' => 'nullable|integer|min:0|exists:project_types,id',
-        'industry_number' => 'nullable|integer|min:0|exists:project_industries,id',
-        'price' => 'nullable|numeric|min:0',
-        'link' => 'nullable|url',
-        'location_image' => 'nullable|max:2048',
-        'districts' => 'nullable|array',
-        'districts.*' => 'integer|exists:districts,id',
-        'advantage_images' => 'nullable|array',
-        'advantage_images.*' => 'nullable',
-        'design_images' => 'nullable|array',
-        'design_images.*' => 'nullable|max:2048',
-        'files_images' => 'nullable|array',
-        'files_images.*' => 'nullable|max:10240',
-        'link_vrtour' => 'nullable|url',
-        'link_sand_table' => 'nullable|url',
-        'layout_id' => 'required|integer|min:1|max:3',
-        'is_invest' => 'nullable|boolean',
-        'is_pinned' => 'nullable|boolean',
-        'pin_order' => 'nullable|integer|min:1',
-    ]);
+            // Các trường còn lại (mô tả ngắn thiết kế, pháp lý)
+            $validationRules["design_short_desc.{$locale}"] = 'nullable';
+            $validationRules["legal_short_desc.{$locale}"] = 'nullable|string';
 
-    $validated = $request->validate($validationRules);
-    // ✅ Chuẩn hoá ảnh dạng array → chuỗi nối (TRƯỜNG ĐƠN NGỮ)
-    if ($request->has('advantage_images') && is_array($request->advantage_images)) {
-        $validated['advantage_images'] = implode(';', array_filter(array_map('trim', $request->advantage_images)));
-    } else {
-        $validated['advantage_images'] = $project->advantage_images ?? null; // Giữ nguyên giá trị cũ
-    }
-    
-    if ($request->has('design_images') && is_array($request->design_images)) {
-        $validated['design_images'] = implode(';', array_filter(array_map('trim', $request->design_images)));
-    } else {
-        $validated['design_images'] = $project->design_images ?? null;
-    }
-    
-    if ($request->has('files_images') && is_array($request->files_images)) {
-        $validated['legal_file_single'] = implode(';', array_filter(array_map('trim', $request->files_images)));
-    } else {
-        $validated['legal_file_single'] = $project->legal_file ?? null;
-    }
+            // Các trường dạng array/JSON
+            $validationRules["advantage_titles.{$locale}"] = 'nullable|array';
+            $validationRules["advantage_titles.{$locale}.*"] = 'nullable|string';
+            $validationRules["advantage_descs.{$locale}"] = 'nullable|array';
+            $validationRules["advantage_descs.{$locale}.*"] = 'nullable';
+            $validationRules["design_descs.{$locale}"] = 'nullable|array';
+            $validationRules["design_descs.{$locale}.*"] = 'nullable';
+            $validationRules["files_descs.{$locale}"] = 'nullable|array';
+            $validationRules["files_descs.{$locale}.*"] = 'nullable';
+        }
 
-    // ✅ FIXED: Chuẩn bị data đa ngôn ngữ
-    $translatableData = [];
-    
-    foreach (array_keys($locales) as $locale) {
-        $translatableData['name'][$locale] = $request->input("name.{$locale}");
-        $translatableData['slug'][$locale] = $request->input("slug.vi"); // ✅ Fixed: dùng đúng locale
-        $translatableData['short_desc'][$locale] = $request->input("short_desc.{$locale}");
-        $translatableData['description'][$locale] = $request->input("description.{$locale}");
-        $translatableData['design_short_desc'][$locale] = $request->input("design_short_desc.{$locale}");
-        $translatableData['legal_short_desc'][$locale] = $request->input("legal_short_desc.{$locale}");
-        
-        // ✅ FIXED: Xử lý JSON/Array fields với tên trường đúng trong DB
-        // advantage_titles
-        $advTitles = $request->input("advantage_titles.{$locale}");
-        $translatableData['advantage_titles'][$locale] = is_array($advTitles) 
-            ? json_encode(array_map('trim', array_filter($advTitles))) 
-            : null;
-        
-        // advantage_descs -> advantage_descriptions (tên trong DB)
-        $advDescs = $request->input("advantage_descs.{$locale}");
-        $translatableData['advantage_descriptions'][$locale] = is_array($advDescs) 
-            ? json_encode(array_map('trim', array_filter($advDescs))) 
-            : null;
-        
-        // design_descs -> design_description (tên trong DB)
-        $designDescs = $request->input("design_descs.{$locale}");
-        $translatableData['design_description'][$locale] = is_array($designDescs) 
-            ? json_encode(array_map('trim', array_filter($designDescs))) 
-            : null;
-        
-        // files_descs -> legal_description (tên trong DB)
-        $filesDescs = $request->input("files_descs.{$locale}");
-        $translatableData['legal_description'][$locale] = is_array($filesDescs) 
-            ? json_encode(array_map('trim', array_filter($filesDescs))) 
-            : null;
-    }
+        // 2. Validation cho các trường đơn ngữ
+        $validationRules = array_merge($validationRules, [
+            'banner_image' => 'nullable|max:2048',
+            'detail_image' => 'nullable|max:2048',
+            'lat' => 'nullable|numeric',
+            'lng' => 'nullable|numeric',
+            'area' => 'nullable|numeric|min:0',
+            'unit' => 'nullable|integer',
+            'type_number' => 'nullable|integer|min:0|exists:project_types,id',
+            'industry_number' => 'nullable|integer|min:0|exists:project_industries,id',
+            'price' => 'nullable|numeric|min:0',
+            'link' => 'nullable|url',
+            'location_image' => 'nullable|max:2048',
+            'districts' => 'nullable|array',
+            'districts.*' => 'integer|exists:districts,id',
+            'advantage_images' => 'nullable|array',
+            'advantage_images.*' => 'nullable',
+            'design_images' => 'nullable|array',
+            'design_images.*' => 'nullable|max:2048',
+            'files_images' => 'nullable|array',
+            'files_images.*' => 'nullable|max:10240',
+            'link_vrtour' => 'nullable|url',
+            'link_sand_table' => 'nullable|url',
+            'layout_id' => 'required|integer|min:1|max:3',
+            'is_invest' => 'nullable|boolean',
+            'is_pinned' => 'nullable|boolean',
+            'pin_order' => 'nullable|integer|min:1',
+        ]);
 
-    try {
-        if (!$project->exists) {
-            // 🟩 Tạo bản chính mới
-            $project->fill($validated);
-            $project->legal_file = $validated['legal_file_single'] ?? null;
-            
-            // Gán các trường đa ngôn ngữ
-            foreach ($translatableData as $key => $values) {
-                $project->setTranslations($key, $values);
-            }
-            
-            // Trạng thái duyệt
-            $project->approval_level = $user->is_super_admin ? 2 : ($user->is_approve ? 1 : 0);
-            $project->max_approval = 2;
-            $project->is_draft = false;
-            $project->status = $user->is_super_admin ? 'approved' : 'pending';
-
-            // Tạo slug unique cho ngôn ngữ chính
-            $slug = $project->getTranslation('slug', $firstLocale) ?: Str::slug($project->getTranslation('name', $firstLocale));
-            $originalSlug = $slug;
-            $counter = 1;
-            while (Project::where('slug', $slug)->exists()) {
-                $slug = $originalSlug . '-' . $counter++;
-            }
-            $project->setTranslation('slug', $firstLocale, $slug);
-            
-            $project->save();
-
-            if ($request->filled('districts')) {
-                $project->districts()->sync($request->input('districts'));
-            }
-
-            if (Gate::allows('project/add')) {
-                $this->addProjectToScope($user, $project->id);
+        $validated = $request->validate($validationRules);
+        if ($request->has('advantage_images')) {
+            if (is_array($request->advantage_images) && count($request->advantage_images) > 0) {
+                // Có ảnh mới -> lọc và nối chuỗi
+                $validated['advantage_images'] = implode(';', array_filter(array_map('trim', $request->advantage_images)));
+            } else {
+                // Array rỗng hoặc null -> xóa hết ảnh
+                $validated['advantage_images'] = null;
             }
         } else {
-            if ($user->is_super_admin) {
-                // 🟦 Super admin merge nháp vào bản chính
-                $mainProject = $project->parent_id ? Project::find($project->parent_id) : $project;
+            $validated['advantage_images'] = null;
+        }
 
-                // Merge dữ liệu đơn ngữ
-                $mainProject->fill($validated);
-                $mainProject->legal_file = $validated['legal_file_single'] ?? $mainProject->legal_file;
+        // Xử lý design_images
+        if ($request->has('design_images')) {
+            if (is_array($request->design_images) && count($request->design_images) > 0) {
+                $validated['design_images'] = implode(';', array_filter(array_map('trim', $request->design_images)));
+            } else {
+                $validated['design_images'] = null;
+            }
+        } else {
+            $validated['design_images'] = null;
+        }
+
+        if ($request->has('files_images')) {
+            if (is_array($request->files_images) && count($request->files_images) > 0) {
+                $validated['files_images'] = implode(';', array_filter(array_map('trim', $request->files_images)));
+            } else {
+                $validated['files_images'] = null;
+            }
+        } else {
+            $validated['files_images'] = null;
+        }
+
+        // ✅ FIXED: Chuẩn bị data đa ngôn ngữ
+        $translatableData = [];
+
+        foreach (array_keys($locales) as $locale) {
+            $translatableData['name'][$locale] = $request->input("name.{$locale}");
+            $translatableData['slug'][$locale] = $request->input("slug.vi"); // ✅ Fixed: dùng đúng locale
+            $translatableData['short_desc'][$locale] = $request->input("short_desc.{$locale}");
+            $translatableData['description'][$locale] = $request->input("description.{$locale}");
+            $translatableData['design_short_desc'][$locale] = $request->input("design_short_desc.{$locale}");
+            $translatableData['legal_short_desc'][$locale] = $request->input("legal_short_desc.{$locale}");
+
+            // ✅ FIXED: Xử lý JSON/Array fields với tên trường đúng trong DB
+            // advantage_titles
+            $advTitles = $request->input("advantage_titles.{$locale}");
+            $translatableData['advantage_titles'][$locale] = is_array($advTitles)
+                ? json_encode(array_map('trim', array_filter($advTitles)))
+                : null;
+
+            // advantage_descs -> advantage_descriptions (tên trong DB)
+            $advDescs = $request->input("advantage_descs.{$locale}");
+            $translatableData['advantage_descriptions'][$locale] = is_array($advDescs)
+                ? json_encode(array_map('trim', array_filter($advDescs)))
+                : null;
+
+            // design_descs -> design_description (tên trong DB)
+            $designDescs = $request->input("design_descs.{$locale}");
+            $translatableData['design_description'][$locale] = is_array($designDescs)
+                ? json_encode(array_map('trim', array_filter($designDescs)))
+                : null;
+
+            // files_descs -> legal_description (tên trong DB)
+            $filesDescs = $request->input("files_descs.{$locale}");
+            $translatableData['legal_description'][$locale] = is_array($filesDescs)
+                ? json_encode(array_map('trim', array_filter($filesDescs)))
+                : null;
+        }
+
+        try {
+            if (!$project->exists) {
+                // 🟩 Tạo bản chính mới
+                $project->fill($validated);
+                $project->legal_file = $validated['files_images'] ?? null;
 
                 // Gán các trường đa ngôn ngữ
                 foreach ($translatableData as $key => $values) {
-                    $mainProject->setTranslations($key, $values);
+                    $project->setTranslations($key, $values);
                 }
 
-                // Reset duyệt
-                $mainProject->approval_level = $mainProject->max_approval;
-                $mainProject->status = 'approved';
-                $mainProject->is_draft = false;
-                $mainProject->parent_id = null;
+                // Trạng thái duyệt
+                $project->approval_level = $user->is_super_admin ? 2 : ($user->is_approve ? 1 : 0);
+                $project->max_approval = 2;
+                $project->is_draft = false;
+                $project->status = $user->is_super_admin ? 'approved' : 'pending';
 
-                // Slug unique cho ngôn ngữ chính (loại bỏ -draft)
-                $requestedSlug = $mainProject->getTranslation('slug', $firstLocale) ?: Str::slug($mainProject->getTranslation('name', $firstLocale));
-                $slug = preg_replace('/-draft$/', '', Str::slug($requestedSlug));
+                // Tạo slug unique cho ngôn ngữ chính
+                $slug = $project->getTranslation('slug', $firstLocale) ?: Str::slug($project->getTranslation('name', $firstLocale));
                 $originalSlug = $slug;
                 $counter = 1;
-                while (Project::where('slug', $slug)->where('id', '<>', $mainProject->id)->exists()) {
+                while (Project::where('slug', $slug)->exists()) {
                     $slug = $originalSlug . '-' . $counter++;
                 }
-                $mainProject->setTranslation('slug', $firstLocale, $slug);
+                $project->setTranslation('slug', $firstLocale, $slug);
 
-                $mainProject->save();
+                $project->save();
 
-                // Đồng bộ districts
-                if (isset($validated['districts'])) {
-                    $mainProject->districts()->sync($validated['districts']);
-                } else {
-                    $mainProject->districts()->detach();
+                if ($request->filled('districts')) {
+                    $project->districts()->sync($request->input('districts'));
                 }
 
-                // Xoá toàn bộ nháp cũ
-                $drafts = Project::where('parent_id', $mainProject->id)->get();
-                foreach ($drafts as $draft) {
-                    $this->removeProjectFromScope($draft->id);
-                    $draft->delete();
+                if (Gate::allows('project/add')) {
+                    $this->addProjectToScope($user, $project->id);
                 }
-
-                $project = $mainProject;
             } else {
-                // 🟨 Người dùng thường
-                if ($project->status === 'approved' && !$project->is_draft) {
-                    // Bản chính đã duyệt → tạo nháp mới
-                    $draft = $project->replicate();
-                    $draft->fill($validated);
-                    $draft->legal_file = $validated['legal_file_single'] ?? $project->legal_file;
-                    
-                    // Copy các trường đa ngôn ngữ từ bản chính
-                    $translatableKeys = array_keys($translatableData);
-                    foreach ($translatableKeys as $key) {
-                        $draft->setTranslations($key, $project->getTranslations($key));
-                    }
-                    
-                    $draft->is_draft = true;
-                    $draft->status = 'pending';
-                    $draft->approval_level = $user->is_approve ? 1 : 0;
-                    $draft->parent_id = $project->id;
-                    
-                    // Thêm hậu tố '-draft' vào slug của bản nháp (ngôn ngữ chính)
-                    $currentSlug = $draft->getTranslation('slug', $firstLocale) ?: Str::slug($draft->getTranslation('name', $firstLocale));
-                    $draft->setTranslation('slug', $firstLocale, $currentSlug . '-draft');
+                if ($user->is_super_admin) {
+                    // 🟦 Super admin merge nháp vào bản chính
+                    $mainProject = $project->parent_id ? Project::find($project->parent_id) : $project;
 
-                    $draft->save();
+                    // Merge dữ liệu đơn ngữ
+                    $mainProject->fill($validated);
+                    $mainProject->legal_file = $validated['files_images'];
 
-                    // Cập nhật nháp với dữ liệu mới từ request (bao gồm đa ngôn ngữ)
-                    $draft->fill($validated);
-                    $draft->legal_file = $validated['legal_file_single'] ?? $draft->legal_file;
+                    // Gán các trường đa ngôn ngữ
                     foreach ($translatableData as $key => $values) {
-                        $draft->setTranslations($key, $values);
-                    }
-                    $draft->save();
-
-                    if ($request->filled('districts')) {
-                        $draft->districts()->sync($request->input('districts'));
+                        $mainProject->setTranslations($key, $values);
                     }
 
-                    if (Gate::allows('project/add')) {
-                        $this->addProjectToScope($user, $draft->id);
+                    // Reset duyệt
+                    $mainProject->approval_level = $mainProject->max_approval;
+                    $mainProject->status = 'approved';
+                    $mainProject->is_draft = false;
+                    $mainProject->parent_id = null;
+
+                    // Slug unique cho ngôn ngữ chính (loại bỏ -draft)
+                    $requestedSlug = $mainProject->getTranslation('slug', $firstLocale) ?: Str::slug($mainProject->getTranslation('name', $firstLocale));
+                    $slug = preg_replace('/-draft$/', '', Str::slug($requestedSlug));
+                    $originalSlug = $slug;
+                    $counter = 1;
+                    while (Project::where('slug', $slug)->where('id', '<>', $mainProject->id)->exists()) {
+                        $slug = $originalSlug . '-' . $counter++;
                     }
+                    $mainProject->setTranslation('slug', $firstLocale, $slug);
 
-                    $project = $draft;
-                } else {
-                    // Cập nhật bản hiện tại (nháp/chưa duyệt)
-                    $project->fill($validated);
-                    $project->legal_file = $validated['legal_file_single'] ?? $project->legal_file;
+                    $mainProject->save();
 
-                    foreach ($translatableData as $key => $values) {
-                        $project->setTranslations($key, $values);
-                    }
-                    
-                    $project->status = 'pending';
-                    $project->approval_level = $user->is_approve ? 1 : 0;
-                    $project->save();
-
-                    if ($request->filled('districts')) {
-                        $project->districts()->sync($request->input('districts'));
+                    // Đồng bộ districts
+                    if (isset($validated['districts'])) {
+                        $mainProject->districts()->sync($validated['districts']);
                     } else {
-                        $project->districts()->detach();
+                        $mainProject->districts()->detach();
+                    }
+
+                    // Xoá toàn bộ nháp cũ
+                    $drafts = Project::where('parent_id', $mainProject->id)->get();
+                    foreach ($drafts as $draft) {
+                        $this->removeProjectFromScope($draft->id);
+                        $draft->delete();
+                    }
+
+                    $project = $mainProject;
+                } else {
+                    // 🟨 Người dùng thường
+                    if ($project->status === 'approved' && !$project->is_draft) {
+                        // Bản chính đã duyệt → tạo nháp mới
+                        $draft = $project->replicate();
+                        $draft->fill($validated);
+                        $draft->legal_file = $validated['files_images'];
+
+                        // Copy các trường đa ngôn ngữ từ bản chính
+                        $translatableKeys = array_keys($translatableData);
+                        foreach ($translatableKeys as $key) {
+                            $draft->setTranslations($key, $project->getTranslations($key));
+                        }
+
+                        $draft->is_draft = true;
+                        $draft->status = 'pending';
+                        $draft->approval_level = $user->is_approve ? 1 : 0;
+                        $draft->parent_id = $project->id;
+
+                        // Thêm hậu tố '-draft' vào slug của bản nháp (ngôn ngữ chính)
+                        $currentSlug = $draft->getTranslation('slug', $firstLocale) ?: Str::slug($draft->getTranslation('name', $firstLocale));
+                        $draft->setTranslation('slug', $firstLocale, $currentSlug . '-draft');
+
+                        $draft->save();
+
+                        // Cập nhật nháp với dữ liệu mới từ request (bao gồm đa ngôn ngữ)
+                        $draft->fill($validated);
+                        $draft->legal_file = $validated['files_images'] ?? $draft->legal_file;
+                        foreach ($translatableData as $key => $values) {
+                            $draft->setTranslations($key, $values);
+                        }
+                        $draft->save();
+
+                        if ($request->filled('districts')) {
+                            $draft->districts()->sync($request->input('districts'));
+                        }
+
+                        if (Gate::allows('project/add')) {
+                            $this->addProjectToScope($user, $draft->id);
+                        }
+
+                        $project = $draft;
+                    } else {
+                        // Cập nhật bản hiện tại (nháp/chưa duyệt)
+                        $project->fill($validated);
+                        $project->legal_file = $validated['files_images'];
+
+                        foreach ($translatableData as $key => $values) {
+                            $project->setTranslations($key, $values);
+                        }
+
+                        $project->status = 'pending';
+                        $project->approval_level = $user->is_approve ? 1 : 0;
+                        $project->save();
+
+                        if ($request->filled('districts')) {
+                            $project->districts()->sync($request->input('districts'));
+                        } else {
+                            $project->districts()->detach();
+                        }
                     }
                 }
             }
-        }
 
-        return redirect()
-            ->route('backend_project_edit', $project)
-            ->with('success', 'Lưu dữ liệu thành công ' . (
-                $user->is_super_admin ? '(Đã duyệt)' : ($user->is_approve ? '(Chờ duyệt cấp 2)' : '')
-            ));
-    } catch (\Exception $e) {
-        return redirect()->back()->withInput()->withErrors(['error' => 'Lỗi khi lưu dữ liệu: ' . $e->getMessage()]);
+            return redirect()
+                ->route('backend_project_edit', $project)
+                ->with('success', 'Lưu dữ liệu thành công ' . (
+                    $user->is_super_admin ? '(Đã duyệt)' : ($user->is_approve ? '(Chờ duyệt cấp 2)' : '')
+                ));
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()->withErrors(['error' => 'Lỗi khi lưu dữ liệu: ' . $e->getMessage()]);
+        }
     }
-}
     public $translatable = [
         'name',
         'slug',
@@ -752,7 +494,6 @@ class ProjectController extends Controller
         'design_short_desc',
         'design_description',
         'legal_short_desc',
-        'legal_file', // Dù là file, ta vẫn cần field này để tránh lỗi
         'legal_description',
     ];
 
