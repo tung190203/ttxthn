@@ -82,12 +82,15 @@
                                 <div class="fw-600 text-uppercase mb-2">{{ __('app.industry_field') }}</div>
                                 @foreach ($list_industries as $industry)
                                     <div class="mt-2">
-                                        <label class="checkbox-styled">
+                                        <label class="checkbox-styled d-flex align-items-center">
                                             <input class="checkbox-styled__input" type="checkbox" name="industries[]" value="{{ $industry['id'] }}"
                                                 {{ is_array(request('industries')) && in_array($industry['id'], request('industries')) ? 'checked' : '' }}>
-                                            <span class="checkbox-styled__icon"></span>
-                                            <span>{{ $industry['name'] }}
-                                                <span class="badge bg-danger ms-2">{{ $industry['invest_count'] }}</span>
+                                            <span class="checkbox-styled__icon flex-shrink-0"></span>
+                                            <span class="flex-grow-1 d-flex align-items-center justify-content-start">
+                                                <span class="text-truncate me-2" data-tippy-content="{{ $industry['name'] }}" style="max-width: calc(100% - 40px);">
+                                                    {{ $industry['name'] }}
+                                                </span>
+                                                <span class="badge bg-danger flex-shrink-0">{{ $industry['invest_count'] }}</span>
                                             </span>
                                         </label>
                                     </div>
