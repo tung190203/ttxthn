@@ -146,7 +146,7 @@ class HomeController extends Controller
 
         $list_districts = District::withCount([
             'projects as invest_count' => function ($query) {
-                $query->where('is_invest', 1)->where('is_draft', 0);
+                $query->where('is_invest', 0)->where('is_draft', 0);
             }
         ])
         ->get()
@@ -161,7 +161,7 @@ class HomeController extends Controller
 
         $list_industries = ProjectIndustries::withCount([
             'projects as invest_count' => function ($query) {
-                $query->where('is_invest', 1);
+                $query->where('is_invest', 0)->where('is_draft', 0);
             }
         ])
         ->get()
