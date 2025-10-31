@@ -63,7 +63,6 @@ class Project extends Model
         'design_short_desc',
         'design_description',
         'legal_short_desc',
-        'legal_file',
         'legal_description',
     ];
 

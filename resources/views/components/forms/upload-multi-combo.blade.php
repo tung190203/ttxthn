@@ -49,8 +49,12 @@
                                     </button>
                                 </div>
                             @endif
-                            {{-- ✅ Chỉ output input ảnh nếu không có locale (đơn ngữ) hoặc locale là firstLocale --}}
-                            @if(!$locale || $locale === config('app.locales') ? array_key_first(config('app.locales')) : null)
+                            @php
+                                $locales = array_keys(config('app.locales', ['vi' => 'Tiếng Việt']));
+                                $firstLocale = $locales[0] ?? null;
+                            @endphp
+
+                            @if(!$locale || $locale === $firstLocale)
                                 <input type="hidden" name="{{ $imageFieldName }}[]" value="{{ $file }}">
                             @endif
                         </div>
