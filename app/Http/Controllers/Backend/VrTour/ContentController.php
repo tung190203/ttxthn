@@ -28,11 +28,15 @@ class ContentController extends Controller
         return view('backend.vrtour.content.index', compact('vrtour'));
     }
 
-    public function getDataAll($vrtour_id)
+    public function getDataAll(Request $request,$vrtour_id)
     {
         $vrtour         = Project::find($vrtour_id);
         $link_vrtour    = $vrtour->link_vrtour;
         $panorama       = Panorama::where('vrtour_id', $vrtour_id)->get();
+        
+         if ($request->reset == 'true') {
+            Panorama::where('vrtour_id', $vrtour_id)->delete();
+        }
         if (count($panorama) == 0) {
             $pano            = getDataVrtour($link_vrtour.'vista3d/pano.json');
 
