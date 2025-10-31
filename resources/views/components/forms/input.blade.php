@@ -1,4 +1,4 @@
-@props(['name', 'placeholder', 'value', 'label', 'messages', 'type' => 'text', 'required' => false, 'help' => null, 'class' => null])
+@props(['name', 'placeholder', 'value', 'label', 'messages' => null, 'type' => 'text', 'required' => false, 'help' => null, 'class' => null])
 
 {{-- Kiểm tra nếu type là 'hidden' thì không cần div bọc ngoài --}}
 @if($type === 'hidden')
