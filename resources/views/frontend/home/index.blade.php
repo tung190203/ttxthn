@@ -886,16 +886,25 @@
                 return;
             }
 
+            const labels = {
+                projects: '{{ __('app.projects') }}',
+                code: '{{ __('app.code') }}',
+                area: '{{ __('app.area') }}',
+                projectTypes: '{{ __('app.project_types') }}',
+                unknown: '{{ __('app.unknown') }}',
+                location: '{{ __('app.location') }}'
+            };
+
             resultList.innerHTML = items.map(item => `
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>${item.description}</strong><br>
-                                <small>{{ __('app.projects') }}: ${item.project_name}</small> - {{ __('app.code') }}: ${item.code}<br>
-                                <small>{{ __('app.area') }}: ${item.acreage} - {{ __('app.project_types') }}: ${item.product_type_name}</small>
-                            </div>
-                            <a href="${item.link}" target="_blank" class="btn custom-btn btn-sm">{{ __('app.location') }}</a>
-                        </li>
-                    `).join('');
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>${item.description ?? labels.unknown}</strong><br>
+                        <small>${labels.projects}: ${item.project_name}</small> - ${labels.code}: ${item.code}<br>
+                        <small>${labels.area}: ${item.acreage ?? labels.unknown} - ${labels.projectTypes}: ${item.product_type_name ?? labels.unknown}</small>
+                    </div>
+                    <a href="${item.link}" target="_blank" class="btn custom-btn btn-sm">${labels.location}</a>
+                </li>
+            `).join('');
 
             renderPagination(page);
         }
