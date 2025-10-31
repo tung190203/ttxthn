@@ -31,6 +31,11 @@
                                     <button type="button" class="btn btn-primary btn-sm" id="btn_search_tour">Lấy dữ liệu</button>
                                 </div>
                             </div>
+                            <div class="col-md-3 text-left">
+                                <div class="form-group">
+                                    <button type="button" class="btn btn-danger btn-sm" id="btn_reset" style="display:none;">Reset</button>
+                                </div>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -79,25 +84,34 @@
         $('#btn_search_tour').on('click', function() {
             renderTable();
         });
+        $(document).on('click', '#btn_reset', function(){
+            if (confirm("Bạn có chắc chắn muốn reset toàn bộ nội dung để cập nhật mới không?")) {
+                renderTable(true, true);
+            }
+        });
 
-        function renderTable(notify = true)
+        function renderTable(notify = true,reset = false)
         {
+            
             var vrtour  = $('#slt_vrtour').val();
             if (vrtour != 'all') {
                 $.ajax({
-                    url: assetUrl+'vrtour/content/get-data/'+vrtour,
+                    url: assetUrl+'vrtour/content/get-data/'+vrtour + '?reset='+reset,
                     type: "GET",
                     success: function(response) {
                         $('#dataGrid').html(response.data);
                         if (notify == true) {
                             toastr["success"]('Lấy dữ liệu thành công','Success')
                         }
+                        $('#btn_reset').show();
                     },
-                    error: function(xhr, status, error) {
+                    error: function(xhr, status, error) { 
+                        $('#btn_reset').hide();
                         toastr["error"]('Có lỗi xảy ra ! Vui lòng thử lại','Error')
                     }
                 });
             } else {
+                $('#btn_reset').hide();
                 toastr["error"]('Vui lòng chọn dự án','Error')
             }
         }
