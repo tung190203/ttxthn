@@ -49,6 +49,7 @@ return [
     'news' => 'Tin tức',
     'investment_projects' => 'Dự án kêu gọi đầu tư',
     'subscribe_project_info' => 'Đăng ký nhận thông tin dự án',
+    'subscrible_text' => 'Subscribe',
     'register' => 'Đăng ký',
     'address' => 'Địa chỉ',
     'website' => 'Website',

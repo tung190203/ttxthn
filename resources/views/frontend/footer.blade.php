@@ -1,7 +1,7 @@
 <section class="section section--bg-pattern">
     <div class="container">
         <h2 class="section__title text-white mb-4 text-uppercase">{{ __('app.subscribe_project_info') }}</h2>
-        <div class="text-center"><a class="button" href="lien-he">{{ __('app.register') }}</a></div>
+        <div class="text-center"><a class="button" href="lien-he">{{ __('app.subscrible_text') }}</a></div>
     </div>
 </section>
 <footer class="footer">
