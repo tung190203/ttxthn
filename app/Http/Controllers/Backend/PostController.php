@@ -563,13 +563,6 @@ class PostController extends Controller
             $description = $excerpt;
         }
 
-        // ---- Ảnh đại diện (thumbnail) ----
-        // $image = null;
-        // if ($crawler->filterXPath('//meta[@property="og:image"]')->count()) {
-        //     $image = $crawler->filterXPath('//meta[@property="og:image"]')->attr('content');
-        // } elseif ($crawler->filterXPath('//meta[@name="twitter:image"]')->count()) {
-        //     $image = $crawler->filterXPath('//meta[@name="twitter:image"]')->attr('content');
-        // }
         $image = null;
         if ($crawler->filterXPath('//meta[@property="og:image"]')->count()) {
             $image = $crawler->filterXPath('//meta[@property="og:image"]')->attr('content');
@@ -642,20 +635,22 @@ class PostController extends Controller
         // Lấy lại content sau khi xử lý
         $content = $contentCrawler->html();
 
+       // ---- Chuẩn bị dữ liệu ----
         $data = [
-            'name' => $title,
-            'slug' => $title ? Str::slug($title) : '',
-            'description' => $description,
-            'content' => $content,
-            'meta_title' => $title,
-            'meta_keywords' => $keywords,
-            'meta_description' => $description,
+            'name.vi' => $title,
+            'slug.vi' => $title ? Str::slug($title) : '',
+            'description.vi' => $description,
+            'content.vi' => $content,
+            'meta_title.vi' => $title,
+            'meta_keywords.vi' => $keywords,
+            'meta_description.vi' => $description,
             'image' => $image,
         ];
 
         return redirect()
             ->route('backend_post_create')
-            ->withInput($data);
+            ->withInput($data)
+            ->with('success', 'Đã import dữ liệu thành công, vui lòng kiểm tra và lưu bài viết.');
     }
 
     /**

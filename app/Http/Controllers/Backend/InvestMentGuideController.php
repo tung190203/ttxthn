@@ -750,19 +750,20 @@ public function save(InvestmentGuide $investment_guide, Request $request)
         $content = $contentCrawler->html();
 
         $data = [
-            'name' => $title,
-            'slug' => $title ? Str::slug($title) : '',
-            'description' => $description,
-            'content' => $content,
-            'meta_title' => $title,
-            'meta_keywords' => $keywords,
-            'meta_description' => $description,
+            'name.vi' => $title,
+            'slug.vi' => $title ? Str::slug($title) : '',
+            'description.vi' => $description,
+            'content.vi' => $content,
+            'meta_title.vi' => $title,
+            'meta_keywords.vi' => $keywords,
+            'meta_description.vi' => $description,
             'image' => $image,
         ];
 
         return redirect()
             ->route('backend_investment_guide_create')
-            ->withInput($data);
+            ->withInput($data)
+            ->with('success', 'Import nội dung từ URL thành công.');
     }
 
     /**
