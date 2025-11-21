@@ -862,14 +862,18 @@ class HomeController extends Controller
         // --- 2. Projects ---
         $projectPage = $request->input('project_page', 1);
         $projects = Project::withRelations()
-            ->whereNull('parent_id')
-            ->where('status', 'approved')
-            ->when($keyword, function ($query, $keyword) use ($locale) {
-                return $query->where("name->{$locale}", 'like', "%{$keyword}%");
-            })
-            ->orderBy('updated_at', 'desc')
-            ->paginate($perPage, ['*'], 'project_page', $projectPage)
-            ->appends(['keyword' => $keyword]);
+        ->whereNull('parent_id')
+        ->where('status', 'approved')
+        ->when($keyword, function ($query, $keyword) use ($locale) {
+            $keyword = mb_strtolower($keyword);
+            $query->whereRaw(
+                "LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.\"{$locale}\"'))) LIKE ?",
+                ["%{$keyword}%"]
+            );
+        })
+        ->orderBy('updated_at', 'desc')
+        ->paginate($perPage, ['*'], 'project_page', $projectPage)
+        ->appends(['keyword' => $keyword]);
 
         if ($projects->total() > 0) {
             $projects->through(function ($project) {

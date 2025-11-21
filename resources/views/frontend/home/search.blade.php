@@ -32,7 +32,7 @@
                 @if(empty($groupedResults) || collect($groupedResults)->isEmpty())
                     <p class="text-center text-danger fs-5 pt-5 pb-5">
                         <i class="fas fa-search-minus me-2"></i>
-                        {{ __('messages.no_results_for_keyword', ['key' => $key ?? '...']) }}
+                        {{ __('app.no_results_for_keyword', ['key' => $key ?? '...']) }}
                     </p>                
                 @else
                     @foreach($groupedResults as $categoryName => $paginator)
