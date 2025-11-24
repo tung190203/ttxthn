@@ -70,7 +70,7 @@
 
                             <div class="mb-4">
                                 <div class="fw-600 text-uppercase mb-2">{{ __('app.project_types') }}</div>
-                                <select class="form-select" name="type_id">
+                                <select class="form-select auto-submit" name="type_id">
                                     <option value="">{{ __('app.all') }}</option>
                                     @foreach ($list_types as $item)
                                         <option value="{{ $item['id'] }}" {{ request('type_id') == $item['id'] ? 'selected' : '' }}>{{ $item['name'] }}</option>
@@ -82,7 +82,7 @@
                                 <div class="fw-600 text-uppercase mb-2">{{ __('app.industry_field') }}</div>
                                 @foreach ($list_industries as $industry)
                                     <div class="mt-2">
-                                        <label class="checkbox-styled d-flex align-items-center">
+                                        <label class="checkbox-styled d-flex align-items-center auto-submit">
                                             <input class="checkbox-styled__input" type="checkbox" name="industries[]" value="{{ $industry['id'] }}"
                                                 {{ is_array(request('industries')) && in_array($industry['id'], request('industries')) ? 'checked' : '' }}>
                                             <span class="checkbox-styled__icon flex-shrink-0"></span>
@@ -99,7 +99,7 @@
 
                             <div class="mb-4">
                                 <div class="fw-600 text-uppercase mb-2">{{ __('app.locations') }}</div>
-                                <select class="form-select" name="district_id">
+                                <select class="form-select auto-submit" name="district_id">
                                     <option value="">{{ __('app.select_ward_commune') }}</option>
                                     @foreach ($list_districts as $item)
                                         <option value="{{ $item['id'] }}" {{ request('district_id') == $item['id'] ? 'selected' : '' }}>{{ $item['name'] }} ({{ $item['invest_count'] }})</option>
@@ -171,5 +171,14 @@
 @endsection
 
 @push('bottom')
-
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.querySelector('.aside-form');
+        document.querySelectorAll('.auto-submit').forEach(el => {
+            el.addEventListener('change', function () {
+                form.submit();
+            });
+        });
+    });
+</script>
 @endpush
