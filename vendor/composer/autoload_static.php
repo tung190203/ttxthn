@@ -56,10 +56,13 @@ class ComposerStaticInitb9b2a73e9a4b9d857341bdb730c0d006
         array (
             'phpseclib3\\' => 11,
         ),
+        'a' => 
+        array (
+            'andreskrey\\Readability\\' => 23,
+        ),
         'W' => 
         array (
             'Whoops\\' => 7,
-            'Webmozart\\Assert\\' => 17,
         ),
         'T' => 
         array (
@@ -96,6 +99,7 @@ class ComposerStaticInitb9b2a73e9a4b9d857341bdb730c0d006
             'Symfony\\Component\\Finder\\' => 25,
             'Symfony\\Component\\EventDispatcher\\' => 34,
             'Symfony\\Component\\ErrorHandler\\' => 31,
+            'Symfony\\Component\\DomCrawler\\' => 29,
             'Symfony\\Component\\CssSelector\\' => 30,
             'Symfony\\Component\\Console\\' => 26,
             'Symfony\\Component\\Clock\\' => 24,
@@ -134,6 +138,7 @@ class ComposerStaticInitb9b2a73e9a4b9d857341bdb730c0d006
             'Mockery\\' => 8,
             'MicrosoftAzure\\Storage\\Common\\' => 30,
             'MicrosoftAzure\\Storage\\Blob\\' => 28,
+            'Masterminds\\' => 12,
         ),
         'L' => 
         array (
@@ -220,13 +225,13 @@ class ComposerStaticInitb9b2a73e9a4b9d857341bdb730c0d006
         array (
             0 => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib',
         ),
+        'andreskrey\\Readability\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/andreskrey/readability.php/src',
+        ),
         'Whoops\\' => 
         array (
             0 => __DIR__ . '/..' . '/filp/whoops/src/Whoops',
-        ),
-        'Webmozart\\Assert\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/webmozart/assert/src',
         ),
         'TijsVerkoyen\\CssToInlineStyles\\' => 
         array (
@@ -348,6 +353,10 @@ class ComposerStaticInitb9b2a73e9a4b9d857341bdb730c0d006
         array (
             0 => __DIR__ . '/..' . '/symfony/error-handler',
         ),
+        'Symfony\\Component\\DomCrawler\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/dom-crawler',
+        ),
         'Symfony\\Component\\CssSelector\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/css-selector',
@@ -435,7 +444,8 @@ class ComposerStaticInitb9b2a73e9a4b9d857341bdb730c0d006
         ),
         'Nette\\' => 
         array (
-            0 => __DIR__ . '/..' . '/nette/utils/src',
+            0 => __DIR__ . '/..' . '/nette/schema/src',
+            1 => __DIR__ . '/..' . '/nette/utils/src',
         ),
         'Monolog\\' => 
         array (
@@ -452,6 +462,10 @@ class ComposerStaticInitb9b2a73e9a4b9d857341bdb730c0d006
         'MicrosoftAzure\\Storage\\Blob\\' => 
         array (
             0 => __DIR__ . '/..' . '/microsoft/azure-storage-blob/src/Blob',
+        ),
+        'Masterminds\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/masterminds/html5/src',
         ),
         'League\\Uri\\' => 
         array (
@@ -5045,6 +5059,26 @@ class ComposerStaticInitb9b2a73e9a4b9d857341bdb730c0d006
         'League\\Uri\\UriTemplate\\TemplateCanNotBeExpanded' => __DIR__ . '/..' . '/league/uri/UriTemplate/TemplateCanNotBeExpanded.php',
         'League\\Uri\\UriTemplate\\VarSpecifier' => __DIR__ . '/..' . '/league/uri/UriTemplate/VarSpecifier.php',
         'League\\Uri\\UriTemplate\\VariableBag' => __DIR__ . '/..' . '/league/uri/UriTemplate/VariableBag.php',
+        'Masterminds\\HTML5' => __DIR__ . '/..' . '/masterminds/html5/src/HTML5.php',
+        'Masterminds\\HTML5\\Elements' => __DIR__ . '/..' . '/masterminds/html5/src/HTML5/Elements.php',
+        'Masterminds\\HTML5\\Entities' => __DIR__ . '/..' . '/masterminds/html5/src/HTML5/Entities.php',
+        'Masterminds\\HTML5\\Exception' => __DIR__ . '/..' . '/masterminds/html5/src/HTML5/Exception.php',
+        'Masterminds\\HTML5\\InstructionProcessor' => __DIR__ . '/..' . '/masterminds/html5/src/HTML5/InstructionProcessor.php',
+        'Masterminds\\HTML5\\Parser\\CharacterReference' => __DIR__ . '/..' . '/masterminds/html5/src/HTML5/Parser/CharacterReference.php',
+        'Masterminds\\HTML5\\Parser\\DOMTreeBuilder' => __DIR__ . '/..' . '/masterminds/html5/src/HTML5/Parser/DOMTreeBuilder.php',
+        'Masterminds\\HTML5\\Parser\\EventHandler' => __DIR__ . '/..' . '/masterminds/html5/src/HTML5/Parser/EventHandler.php',
+        'Masterminds\\HTML5\\Parser\\FileInputStream' => __DIR__ . '/..' . '/masterminds/html5/src/HTML5/Parser/FileInputStream.php',
+        'Masterminds\\HTML5\\Parser\\InputStream' => __DIR__ . '/..' . '/masterminds/html5/src/HTML5/Parser/InputStream.php',
+        'Masterminds\\HTML5\\Parser\\ParseError' => __DIR__ . '/..' . '/masterminds/html5/src/HTML5/Parser/ParseError.php',
+        'Masterminds\\HTML5\\Parser\\Scanner' => __DIR__ . '/..' . '/masterminds/html5/src/HTML5/Parser/Scanner.php',
+        'Masterminds\\HTML5\\Parser\\StringInputStream' => __DIR__ . '/..' . '/masterminds/html5/src/HTML5/Parser/StringInputStream.php',
+        'Masterminds\\HTML5\\Parser\\Tokenizer' => __DIR__ . '/..' . '/masterminds/html5/src/HTML5/Parser/Tokenizer.php',
+        'Masterminds\\HTML5\\Parser\\TreeBuildingRules' => __DIR__ . '/..' . '/masterminds/html5/src/HTML5/Parser/TreeBuildingRules.php',
+        'Masterminds\\HTML5\\Parser\\UTF8Utils' => __DIR__ . '/..' . '/masterminds/html5/src/HTML5/Parser/UTF8Utils.php',
+        'Masterminds\\HTML5\\Serializer\\HTML5Entities' => __DIR__ . '/..' . '/masterminds/html5/src/HTML5/Serializer/HTML5Entities.php',
+        'Masterminds\\HTML5\\Serializer\\OutputRules' => __DIR__ . '/..' . '/masterminds/html5/src/HTML5/Serializer/OutputRules.php',
+        'Masterminds\\HTML5\\Serializer\\RulesInterface' => __DIR__ . '/..' . '/masterminds/html5/src/HTML5/Serializer/RulesInterface.php',
+        'Masterminds\\HTML5\\Serializer\\Traverser' => __DIR__ . '/..' . '/masterminds/html5/src/HTML5/Serializer/Traverser.php',
         'MicrosoftAzure\\Storage\\Blob\\BlobRestProxy' => __DIR__ . '/..' . '/microsoft/azure-storage-blob/src/Blob/BlobRestProxy.php',
         'MicrosoftAzure\\Storage\\Blob\\BlobSharedAccessSignatureHelper' => __DIR__ . '/..' . '/microsoft/azure-storage-blob/src/Blob/BlobSharedAccessSignatureHelper.php',
         'MicrosoftAzure\\Storage\\Blob\\Internal\\BlobResources' => __DIR__ . '/..' . '/microsoft/azure-storage-blob/src/Blob/Internal/BlobResources.php',
@@ -7627,6 +7661,25 @@ class ComposerStaticInitb9b2a73e9a4b9d857341bdb730c0d006
         'Symfony\\Component\\CssSelector\\XPath\\Translator' => __DIR__ . '/..' . '/symfony/css-selector/XPath/Translator.php',
         'Symfony\\Component\\CssSelector\\XPath\\TranslatorInterface' => __DIR__ . '/..' . '/symfony/css-selector/XPath/TranslatorInterface.php',
         'Symfony\\Component\\CssSelector\\XPath\\XPathExpr' => __DIR__ . '/..' . '/symfony/css-selector/XPath/XPathExpr.php',
+        'Symfony\\Component\\DomCrawler\\AbstractUriElement' => __DIR__ . '/..' . '/symfony/dom-crawler/AbstractUriElement.php',
+        'Symfony\\Component\\DomCrawler\\Crawler' => __DIR__ . '/..' . '/symfony/dom-crawler/Crawler.php',
+        'Symfony\\Component\\DomCrawler\\Field\\ChoiceFormField' => __DIR__ . '/..' . '/symfony/dom-crawler/Field/ChoiceFormField.php',
+        'Symfony\\Component\\DomCrawler\\Field\\FileFormField' => __DIR__ . '/..' . '/symfony/dom-crawler/Field/FileFormField.php',
+        'Symfony\\Component\\DomCrawler\\Field\\FormField' => __DIR__ . '/..' . '/symfony/dom-crawler/Field/FormField.php',
+        'Symfony\\Component\\DomCrawler\\Field\\InputFormField' => __DIR__ . '/..' . '/symfony/dom-crawler/Field/InputFormField.php',
+        'Symfony\\Component\\DomCrawler\\Field\\TextareaFormField' => __DIR__ . '/..' . '/symfony/dom-crawler/Field/TextareaFormField.php',
+        'Symfony\\Component\\DomCrawler\\Form' => __DIR__ . '/..' . '/symfony/dom-crawler/Form.php',
+        'Symfony\\Component\\DomCrawler\\FormFieldRegistry' => __DIR__ . '/..' . '/symfony/dom-crawler/FormFieldRegistry.php',
+        'Symfony\\Component\\DomCrawler\\Image' => __DIR__ . '/..' . '/symfony/dom-crawler/Image.php',
+        'Symfony\\Component\\DomCrawler\\Link' => __DIR__ . '/..' . '/symfony/dom-crawler/Link.php',
+        'Symfony\\Component\\DomCrawler\\Test\\Constraint\\CrawlerAnySelectorTextContains' => __DIR__ . '/..' . '/symfony/dom-crawler/Test/Constraint/CrawlerAnySelectorTextContains.php',
+        'Symfony\\Component\\DomCrawler\\Test\\Constraint\\CrawlerAnySelectorTextSame' => __DIR__ . '/..' . '/symfony/dom-crawler/Test/Constraint/CrawlerAnySelectorTextSame.php',
+        'Symfony\\Component\\DomCrawler\\Test\\Constraint\\CrawlerSelectorAttributeValueSame' => __DIR__ . '/..' . '/symfony/dom-crawler/Test/Constraint/CrawlerSelectorAttributeValueSame.php',
+        'Symfony\\Component\\DomCrawler\\Test\\Constraint\\CrawlerSelectorCount' => __DIR__ . '/..' . '/symfony/dom-crawler/Test/Constraint/CrawlerSelectorCount.php',
+        'Symfony\\Component\\DomCrawler\\Test\\Constraint\\CrawlerSelectorExists' => __DIR__ . '/..' . '/symfony/dom-crawler/Test/Constraint/CrawlerSelectorExists.php',
+        'Symfony\\Component\\DomCrawler\\Test\\Constraint\\CrawlerSelectorTextContains' => __DIR__ . '/..' . '/symfony/dom-crawler/Test/Constraint/CrawlerSelectorTextContains.php',
+        'Symfony\\Component\\DomCrawler\\Test\\Constraint\\CrawlerSelectorTextSame' => __DIR__ . '/..' . '/symfony/dom-crawler/Test/Constraint/CrawlerSelectorTextSame.php',
+        'Symfony\\Component\\DomCrawler\\UriResolver' => __DIR__ . '/..' . '/symfony/dom-crawler/UriResolver.php',
         'Symfony\\Component\\ErrorHandler\\BufferingLogger' => __DIR__ . '/..' . '/symfony/error-handler/BufferingLogger.php',
         'Symfony\\Component\\ErrorHandler\\Command\\ErrorDumpCommand' => __DIR__ . '/..' . '/symfony/error-handler/Command/ErrorDumpCommand.php',
         'Symfony\\Component\\ErrorHandler\\Debug' => __DIR__ . '/..' . '/symfony/error-handler/Debug.php',
@@ -8500,9 +8553,6 @@ class ComposerStaticInitb9b2a73e9a4b9d857341bdb730c0d006
         'TijsVerkoyen\\CssToInlineStyles\\Css\\Rule\\Rule' => __DIR__ . '/..' . '/tijsverkoyen/css-to-inline-styles/src/Css/Rule/Rule.php',
         'UnhandledMatchError' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/UnhandledMatchError.php',
         'ValueError' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/ValueError.php',
-        'Webmozart\\Assert\\Assert' => __DIR__ . '/..' . '/webmozart/assert/src/Assert.php',
-        'Webmozart\\Assert\\InvalidArgumentException' => __DIR__ . '/..' . '/webmozart/assert/src/InvalidArgumentException.php',
-        'Webmozart\\Assert\\Mixin' => __DIR__ . '/..' . '/webmozart/assert/src/Mixin.php',
         'Whoops\\Exception\\ErrorException' => __DIR__ . '/..' . '/filp/whoops/src/Whoops/Exception/ErrorException.php',
         'Whoops\\Exception\\Formatter' => __DIR__ . '/..' . '/filp/whoops/src/Whoops/Exception/Formatter.php',
         'Whoops\\Exception\\Frame' => __DIR__ . '/..' . '/filp/whoops/src/Whoops/Exception/Frame.php',
@@ -8524,6 +8574,23 @@ class ComposerStaticInitb9b2a73e9a4b9d857341bdb730c0d006
         'Whoops\\Util\\Misc' => __DIR__ . '/..' . '/filp/whoops/src/Whoops/Util/Misc.php',
         'Whoops\\Util\\SystemFacade' => __DIR__ . '/..' . '/filp/whoops/src/Whoops/Util/SystemFacade.php',
         'Whoops\\Util\\TemplateHelper' => __DIR__ . '/..' . '/filp/whoops/src/Whoops/Util/TemplateHelper.php',
+        'andreskrey\\Readability\\Configuration' => __DIR__ . '/..' . '/andreskrey/readability.php/src/Configuration.php',
+        'andreskrey\\Readability\\Nodes\\DOM\\DOMAttr' => __DIR__ . '/..' . '/andreskrey/readability.php/src/Nodes/DOM/DOMAttr.php',
+        'andreskrey\\Readability\\Nodes\\DOM\\DOMCdataSection' => __DIR__ . '/..' . '/andreskrey/readability.php/src/Nodes/DOM/DOMCdataSection.php',
+        'andreskrey\\Readability\\Nodes\\DOM\\DOMCharacterData' => __DIR__ . '/..' . '/andreskrey/readability.php/src/Nodes/DOM/DOMCharacterData.php',
+        'andreskrey\\Readability\\Nodes\\DOM\\DOMComment' => __DIR__ . '/..' . '/andreskrey/readability.php/src/Nodes/DOM/DOMComment.php',
+        'andreskrey\\Readability\\Nodes\\DOM\\DOMDocument' => __DIR__ . '/..' . '/andreskrey/readability.php/src/Nodes/DOM/DOMDocument.php',
+        'andreskrey\\Readability\\Nodes\\DOM\\DOMDocumentFragment' => __DIR__ . '/..' . '/andreskrey/readability.php/src/Nodes/DOM/DOMDocumentFragment.php',
+        'andreskrey\\Readability\\Nodes\\DOM\\DOMDocumentType' => __DIR__ . '/..' . '/andreskrey/readability.php/src/Nodes/DOM/DOMDocumentType.php',
+        'andreskrey\\Readability\\Nodes\\DOM\\DOMElement' => __DIR__ . '/..' . '/andreskrey/readability.php/src/Nodes/DOM/DOMElement.php',
+        'andreskrey\\Readability\\Nodes\\DOM\\DOMNode' => __DIR__ . '/..' . '/andreskrey/readability.php/src/Nodes/DOM/DOMNode.php',
+        'andreskrey\\Readability\\Nodes\\DOM\\DOMNotation' => __DIR__ . '/..' . '/andreskrey/readability.php/src/Nodes/DOM/DOMNotation.php',
+        'andreskrey\\Readability\\Nodes\\DOM\\DOMProcessingInstruction' => __DIR__ . '/..' . '/andreskrey/readability.php/src/Nodes/DOM/DOMProcessingInstruction.php',
+        'andreskrey\\Readability\\Nodes\\DOM\\DOMText' => __DIR__ . '/..' . '/andreskrey/readability.php/src/Nodes/DOM/DOMText.php',
+        'andreskrey\\Readability\\Nodes\\NodeTrait' => __DIR__ . '/..' . '/andreskrey/readability.php/src/Nodes/NodeTrait.php',
+        'andreskrey\\Readability\\Nodes\\NodeUtility' => __DIR__ . '/..' . '/andreskrey/readability.php/src/Nodes/NodeUtility.php',
+        'andreskrey\\Readability\\ParseException' => __DIR__ . '/..' . '/andreskrey/readability.php/src/ParseException.php',
+        'andreskrey\\Readability\\Readability' => __DIR__ . '/..' . '/andreskrey/readability.php/src/Readability.php',
         'phpseclib3\\Common\\Functions\\Strings' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Common/Functions/Strings.php',
         'phpseclib3\\Crypt\\AES' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Crypt/AES.php',
         'phpseclib3\\Crypt\\Blowfish' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Crypt/Blowfish.php',
