@@ -684,6 +684,12 @@
 
             const detailUrl = loc.link;
             const tourUrl = loc.link_vrtour;
+            let tourButtonHtml = '';
+            if (tourUrl) {
+                if (tourUrl !== 'null' && tourUrl.trim() !== '') {
+                    tourButtonHtml = `<a href="${tourUrl}" target="_blank" class="btn btn-sm btn-secondary text-white">{{ __('app.virtual_tour') }}</a>`;
+                }
+            }
 
             const districtText = Array.isArray(loc.districts) ?
                 loc.districts.join(", ") :
@@ -713,7 +719,7 @@
             {{ __('app.investment_scale') }}: ${priceText} {{ __('app.billion_vnd') }}<br>
             ${areaHtml}
             <div style="margin-top:10px; display:flex; gap:8px; justify-content:flex-end;">
-                <a href="${tourUrl}" target="_blank" class="btn btn-sm btn-secondary text-white">{{ __('app.virtual_tour') }}</a>
+                ${tourButtonHtml}
                 <a href="${detailUrl}" target="_blank" class="btn btn-sm btn-primary text-white">{{ __('app.information') }}</a>
             </div>
         </div>
