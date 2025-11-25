@@ -29,7 +29,7 @@
                         @can('post/' . ($post->exists ? 'edit' : 'add'))
                             <x-forms.button-save />
                         @endcan
-                        @can('investment_guide/import')
+                        @can('post/import')
                             <x-forms.button-url title="Tạo từ link" class="btn-warning text-white" icon="fa fa-link"
                                                 url="{{ route('backend_post_show_import_form') }}"/>
                         @endcan
