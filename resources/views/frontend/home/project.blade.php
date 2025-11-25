@@ -54,7 +54,7 @@
             {{-- <img class="texture-7" src="./images/texture-7.png" alt=""> --}}
             <div class="container">
                 <div class="row g-20">
-                    <div class="col-lg-3">
+                    <div class="col-lg-3 filter-custom">
                         <form class="aside-form" action="{{ route('projects') }}" method="GET">
                             {{-- Giữ lại tab filter khi submit --}}
                             @if(request()->has('is_invest'))

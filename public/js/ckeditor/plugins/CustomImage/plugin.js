@@ -22,13 +22,13 @@ CKEDITOR.plugins.add("CustomImage", {
                 );
               } else {
                 // Các ảnh khác thì mở cropper
-                openCropperModal(imageUrl, function (croppedDataUrl) {
-                  editor.insertHtml(
-                    '<img src="' +
-                      croppedDataUrl +
-                      '" style="max-width:100%; display:block; margin:auto;"/>'
-                  );
-                });
+                // openCropperModal(imageUrl, function (croppedDataUrl) {
+                //   editor.insertHtml(
+                //     '<img src="' +
+                //       croppedDataUrl +
+                //       '" style="max-width:100%; display:block; margin:auto;"/>'
+                //   );
+                // });
               }
             });
           },
@@ -70,18 +70,18 @@ CKEDITOR.plugins.add("CustomImage", {
             htmlOutput = htmlOutput.replace(img.outerHTML, fixedImg);
           } else {
             // Với ảnh khác thì mở cropper
-            let placeholder = `<span id="crop_placeholder_${idx}"></span>`;
-            htmlOutput = htmlOutput.replace(img.outerHTML, placeholder);
+            // let placeholder = `<span id="crop_placeholder_${idx}"></span>`;
+            // htmlOutput = htmlOutput.replace(img.outerHTML, placeholder);
 
-            openCropperModal(src, function (croppedDataUrl) {
-              let span = document.getElementById(`crop_placeholder_${idx}`);
-              if (span) {
-                span.outerHTML =
-                  '<img src="' +
-                  croppedDataUrl +
-                  '" style="max-width:100%; display:block; margin:auto;"/>';
-              }
-            });
+            // openCropperModal(src, function (croppedDataUrl) {
+            //   let span = document.getElementById(`crop_placeholder_${idx}`);
+            //   if (span) {
+            //     span.outerHTML =
+            //       '<img src="' +
+            //       croppedDataUrl +
+            //       '" style="max-width:100%; display:block; margin:auto;"/>';
+            //   }
+            // });
           }
         });
 

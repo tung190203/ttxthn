@@ -377,6 +377,42 @@
   /* Hiển thị dấu ... nếu tràn */
 }
 
+.project-nav {
+  position: sticky;
+  top: 40px;
+  z-index: 9999;
+}
+
+.filter-custom {
+  position: sticky;
+  top: 180px;
+  align-self: flex-start;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+}
+
+.aside-form {
+  position: static; /* Bỏ sticky ở form, để sticky ở cột cha */
+}
+
+@media (max-width: 1199px) {
+  .project-nav {
+    top: 0;
+  }
+  .filter-custom {
+    top: 100px;
+  }
+}
+@media (max-width: 991px) {
+  .project-nav {
+    top: 0;
+  }
+  .filter-custom {
+    position: static !important;
+    max-height: none !important;
+    overflow-y: visible !important;
+  }
+}
 .project-nav-wrapper {
   display: flex;
   align-items: center;
