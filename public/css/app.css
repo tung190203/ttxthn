@@ -18760,13 +18760,15 @@ a {
     -webkit-box-flex: 1;
     -ms-flex-positive: 1;
     flex-grow: 1;
-    overflow: hidden
+    /* overflow: hidden */
 }
 
 .page__content {
     -webkit-box-flex: 1;
     -ms-flex-positive: 1;
-    flex-grow: 1
+    flex-grow: 1;
+    position: relative; /* Thêm dòng này */
+    z-index: 1;
 }
 
 .button {
