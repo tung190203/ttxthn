@@ -175,6 +175,59 @@
                                             :messages="$errors->get('content.'.$locale)" />
                                             
                                         <hr class="my-3">
+                                        <h6 class="text-muted">Tệp đính kèm ({{ $label }})</h6>
+
+                                        @php
+                                            // Lấy URL tệp đã dịch (phân cách bằng dấu chấm phẩy)
+                                            $fileUrls = explode(';', $post->getTranslation('files', $locale, false) ?? '');
+                                            $fileUrls = array_filter($fileUrls, 'trim'); 
+                                            
+                                            // Lấy mô tả đã dịch
+                                            $descsJson = $post->getTranslation('short_file_descs', $locale, false);
+                                            $descs = is_string($descsJson) ? json_decode($descsJson, true) : [];
+                                            if (!is_array($descs)) $descs = [];
+                                        @endphp
+
+                                        {{-- Container chứa các tệp (URL và Mô tả) --}}
+                                        <div id="file-container-{{ $locale }}">
+                                            @foreach($fileUrls as $index => $url)
+                                                {{-- ĐÃ THÊM d-flex align-items-center ĐỂ CĂN CHỈNH CHIỀU DỌC --}}
+                                                <div class="row mb-2 file-row-{{ $locale }} d-flex align-items-center">
+                                                    <div class="col-md-5">
+                                                        {{-- Trường URL Tệp --}}
+                                                        <input type="text" class="form-control file-url-input-{{ $locale }}" 
+                                                               name="files[{{ $locale }}][]" 
+                                                               value="{{ trim($url) }}" 
+                                                               placeholder="URL tệp">
+                                                    </div>
+                                                    <div class="col-md-1">
+                                                        {{-- Nút mở File Manager --}}
+                                                        <button type="button" class="btn btn-sm btn-primary btn-browse-file" data-locale="{{ $locale }}">
+                                                            <i class="fa fa-folder-open"></i>
+                                                        </button>
+                                                    </div>
+                                                    <div class="col-md-5">
+                                                        {{-- Trường Mô tả Tệp --}}
+                                                        <input type="text" class="form-control" 
+                                                               name="files_descs[{{ $locale }}][]" 
+                                                               value="{{ $descs[$index] ?? '' }}" 
+                                                               placeholder="Mô tả ngắn">
+                                                    </div>
+                                                    <div class="col-md-1">
+                                                        <button type="button" class="btn btn-danger btn-sm remove-file" data-locale="{{ $locale }}">
+                                                            <i class="fa fa-trash"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+
+                                        {{-- Nút Thêm Tệp --}}
+                                        <button type="button" class="btn btn-sm btn-success add-file mt-2" data-locale="{{ $locale }}">
+                                            <i class="fa fa-plus"></i> Thêm tệp
+                                        </button>
+                                            
+                                        <hr class="my-3">
                                         <h6 class="text-muted">SEO Meta Tags ({{ $label }})</h6>
                                         
                                         <x-forms.input 
@@ -242,6 +295,80 @@
                     });
                 }
             @endforeach
+                        /**
+             * Tạo cấu trúc HTML cho một tệp tin mới
+             * @param {string} locale Ngôn ngữ hiện tại
+             */
+             function createNewFileRow(locale) {
+                const newRow = document.createElement('div');
+                // ĐÃ THÊM d-flex align-items-center VÀO ĐÂY
+                newRow.className = 'row mb-2 file-row-' + locale + ' d-flex align-items-center';
+                newRow.innerHTML = `
+                    <div class="col-md-5">
+                        <input type="text" class="form-control file-url-input-${locale}" 
+                               name="files[${locale}][]" 
+                               placeholder="URL tệp">
+                    </div>
+                    <div class="col-md-1">
+                        <button type="button" class="btn btn-sm btn-primary btn-browse-file" data-locale="${locale}">
+                            <i class="fa fa-folder-open"></i>
+                        </button>
+                    </div>
+                    <div class="col-md-5">
+                        <input type="text" class="form-control" 
+                               name="files_descs[${locale}][]" 
+                               placeholder="Mô tả ngắn">
+                    </div>
+                    <div class="col-md-1">
+                        <button type="button" class="btn btn-danger btn-sm remove-file" data-locale="${locale}">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                return newRow;
+            }
+
+            // 2. Xử lý Thêm/Xóa tệp
+            document.addEventListener('click', function(e) {
+                // Xóa file
+                const removeButton = e.target.closest('.remove-file');
+                if (removeButton) {
+                    e.preventDefault();
+                    removeButton.closest(`.file-row-${removeButton.dataset.locale}`).remove();
+                    return; 
+                }
+
+                // Thêm file
+                const addButton = e.target.closest('.add-file');
+                if (addButton) {
+                    e.preventDefault();
+                    var locale = addButton.dataset.locale;
+                    var container = document.getElementById('file-container-' + locale);
+                    
+                    container.appendChild(createNewFileRow(locale));
+                    return;
+                }
+
+                // 3. Logic Mở CKFinder cho trường URL tệp
+                const browseButton = e.target.closest('.btn-browse-file');
+                if (browseButton) {
+                    e.preventDefault();
+                    // Tìm input URL nằm trong cùng hàng (row)
+                    const input = browseButton.closest(`.file-row-${browseButton.dataset.locale}`).querySelector(`input[name="files[${browseButton.dataset.locale}][]"]`);
+                    
+                    if (!input) return;
+
+                    CKFinder.popup({
+                        chooseFiles: true,
+                        onInit: function(finder) {
+                            finder.on('files:choose', function(evt) {
+                                var file = evt.data.files.first();
+                                input.value = file.getUrl();
+                            });
+                        }
+                    });
+                }
+            });
         });
     </script>
 
