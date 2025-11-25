@@ -183,9 +183,40 @@ class PostController extends Controller
             'published_at' => 'nullable|date',
             'projects' => 'nullable|array',
             'projects.*' => 'integer|exists:projects,id',
+            // Cập nhật Validation cho files (URL)
+            'files' => 'nullable|array',
+            'files.*' => 'nullable|array', // Mảng URL tệp cho từng locale
+            'files.*.*' => 'nullable|string',
+
+            // Cập nhật Validation cho files_descs (Mô tả)
+            'files_descs' => 'nullable|array',
+            'files_descs.*' => 'nullable|array', // Mảng mô tả cho từng locale
+            'files_descs.*.*' => 'nullable|string',
         ]);
     
         try {
+            $processFileTranslations = function (Request $request, string $requestFieldName, string $modelFieldName) {
+                $inputData = $request->input($requestFieldName);
+                $translations = [];
+    
+                if (is_array($inputData)) {
+                    foreach ($inputData as $locale => $items) {
+                        if (is_array($items)) {
+                            // Lọc bỏ giá trị rỗng và trim
+                            $cleanedItems = array_map('trim', array_filter($items));
+    
+                            if ($modelFieldName === 'short_file_descs') {
+                                // short_file_descs cần lưu trữ mảng (JSON string)
+                                $translations[$locale] = json_encode($cleanedItems);
+                            } else {
+                                // files (URL) cần lưu trữ chuỗi phân cách bởi dấu chấm phẩy
+                                $translations[$locale] = implode(';', $cleanedItems);
+                            }
+                        }
+                    }
+                }
+                return $translations;
+            };
             // 🟩 Tạo mới (bản chính)
             if (!$post->exists) {
                 // Xử lý dữ liệu đa ngôn ngữ
@@ -199,8 +230,24 @@ class PostController extends Controller
                 $post->fill(array_diff_key($validated, array_flip($post->translatable)));
                 
                 // Set translatable fields
+                // foreach ($translatableData as $field => $translations) {
+                //     $post->setTranslations($field, $translations);
+                // }
                 foreach ($translatableData as $field => $translations) {
-                    $post->setTranslations($field, $translations);
+                    if ($field !== 'files' && $field !== 'short_file_descs') {
+                        $post->setTranslations($field, $translations);
+                    }
+                }
+    
+                // Xử lý files và short_file_descs dưới dạng đa ngôn ngữ
+                $fileTranslations = $processFileTranslations($request, 'files', 'files');
+                if (!empty($fileTranslations)) {
+                    $post->setTranslations('files', $fileTranslations);
+                }
+                
+                $descsTranslations = $processFileTranslations($request, 'files_descs', 'short_file_descs');
+                if (!empty($descsTranslations)) {
+                    $post->setTranslations('short_file_descs', $descsTranslations);
                 }
     
                 $post->approval_level = $user->is_super_admin ? 2 : ($user->is_approve ? 1 : 0);
@@ -251,9 +298,25 @@ class PostController extends Controller
                     $mainPost->fill(array_diff_key($validated, array_flip($post->translatable)));
                     
                     // Set translatable fields
+                    // foreach ($translatableData as $field => $translations) {
+                    //     $mainPost->setTranslations($field, $translations);
+                    // }
                     foreach ($translatableData as $field => $translations) {
-                        $mainPost->setTranslations($field, $translations);
-                    }
+                        if ($field !== 'files' && $field !== 'short_file_descs') {
+                           $mainPost->setTranslations($field, $translations);
+                       }
+                   }
+   
+                   // Xử lý files và short_file_descs dưới dạng đa ngôn ngữ
+                   $fileTranslations = $processFileTranslations($request, 'files', 'files');
+                   if (!empty($fileTranslations)) {
+                       $mainPost->setTranslations('files', $fileTranslations);
+                   }
+                   
+                   $descsTranslations = $processFileTranslations($request, 'files_descs', 'short_file_descs');
+                   if (!empty($descsTranslations)) {
+                       $mainPost->setTranslations('short_file_descs', $descsTranslations);
+                   }
     
                     $mainPost->approval_level = $mainPost->max_approval;
                     $mainPost->status_approve = 'approved';
@@ -304,8 +367,24 @@ class PostController extends Controller
                         $draft->fill(array_diff_key($validated, array_flip($post->translatable)));
                         
                         // Set translatable fields
+                        // foreach ($translatableData as $field => $translations) {
+                        //     $draft->setTranslations($field, $translations);
+                        // }
                         foreach ($translatableData as $field => $translations) {
-                            $draft->setTranslations($field, $translations);
+                            if ($field !== 'files' && $field !== 'short_file_descs') {
+                                $draft->setTranslations($field, $translations);
+                            }
+                        }
+    
+                        // Xử lý files và short_file_descs dưới dạng đa ngôn ngữ
+                        $fileTranslations = $processFileTranslations($request, 'files', 'files');
+                        if (!empty($fileTranslations)) {
+                            $draft->setTranslations('files', $fileTranslations);
+                        }
+                        
+                        $descsTranslations = $processFileTranslations($request, 'files_descs', 'short_file_descs');
+                        if (!empty($descsTranslations)) {
+                            $draft->setTranslations('short_file_descs', $descsTranslations);
                         }
 
                         $draft->is_draft = true;
@@ -340,9 +419,25 @@ class PostController extends Controller
                         $post->fill(array_diff_key($validated, array_flip($post->translatable)));
 
                         // Set translatable fields
+                        // foreach ($translatableData as $field => $translations) {
+                        //     $post->setTranslations($field, $translations);
+                        // }
                         foreach ($translatableData as $field => $translations) {
-                            $post->setTranslations($field, $translations);
-                        }
+                            if ($field !== 'files' && $field !== 'short_file_descs') {
+                               $post->setTranslations($field, $translations);
+                           }
+                       }
+   
+                       // Xử lý files và short_file_descs dưới dạng đa ngôn ngữ
+                       $fileTranslations = $processFileTranslations($request, 'files', 'files');
+                       if (!empty($fileTranslations)) {
+                           $post->setTranslations('files', $fileTranslations);
+                       }
+                       
+                       $descsTranslations = $processFileTranslations($request, 'files_descs', 'short_file_descs');
+                       if (!empty($descsTranslations)) {
+                           $post->setTranslations('short_file_descs', $descsTranslations);
+                       }
 
                         $post->status_approve = 'pending';
                         $post->approval_level = $user->is_approve ? 1 : 0;

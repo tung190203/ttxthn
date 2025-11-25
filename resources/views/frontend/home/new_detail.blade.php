@@ -39,6 +39,40 @@
                     </span>
                 </div>
             </div>
+            <div class="mt-4">
+                @php
+                    $files = $post->files ? explode(';', $post->files) : [];
+                    $content = $post->short_file_descs
+                        ? json_decode($post->short_file_descs, true)
+                        : [];
+                @endphp
+
+                @if (count($files) > 0)
+                    <div class="container mb-4">
+                        <h3 class="mb-3">{{ __('app.attached_documents') }}</h3>
+                        <div class="row g-3">
+                            @foreach ($files as $index => $file)
+                                <div class="col-md-6">
+                                    <div class="card shadow-sm h-100 hover-shadow-custom border-0 file-item" 
+                                        data-file="{{ asset($file) }}">
+                                        <div class="card-body d-flex align-items-center" style="cursor:pointer;">
+                                            <i class="fas fa-file-alt fa-2x text-primary me-3"></i>
+                                            @if (isset($content[$index]) && !empty($content[$index]))
+                                                <div class="fw-bold text-truncate-multiline">
+                                                    {{ $content[$index] }}
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                        <div class="mt-3">
+                            <iframe id="fileViewer" src="{{ asset($files[0]) }}" width="100%" height="700px" frameborder="0"></iframe>
+                        </div>
+                    </div>
+                @endif
+            </div>
         </article>
         <section class="">
             {{-- <img class="texture-1" src="./images/texture-1.png" alt="">
@@ -84,5 +118,17 @@
 @endsection
 
 @push('bottom')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileItems = document.querySelectorAll('.file-item');
+        const iframe = document.getElementById('fileViewer');
 
+        fileItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const fileUrl = this.getAttribute('data-file');
+                iframe.src = fileUrl;
+            });
+        });
+    });
+</script>
 @endpush

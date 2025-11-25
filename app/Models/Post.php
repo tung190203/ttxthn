@@ -49,6 +49,8 @@ class Post extends Model
         'slug',
         'description',
         'content',
+        'files',
+        'short_file_descs',
         'meta_title',
         'meta_keywords',
         'meta_description',
