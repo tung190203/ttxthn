@@ -19,6 +19,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'member_auth' => MemberAuth::class,
             'base_auth' => BasePasswordMiddleware::class,
         ]);
+        $middleware->encryptCookies(except: [
+            'ckCsrfToken',
+        ]);
+        $middleware->validateCsrfTokens(
+            except: ['ckfinder/*']
+        );
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
