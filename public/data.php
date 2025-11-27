@@ -6,27 +6,56 @@ header('Content-Type: application/json; charset=utf-8');
 
 function load_js($file_name)
 {
-    $list = file_get_contents('vrtour/'.$_REQUEST['folder'].'/'.$file_name.'.js');
-    return json_decode($list,true);
+    $folder = isset($_REQUEST['folder']) ? $_REQUEST['folder'] : '';
+    $path   = 'vrtour/' . $folder . '/' . $file_name . '.js';
+   
+    if (!file_exists($path)) {
+        return null;
+    }
+
+    $content = @file_get_contents($path);
+
+    if ($content === false || trim($content) === '') {
+        return null;
+    }
+    // Parse JSON
+    $json = json_decode($content, true);
+
+    return (json_last_error() === JSON_ERROR_NONE) ? $json : null;
+
 }
 
-$vr_hotspot     = load_js($file_name = 'hotspot');
-$list_hotspot   = [ ];
-foreach($vr_hotspot as $k => $val){
-    $list_hotspot[$k]['potision']   = $val['potision'];
-    $list_hotspot[$k]['url']        = $val['url'];
-    $list_hotspot[$k]['url_en']     = $val['url_en'];
-    $list_hotspot[$k]['opacity']    = $val['opacity'];
-    $list_hotspot[$k]['tooltip']    = $val['tooltip'];
-    $list_hotspot[$k]['tooltip_en'] = $val['tooltip_en'];
+// ========== LOAD DATA ==========
+
+$vr_hotspot = load_js('hotspot');
+$list_hotspot = [];
+
+if (is_array($vr_hotspot)) {
+    foreach($vr_hotspot as $k => $val){
+        $list_hotspot[$k] = [
+            'potision'   => $val['potision'] ?? null,
+            'url'        => $val['url'] ?? null,
+            'url_en'     => $val['url_en'] ?? null,
+            'opacity'    => $val['opacity'] ?? null,
+            'tooltip'    => $val['tooltip'] ?? null,
+            'tooltip_en' => $val['tooltip_en'] ?? null,
+        ];
+    }
 }
 
-$connectmap         = load_js($file_name = 'connectmap');
+// Load các file khác (trả về null nếu không có)
+$connectmap = load_js('connectmap');
+$location   = load_js('location');
+$investor   = load_js('investor');
+$pano       = load_js('pano');
+$screen     = load_js('welcome_screen');
+$plan       = load_js('plan');
+$document   = load_js('document');
 
-$location           = load_js($file_name = 'location');
+// ========== PROCESS INVESTOR HTML ==========
 
-$investor           = load_js($file_name = 'investor');
-$start_html         = '<div style="text-align: left; color: #000;">
+if (is_array($investor)) {
+    $start_html         = '<div style="text-align: left; color: #000;">
     <p style="margin: 0; line-height: 16.76px;"><br style="display: inline-block; letter-spacing: 0px; white-space: pre-wrap; color: #000000; font-size: 46.17px; font-family: Arial, Helvetica, sans-serif;" /></p>
     <p style="margin: 0; line-height: 16.76px;"><br style="display: inline-block; letter-spacing: 0px; white-space: pre-wrap; color: #000000; font-size: 46.17px; font-family: Arial, Helvetica, sans-serif;" /></p>
     <p style="margin: 0; line-height: 16.76px;"><br style="display: inline-block; letter-spacing: 0px; white-space: pre-wrap; color: #000000; font-size: 46.17px; font-family: Arial, Helvetica, sans-serif;" /></p>
@@ -40,15 +69,30 @@ $end_html           = '</span>
         </span>
     </div>
 </div>';
-$investor['name']       = $start_html.$investor['name'].$end_html;
-$investor['name_en']    = $start_html.$investor['name_en'].$end_html;
 
-$pano               = load_js($file_name = 'pano');
-$start_html1        = '<div style="text-align:left; color:#000; "><DIV STYLE="line-height:100%;text-align:left;font-size:1.984564498346196vmin;"><SPAN STYLE="display:inline-block; letter-spacing:0vmin; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:1.98vmin;font-family:SVN-Gotham;">';
-$end_html1          = '</SPAN></SPAN></DIV></div>';
-$screen             = load_js($file_name = 'welcome_screen');
-$screen['description'] = $start_html1.$screen['description'].$end_html1;
-$plan               = load_js($file_name = 'plan');
-$document           = load_js($file_name = 'document');
+    $investor['name']    = $start_html . ($investor['name'] ?? '') . $end_html;
+    $investor['name_en'] = $start_html . ($investor['name_en'] ?? '') . $end_html;
+}
 
-echo json_encode(compact('list_hotspot', 'connectmap', 'location', 'investor', 'pano', 'screen', 'plan','document'));
+// ========== PROCESS SCREEN HTML ==========
+
+if (is_array($screen)) {
+    $start_html1        = '<div style="text-align:left; color:#000; "><DIV STYLE="line-height:100%;text-align:left;font-size:1.984564498346196vmin;"><SPAN STYLE="display:inline-block; letter-spacing:0vmin; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:1.98vmin;font-family:SVN-Gotham;">';
+    $end_html1          = '</SPAN></SPAN></DIV></div>';
+
+    $screen['description'] = $start_html1 . ($screen['description'] ?? '') . $end_html1;
+}
+
+// ========== OUTPUT JSON ==========
+
+echo json_encode([
+    'list_hotspot' => $list_hotspot,
+    'connectmap'   => $connectmap,
+    'location'     => $location,
+    'investor'     => $investor,
+    'pano'         => $pano,
+    'screen'       => $screen,
+    'plan'         => $plan,
+    'document'     => $document
+], JSON_UNESCAPED_UNICODE);
+
