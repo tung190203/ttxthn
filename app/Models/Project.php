@@ -51,6 +51,7 @@ class Project extends Model
         'is_draft',
         'parent_id',
         'status',
+        'view_num'
     ];
 
     public $translatable = [

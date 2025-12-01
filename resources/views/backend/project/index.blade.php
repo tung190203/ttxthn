@@ -14,7 +14,7 @@
     <section class="content">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-xl-9 text-center">
+                <div class="col-xl-8 text-center">
                     <form action="" method="GET" class="form-filter-top-index">
                         <div class="row">
                             <div class="col-md-3">
@@ -62,7 +62,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-3 text-left">
+                            <div class="col-md-2 text-left">
                                 <div class="form-group">
                                     <button type="submit" class="btn btn-primary btn-sm">Tìm kiếm</button>
                                 </div>
@@ -70,7 +70,7 @@
                         </div>
                     </form>
                 </div>
-                <div class="col-xl-3">
+                <div class="col-xl-4">
                     <div class="float-right mb-3">
                         @can('project/edit')
                             <x-forms.button-save/>
@@ -81,6 +81,10 @@
                         @endcan
                         @can('project/delete')
                             <x-forms.button-bulk-delete url="{{ route('backend_project_bulk_delete')}}"/>
+                        @endcan
+                        @can('project/export')
+                        <x-forms.button-url title="Xuất báo cáo" class="btn-success" icon="fa fa-file-export"
+                                                url="{{ route('backend_project_export') }}"/>
                         @endcan
                     </div>
                 </div>
