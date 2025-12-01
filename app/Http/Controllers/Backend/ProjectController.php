@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Backend;
 
+use App\Exports\ProjectsExport;
 use App\Http\Controllers\Controller;
 use App\Models\Project;
 use Illuminate\Http\Request;
@@ -12,6 +13,8 @@ use App\Models\Group;
 use App\Models\ProjectIndustries;
 use App\Models\ProjectType;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Excel as ExcelType;
 
 class ProjectController extends Controller
 {
@@ -650,5 +653,9 @@ class ProjectController extends Controller
         }
 
         return response()->json(['status' => 'ok']);
+    }
+
+    public function exportCsv() {
+        return Excel::download(new ProjectsExport, 'projects.xlsx', ExcelType::XLSX);
     }
 }

@@ -176,6 +176,7 @@ Route::localized(function () {
             Route::post('bulk_delete', [ProjectController::class, 'bulkDelete'])->name('backend_project_bulk_delete');
             Route::post('/approve/{project}', [ProjectController::class, 'approve'])->name('backend_project_approve');
             Route::post('/reject/{project}', [ProjectController::class, 'reject'])->name('backend_project_reject');
+            Route::get('/export', [ProjectController::class, 'exportCsv'])->name('backend_project_export');
         });
 
         Route::prefix('vrtour')->group(function () {
