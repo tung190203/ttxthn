@@ -3,7 +3,6 @@
 /public/uploads
 /public/vrtour
 /storage/*.key
-/vendor
 .env
 .phpunit.result.cache
 /.idea
