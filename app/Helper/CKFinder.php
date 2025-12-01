@@ -47,7 +47,7 @@ class CKFinder
      */
     protected function generateBaseUrl(): string
     {
-        return config('app.url') . "/storage/{$this->hashedDirectory}";
+        return "/storage/{$this->hashedDirectory}";
     }
 
     /**
