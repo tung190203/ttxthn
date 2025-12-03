@@ -38,10 +38,10 @@
                         @can('menu/edit')
                             <x-forms.button-save/>
                         @endcan
-                        @can('menu/add')
+                        {{-- @can('menu/add')
                             <x-forms.button-url title="Thêm mới" class="btn-info" icon="fa fa-plus"
                                                 url="{{ route('backend_menu_create') }}"/>
-                        @endcan
+                        @endcan --}}
                         @can('menu/delete')
                             <x-forms.button-bulk-delete url="{{ route('backend_menu_bulk_delete')}}"/>
                         @endcan

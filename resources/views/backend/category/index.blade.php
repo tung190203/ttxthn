@@ -45,10 +45,10 @@
                         @can('category/edit')
                             <x-forms.button-save/>
                         @endcan
-                        @can('category/add')
+                        {{-- @can('category/add')
                             <x-forms.button-url title="Thêm mới" class="btn-info" icon="fa fa-plus"
                                                 url="{{ route('backend_category_create') }}"/>
-                        @endcan
+                        @endcan --}}
                         @can('category/delete')
                             <x-forms.button-bulk-delete url="{{ route('backend_category_bulk_delete')}}"/>
                         @endcan
