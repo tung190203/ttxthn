@@ -276,7 +276,16 @@ class HomeController extends Controller
                     }
                 }
             })->firstOrFail();
+        $currentMonth = now()->format('Y-m');
 
+        // Nếu sang tháng mới → reset views_month
+        if ($project->views_month_code !== $currentMonth) {
+            $project->views_month = 0;
+            $project->views_month_code = $currentMonth;
+        }
+        
+        // Tăng tổng lượt xem
+        $project->views_month += 1;
         $project->view_num += 1;
         $project->save();            
 
