@@ -30,6 +30,7 @@ class ProjectsExport implements FromArray, WithStyles, ShouldAutoSize
     {
         $projects = Project::withRelations()->get();
         $data = [];
+        $firstDay = now()->startOfMonth()->format('d/m/Y');
 
         $sum_columns = array_fill(0, 9, 0);
         $sum_view_month = 0;
@@ -98,9 +99,13 @@ class ProjectsExport implements FromArray, WithStyles, ShouldAutoSize
         // Header Level 3
         $data[] = [
             '', '', '', '', '',
-            'Quy hoạch tổng thể','Quy hoạch chi tiết','Thuộc danh mục','Số hóa','Chấp thuận chủ trương','Lựa chọn nhà đầu tư','Giải phóng mặt bằng','Phương án kỹ thuật','Hoàn thành',
-            'Tổng lượt xem','Lượt xem tháng','Tổng đăng ký','Đăng ký tháng'
-        ];
+            'Quy hoạch tổng thể','Quy hoạch chi tiết','Thuộc danh mục','Số hóa','Chấp thuận chủ trương',
+            'Lựa chọn nhà đầu tư','Giải phóng mặt bằng','Phương án kỹ thuật','Hoàn thành',
+            'Tổng lượt xem',
+            "Lượt xem\n(Tính từ $firstDay đến nay)",
+            'Tổng đăng ký',
+            "Đăng ký\n(Tính từ $firstDay đến nay)"
+        ];        
 
         // Row tổng cộng
         $data[] = [
@@ -169,6 +174,14 @@ class ProjectsExport implements FromArray, WithStyles, ShouldAutoSize
         // Borders
         $sheet->getStyle('A1:'.$highestColumn.$highestRow)->applyFromArray([
             'borders'=>['allBorders'=>['borderStyle'=>Border::BORDER_THIN,'color'=>['rgb'=>'000000']]]
+        ]);
+
+        $sheet->getStyle('P3:R3')->applyFromArray([
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical'   => Alignment::VERTICAL_CENTER,
+                'wrapText'   => true
+            ],
         ]);
 
         return [];
