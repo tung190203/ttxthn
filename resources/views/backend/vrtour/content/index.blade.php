@@ -18,22 +18,23 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <select class="form-control" id="slt_vrtour">
-                                        <option value="all">-- Chọn dự án --</option>
-                                        @foreach ($vrtour as $key => $tour)
-                                        <option value="{{ $tour->id }}">{{ $tour->name }}</option>
-                                        @endforeach
-                                    </select>
+                                    <x-forms.select2 
+                                        name="slt_vrtour" 
+                                        id="slt_vrtour" 
+                                        :options="$vrtour" 
+                                        placeholder="-- Chọn dự án --"
+                                        :selected="old('slt_vrtour')" 
+                                    />
+                                </div>
+                            </div>
+                            <div class="col-md-2 text-left">
+                                <div class="form-group">
+                                    <button type="button" class="btn btn-primary btn-sm" id="btn_search_tour" style="height: 38px">Lấy dữ liệu</button>
                                 </div>
                             </div>
                             <div class="col-md-3 text-left">
                                 <div class="form-group">
-                                    <button type="button" class="btn btn-primary btn-sm" id="btn_search_tour">Lấy dữ liệu</button>
-                                </div>
-                            </div>
-                            <div class="col-md-3 text-left">
-                                <div class="form-group">
-                                    <button type="button" class="btn btn-danger btn-sm" id="btn_reset" style="display:none;">Reset</button>
+                                    <button type="button" class="btn btn-danger btn-sm" id="btn_reset" style="display:none; height: 38px;">Reset</button>
                                 </div>
                             </div>
                         </div>
