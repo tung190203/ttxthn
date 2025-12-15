@@ -23,17 +23,18 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <select class="form-control" id="slt_vrtour">
-                                        <option value="all">-- Chọn dự án --</option>
-                                        @foreach ($vrtour as $key => $tour)
-                                        <option value="{{ $tour->id }}">{{ $tour->name }}</option>
-                                        @endforeach
-                                    </select>
+                                    <x-forms.select2 
+                                        name="slt_vrtour" 
+                                        id="slt_vrtour" 
+                                        :options="$vrtour" 
+                                        placeholder="-- Chọn dự án --"
+                                        :selected="old('slt_vrtour')" 
+                                    />
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <select class="form-control" id="slt_vrtour_type">
+                                    <select class="form-control" id="slt_vrtour_type" style="height: 38px">
                                         <option value="0">Toàn bộ</option>
                                         <option value="1">Màn hình chào mừng</option>
                                         <option value="3">Sơ đồ liên kết vùng</option>
@@ -46,7 +47,7 @@
                             </div>
                             <div class="col-md-4 text-left">
                                 <div class="form-group">
-                                    <button type="button" class="btn btn-sm fw-bold btn-primary btn-info" id="update_all" role="button">
+                                    <button type="button" class="btn btn-sm fw-bold btn-primary btn-info" id="update_all" role="button" style="height: 38px">
                                         <i class="fa fa-save" aria-hidden="true"></i> Cập nhật
                                     </button>
                                 </div>
