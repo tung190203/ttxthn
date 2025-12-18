@@ -157,18 +157,18 @@ class PostController extends Controller
         }
     
         $validated = $request->validate([
-            'name' => 'required|array', // Thay đổi thành array
-            'name.*' => 'required|string',
+            'name' => 'nullable|array', // Thay đổi thành array
+            'name.*' => 'nullable|string',
             'slug' => 'nullable|array',
             'slug.*' => 'nullable|alpha_dash',
             'cat_id' => 'nullable|integer',
             'relic_id' => 'nullable|integer',
             'image' => 'nullable|string|max:2048',
             'priority' => 'nullable|integer',
-            'description' => 'required|array',
-            'description.*' => 'required|string',
-            'content' => 'required|array',
-            'content.*' => 'required|string',
+            'description' => 'nullable|array',
+            'description.*' => 'nullable|string',
+            'content' => 'nullable|array',
+            'content.*' => 'nullable|string',
             'source' => 'nullable|string|max:255',
             'is_hot' => 'nullable|boolean',
             'view_num' => 'nullable|integer',
