@@ -93,7 +93,7 @@
                     @csrf
                     <div class="card-body">
 
-                        {{-- --- CÁC TRƯỜNG ĐƠN NGỮ (NON-TRANSLATABLE FIELDS) --- --}}
+                        {{-- --- CÁC TRƯỜNG ĐƠN NGỮ --- --}}
                         <h4 class="mb-3">Thông tin Chung (Đơn ngữ)</h4>
                         
                         <x-forms.upload name="banner_image" value="{{ old('banner_image') ?: $project->banner_image }}"
@@ -158,7 +158,7 @@
                             
                         <hr class="my-4">
 
-                        {{-- --- TABS ĐA NGÔN NGỮ (TRANSLATABLE FIELDS) --- --}}
+                        {{-- --- TABS ĐA NGÔN NGỮ --- --}}
                         <h4 class="mb-3">Nội dung Dự án (Đa ngôn ngữ)</h4>
 
                         <div class="form-group">
@@ -210,15 +210,17 @@
                                         {{-- 3. Lợi thế nổi bật (Advantage) --}}
                                         <h6 class="text-info">Lợi thế nổi bật ({{ $label }})</h6>
                                         @php
-                                            // Lấy data đa ngôn ngữ cho Advantage
-                                            $advTitles = json_decode(old('advantage_titles.'.$locale) ?: $project->getTranslation('advantage_titles', $locale, false) ?? '[]', true);
-                                            $advDescs = json_decode(old('advantage_descs.'.$locale) ?: $project->getTranslation('advantage_descriptions', $locale, false) ?? '[]', true);
+                                            $rawAdvTitles = old('advantage_titles.'.$locale) ?: $project->getTranslation('advantage_titles', $locale, false);
+                                            $rawAdvDescs = old('advantage_descs.'.$locale) ?: $project->getTranslation('advantage_descriptions', $locale, false);
+
+                                            $advTitles = is_string($rawAdvTitles) ? json_decode($rawAdvTitles, true) : (is_array($rawAdvTitles) ? $rawAdvTitles : []);
+                                            $advDescs = is_string($rawAdvDescs) ? json_decode($rawAdvDescs, true) : (is_array($rawAdvDescs) ? $rawAdvDescs : []);
                                         @endphp
                                         <x-forms.upload-multi-combo name="advantage" :locale="$locale" 
                                             :value="[
-                                                'images' => explode(';', $project->advantage_images ?? ''), // Ảnh là đơn ngữ
-                                                'titles' => $advTitles, // Titles là đa ngôn ngữ
-                                                'descs' => $advDescs, // Descriptions là đa ngôn ngữ
+                                                'images' => explode(';', $project->advantage_images ?? ''), 
+                                                'titles' => $advTitles, 
+                                                'descs' => $advDescs, 
                                             ]" label="Ảnh và mô tả lợi thế nổi bật"
                                             :editor="true" :messages="$errors->get('advantage_titles.'.$locale)" />
 
@@ -230,12 +232,13 @@
                                             value="{{ old('design_short_desc.'.$locale) ?: $project->getTranslation('design_short_desc', $locale, false) }}"
                                             label="Mô tả ngắn thiết kế mặt bằng ({{ $label }})" :messages="$errors->get('design_short_desc.'.$locale)" />
                                         @php
-                                            $designDescs = json_decode(old('design_descs.'.$locale) ?: $project->getTranslation('design_description', $locale, false) ?? '[]', true);
+                                            $rawDesignDescs = old('design_descs.'.$locale) ?: $project->getTranslation('design_description', $locale, false);
+                                            $designDescs = is_string($rawDesignDescs) ? json_decode($rawDesignDescs, true) : (is_array($rawDesignDescs) ? $rawDesignDescs : []);
                                         @endphp
                                         <x-forms.upload-multi-combo name="design" :locale="$locale"
                                             :value="[
-                                                'images' => explode(';', $project->design_images ?? ''), // Ảnh là đơn ngữ
-                                                'descs' => $designDescs, // Descriptions là đa ngôn ngữ
+                                                'images' => explode(';', $project->design_images ?? ''), 
+                                                'descs' => $designDescs, 
                                             ]" label="Ảnh và mô tả thiết kế mặt bằng"
                                             :messages="$errors->get('design_descs.'.$locale)" />
 
@@ -247,12 +250,13 @@
                                             value="{{ old('legal_short_desc.'.$locale) ?: $project->getTranslation('legal_short_desc', $locale, false) }}"
                                             label="Mô tả văn bản pháp quy ({{ $label }})" :messages="$errors->get('legal_short_desc.'.$locale)" />
                                         @php
-                                            $filesDescs = json_decode(old('files_descs.'.$locale) ?: $project->getTranslation('legal_description', $locale, false) ?? '[]', true);
+                                            $rawFilesDescs = old('files_descs.'.$locale) ?: $project->getTranslation('legal_description', $locale, false);
+                                            $filesDescs = is_string($rawFilesDescs) ? json_decode($rawFilesDescs, true) : (is_array($rawFilesDescs) ? $rawFilesDescs : []);
                                         @endphp
                                         <x-forms.upload-multi-combo name="files" :locale="$locale"
                                             :value="[
-                                                'images' => explode(';', $project->legal_file ?? ''), // Tệp/Ảnh là đơn ngữ
-                                                'descs' => $filesDescs, // Descriptions là đa ngôn ngữ
+                                                'images' => explode(';', $project->legal_file ?? ''), 
+                                                'descs' => $filesDescs, 
                                             ]" label="Tệp đính kèm văn bản pháp quy"
                                             :messages="$errors->get('files_descs.'.$locale)" />
 
@@ -268,9 +272,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     </section>
 
-    {{-- Script để khởi tạo CKEditor và tự động tạo Slug cho từng locale --}}
     <script>
-        // Hàm chuyển đổi chuỗi có dấu (bao gồm tiếng Việt) thành slug không dấu.
         function convertToSlug(text) {
             text = text.toLowerCase().trim();
             text = text.replace(/á|à|ả|ã|ạ|ă|ắ|ằ|ẳ|ẵ|ặ|â|ấ|ầ|ẩ|ẫ|ậ/gi, 'a');
@@ -287,7 +289,6 @@
             return text;
         }
 
-        // Tự động tạo slug khi gõ tên
         function changeNameToSlug(nameFieldName, slugFieldName, allowDraftSuffix) {
             var nameInput = document.querySelector('input[name="' + nameFieldName + '"]');
             var slugInput = document.querySelector('input[name="' + slugFieldName + '"]');
@@ -299,7 +300,6 @@
         }
         
         document.addEventListener('DOMContentLoaded', function() {
-            // Khởi tạo CKEditor cho từng trường description trong mỗi locale
             @foreach($locales as $locale => $label)
                 var descriptionTextarea = document.querySelector('textarea[name="description[{{ $locale }}]"][editor="true"]');
                 if (descriptionTextarea) {
@@ -311,6 +311,7 @@
             @endforeach
         });
     </script>
+
     <div class="modal fade" id="qrVRTourModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content text-center">
@@ -333,7 +334,6 @@
     
     <script>
     let qr;
-    
     $('#qrVRTourModal').on('shown.bs.modal', function () {
         const box = document.getElementById('qrCodeContainer');
         box.innerHTML = '';
@@ -353,5 +353,4 @@
         a.click();
     }
     </script>
-    
 @endsection
