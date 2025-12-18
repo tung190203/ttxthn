@@ -137,6 +137,19 @@
                             label="Thứ tự ghim dự án" :messages="$errors->get('pin_order')" />
                         <x-forms.input name="link_vrtour" value="{{ old('link_vrtour') ?: $project->link_vrtour }}"
                             label="Link vrtour dự án" :messages="$errors->get('link_vrtour')" />
+                            <div class="row mb-4">
+                                <div class="col-lg-3"></div>
+                                <div class="col-lg-9">
+                                    @if(old('link_vrtour') ?: $project->link_vrtour)
+                                        <button type="button"
+                                            class="btn btn-sm btn-outline-primary mt-2"
+                                            data-toggle="modal"
+                                            data-target="#qrVRTourModal">
+                                            <i class="fa fa-qrcode"></i> Generate QR
+                                        </button>
+                                    @endif
+                                </div>
+                            </div>
                         <x-forms.input name="link_sand_table"
                             value="{{ old('link_sand_table') ?: $project->link_sand_table }}" label="Link sa bàn ảo dự án"
                             :messages="$errors->get('link_sand_table')" />
@@ -252,6 +265,7 @@
                 </form>
             </div>
         </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     </section>
 
     {{-- Script để khởi tạo CKEditor và tự động tạo Slug cho từng locale --}}
@@ -297,4 +311,47 @@
             @endforeach
         });
     </script>
+    <div class="modal fade" id="qrVRTourModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-center">
+                <div class="modal-header">
+                    <h5 class="modal-title">QR Code – VR Tour {{ $project->name }}</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div id="qrCodeContainer" style="display: flex; justify-content: center;"></div>
+                    <small class="text-muted d-block mt-2">
+                        {{ old('link_vrtour') ?: $project->link_vrtour }}
+                    </small>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button class="btn btn-success btn-sm px-4" onclick="downloadQR()">Tải QR</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+    let qr;
+    
+    $('#qrVRTourModal').on('shown.bs.modal', function () {
+        const box = document.getElementById('qrCodeContainer');
+        box.innerHTML = '';
+        qr = new QRCode(box, {
+            text: @json(old('link_vrtour') ?: $project->link_vrtour),
+            width: 220,
+            height: 220
+        });
+    });
+    
+    function downloadQR() {
+        const img = document.querySelector('#qrCodeContainer img');
+        if (!img) return;
+        const a = document.createElement('a');
+        a.href = img.src;
+        a.download = 'qr-vr-tour.png';
+        a.click();
+    }
+    </script>
+    
 @endsection
