@@ -113,18 +113,16 @@
                 <h2 class="section__title">{{ __('app.key_advantages') }}</h2>
                 <div>
                     @php
-                        $images = $project->advantage_images ? explode(';', $project->advantage_images) : [];
-                        
-                        // Kiểm tra nếu là array thì dùng luôn, nếu là string thì mới decode
-                        $titles = is_array($project->advantage_titles) 
+                        $images = $project->advantage_images ? array_filter(explode(';', $project->advantage_images)) : [];
+                        $titlesRaw = is_array($project->advantage_titles) 
                             ? $project->advantage_titles 
-                            : json_decode($project->advantage_titles, true) ?? [];
-
-                        $descs = is_array($project->advantage_descriptions) 
+                            : json_decode($project->advantage_titles, true);
+                        $titles = $titlesRaw['vi'] ?? (is_array($titlesRaw) ? $titlesRaw : []);
+                        $descsRaw = is_array($project->advantage_descriptions) 
                             ? $project->advantage_descriptions 
-                            : json_decode($project->advantage_descriptions, true) ?? [];
-
-                        $count = min(count($images), count($titles['vi'] ?? []), count($descs['vi'] ?? []));
+                            : json_decode($project->advantage_descriptions, true);
+                        $descs = $descsRaw['vi'] ?? (is_array($descsRaw) ? $descsRaw : []);
+                        $count = count($images); 
                     @endphp
 
                     @for ($i = 0; $i < $count; $i++)
@@ -175,7 +173,7 @@
                 <div class="section__desc">{{ $project->design_short_desc }}</div>
                 <div class="design-slider">
                     <div class="design-slider__container swiper-container">
-                        <div class="swiper-wrapper">
+                        {{-- <div class="swiper-wrapper">
                             @php
                                 // 1. Xử lý ảnh thiết kế
                                 $design_images = $project->design_images ? explode(';', $project->design_images) : [];
@@ -202,6 +200,50 @@
                                     </div>
                                 </div>
                             @endfor
+                        </div> --}}
+                        <div class="swiper-wrapper">
+                            @php
+                                // 1. Xử lý ảnh (Dùng array_filter để loại bỏ phần tử rỗng nếu chuỗi kết thúc bằng dấu ;)
+                                $design_images = $project->design_images ? array_filter(explode(';', $project->design_images)) : [];
+                        
+                                // 2. Xử lý mô tả
+                                $design_descs_raw = is_array($project->design_description) 
+                                    ? $project->design_description 
+                                    : json_decode($project->design_description, true);
+                        
+                                // Lấy danh sách mô tả theo ngôn ngữ 'vi'
+                                $design_descs = $design_descs_raw ?? [];
+                        
+                                // Nếu design_descs không phải là mảng (ví dụ chỉ là 1 chuỗi string đơn lẻ), 
+                                // ta ép nó vào mảng để tránh lỗi count
+                                if (!is_array($design_descs)) {
+                                    $design_descs = [$design_descs];
+                                }
+                        
+                                // 3. QUAN TRỌNG: Lấy count theo số lượng ẢNH
+                                // Chúng ta muốn hiển thị tất cả ảnh, kể cả khi thiếu mô tả
+                                $design_count = count($design_images);
+                            @endphp
+                        
+                            @if($design_count > 0)
+                                @foreach ($design_images as $index => $image)
+                                    <div class="design-slider__slide swiper-slide">
+                                        <div class="design-slider__frame">
+                                            <img src="{{ $image }}" alt="Design image {{ $index + 1 }}" />
+                                        </div>
+                                        {{-- Chỉ hiển thị overlay nếu có nội dung mô tả tương ứng --}}
+                                        @if(!empty($design_descs[$index]))
+                                            <div class="design-slider__overlay">
+                                                <div class="design-slider__content">
+                                                    {{ $design_descs[$index] }}
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            @else
+                                <p>Không có hình ảnh thiết kế.</p>
+                            @endif
                         </div>
                     </div>
                 </div>
