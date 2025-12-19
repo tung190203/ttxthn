@@ -114,13 +114,17 @@
                 <div>
                     @php
                         $images = $project->advantage_images ? explode(';', $project->advantage_images) : [];
-                        $titles = $project->advantage_titles ? json_decode($project->advantage_titles, true) : [];
-                        $descs = $project->advantage_descriptions
-                            ? json_decode($project->advantage_descriptions, true)
-                            : [];
+                        
+                        // Kiểm tra nếu là array thì dùng luôn, nếu là string thì mới decode
+                        $titles = is_array($project->advantage_titles) 
+                            ? $project->advantage_titles 
+                            : json_decode($project->advantage_titles, true) ?? [];
 
-                        // Lấy giá trị min của 3 mảng
-                        $count = min(count($images), count($titles), count($descs));
+                        $descs = is_array($project->advantage_descriptions) 
+                            ? $project->advantage_descriptions 
+                            : json_decode($project->advantage_descriptions, true) ?? [];
+
+                        $count = min(count($images), count($titles['vi'] ?? []), count($descs['vi'] ?? []));
                     @endphp
 
                     @for ($i = 0; $i < $count; $i++)
@@ -173,10 +177,19 @@
                     <div class="design-slider__container swiper-container">
                         <div class="swiper-wrapper">
                             @php
+                                // 1. Xử lý ảnh thiết kế
                                 $design_images = $project->design_images ? explode(';', $project->design_images) : [];
-                                $design_descs = $project->design_description
-                                    ? json_decode($project->design_description, true)
-                                    : [];
+
+                                // 2. Xử lý mô tả thiết kế: Kiểm tra nếu đã là array thì dùng luôn, nếu là string thì mới decode
+                                $design_descs_raw = is_array($project->design_description) 
+                                    ? $project->design_description 
+                                    : json_decode($project->design_description, true);
+
+                                // Đảm bảo kết quả cuối cùng là mảng và lấy theo ngôn ngữ (ví dụ: 'vi')
+                                $design_descs = $design_descs_raw['vi'] ?? [];
+
+                                // 3. Tính toán số lượng bản ghi để lặp
+                                // Lưu ý: nên dùng count của mảng ngôn ngữ cụ thể để chính xác hơn
                                 $design_count = min(count($design_images), count($design_descs));
                             @endphp
                             @for ($i = 0; $i < $design_count; $i++)
@@ -213,8 +226,16 @@
                 <div class="section__desc">{{ $project->legal_short_desc }}</div>
                 <div class="legal-grid">
                     @php
+                        // 1. Xử lý danh sách file (chuỗi nối nhau bằng dấu ;)
                         $legal_files = $project->legal_file ? explode(';', $project->legal_file) : [];
-                        $legal_descs = $project->legal_description ? json_decode($project->legal_description, true) : [];
+                        
+                        // 2. Xử lý mô tả pháp lý: Kiểm tra kiểu dữ liệu trước khi decode
+                        $legal_descs_data = is_array($project->legal_description) 
+                            ? $project->legal_description 
+                            : json_decode($project->legal_description, true);
+
+                        // 3. Lấy mảng theo ngôn ngữ hiện tại (mặc định là 'vi')
+                        $legal_descs = $legal_descs_data['vi'] ?? [];
                     @endphp
                     @if(count($legal_files) > 0)
                         @foreach ($legal_files as $index => $file)
