@@ -235,7 +235,7 @@
                             : json_decode($project->legal_description, true);
 
                         // 3. Lấy mảng theo ngôn ngữ hiện tại (mặc định là 'vi')
-                        $legal_descs = $legal_descs_data['vi'] ?? [];
+                        $legal_descs = $legal_descs_data ?? [];
                     @endphp
                     @if(count($legal_files) > 0)
                         @foreach ($legal_files as $index => $file)
