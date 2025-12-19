@@ -37,36 +37,44 @@ CKEDITOR.plugins.add('iconbuttons', {
         // Hàm toggle icon wrapper
         function toggleIconWrapper(editor, iconSrc, iconType) {
             var selection = editor.getSelection();
-            var ranges = selection.getRanges();
+            var element = selection.getStartElement();
             
-            if (ranges.length === 0) return;
+            if (!element) return;
             
-            var range = ranges[0];
-            var selectedElement = range.getCommonAncestor(true);
-            
-            // Kiểm tra xem text đã có wrapper icon chưa
-            var wrapper = findIconWrapper(selectedElement);
+            // Tìm wrapper icon gần nhất
+            var wrapper = findIconWrapper(element);
             
             if (wrapper) {
-                // Đã có wrapper
                 var currentIcon = wrapper.findOne('img');
-                if (currentIcon && currentIcon.getAttribute('src') === iconSrc) {
-                    // Cùng icon -> Xóa wrapper
-                    removeIconWrapper(wrapper, editor);
-                } else {
-                    // Khác icon -> Thay đổi icon
-                    if (currentIcon) {
-                        currentIcon.setAttribute('src', iconSrc);
-                        currentIcon.setAttribute('data-icon-type', iconType);
+                if (currentIcon) {
+                    // Lấy src hiện tại (ưu tiên lấy từ data-cke-saved-src để so sánh chính xác)
+                    var currentSrc = currentIcon.getAttribute('data-cke-saved-src') || currentIcon.getAttribute('src');
+                    
+                    // So sánh: Nếu cùng icon path -> Xóa wrapper
+                    // Dùng indexOf để tránh lỗi khi một cái là path tuyệt đối, một cái là tương đối
+                    if (currentSrc && currentSrc.indexOf(iconSrc) !== -1) {
+                        removeIconWrapper(wrapper, editor);
+                    } else {
+                        // Khác icon -> Cập nhật cả src và data-cke-saved-src
+                        currentIcon.setAttributes({
+                            'src': iconSrc,
+                            'data-cke-saved-src': iconSrc,
+                            'data-icon-type': iconType
+                        });
+                        // Thông báo cho editor rằng nội dung đã thay đổi
+                        editor.fire('change');
                     }
                 }
             } else {
                 // Chưa có wrapper -> Thêm mới
-                addIconWrapper(editor, range, iconSrc, iconType);
+                var ranges = selection.getRanges();
+                if (ranges.length > 0) {
+                    addIconWrapper(editor, ranges[0], iconSrc, iconType);
+                }
             }
         }
         
-        // Tìm wrapper icon
+        // Tìm wrapper icon bằng cách duyệt ngược lên tree DOM
         function findIconWrapper(element) {
             var current = element;
             while (current && current.type === CKEDITOR.NODE_ELEMENT) {
@@ -78,63 +86,50 @@ CKEDITOR.plugins.add('iconbuttons', {
             return null;
         }
         
-        // Thêm icon wrapper
+        // Thêm icon wrapper mới
         function addIconWrapper(editor, range, iconSrc, iconType) {
             var selectedHtml = range.extractContents();
             var fragment = new CKEDITOR.dom.documentFragment(editor.document);
             
-            // Lấy tất cả các node con
             var children = selectedHtml.getChildren();
             var textLines = [];
             
-            // Tách các dòng text
             for (var i = 0; i < children.count(); i++) {
                 var child = children.getItem(i);
-                
                 if (child.type === CKEDITOR.NODE_TEXT) {
-                    // Text node - tách theo line break
-                    var textContent = child.getText();
-                    var lines = textContent.split('\n');
+                    var lines = child.getText().split('\n');
                     for (var j = 0; j < lines.length; j++) {
-                        if (lines[j].trim()) {
-                            textLines.push(lines[j]);
-                        }
+                        if (lines[j].trim()) textLines.push(lines[j].trim());
                     }
                 } else if (child.type === CKEDITOR.NODE_ELEMENT) {
-                    // Element node (div, p, br, etc)
-                    if (child.getName() === 'br') {
-                        continue; // Skip br tags
-                    }
-                    var text = child.getText().trim();
-                    if (text) {
-                        textLines.push(text);
+                    if (child.getName() !== 'br') {
+                        var text = child.getText().trim();
+                        if (text) textLines.push(text);
                     }
                 }
             }
             
-            // Nếu không có dòng nào hoặc chỉ có 1 dòng ngắn
             if (textLines.length === 0) {
-                textLines.push(selectedHtml.getText().trim());
+                var fallbackText = selectedHtml.getText().trim();
+                if (fallbackText) textLines.push(fallbackText);
             }
             
-            // Tạo wrapper cho mỗi dòng
+            // Nếu vẫn trống (user không bôi đen text), không làm gì cả
+            if (textLines.length === 0) return;
+
             for (var k = 0; k < textLines.length; k++) {
-                if (!textLines[k].trim()) continue;
-                
                 var wrapperDiv = createIconWrapper(iconSrc, iconType, textLines[k]);
                 fragment.append(wrapperDiv);
-                
-                // Thêm br giữa các dòng (trừ dòng cuối)
                 if (k < textLines.length - 1) {
                     fragment.append(new CKEDITOR.dom.element('br'));
                 }
             }
             
             range.insertNode(fragment);
-            editor.getSelection().selectRanges([range]);
+            editor.fire('change');
         }
         
-        // Hàm tạo 1 wrapper icon
+        // Hàm tạo cấu trúc HTML cho wrapper
         function createIconWrapper(iconSrc, iconType, textContent) {
             var wrapperDiv = new CKEDITOR.dom.element('div');
             wrapperDiv.setStyles({
@@ -144,46 +139,40 @@ CKEDITOR.plugins.add('iconbuttons', {
             });
             wrapperDiv.setAttribute('data-icon-wrapper', 'true');
             
-            // Tạo icon container
             var iconDiv = new CKEDITOR.dom.element('div');
-            iconDiv.setStyles({
-                'width': '20px',
-                'flex-shrink': '0'
-            });
+            iconDiv.setStyles({ 'width': '20px', 'flex-shrink': '0' });
             
             var img = new CKEDITOR.dom.element('img');
-            img.setAttribute('src', iconSrc);
-            img.setAttribute('alt', '');
-            img.setAttribute('data-icon-type', iconType);
-            img.setStyles({
-                'width': '15px',
-                'height': '15px'
+            img.setAttributes({
+                'src': iconSrc,
+                'data-cke-saved-src': iconSrc, // Bắt buộc phải có để CKEditor không ghi đè lại src cũ
+                'alt': '',
+                'data-icon-type': iconType
             });
+            img.setStyles({ 'width': '15px', 'height': '15px' });
             iconDiv.append(img);
             
-            // Tạo text container
             var textDiv = new CKEDITOR.dom.element('div');
             textDiv.setStyle('margin-left', '8px');
             textDiv.setText(textContent);
             
-            // Ghép lại
             wrapperDiv.append(iconDiv);
             wrapperDiv.append(textDiv);
             
             return wrapperDiv;
         }
         
-        // Xóa icon wrapper
+        // Xóa wrapper và giữ lại text
         function removeIconWrapper(wrapper, editor) {
-            var textDiv = wrapper.findOne('div[style*="margin-left"]');
-            if (textDiv) {
-                var children = textDiv.getChildren();
-                for (var i = 0; i < children.count(); i++) {
-                    var child = children.getItem(i);
-                    child.insertBefore(wrapper);
-                }
+            // Tìm div chứa text (div thứ 2 bên trong wrapper)
+            var textDiv = wrapper.getLast(); 
+            if (textDiv && textDiv.type === CKEDITOR.NODE_ELEMENT) {
+                // Di chuyển tất cả nội dung bên trong textDiv ra trước wrapper
+                textDiv.moveChildren(wrapper.getAscendant('body') || wrapper.getParent(), true);
+                textDiv.insertBefore(wrapper);
             }
             wrapper.remove();
+            editor.fire('change');
         }
     }
 });
