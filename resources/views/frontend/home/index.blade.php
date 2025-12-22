@@ -875,7 +875,7 @@
         }
 
         function renderList(page = 1) {
-            const itemsPerPage = 5;
+            const itemsPerPage = 4;
             const start = (page - 1) * itemsPerPage;
             const end = start + itemsPerPage;
             const allItems = window.industrialResults || [];
