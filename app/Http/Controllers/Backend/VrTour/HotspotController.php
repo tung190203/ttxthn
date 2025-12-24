@@ -72,8 +72,8 @@ class HotspotController extends Controller
                     $new_hp->save();
                 }
                 $hotspot_db = Hotspot::where('vrtour_id', $vrtour_id)->whereIn('type', $request->type == 0 ? [1, 2] : [3])->get();
-                createFile('vrtour/' . $vrtour->name, 'hotspot.js');
-                file_put_contents('vrtour/' . $vrtour->name . '/hotspot.js', Hotspot::where('vrtour_id', $vrtour_id)->get());
+                createFile('vrtour/' . $vrtour->vrtour_code, 'hotspot.js');
+                file_put_contents('vrtour/' . $vrtour->vrtour_code . '/hotspot.js', Hotspot::where('vrtour_id', $vrtour_id)->get());
             }
 
             // --- KHỐI ĐÃ SỬA ĐỔI ĐỂ SỬ DỤNG SPATIE/LARAVEL-TRANSLATABLE ---
@@ -155,7 +155,7 @@ class HotspotController extends Controller
         $new_hp->tooltip_en = $request->hp_tooltip_en;
         $new_hp->user_id    = Auth::id();
         $new_hp->save();
-        file_put_contents('vrtour/'.Project::find($new_hp->vrtour_id)->name.'/hotspot.js', Hotspot::where('vrtour_id', $new_hp->vrtour_id)->get());
+        file_put_contents('vrtour/'.Project::find($new_hp->vrtour_id)->vrtour_code.'/hotspot.js', Hotspot::where('vrtour_id', $new_hp->vrtour_id)->get());
         return redirect()->to(route('backend_vrtour_hotspot_index') . '?vrtour='.$new_hp->vrtour_id.'&type='.($new_hp->type == 3 ? 1 : 0))->with('success', 'Cập nhật thông tin thành công');
     }
 }
