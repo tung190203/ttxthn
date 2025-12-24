@@ -152,7 +152,7 @@
                                                     @endphp
                                                     <span>{{ $formattedArea }} {{ $item->unit_type_text ?? '' }}</span>
                                                 </li>
-                                                <li><img class="me-2" src="{{ asset('/images/icon-save-money.svg') }}" alt=""/><span>{{ number_format($item->price, 0, ',','.' )}} {{ __('app.billion_vnd') }}</span>
+                                                <li><img class="me-2" src="{{ asset('/images/icon-save-money.svg') }}" alt=""/><span>{{ number_format($item->price, 0, '.',',' )}} {{ __('app.billion_vnd') }}</span>
                                                 </li>
                                             </ul>
                                         </div>
