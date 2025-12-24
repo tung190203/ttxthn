@@ -78,23 +78,69 @@
         </div>
     </section>
     @endif
+    
+    @php
+        // Kiểm tra các section có content hay không (strip tags và trim để loại bỏ HTML rỗng)
+        $hasGeneralInfo = !empty(trim(strip_tags($project->description ?? '')));
+        $hasLocation = !empty($project->location_image);
+        $hasAdvantages = count(array_filter(explode(';', $project->advantage_images ?? ''))) > 0;
+        $hasVirtualMap = !empty($project->link_sand_table) || !empty($project->link_vrtour);
+        $hasDesign = count(array_filter(explode(';', $project->design_images ?? ''))) > 0;
+        $hasLegal = count(array_filter(explode(';', $project->legal_file ?? ''))) > 0;
+        $hasInvestmentGuide = isset($preferential) && count($preferential) > 0;
+        $hasPlan = isset($project->plan) && (
+            !empty(trim(strip_tags($project->plan->content1 ?? ''))) || 
+            !empty(trim(strip_tags($project->plan->content2 ?? ''))) || 
+            !empty(trim(strip_tags($project->plan->content3 ?? '')))
+        );
+        $hasNews = isset($posts) && count($posts) > 0;
+    @endphp
+    
     <nav class="project-nav">
         <div class="container">
             <ul class="project-nav__list">
+                @if($hasGeneralInfo)
                 <li><a class="active" href="#thong-tin-chung">{{ __('app.general_info') }}</a></li>
+                @endif
+                
+                @if($hasLocation)
                 <li><a href="#vi-tri">{{ __('app.location') }}</a></li>
+                @endif
+                
+                @if($hasAdvantages)
                 <li><a href="#loi-the-noi-bat">{{ __('app.key_advantages') }}</a></li>
+                @endif
+                
+                @if($hasVirtualMap)
                 <li><a href="#sa-ban-ao">{{ __('app.virtual_map') }}</a></li>
+                @endif
+                
+                @if($hasDesign)
                 <li><a href="#thiet-ke-va-mat-bang">{{ __('app.design_and_layout') }}</a></li>
+                @endif
+                
+                @if($hasLegal)
                 <li><a href="#phap-ly">{{ __('app.legal_documents') }}</a></li>
+                @endif
+                
+                @if($hasInvestmentGuide)
                 <li><a href="#thu-tuc-dau-tu">{{ __('app.investment_procedure') }}</a></li>
+                @endif
+                
+                @if($hasPlan)
                 <li><a href="#ke-hoach-trien-khai">{{ __('app.implementation_plan') }}</a></li>
+                @endif
+                
+                @if($hasNews)
                 <li><a href="#tin-tuc">{{ __('app.news') }}</a></li>
+                @endif
             </ul>
         </div>
     </nav>
-    <section class="section" id="thong-tin-chung"><img class="section__bg" src="{{ asset('./images/achitect-bg.png') }}"
-            alt="">
+    
+    @if($hasGeneralInfo)
+    <section class="section" id="thong-tin-chung">
+        <img class="section__bg" src="{{ asset('./images/achitect-bg.png') }}" alt="">
         <div class="container">
             <h2 class="section__title">{{ __('app.general_info') }}</h2>
             <div class="mx-auto" style="max-width: 800px;">
@@ -102,12 +148,18 @@
             </div>
         </div>
     </section>
+    @endif
+    
+    @if($hasLocation)
     <section class="section pb-0" id="vi-tri">
         <div class="container">
-            <h2 class="section__title">{{ __('app.location') }}</h2><img class="w-100"
-                src="{{ $project->location_image ?? asset('./images/position.jpg') }}" alt="">
+            <h2 class="section__title">{{ __('app.location') }}</h2>
+            <img class="w-100" src="{{ $project->location_image ?? asset('./images/position.jpg') }}" alt="">
         </div>
     </section>
+    @endif
+    
+    @if($hasAdvantages)
     <section class="section section--light-blue" id="loi-the-noi-bat">
         <div class="container">
             <h2 class="section__title">{{ __('app.key_advantages') }}</h2>
@@ -141,339 +193,306 @@
             </div>
             @endfor
         </div>
-</div>
-</section>
-<section class="position-relative" id="sa-ban-ao">
-    <div class="section section--overlay">
-        <div class="container">
-            <h2 class="section__title text-white">{{ __('app.virtual_map') }}</h2>
-            @if($project->link_vrtour)
-            <div class="mt-3">
-                {{-- <a href="{{ route('show_Vrtour', $project->slug) }}" class="btn btn-warning text-white custom-btn-vrtour" --}}
-                <a href="{{ $project->link_vrtour }}" class="btn btn-warning text-white custom-btn-vrtour"
-                    target="_blank" rel="noopener noreferrer">
-                    {{ __('app.view_vr_tour') }}
-                </a>
-            </div>
-            @endif
         </div>
-    </div>
-    @if($project->link_sand_table)
-    <div class="ratio ratio-2x1">
-        <iframe src="{{ $project->link_sand_table }}" frameborder="0" allowfullscreen allow="fullscreen"></iframe>
-    </div>
+    </section>
     @endif
-    <div class="container">
-        <h2 class="section__title text-white">{{ __('app.virtual_map') }}</h2>
-    </div>
-</section>
-<section class="section" id="thiet-ke-va-mat-bang">
-    <div class="container">
-        <h2 class="section__title">{{ __('app.design_and_layout') }}</h2>
-        <div class="section__desc">{{ $project->design_short_desc }}</div>
-        <div class="design-slider">
-            <div class="design-slider__container swiper-container">
-                {{-- <div class="swiper-wrapper">
-                            @php
-                                // 1. Xử lý ảnh thiết kế
-                                $design_images = $project->design_images ? explode(';', $project->design_images) : [];
-
-                                // 2. Xử lý mô tả thiết kế: Kiểm tra nếu đã là array thì dùng luôn, nếu là string thì mới decode
-                                $design_descs_raw = is_array($project->design_description) 
-                                    ? $project->design_description 
-                                    : json_decode($project->design_description, true);
-
-                                // Đảm bảo kết quả cuối cùng là mảng và lấy theo ngôn ngữ (ví dụ: 'vi')
-                                $design_descs = $design_descs_raw['vi'] ?? [];
-
-                                // 3. Tính toán số lượng bản ghi để lặp
-                                // Lưu ý: nên dùng count của mảng ngôn ngữ cụ thể để chính xác hơn
-                                $design_count = min(count($design_images), count($design_descs));
-                            @endphp
-                            @for ($i = 0; $i < $design_count; $i++)
-                                <div class="design-slider__slide swiper-slide">
-                                    <div class="design-slider__frame">
-                                        <img src="{{ $design_images[$i] ?? '' }}" alt="" />
-            </div>
-            <div class="design-slider__overlay">
-                <div class="design-slider__content">{{ $design_descs[$i] ?? '' }}</div>
-            </div>
-        </div>
-        @endfor
-    </div> --}}
-    <div class="swiper-wrapper">
-        @php
-        // 1. Xử lý ảnh (Dùng array_filter để loại bỏ phần tử rỗng nếu chuỗi kết thúc bằng dấu ;)
-        $design_images = $project->design_images ? array_filter(explode(';', $project->design_images)) : [];
-
-        // 2. Xử lý mô tả
-        $design_descs_raw = is_array($project->design_description)
-        ? $project->design_description
-        : json_decode($project->design_description, true);
-
-        // Lấy danh sách mô tả theo ngôn ngữ 'vi'
-        $design_descs = $design_descs_raw ?? [];
-
-        // Nếu design_descs không phải là mảng (ví dụ chỉ là 1 chuỗi string đơn lẻ),
-        // ta ép nó vào mảng để tránh lỗi count
-        if (!is_array($design_descs)) {
-        $design_descs = [$design_descs];
-        }
-
-        // 3. QUAN TRỌNG: Lấy count theo số lượng ẢNH
-        // Chúng ta muốn hiển thị tất cả ảnh, kể cả khi thiếu mô tả
-        $design_count = count($design_images);
-        @endphp
-
-        @if($design_count > 0)
-        @foreach ($design_images as $index => $image)
-        <div class="design-slider__slide swiper-slide">
-            <div class="design-slider__frame">
-                <img src="{{ $image }}" alt="Design image {{ $index + 1 }}" />
-            </div>
-            {{-- Chỉ hiển thị overlay nếu có nội dung mô tả tương ứng --}}
-            @if(!empty($design_descs[$index]))
-            <div class="design-slider__overlay">
-                <div class="design-slider__content">
-                    {{ $design_descs[$index] }}
+    
+    @if($hasVirtualMap)
+    <section class="position-relative" id="sa-ban-ao">
+        <div class="section section--overlay">
+            <div class="container">
+                <h2 class="section__title text-white">{{ __('app.virtual_map') }}</h2>
+                @if($project->link_vrtour)
+                <div class="mt-3">
+                    <a href="{{ $project->link_vrtour }}" class="btn btn-warning text-white custom-btn-vrtour"
+                        target="_blank" rel="noopener noreferrer">
+                        {{ __('app.view_vr_tour') }}
+                    </a>
                 </div>
+                @endif
             </div>
-            @endif
         </div>
-        @endforeach
-        @else
-        <p>Không có hình ảnh thiết kế.</p>
+        @if($project->link_sand_table)
+        <div class="ratio ratio-2x1">
+            <iframe src="{{ $project->link_sand_table }}" frameborder="0" allowfullscreen allow="fullscreen"></iframe>
+        </div>
         @endif
-    </div>
-    </div>
-    </div>
-    <div class="design-thumb-slider mt-3 mt-lg-20">
-        <div class="design-thumb-slider__prev"><i class="fal fa-lg fa-angle-left"></i></div>
-        <div class="design-thumb-slider__next"><i class="fal fa-lg fa-angle-right"></i></div>
-        <div class="design-thumb-slider__container swiper-container">
-            <div class="swiper-wrapper">
-                @for ($i = 0; $i < $design_count; $i++)
-                    <div class="swiper-slide">
-                    <div class="design-thumb-slider__frame"><img src="{{ $design_images[$i] }}" alt="" /></div>
-            </div>
-            @endfor
-        </div>
-    </div>
-    </div>
-    </div>
-</section>
-<section class="section section--light-blue" id="phap-ly">
-    <div class="container">
-        <h2 class="section__title">{{ __('app.legal_documents') }}</h2>
-        <div class="section__desc">{{ $project->legal_short_desc }}</div>
-        <div class="legal-grid">
-            @php
-            // 1. Xử lý danh sách file (chuỗi nối nhau bằng dấu ;)
-            $legal_files = $project->legal_file ? explode(';', $project->legal_file) : [];
-
-            // 2. Xử lý mô tả pháp lý: Kiểm tra kiểu dữ liệu trước khi decode
-            $legal_descs_data = is_array($project->legal_description)
-            ? $project->legal_description
-            : json_decode($project->legal_description, true);
-
-            // 3. Lấy mảng theo ngôn ngữ hiện tại (mặc định là 'vi')
-            $legal_descs = $legal_descs_data ?? [];
-            @endphp
-            @if(count($legal_files) > 0)
-            @foreach ($legal_files as $index => $file)
-            <a class="legal" href="{{ asset($file) }}" target="_blank" rel="noopener noreferrer">
-                <img class="legal__icon" src="{{ asset('./images/icon-pdf.svg') }}" alt="" />
-                <div class="legal__body">
-                    <div class="legal__title">
-                        @if(isset($legal_descs[$index]) && !empty($legal_descs[$index]))
-                        <div class="fw-bold text-truncate-multiline">
-                            {{ $legal_descs[$index] }}
-                        </div>
-                        @endif
-                    </div>
-                </div>
-            </a>
-            @endforeach
+    </section>
+    @endif
+    
+    @if($hasDesign)
+    <section class="section" id="thiet-ke-va-mat-bang">
+        <div class="container">
+            <h2 class="section__title">{{ __('app.design_and_layout') }}</h2>
+            @if(!empty($project->design_short_desc))
+            <div class="section__desc">{{ $project->design_short_desc }}</div>
             @endif
-        </div>
-        {{-- <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="/projects">Xem
-                        thêm</a> --}}
-        </nav>
-    </div>
-</section>
-<section class="section" id="thu-tuc-dau-tu">
-    {{-- <img class="texture-1" src="{{ asset('./images/texture-1.png') }}" alt="">
-    <img class="texture-2" src="{{ asset('./images/texture-2.png') }}" alt=""> --}}
-    <div class="container">
-        <h2 class="section__title pb-2">{{ __('app.incentives_process_procedures') }}</h2>
-        <div class="news-slider">
-            <div class="news-slider__nav">
-                <div class="news-slider__prev"><i class="fal fa-fw fa-lg fa-angle-left"></i></div>
-                <div class="news-slider__next"><i class="fal fa-fw fa-lg fa-angle-right"></i></div>
-            </div>
-            <div class="news-slider__container swiper-container">
-                <div class="swiper-wrapper">
-                    @foreach ($preferential as $item)
-                    <div class="swiper-slide">
-                        <div class="news"><a class="news__frame"
-                                href="{{ route('investment_guide_detail', ['id' => $item->id, 'slug' => $item->slug, 'ref' => $project->name, 'ref' => $project->name]) }}"><img
-                                    src="{{ $item->image }}" alt="" /></a>
-                            <div class="news__body">
-                                <div class="news__info">
-                                    <div class="news__time"><i
-                                            class="fal fa-clock me-2"></i><span>{{ \Carbon\Carbon::parse($item->published_at)->format('d/m/Y') }}</span>
-                                    </div>
-                                    <a class="news__like" href="javascript:void(0)"
-                                        data-id="{{ $item->id }}" data-type="App\Models\InvestmentGuide">
-                                        <i class="fas fa-fw fa-heart {{ $item->is_interested ? 'text-danger' : '' }}"></i>
-                                </div>
-                                <h3 class="news__title  custom-desc"><a
-                                        href="{{ route('investment_guide_detail', ['id' => $item->id, 'slug' => $item->slug, 'ref' => $project->name]) }}"
-                                        data-tippy-content="{{$item->name}}">{{ $item->name }}</a>
-                                </h3>
-                                <div class="news__desc">{{ $item->description }}</div>
+            <div class="design-slider">
+                <div class="design-slider__container swiper-container">
+                    <div class="swiper-wrapper">
+                        @php
+                        $design_images = $project->design_images ? array_filter(explode(';', $project->design_images)) : [];
+                        $design_descs_raw = is_array($project->design_description)
+                        ? $project->design_description
+                        : json_decode($project->design_description, true);
+                        $design_descs = $design_descs_raw ?? [];
+                        if (!is_array($design_descs)) {
+                        $design_descs = [$design_descs];
+                        }
+                        $design_count = count($design_images);
+                        @endphp
+
+                        @if($design_count > 0)
+                        @foreach ($design_images as $index => $image)
+                        <div class="design-slider__slide swiper-slide">
+                            <div class="design-slider__frame">
+                                <img src="{{ $image }}" alt="Design image {{ $index + 1 }}" />
                             </div>
+                            @if(!empty($design_descs[$index]))
+                            <div class="design-slider__overlay">
+                                <div class="design-slider__content">
+                                    {{ $design_descs[$index] }}
+                                </div>
+                            </div>
+                            @endif
+                        </div>
+                        @endforeach
+                        @else
+                        <p>Không có hình ảnh thiết kế.</p>
+                        @endif
+                    </div>
+                </div>
+            </div>
+            <div class="design-thumb-slider mt-3 mt-lg-20">
+                <div class="design-thumb-slider__prev"><i class="fal fa-lg fa-angle-left"></i></div>
+                <div class="design-thumb-slider__next"><i class="fal fa-lg fa-angle-right"></i></div>
+                <div class="design-thumb-slider__container swiper-container">
+                    <div class="swiper-wrapper">
+                        @for ($i = 0; $i < $design_count; $i++)
+                            <div class="swiper-slide">
+                            <div class="design-thumb-slider__frame"><img src="{{ $design_images[$i] }}" alt="" /></div>
+                    </div>
+                    @endfor
+                </div>
+            </div>
+            </div>
+        </div>
+    </section>
+    @endif
+    
+    @if($hasLegal)
+    <section class="section section--light-blue" id="phap-ly">
+        <div class="container">
+            <h2 class="section__title">{{ __('app.legal_documents') }}</h2>
+            @if(!empty($project->legal_short_desc))
+            <div class="section__desc">{{ $project->legal_short_desc }}</div>
+            @endif
+            <div class="legal-grid">
+                @php
+                $legal_files = $project->legal_file ? explode(';', $project->legal_file) : [];
+                $legal_descs_data = is_array($project->legal_description)
+                ? $project->legal_description
+                : json_decode($project->legal_description, true);
+                $legal_descs = $legal_descs_data ?? [];
+                @endphp
+                @if(count($legal_files) > 0)
+                @foreach ($legal_files as $index => $file)
+                <a class="legal" href="{{ asset($file) }}" target="_blank" rel="noopener noreferrer">
+                    <img class="legal__icon" src="{{ asset('./images/icon-pdf.svg') }}" alt="" />
+                    <div class="legal__body">
+                        <div class="legal__title">
+                            @if(isset($legal_descs[$index]) && !empty($legal_descs[$index]))
+                            <div class="fw-bold text-truncate-multiline">
+                                {{ $legal_descs[$index] }}
+                            </div>
+                            @endif
                         </div>
                     </div>
-                    @endforeach
-                </div>
+                </a>
+                @endforeach
+                @endif
             </div>
+            <nav class="d-flex justify-content-center mt-40 mt-lg-60">
+            </nav>
         </div>
-        <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="{{ url(app()->getLocale() . '/' . __('app.investment_guide_link')) }}">{{ __('app.view_more') }}</a>
-        </nav>
-    </div>
-</section>
-<section class="section position-relative" id="ke-hoach-trien-khai">
-    <img src="{{asset('/images/texture-8.png')}}" class="texture texture-bottom-left" alt="">
-    <img src="{{asset('/images/texture-9.png')}}" class="texture texture-top-right" alt="">
-    <div class="container">
-        <h2 class="section__title text-center mb-5">{{ __('app.implementation_plan') }}</h2>
-        <div class="row g-2 align-items-stretch justify-content-center position-relative">
-
-            <!-- Bước 1 -->
-            <div class="col-12 col-lg-3 d-flex">
-                <div class="step-card flex-fill d-flex flex-column align-items-center p-4 rounded">
-                    <img src="{{asset('images/search-icon.png')}}" alt="">
-                    <h5 class="fw-bold text-uppercase mb-3 text-center">
-                        {{-- {{ optional($project->plan)->title1 ?? '' }} --}}
-                        {{ __('app.project_preparation') }}
-                    </h5>
-                    <ul class="list-unstyled flex-fill">
-                        @if (app()->getLocale() === 'vi' || app()->getLocale() === 'vn')
-                        {!! optional($project->plan)->content1 ?? '' !!}
-                        @else
-                        {!! optional($project->plan)->content1_en ?? '' !!}
-                        @endif
-                    </ul>
+    </section>
+    @endif
+    
+    @if($hasInvestmentGuide)
+    <section class="section" id="thu-tuc-dau-tu">
+        <div class="container">
+            <h2 class="section__title pb-2">{{ __('app.incentives_process_procedures') }}</h2>
+            <div class="news-slider">
+                <div class="news-slider__nav">
+                    <div class="news-slider__prev"><i class="fal fa-fw fa-lg fa-angle-left"></i></div>
+                    <div class="news-slider__next"><i class="fal fa-fw fa-lg fa-angle-right"></i></div>
                 </div>
-            </div>
-
-            <!-- Arrow 1 -->
-            <div class="col-12 col-md-1 d-flex justify-content-center align-items-baseline">
-                <div class="arrow-container">
-                    <img src="{{ asset('images/arrow.svg') }}" class="arrow-img" alt="">
-                </div>
-            </div>
-
-            <!-- Bước 2 -->
-            <div class="col-12 col-lg-3 d-flex">
-                <div class="step-card flex-fill d-flex flex-column align-items-center p-4 rounded">
-                    <img src="{{asset('images/partner-icon.png')}}" alt="">
-                    <h5 class="fw-bold text-uppercase mb-3 text-center">
-                        {{-- {{ optional($project->plan)->title2 ?? '' }} --}}
-                        {{ __('app.investment_promotion') }}
-                    </h5>
-                    <ul class="list-unstyled flex-fill">
-                        @if (app()->getLocale() === 'vi' || app()->getLocale() === 'vn')
-                        {!! optional($project->plan)->content2 ?? '' !!}
-                        @else
-                        {!! optional($project->plan)->content2_en ?? '' !!}
-                        @endif
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Arrow 2 -->
-            <div class="col-12 col-md-1 d-flex justify-content-center align-items-baseline">
-                <div class="arrow-container">
-                    <img src="{{ asset('images/arrow.svg') }}" class="arrow-img" alt="">
-                </div>
-            </div>
-
-            <!-- Bước 3 -->
-            <div class="col-12 col-lg-3 d-flex">
-                <div class="step-card flex-fill d-flex flex-column align-items-center p-4 rounded">
-                    <img src="{{asset('images/analytic-icon.png')}}" alt="">
-                    <h5 class="fw-bold text-uppercase mb-3 text-center">
-                        {{-- {{ optional($project->plan)->title3 ?? '' }} --}}
-                        {{ __('app.implementation_monitoring') }}
-                    </h5>
-                    <ul class="list-unstyled flex-fill">
-                        @if (app()->getLocale() === 'vi' || app()->getLocale() === 'vn')
-                        {!! optional($project->plan)->content3 ?? '' !!}
-                        @else
-                        {!! optional($project->plan)->content3_en ?? '' !!}
-                        @endif
-                    </ul>
-                </div>
-            </div>
-
-        </div>
-        <div class="d-flex justify-content-end align-items-start align-items-md-center mt-4 mt-lg-5 gap-2 gap-md-4 note">
-            <div>
-                <img src="{{asset('images/warning-arrow.svg')}}" style="width:15px;height:15px" alt="">
-                <div class="d-inline-block ms-2">{{ __('app.in_progress') }}</div>
-            </div>
-            <div>
-                <img src="{{asset('images/success-traces.svg')}}" style="width:15px;height:15px" alt="">
-                <div class="d-inline-block ms-2">{{ __('app.completed') }}</div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section class="section" id="tin-tuc">
-    {{-- <img class="texture-1" src="{{ asset('./images/texture-1.png') }}" alt="">
-    <img class="texture-2" src="{{ asset('./images/texture-2.png') }}" alt=""> --}}
-    <div class="container">
-        <h2 class="section__title">{{ __('app.news') }}</h2>
-        <div class="news-slider">
-            <div class="news-slider__nav">
-                <div class="news-slider__prev"><i class="fal fa-fw fa-lg fa-angle-left"></i></div>
-                <div class="news-slider__next"><i class="fal fa-fw fa-lg fa-angle-right"></i></div>
-            </div>
-            <div class="news-slider__container swiper-container">
-                <div class="swiper-wrapper">
-                    @foreach ($posts as $item)
-                    <div class="swiper-slide">
-                        <div class="news"><a class="news__frame"
-                                href="{{ route('post_detail', ['id' => $item->id, 'slug' => $item->slug, 'ref' => $project->name]) }}"><img
-                                    src="{{ $item->image }}" alt="" /></a>
-                            <div class="news__body">
-                                <div class="news__info">
-                                    <div class="news__time"><i
-                                            class="fal fa-clock me-2"></i><span>{{ \Carbon\Carbon::parse($item->published_at)->format('d/m/Y') }}</span>
+                <div class="news-slider__container swiper-container">
+                    <div class="swiper-wrapper">
+                        @foreach ($preferential as $item)
+                        <div class="swiper-slide">
+                            <div class="news"><a class="news__frame"
+                                    href="{{ route('investment_guide_detail', ['id' => $item->id, 'slug' => $item->slug, 'ref' => $project->name]) }}"><img
+                                        src="{{ $item->image }}" alt="" /></a>
+                                <div class="news__body">
+                                    <div class="news__info">
+                                        <div class="news__time"><i
+                                                class="fal fa-clock me-2"></i><span>{{ \Carbon\Carbon::parse($item->published_at)->format('d/m/Y') }}</span>
+                                        </div>
+                                        <a class="news__like" href="javascript:void(0)"
+                                            data-id="{{ $item->id }}" data-type="App\Models\InvestmentGuide">
+                                            <i class="fas fa-fw fa-heart {{ $item->is_interested ? 'text-danger' : '' }}"></i>
+                                        </a>
                                     </div>
-                                    <a class="news__like" href="javascript:void(0)"
-                                        data-id="{{ $item->id }}" data-type="App\Models\Post">
-                                        <i class="fas fa-fw fa-heart {{ $item->is_interested ? 'text-danger' : '' }}"></i>
+                                    <h3 class="news__title custom-desc"><a
+                                            href="{{ route('investment_guide_detail', ['id' => $item->id, 'slug' => $item->slug, 'ref' => $project->name]) }}"
+                                            data-tippy-content="{{$item->name}}">{{ $item->name }}</a>
+                                    </h3>
+                                    <div class="news__desc">{{ $item->description }}</div>
                                 </div>
-                                <h3 class="news__title  custom-desc"><a
-                                        href="{{ route('post_detail', ['id' => $item->id, 'slug' => $item->slug, 'ref' => $project->name]) }}"
-                                        data-tippy-content="{{$item->name}}">{{ $item->name }}</a>
-                                </h3>
-                                <div class="news__desc">{{ $item->description }}</div>
                             </div>
                         </div>
+                        @endforeach
                     </div>
-                    @endforeach
+                </div>
+            </div>
+            <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="{{ url(app()->getLocale() . '/' . __('app.investment_guide_link')) }}">{{ __('app.view_more') }}</a>
+            </nav>
+        </div>
+    </section>
+    @endif
+    
+    @if($hasPlan)
+    <section class="section position-relative" id="ke-hoach-trien-khai">
+        <img src="{{asset('/images/texture-8.png')}}" class="texture texture-bottom-left" alt="">
+        <img src="{{asset('/images/texture-9.png')}}" class="texture texture-top-right" alt="">
+        <div class="container">
+            <h2 class="section__title text-center mb-5">{{ __('app.implementation_plan') }}</h2>
+            <div class="row g-2 align-items-stretch justify-content-center position-relative">
+
+                <!-- Bước 1 -->
+                <div class="col-12 col-lg-3 d-flex">
+                    <div class="step-card flex-fill d-flex flex-column align-items-center p-4 rounded">
+                        <img src="{{asset('images/search-icon.png')}}" alt="">
+                        <h5 class="fw-bold text-uppercase mb-3 text-center">
+                            {{ __('app.project_preparation') }}
+                        </h5>
+                        <ul class="list-unstyled flex-fill">
+                            @if (app()->getLocale() === 'vi' || app()->getLocale() === 'vn')
+                            {!! optional($project->plan)->content1 ?? '' !!}
+                            @else
+                            {!! optional($project->plan)->content1_en ?? '' !!}
+                            @endif
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Arrow 1 -->
+                <div class="col-12 col-md-1 d-flex justify-content-center align-items-baseline">
+                    <div class="arrow-container">
+                        <img src="{{ asset('images/arrow.svg') }}" class="arrow-img" alt="">
+                    </div>
+                </div>
+
+                <!-- Bước 2 -->
+                <div class="col-12 col-lg-3 d-flex">
+                    <div class="step-card flex-fill d-flex flex-column align-items-center p-4 rounded">
+                        <img src="{{asset('images/partner-icon.png')}}" alt="">
+                        <h5 class="fw-bold text-uppercase mb-3 text-center">
+                            {{ __('app.investment_promotion') }}
+                        </h5>
+                        <ul class="list-unstyled flex-fill">
+                            @if (app()->getLocale() === 'vi' || app()->getLocale() === 'vn')
+                            {!! optional($project->plan)->content2 ?? '' !!}
+                            @else
+                            {!! optional($project->plan)->content2_en ?? '' !!}
+                            @endif
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Arrow 2 -->
+                <div class="col-12 col-md-1 d-flex justify-content-center align-items-baseline">
+                    <div class="arrow-container">
+                        <img src="{{ asset('images/arrow.svg') }}" class="arrow-img" alt="">
+                    </div>
+                </div>
+
+                <!-- Bước 3 -->
+                <div class="col-12 col-lg-3 d-flex">
+                    <div class="step-card flex-fill d-flex flex-column align-items-center p-4 rounded">
+                        <img src="{{asset('images/analytic-icon.png')}}" alt="">
+                        <h5 class="fw-bold text-uppercase mb-3 text-center">
+                            {{ __('app.implementation_monitoring') }}
+                        </h5>
+                        <ul class="list-unstyled flex-fill">
+                            @if (app()->getLocale() === 'vi' || app()->getLocale() === 'vn')
+                            {!! optional($project->plan)->content3 ?? '' !!}
+                            @else
+                            {!! optional($project->plan)->content3_en ?? '' !!}
+                            @endif
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+            <div class="d-flex justify-content-end align-items-start align-items-md-center mt-4 mt-lg-5 gap-2 gap-md-4 note">
+                <div>
+                    <img src="{{asset('images/warning-arrow.svg')}}" style="width:15px;height:15px" alt="">
+                    <div class="d-inline-block ms-2">{{ __('app.in_progress') }}</div>
+                </div>
+                <div>
+                    <img src="{{asset('images/success-traces.svg')}}" style="width:15px;height:15px" alt="">
+                    <div class="d-inline-block ms-2">{{ __('app.completed') }}</div>
                 </div>
             </div>
         </div>
-        <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="{{ url(app()->getLocale() . '/' . __('app.news_link')) }}" style="text-transform: capitalize;">{{ __('app.view_more') }}</a>
-        </nav>
-    </div>
-</section>
+    </section>
+    @endif
+
+    @if($hasNews)
+    <section class="section" id="tin-tuc">
+        <div class="container">
+            <h2 class="section__title">{{ __('app.news') }}</h2>
+            <div class="news-slider">
+                <div class="news-slider__nav">
+                    <div class="news-slider__prev"><i class="fal fa-fw fa-lg fa-angle-left"></i></div>
+                    <div class="news-slider__next"><i class="fal fa-fw fa-lg fa-angle-right"></i></div>
+                </div>
+                <div class="news-slider__container swiper-container">
+                    <div class="swiper-wrapper">
+                        @foreach ($posts as $item)
+                        <div class="swiper-slide">
+                            <div class="news"><a class="news__frame"
+                                    href="{{ route('post_detail', ['id' => $item->id, 'slug' => $item->slug, 'ref' => $project->name]) }}"><img
+                                        src="{{ $item->image }}" alt="" /></a>
+                                <div class="news__body">
+                                    <div class="news__info">
+                                        <div class="news__time"><i
+                                                class="fal fa-clock me-2"></i><span>{{ \Carbon\Carbon::parse($item->published_at)->format('d/m/Y') }}</span>
+                                        </div>
+                                        <a class="news__like" href="javascript:void(0)"
+                                            data-id="{{ $item->id }}" data-type="App\Models\Post">
+                                            <i class="fas fa-fw fa-heart {{ $item->is_interested ? 'text-danger' : '' }}"></i>
+                                        </a>
+                                    </div>
+                                    <h3 class="news__title custom-desc"><a
+                                            href="{{ route('post_detail', ['id' => $item->id, 'slug' => $item->slug, 'ref' => $project->name]) }}"
+                                            data-tippy-content="{{$item->name}}">{{ $item->name }}</a>
+                                    </h3>
+                                    <div class="news__desc">{{ $item->description }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+            <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="{{ url(app()->getLocale() . '/' . __('app.news_link')) }}" style="text-transform: capitalize;">{{ __('app.view_more') }}</a>
+            </nav>
+        </div>
+    </section>
+    @endif
 </div>
 @endsection
 
