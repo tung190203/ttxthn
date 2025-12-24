@@ -357,7 +357,7 @@ class ProjectController extends Controller
                     $slug = $originalSlug . '-' . $counter++;
                 }
                 $project->setTranslation('slug', $firstLocale, $slug);
-
+                $project->vrtour_code = 'vrtour-' . $slug;
                 $project->save();
 
                 if ($request->filled('districts')) {

@@ -88,8 +88,8 @@ class SkinController extends Controller
                 $screen->investor_desc3     = $request['screen']['investor_desc3'];
                 $screen->user_id            = Auth::id();
                 $screen->save();
-                createFile('vrtour/'.$vrtour->name, 'welcome_screen.js');
-                file_put_contents('vrtour/'.$vrtour->name.'/welcome_screen.js', $screen);
+                createFile('vrtour/'.$vrtour->vrtour_code, 'welcome_screen.js');
+                file_put_contents('vrtour/'.$vrtour->vrtour_code.'/welcome_screen.js', $screen);
             }
 
             //connect map
@@ -106,8 +106,8 @@ class SkinController extends Controller
                 $connect_map->content_en    = $request['connect_data']['content_en'];
                 $connect_map->user_id       = Auth::id();
                 $connect_map->save();
-                createFile('vrtour/'.$vrtour->name, 'connectmap.js');
-                file_put_contents('vrtour/'.$vrtour->name.'/connectmap.js', $connect_map);
+                createFile('vrtour/'.$vrtour->vrtour_code, 'connectmap.js');
+                file_put_contents('vrtour/'.$vrtour->vrtour_code.'/connectmap.js', $connect_map);
             }
 
             //document
@@ -130,8 +130,8 @@ class SkinController extends Controller
                     $all_document = LegalDocument::where('vrtour_id', $vrtour_id)->delete();
                 }
                 $all_document = LegalDocument::where('vrtour_id', $vrtour_id)->get();
-                createFile('vrtour/'.$vrtour->name, 'document.js');
-                file_put_contents('vrtour/'.$vrtour->name.'/document.js', $all_document);
+                createFile('vrtour/'.$vrtour->vrtour_code, 'document.js');
+                file_put_contents('vrtour/'.$vrtour->vrtour_code.'/document.js', $all_document);
             }
             
             //plan
@@ -164,8 +164,8 @@ class SkinController extends Controller
                 $plan->content3_en         = $request['plan']['content3_en'];
                 $plan->user_id             = Auth::id();
                 $plan->save();
-                createFile('vrtour/'.$vrtour->name, 'plan.js');
-                file_put_contents('vrtour/'.$vrtour->name.'/plan.js', $plan);
+                createFile('vrtour/'.$vrtour->vrtour_code, 'plan.js');
+                file_put_contents('vrtour/'.$vrtour->vrtour_code.'/plan.js', $plan);
             }
             
             //investor
@@ -191,16 +191,16 @@ class SkinController extends Controller
                 $investor->status       = $request['investor']['status'] == true ? 1 : 0;
                 $investor->user_id      = Auth::id();
                 $investor->save();
-                createFile('vrtour/'.$vrtour->name, 'investor.js');
-                file_put_contents('vrtour/'.$vrtour->name.'/investor.js', $investor);
+                createFile('vrtour/'.$vrtour->vrtour_code, 'investor.js');
+                file_put_contents('vrtour/'.$vrtour->vrtour_code.'/investor.js', $investor);
             }
             
             //location
             if (in_array($request->type, [0,7])) {
                 $vrtour->location_in_tour   = $request['location']['map'];
                 $vrtour->save();
-                createFile('vrtour/'.$vrtour->name, 'location.js');
-                file_put_contents('vrtour/'.$vrtour->name.'/location.js', json_encode([
+                createFile('vrtour/'.$vrtour->vrtour_code, 'location.js');
+                file_put_contents('vrtour/'.$vrtour->vrtour_code.'/location.js', json_encode([
                         'location'  => $vrtour->location_in_tour,
                         'general'   => $vrtour->link
                     ]));
