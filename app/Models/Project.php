@@ -50,6 +50,7 @@ class Project extends Model
         'max_approval',
         'is_draft',
         'parent_id',
+        'vrtour_code',
         'status',
         'view_num',
         'views_month',

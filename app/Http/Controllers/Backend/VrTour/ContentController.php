@@ -52,8 +52,8 @@ class ContentController extends Controller
                 $new_pano->save();
             }
             $panorama       = Panorama::where('vrtour_id', $vrtour_id)->get();
-            createFile('vrtour/'.$vrtour->name, 'pano.js');
-            file_put_contents('vrtour/'.$vrtour->name.'/pano.js', $panorama);
+            createFile('vrtour/'.$vrtour->vrtour_code, 'pano.js');
+            file_put_contents('vrtour/'.$vrtour->vrtour_code.'/pano.js', $panorama);
         }
         $html = '';
         foreach ($panorama as $key => $pn) {
@@ -99,7 +99,7 @@ class ContentController extends Controller
         $new_pano->audio_en      = $request->ct_audio_en;
         $new_pano->user_id       = Auth::id();
         $new_pano->save();
-        file_put_contents('vrtour/'.Project::find($new_pano->vrtour_id)->name.'/pano.js', Panorama::where('vrtour_id', $new_pano->vrtour_id)->get());
+        file_put_contents('vrtour/'.Project::find($new_pano->vrtour_id)->vrtour_code.'/pano.js', Panorama::where('vrtour_id', $new_pano->vrtour_id)->get());
         return redirect()->to(route('backend_vrtour_content_index') . '?vrtour='.$new_pano->vrtour_id)->with('success', 'Cập nhật thông tin thành công');
     }
 }
