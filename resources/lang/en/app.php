@@ -1,7 +1,7 @@
 <?php
 return [
     'search' => 'Search',
-    'project_types' => 'Investment type',
+    'project_types' => 'Investment Form',
     'enter_project_name' => 'Enter Project Name',
     'locations' => 'Location',
     'industry_field' => 'Industry / Sector',
@@ -37,7 +37,7 @@ return [
     'no_price' => 'No Price',
     'area' => 'Area',
     'length' => 'Length',
-    'type' => 'Type',
+    'investment_form' => 'Investment Form',
     'zone' => 'Zone',
     'billion_vnd' => 'billion dong',
     'error_loading_data' => 'Error loading data',
@@ -120,6 +120,7 @@ return [
     'subscribe_project_updates' => 'Subscribe to project updates',
     'subscrible_text' => 'Subscribe',
     'investment_guide_link' => 'investment-guide',
+    'news_link' => 'news',
     'contact_link' => 'contact',
     'project_link' => 'investment-projects',
     'investment_products' => 'Industrial products',

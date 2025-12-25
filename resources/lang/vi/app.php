@@ -1,7 +1,7 @@
 <?php
 return [
     'search' => 'Tìm kiếm',
-    'project_types' => 'Loại dự án',
+    'project_types' => 'Hình thức đầu tư',
     'enter_project_name' => 'Nhập tên dự án',
     'locations' => 'Địa điểm',
     'industry_field' => 'Ngành/Lĩnh vực',
@@ -37,7 +37,7 @@ return [
     'no_price' => 'Chưa có giá',
     'area' => 'Diện tích',
     'length' => 'Chiều dài',
-    'type' => 'Loại',
+    'investment_form' => 'Hình thức đầu tư',
     'zone' => 'Khu vực',
     'billion_vnd' => 'tỷ đồng',
     'error_loading_data' => 'Lỗi tải dữ liệu',
@@ -120,6 +120,7 @@ return [
     'choice_nationality' => 'Chọn quốc tịch',
     'subscribe_project_updates' => 'Đăng ký nhận thông tin các dự án',
     'investment_guide_link' => 'cam-nang-dau-tu',
+    'news_link' => 'tin-tuc',
     'contact_link' => 'lien-he',
     'project_link' => 'du-an-keu-goi-dau-tu',
     'investment_products' => 'Sản phẩm đầu tư',

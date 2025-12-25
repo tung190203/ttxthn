@@ -714,7 +714,7 @@
         <div class='info-box' style="max-width:250px;">
             <img src="${imageUrl}" alt="${loc.name}" style="width:100%; height:120px; object-fit:cover; border-radius:6px; margin-bottom:8px;">
             <strong>${loc.name}</strong><br>
-            {{ __('app.type') }}: ${getTypeName(loc.type_number)}<br>
+            {{ __('app.investment_form') }}: ${getTypeName(loc.type_number)}<br>
             {{ __('app.zone') }}: ${districtText}<br>
             {{ __('app.investment_scale') }}: ${priceText} {{ __('app.billion_vnd') }}<br>
             ${areaHtml}
