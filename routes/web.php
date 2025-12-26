@@ -47,6 +47,7 @@ Route::localized(function () {
         Route::get('/account', [HomeController::class, 'account'])->name('account');
         Route::get('/sitemap.xml', [HomeController::class, 'siteMap'])->name('site_map');
         Route::match(['get', 'post'], '/lien-he', [HomeController::class, 'contact'])->name('contact');
+        Route::match(['get', 'post'], '/contact', [HomeController::class, 'contact'])->name('contact');
         Route::post('/interest', [InterestController::class, 'toggleInterest'])->name('interest');
         Route::get('/search', [HomeController::class, 'search'])->name('search');
 
