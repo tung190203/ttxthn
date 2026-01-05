@@ -7,7 +7,7 @@
             <nav>
                 <div class="container">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a class="link-unstyled" href="#!"><i
+                        <li class="breadcrumb-item"><a class="link-unstyled" href="{{ asset('/') }}"><i
                                     class="fal fa-home me-2"></i><span>{{ __('app.home') }}</span></a></li>
                         @if (!empty($backUrl) && $backUrl !== url()->current())
                             <li class="breadcrumb-item">
@@ -89,7 +89,7 @@
                             @foreach ($list_investment_guide_popular as $item)
                                 <div class="swiper-slide">
                                     <div class="news"><a class="news__frame"
-                                            href="{{ route('investment_guide_detail', ['id' => $item->id, 'slug' => $item->slug]) }}"><img
+                                            href="{{ route('investment_guide_detail', ['id' => $item->id, 'slug' => $item->slug, 'ref' => 'app.investment_guide']) }}"><img
                                                 src="{{ $item->image }}" alt="" /></a>
                                         <div class="news__body">
                                             <div class="news__info">
@@ -101,7 +101,7 @@
                                              <i class="fas fa-fw fa-heart {{ $item->is_interested ? 'text-danger' : '' }}"></i>
                                             </div>
                                             <h3 class="news__title custom-desc"><a
-                                                    href="{{ route('investment_guide_detail', ['id' => $item->id, 'slug' => $item->slug]) }}">{{ $item->name }}</a>
+                                                    href="{{ route('investment_guide_detail', ['id' => $item->id, 'slug' => $item->slug, 'ref' => 'app.investment_guide']) }}">{{ $item->name }}</a>
                                             </h3>
                                             <div class="news__desc">
                                                 {{ $item->description }}
