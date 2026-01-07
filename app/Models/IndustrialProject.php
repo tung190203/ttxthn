@@ -16,6 +16,7 @@ class IndustrialProject extends Model
     
     protected $fillable = [
         'project_id',
+        'code',
         'name',
         'link',
         'acreage',

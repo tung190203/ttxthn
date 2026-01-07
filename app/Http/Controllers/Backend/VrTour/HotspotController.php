@@ -77,37 +77,31 @@ class HotspotController extends Controller
             }
 
             // --- KHỐI ĐÃ SỬA ĐỔI ĐỂ SỬ DỤNG SPATIE/LARAVEL-TRANSLATABLE ---
-            foreach (Hotspot::where('vrtour_id', $vrtour_id)->where('type', 2)->get() as $key => $value) {
-                $indus = IndustrialProject::where('project_id', $vrtour_id)->where('code', $value->potision)->first();
-                if ($indus != null) {
-                    $_indus = $indus;
-                } else {
-                    $_indus = new IndustrialProject();
-                }
-
-                // 1. Tạo mảng dữ liệu đa ngôn ngữ
+            $hotspotsType2 = Hotspot::where('vrtour_id', $vrtour_id)->where('type', 2)->get();
+            foreach ($hotspotsType2 as $key => $value) {
                 $translations = [
                     'vi' => $value->tooltip,
-                    // 2. GIẢ ĐỊNH: Hotspot có trường tooltip_en
                     'en' => $value->tooltip_en ?? null,
                 ];
-
-                // 3. Gán mảng trực tiếp. Spatie/laravel-translatable sẽ tự động JSON encode nó.
-                $_indus->setTranslations('description', $translations);
-
-                // Nếu trường name cũng là đa ngôn ngữ, bạn nên làm tương tự.
-                // Nếu name chỉ đơn ngữ, giữ nguyên: $_indus->name = $value->tooltip;
-                $_indus->name = $value->tooltip;
-
-                // Các trường đơn ngữ khác
-                $_indus->project_id = $vrtour_id;
-                $_indus->code = $value->potision;
-                $_indus->link = $link_vrtour . 'vista3d/search.html?search_link=' . $link_vrtour . '?media-index=' . $media_index . '&hct=HOLDER_SELECT_LANGUAGE_CN2&trigger-overlay-name=' . $value->potision . '&focus-overlay-name=' . $value->potision . '&skip-loading';
-
-                $_indus->save(); // Spatie sẽ lưu trường description dưới dạng JSON
+                IndustrialProject::updateOrCreate(
+                    [
+                        // Điều kiện tìm bản ghi
+                        'project_id' => $vrtour_id,
+                        'code'       => $value->potision,
+                    ],
+                    [
+                        // Dữ liệu update / create
+                        'name'        => $value->tooltip,
+                        'description' => $translations, // Spatie tự JSON
+                        'link'        => $link_vrtour . 'vista3d/search.html?search_link='
+                            . $link_vrtour . '?media-index=' . $media_index
+                            . '&hct=HOLDER_SELECT_LANGUAGE_CN2&trigger-overlay-name=' . $value->potision
+                            . '&focus-overlay-name=' . $value->potision
+                            . '&skip-loading',
+                    ]
+                );
             }
             // --- KẾT THÚC KHỐI SỬA ĐỔI ---
-
             foreach ($hotspot_db as $key => $hp) {
                 $html .= '<tr>';
                 $html .= '<td>' . (++$key) . '</td>';
