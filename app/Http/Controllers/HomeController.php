@@ -146,7 +146,7 @@ class HomeController extends Controller
 
         $list_districts = District::withCount([
             'projects as invest_count' => function ($query) {
-                $query->where('is_invest', 0)->where('is_draft', 0);
+                $query->where('is_invest', 0)->where('is_draft', 0)->where('status', 'approved');
             }
         ])
         ->get()

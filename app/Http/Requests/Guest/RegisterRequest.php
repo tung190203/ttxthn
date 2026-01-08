@@ -26,7 +26,7 @@ class RegisterRequest extends FormRequest
             'identification_number' => 'required|string|max:20|unique:guests,identification_number',
             'email' => 'required|email|unique:guests,email',
             'nation_id' => 'required|exists:nations,id',
-            'password' => 'required|string|min:6|confirmed',
+            'password' => 'required|string|min:6',
         ];
     }
 
@@ -48,7 +48,6 @@ class RegisterRequest extends FormRequest
             'password.required' => __('validation.password.required'),
             'password.string' => __('validation.password.string'),
             'password.min' => __('validation.password.min'),
-            'password.confirmed' => __('validation.password.confirmed'),
         ];
     }
 }
