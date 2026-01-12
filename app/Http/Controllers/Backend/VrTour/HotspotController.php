@@ -66,7 +66,7 @@ class HotspotController extends Controller
                     $new_hp->opacity = $hp['opacity'];
                     $new_hp->tooltip = (!str_contains($hp['position'], 'cms_eye') && !str_contains($hp['position'], 'cms_fly')) ? $hp['tooltip'] : '';
                     // GIẢ ĐỊNH: Nếu nguồn JSON có trường tooltip_en, bạn nên lưu nó vào bảng Hotspot tại đây
-                    // $new_hp->tooltip_en = $hp['tooltip_en'] ?? null;
+                    $new_hp->tooltip_en = $hp['tooltip_en'] ?? null;
                     $new_hp->type = str_contains($hp['position'], 'cms_') ? 1 : (str_contains($hp['position'], 'cmss_') ? 2 : 3);
                     $new_hp->user_id = Auth::id();
                     $new_hp->save();
