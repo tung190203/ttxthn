@@ -123,6 +123,7 @@ return [
     'news_link' => 'news',
     'contact_link' => 'contact',
     'project_link' => 'investment-projects',
+    'projects_link' => 'projects',
     'investment_products' => 'Industrial products',
     'investment_products_link' => 'industrial-projects',
     'project_name' => 'Project Name',
