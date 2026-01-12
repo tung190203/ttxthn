@@ -57,8 +57,11 @@
                                                         </li>
                                                     @endforeach
                                                     <li class="menu-item">
+                                                    @php
+                                                        $locale = app()->getLocale() === 'vi' ? 'vn' : app()->getLocale();
+                                                    @endphp
                                                         <a class="menu-link text-center"
-                                                            href="{{ route('projects') }}">{{ __('app.view_more') }}</a>
+                                                            href="{{ url($locale . '/' . __('app.projects_link')) }}">{{ __('app.view_more') }}</a>
                                                     </li>
                                                 </ul>
                                             @endif

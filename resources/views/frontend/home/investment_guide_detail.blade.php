@@ -113,7 +113,10 @@
                         </div>
                     </div>
                 </div>
-                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="{{ __('app.investment_guide_link') }}">{{ __('app.view_more') }}</a>
+                @php
+                    $locale = app()->getLocale() === 'vi' ? 'vn' : app()->getLocale();
+                @endphp
+                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="{{ url($locale . '/' . __('app.investment_guide_link')) }}" style="text-transform: capitalize;">{{ __('app.view_more') }}</a>
                 </nav>
             </div>
         </section>

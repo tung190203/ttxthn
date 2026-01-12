@@ -186,7 +186,10 @@
                             </div>
                         </div>
                     </div>
-                    <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="#!" style="text-transform: capitalize;">{{ __('app.view_more') }}</a></nav>
+                    @php
+                        $locale = app()->getLocale() === 'vi' ? 'vn' : app()->getLocale();
+                    @endphp
+                    <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="{{ url($locale . '/' . __('app.projects_link')) }}" style="text-transform: capitalize;">{{ __('app.view_more') }}</a></nav>
                     @endif
                 </div>
             </section>
@@ -266,8 +269,11 @@
                                 </div>
                             </div>
                         </div>
+                        @php
+                            $locale = app()->getLocale() === 'vi' ? 'vn' : app()->getLocale();
+                        @endphp
                         <nav class="d-flex justify-content-center mt-40 mt-lg-60">
-                            <a class="button" href="#!" style="text-transform: capitalize;">{{ __('app.view_more') }}</a>
+                            <a class="button" href="{{ url($locale . '/' . __('app.news_link')) }}" style="text-transform: capitalize;">{{ __('app.view_more') }}</a>
                         </nav>
                     @endif
                 </div>
