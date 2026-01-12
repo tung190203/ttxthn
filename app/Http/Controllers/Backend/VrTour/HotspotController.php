@@ -49,7 +49,16 @@ class HotspotController extends Controller
             //get hotspot from db
             $hotspot_db = Hotspot::where('vrtour_id', $vrtour_id)->whereIn('type', $request->type == 0 ? [1, 2] : [1, 2, 3])->get();
             if ($request->reset == 'true') {
-                Hotspot::where('vrtour_id', $vrtour_id)->delete();
+                $hotspots = Hotspot::where('vrtour_id', $vrtour_id)
+                    ->with('IndustrialProject')
+                    ->get();
+
+                foreach ($hotspots as $hotspot) {
+                    if ($hotspot->IndustrialProject) {
+                        $hotspot->IndustrialProject->delete();
+                    }
+                    $hotspot->delete();
+                }
             }
             if (count($hotspot_db) == 0) {
                 // ... (Khối logic lấy và lưu Hotspot vào DB) ...
