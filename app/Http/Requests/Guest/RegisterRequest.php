@@ -23,7 +23,7 @@ class RegisterRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'identification_number' => 'required|string|max:20|unique:guests,identification_number',
+            'identification_number' => 'required|max:20|min:6|unique:guests,identification_number',
             'email' => 'required|email|unique:guests,email',
             'nation_id' => 'required|exists:nations,id',
             'password' => 'required|string|min:6',

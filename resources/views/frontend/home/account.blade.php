@@ -110,7 +110,7 @@
                               @foreach($industries as $industry)
                                 <li class="swiper-slide" data-tippy-content="{{ $industry['name'] }}">
                                   <a class="{{ request('industry') == $industry['id'] ? 'active' : '' }}"
-                                     href="{{ route('home_page', ['industry' => $industry['id']]) }}#investment-section">
+                                     href="{{ route('account', ['industry' => $industry['id']]) }}#project-interest">
                                     {{ $industry['name'] }}
                                   </a>
                                 </li>

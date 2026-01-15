@@ -91,7 +91,7 @@ class AuthController extends Controller
         }
         $guest->save();
 
-        return redirect()->back()->with('success', 'Cập nhật thông tin thành công');
+        return redirect()->back()->with('success', 'Chỉnh sửa thông tin thành công');
     }
     public function redirectToGoogle()
     {
