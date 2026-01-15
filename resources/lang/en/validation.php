@@ -19,7 +19,7 @@ return [
 
     // Identification number (VNeID / Passport)
     'identification_number.required' => 'Please enter your VNeID/Passport number',
-    'identification_number.string' => 'VNeID / Passport number is invalid',
+    'identification_number.regex' => 'VNeID / Passport number must contain only numbers',
     'identification_number.max' => 'VNeID / Passport number must not exceed 20 characters',
     'identification_number.unique' => 'This VNeID / Passport number has already been used',
 

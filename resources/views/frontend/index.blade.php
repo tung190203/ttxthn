@@ -154,13 +154,13 @@
 
                         <div class="md-form__group">
                             <label class="form-label mb-0">{{ __('app.full_name') }}</label>
-                            <input class="form-control" name="name" type="text" />
+                            <input class="form-control" name="name" type="text" id="fullNameInput" />
                             <div class="text-danger mt-1 error-name"></div>
                         </div>
 
                         <div class="md-form__group">
                             <label class="form-label mb-0">{{ __('app.vneid_or_passport') }}</label>
-                            <input class="form-control" name="identification_number" type="text" />
+                            <input class="form-control" name="identification_number" id="identification_number" type="text" />
                             <div class="text-danger mt-1 error-identification_number"></div>
                         </div>
 
@@ -437,4 +437,24 @@ $('.news__like').click(e => toggleInterest($(e.currentTarget)));
         });
     });
 
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const nameInput = document.getElementById('fullNameInput');
+
+    if (!nameInput) return;
+
+    nameInput.addEventListener('input', function () {
+        this.value = this.value.replace(/[^a-zA-ZÀ-ỹ\s]/g, '');
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const idInput = document.getElementById('identification_number');
+    if (!idInput) return;
+
+    idInput.addEventListener('input', function () {
+        this.value = this.value.replace(/[^0-9]/g, '');
+    });
+});
 </script>

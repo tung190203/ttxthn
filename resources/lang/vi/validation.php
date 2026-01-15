@@ -19,7 +19,8 @@ return [
 
     // Identification number (VNeID / Passport)
     'identification_number.required' => 'Vui lòng nhập số VNeID/Passport',
-    'identification_number.string' => 'Số VNeID / Passport không hợp lệ',
+    'identification_number.regex' => 'Số VNeID / Passport chỉ chấp nhận số',
+    'identification_number.min' => 'Số VNeID / Passport không được ít hơn 6 ký tự',
     'identification_number.max' => 'Số VNeID / Passport không được vượt quá 20 ký tự',
     'identification_number.unique' => 'Số VNeID / Passport đã được sử dụng',
 

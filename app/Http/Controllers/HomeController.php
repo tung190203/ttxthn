@@ -554,20 +554,26 @@ class HomeController extends Controller
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|max:255',
-                'phone' => 'nullable|string|max:20',
+                'phone' => [
+                    'nullable',
+                    'string',
+                    'max:20',
+                    'regex:/^\+?[0-9\s\-\(\)]{10,20}$/'
+                ],
                 'project_industry_id' => 'nullable|integer|exists:project_industries,id',
                 'message' => 'nullable|string|max:2000',
             ], [
                 'name.required' => 'Vui lòng nhập họ tên',
                 'email.required' => 'Vui lòng nhập email',
                 'email.email' => 'Email không hợp lệ',
+                'phone.regex' => 'Số điện thoại không hợp lệ',
                 'message.required' => 'Vui lòng nhập nội dung liên hệ',
-            ]);
+            ]);            
             $contact->fill($validated);
             $contact->save();
 
             return redirect()->route('contact')
-                ->with('success', __('app.contact.success'));
+                ->with('success', __('app.contact_success'));
         }
 
         // SEO MOZ Cấu hình SEO
