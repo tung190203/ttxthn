@@ -50,7 +50,7 @@
                         <select name="project_industry_id" id="project_industry_id" class="form-select @error('project_industry_id') is-invalid @enderror">
                             <option value="">-- {{ __('app.choice_fields') }} --</option>
                             @foreach ($project_industries as $industries)
-                                <option value="{{ $industries->id }}" {{ old('project_industry_id') == $industries->name ? 'selected' : '' }}>{{ $industries->name }}</option>
+                                <option value="{{ $industries->id }}" {{ old('project_industry_id') == $industries->_id ? 'selected' : '' }}>{{ $industries->name }}</option>
                             @endforeach
                         </select>
                         @error('project_industry_id')

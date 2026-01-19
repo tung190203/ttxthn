@@ -24,10 +24,10 @@ class UpdateRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'identification_number' => 'nullable|string|max:20|unique:guests,identification_number,' . $guestId,
-            'email' => 'required|email|unique:guests,email,' . $guestId,
+            'email' => 'required|email:rfc,dns|unique:guests,email,' . $guestId,
             'nation_id' => 'nullable|exists:nations,id',
             'password' => 'nullable|string|min:6',
-            'phone' => 'nullable|string|max:15',
+            'phone' => 'nullable|numeric',
             'address' => 'nullable|string|max:255',
             'avatar' => 'nullable|string',
         ];
@@ -57,7 +57,7 @@ class UpdateRequest extends FormRequest
             'nation_id.required' => __('validation.nation_id.required'),
             'nation_id.exists' => __('validation.nation_id.exists'),
     
-            'phone.string' => __('validation.phone.string'),
+            'phone.numeric' => __('validation.phone.numeric'),
             'phone.max' => __('validation.phone.max'),
     
             'address.string' => __('validation.address.string'),

@@ -8,6 +8,7 @@ use App\Http\Requests\Guest\UpdateRequest;
 use App\Models\Guest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Socialite\Facades\Socialite;
 
@@ -64,7 +65,7 @@ class AuthController extends Controller
         $guest->phone = $request->input('phone');
         $guest->address = $request->input('address');
         if($request->filled('password')) {
-            $guest->password = $request->input('password');
+            $guest->password = Hash::make($request->input('password'));
         }
         if ($request->filled('avatar')) {
             $avatarData = $request->input('avatar');

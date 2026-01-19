@@ -29,7 +29,7 @@ return [
     'nation_id.exists' => 'Quốc tịch không hợp lệ',
 
     // Phone
-    'phone.string' => 'Số điện thoại không hợp lệ',
+    'phone.numeric' => 'Số điện thoại không hợp lệ',
     'phone.max' => 'Số điện thoại không được vượt quá 15 ký tự',
 
     // Address

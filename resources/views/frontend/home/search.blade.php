@@ -77,69 +77,89 @@
 
 <script>
     $(document).ready(function () {
-        // An toàn với nội dung keyword (escape đúng)
         const keyword = @json($key ?? '');
 
-        // Delegate click cho các link phân trang (sắp xếp theo cấu trúc hiện tại)
-        $(document).on('click', '.ajax-pagination-container .pagination a', function (e) {
+        // QUAN TRỌNG: Sử dụng event delegation đúng cách
+        $(document).on('click', '.pagination a', function (e) {
             e.preventDefault();
-
+            
             const $link = $(this);
             const href = $link.attr('href');
-            if (!href) return;
+            
+            if (!href || $link.parent().hasClass('active') || $link.parent().hasClass('disabled')) {
+                return; // Bỏ qua nếu là trang hiện tại hoặc disabled
+            }
 
-            const $container = $link.closest('.ajax-pagination-container');
-            const type = $container.data('type'); // post / project / guide
-            if (!type) return;
+            // Tìm container chứa pagination này
+            const $paginationWrapper = $link.closest('[id^="results-"]');
+            const type = $paginationWrapper.attr('id').replace('results-', '');
+            
+            if (!type) {
+                console.error('Không tìm thấy type từ container');
+                return;
+            }
 
-            // Parse URL an toàn: dùng URL nếu có, fallback parse query string
+            // Parse page number từ URL
             let page = 1;
             try {
                 const url = new URL(href, window.location.href);
-                page = url.searchParams.get(type + '_page') || url.searchParams.get('page') || 1;
+                // Thử tìm page theo nhiều pattern
+                page = url.searchParams.get(type + '_page') 
+                    || url.searchParams.get('page') 
+                    || 1;
             } catch (err) {
-                // Fallback: parse phần query manually
-                const qs = href.split('?')[1] || '';
-                const params = new URLSearchParams(qs);
-                page = params.get(type + '_page') || params.get('page') || 1;
+                // Fallback: parse query string manually
+                const match = href.match(/[?&](page|' + type + '_page)=(\d+)/);
+                if (match) {
+                    page = match[2];
+                }
             }
 
-            const resultsDiv = $('#results-' + type);
-            resultsDiv.css('opacity', '0.5');
+            console.log('Pagination click:', { type, page, href });
 
+            // Hiển thị loading state
+            $paginationWrapper.css('opacity', '0.5').css('pointer-events', 'none');
+
+            // AJAX request
             $.ajax({
-                url: '{{ route('search') }}',
+                url: '{{ route("search") }}',
                 type: 'GET',
-                data: (function () {
-                    const d = {
-                        keyword: keyword,
-                        ajax_type: type
-                    };
-                    // gửi page theo tên page riêng của loại (ví dụ post_page)
-                    d[type + '_page'] = page;
-                    // vẫn giữ thêm generic 'page' làm fallback ở server
-                    d.page = page;
-                    return d;
-                })(),
+                data: {
+                    keyword: keyword,
+                    ajax_type: type,
+                    page: page,
+                    [type + '_page']: page
+                },
                 dataType: 'json',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'
                 },
                 success: function (response) {
                     if (response.html) {
-                        resultsDiv.html(response.html);
-                        $('html, body').animate({
-                            scrollTop: $('#category-' + type).offset().top - 100
-                        }, 500);
+                        $paginationWrapper.html(response.html);
+                        
+                        // Scroll đến vị trí category
+                        const $category = $('#category-' + type);
+                        if ($category.length) {
+                            $('html, body').animate({
+                                scrollTop: $category.offset().top - 100
+                            }, 500);
+                        }
                     } else {
-                        console.warn('ajaxSearch trả về html rỗng');
+                        console.warn('Response không có HTML');
                     }
                 },
-                error: function (xhr) {
-                    console.error('Lỗi AJAX khi phân trang:', xhr);
+                error: function (xhr, status, error) {
+                    console.error('AJAX Error:', {
+                        status: xhr.status,
+                        statusText: xhr.statusText,
+                        error: error,
+                        response: xhr.responseText
+                    });
+                    alert('Có lỗi xảy ra khi tải dữ liệu. Vui lòng thử lại!');
                 },
                 complete: function () {
-                    resultsDiv.css('opacity', '1');
+                    $paginationWrapper.css('opacity', '1').css('pointer-events', 'auto');
                 }
             });
         });

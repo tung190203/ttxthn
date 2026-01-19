@@ -322,7 +322,7 @@
                                 <div class="swiper-slide">
                                     <div class="news">
                                         <a class="news__frame"
-                                            href="{{ route('post_detail', ['id' => $item['id'], 'slug' => $item['slug']]) }}">
+                                            href="{{ route('post_detail', ['id' => $item['id'], 'slug' => $item['slug'], 'ref' => 'app.news']) }}">
                                             <img src="{{ $item['image'] }}" alt="" />
                                         </a>
                                         <div class="news__body">
@@ -338,7 +338,7 @@
                                                 </a>
                                             </div>
                                             <h3 class="news__title custom-desc">
-                                                <a href="{{ route('post_detail', ['id' => $item['id'], 'slug' => $item['slug']]) }}"
+                                                <a href="{{ route('post_detail', ['id' => $item['id'], 'slug' => $item['slug'], 'ref' => 'app.news']) }}"
                                                     data-tippy-content="{{ $item['name'] }}">
                                                     {{ $item['name'] }}
                                                 </a>
