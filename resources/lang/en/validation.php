@@ -28,7 +28,7 @@ return [
     'nation_id.exists' => 'Selected nationality is invalid',
 
     // Phone
-    'phone.string' => 'Phone number is invalid',
+    'phone.numeric' => 'Phone number is invalid',
     'phone.max' => 'Phone number must not exceed 15 characters',
 
     // Address

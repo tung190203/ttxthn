@@ -108,6 +108,7 @@ class PostController extends Controller
         //SEO MOZ
         $setting = Setting::getAllSetting();
         $setting['meta_title'] = ($post->meta_title) ?: $post->name;
+        $setting['menu_active'] = __('app.news_link');
         $setting['meta_keywords'] = ($post->meta_keywords) ?: $setting['meta_keywords'];
         $setting['meta_description'] = ($post->meta_description) ?: $setting['meta_description'];
         $setting['og_image'] = ($post->image) ?: ($setting['og_image'] ?? '');

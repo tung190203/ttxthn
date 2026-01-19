@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Libs\Util;
 use App\Libs\Validate;
+use App\Mail\ContactMail;
 use App\Models\Category;
 use App\Models\Contact;
 use App\Models\District;
@@ -23,12 +24,14 @@ use Illuminate\Http\Request;
 use App\Models\Setting;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class HomeController extends Controller
 {
     public function index(Request $request)
     {
         $setting = Setting::getAllSetting();
+        $setting['meta_title'] = __('app.home');
 
         $banners = Widget::getByPosition('HOME_BANNER');
         $list_post_popular = Post::where('published_at', '<=', Carbon::now())->popular(4)->whereNull('parent_id')->where('status_approve','approved')->get();
@@ -40,12 +43,22 @@ class HomeController extends Controller
                 'name' => $type->name,
             ];
         })->toArray();
-        $industries = ProjectIndustries::all()->map(function ($industry) {
-            return [
-                'id' => $industry->id,
-                'name' => $industry->name,
-            ];
-        })->toArray();
+        $activeIndustryId = $request->industry;
+
+        $industries = ProjectIndustries::all()
+            ->sortBy(function ($industry) use ($activeIndustryId) {
+                // industry active → sort = 0 (lên đầu)
+                return $industry->id == $activeIndustryId ? 0 : 1;
+            })
+            ->values() // reset key
+            ->map(function ($industry) {
+                return [
+                    'id' => $industry->id,
+                    'name' => $industry->name,
+                ];
+            })
+            ->toArray();
+        
         $list_projects = Project::where('industry_number', 6)->whereNull('parent_id')->where('status','approved')->get()->map(function ($project) {
             return [
                 'id' => $project->id,
@@ -133,6 +146,7 @@ class HomeController extends Controller
     {
         $setting = Setting::getAllSetting();
         $setting['menu_active'] = __('app.project_link');
+        $setting['meta_title'] = __('app.investment_projects');
 
         $banners = Widget::getByPosition('HOME_BANNER');
         $list_post_popular = Post::popular(Post::POSTS_TAKE)->whereNull('parent_id')->where('status_approve','approved')->where('published_at', '<=', Carbon::now())->get();
@@ -343,6 +357,8 @@ class HomeController extends Controller
             $backLabel = null;
         }
 
+        $setting['meta_title'] = $project->name;
+
         return view('frontend.home.project_detail', compact(
             'setting',
             'banners',
@@ -445,6 +461,7 @@ class HomeController extends Controller
         $setting = Setting::getAllSetting();
         $banners = Widget::getByPosition('HOME_BANNER');
         $setting['menu_active'] = __('app.investment_guide_link');
+        $setting['meta_title'] = __('app.investment_guide');
         $locale = app()->getLocale();
         $availableLocales = config('app.available_locales', ['vi', 'en']);
 
@@ -553,7 +570,7 @@ class HomeController extends Controller
         if ($request->isMethod('post')) {
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
-                'email' => 'required|email|max:255',
+                'email' => 'required|email:rfc,dns|max:255',
                 'phone' => [
                     'nullable',
                     'string',
@@ -571,13 +588,16 @@ class HomeController extends Controller
             ]);            
             $contact->fill($validated);
             $contact->save();
+            $contact->load('projectIndustry');
+
+            Mail::to($setting['email'] ?? config('contact.admin_email'))->queue(new ContactMail($contact));
 
             return redirect()->route('contact')
                 ->with('success', __('app.contact_success'));
         }
 
         // SEO MOZ Cấu hình SEO
-        $setting['meta_title'] = 'Liên hệ với chúng tôi';
+        $setting['meta_title'] = __('app.news');
         $setting['menu_active'] = __('app.contact_link');
 
         return view('frontend.home.contact', compact('setting'));
@@ -701,19 +721,19 @@ class HomeController extends Controller
         // --- 2. Projects ---
         $projectPage = $request->input('project_page', 1);
         $projects = Project::withRelations()
-        ->whereNull('parent_id')
-        ->where('status', 'approved')
-        ->when($keyword, function ($query, $keyword) use ($locale) {
-            $keyword = mb_strtolower($keyword);
-            $query->whereRaw(
-                "LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.\"{$locale}\"'))) LIKE ?",
-                ["%{$keyword}%"]
-            );
-        })
-        ->orderBy('updated_at', 'desc')
-        ->paginate($perPage, ['*'], 'project_page', $projectPage)
-        ->appends(['keyword' => $keyword]);
-
+            ->whereNull('parent_id')
+            ->where('status', 'approved')
+            ->when($keyword, function ($query, $keyword) use ($locale) {
+                $keyword = mb_strtolower($keyword);
+                $query->whereRaw(
+                    "LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.\"{$locale}\"'))) LIKE ?",
+                    ["%{$keyword}%"]
+                );
+            })
+            ->orderBy('updated_at', 'desc')
+            ->paginate($perPage, ['*'], 'project_page', $projectPage)
+            ->appends(['keyword' => $keyword]);
+    
         if ($projects->total() > 0) {
             $projects->through(function ($project) {
                 $item = $project->toArray();
@@ -768,13 +788,28 @@ class HomeController extends Controller
         $keyword = $request->input('keyword');
         $ajax_type = $request->input('ajax_type');
         $perPage = 6;
-
+        $locale = app()->getLocale();
+    
+        // Lấy page number từ tham số phù hợp
         $page = $request->input($ajax_type . '_page', $request->input('page', 1));
 
         $query = match ($ajax_type) {
-            'post' => Post::with('interests')->whereNull('parent_id')->where('status_approve','approved')->where('published_at', '<=', Carbon::now())->where('status', Post::STATUS_ACTIVE),
-            'project' => Project::withRelations()->whereNull('parent_id')->where('status','approved'),
-            'guide' => InvestmentGuide::with('interests')->whereNull('parent_id')->where('status_approve','approved')->where('published_at', '<=', Carbon::now())->where('status', InvestmentGuide::STATUS_ACTIVE),
+            'post' => Post::with('interests')
+                ->whereNull('parent_id')
+                ->where('status_approve', 'approved')
+                ->where('published_at', '<=', Carbon::now())
+                ->where('status', Post::STATUS_ACTIVE),
+                
+            'project' => Project::withRelations()
+                ->whereNull('parent_id')
+                ->where('status', 'approved'),
+                
+            'guide' => InvestmentGuide::with('interests')
+                ->whereNull('parent_id')
+                ->where('status_approve', 'approved')
+                ->where('published_at', '<=', Carbon::now())
+                ->where('status', InvestmentGuide::STATUS_ACTIVE),
+                
             default => null,
         };
 
@@ -783,15 +818,31 @@ class HomeController extends Controller
         }
 
         $results = $query
-            ->when($keyword, function ($q, $keyword) {
-                return $q->where('name', 'like', "%{$keyword}%");
+            ->when($keyword, function ($q, $keyword) use ($ajax_type, $locale) {
+                if ($ajax_type === 'project') {
+                    // Project sử dụng JSON search như trong search() method
+                    $keyword = mb_strtolower($keyword);
+                    return $q->whereRaw(
+                        "LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.\"{$locale}\"'))) LIKE ?",
+                        ["%{$keyword}%"]
+                    );
+                } else {
+                    // Post và Guide sử dụng JSON arrow syntax
+                    return $q->where("name->{$locale}", 'like', "%{$keyword}%");
+                }
             })
             ->orderBy($ajax_type == 'project' ? 'updated_at' : 'published_at', 'desc')
             ->paginate($perPage, ['*'], $ajax_type . '_page', $page)
-            ->appends(['keyword' => $keyword]);
-
+            ->appends([
+                'keyword' => $keyword,
+                'ajax_type' => $ajax_type
+            ]);
+    
+        // Transform results
         $results->through(function ($item) use ($ajax_type) {
             $data = $item->toArray();
+            $data['slug'] = $item->slug;
+            $data['name'] = $item->name;
             $data['type'] = $ajax_type;
             $data['is_interested'] = $item->interests()->where('guest_id', Auth::guard('guest')->id())->exists();
 
@@ -799,21 +850,27 @@ class HomeController extends Controller
                 $data['districts'] = $item->districts;
                 $data['unit_type_text'] = $item->unit_type_text;
             }
+            
+            if ($ajax_type === 'post' || $ajax_type === 'guide') {
+                $data['description'] = $item->description;
+            }
+    
             return (object) $data;
         });
 
         $html = view('frontend.home.partials.search_results_ajax', [
             'results' => $results,
             'type_name' => match ($ajax_type) {
-                'post' => 'Tin tức',
-                'project' => 'Dự án kêu gọi đầu tư',
-                'guide' => 'Cẩm nang Đầu tư',
-                default => 'Kết quả',
+                'post' => __('app.news'),
+                'project' => __('app.investment_projects'),
+                'guide' => __('app.investment_guide'),
+                default => __('app.results'),
             },
         ])->render();
 
         return response()->json([
             'html' => $html,
+            'success' => true
         ]);
     }
 
