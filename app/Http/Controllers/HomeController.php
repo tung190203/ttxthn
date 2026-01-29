@@ -699,7 +699,7 @@ class HomeController extends Controller
             ->where('status_approve', 'approved')
             ->where('published_at', '<=', now())
             ->when($keyword, function ($query, $keyword) use ($locale) {
-                return $query->where("name->{$locale}", 'like', "%{$keyword}%");
+                return $query->where("name", 'like', "%{$keyword}%");
             })
             ->orderBy('published_at', 'desc')
             ->paginate($perPage, ['*'], 'post_page', $postPage)
@@ -724,11 +724,7 @@ class HomeController extends Controller
             ->whereNull('parent_id')
             ->where('status', 'approved')
             ->when($keyword, function ($query, $keyword) use ($locale) {
-                $keyword = mb_strtolower($keyword);
-                $query->whereRaw(
-                    "LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.\"{$locale}\"'))) LIKE ?",
-                    ["%{$keyword}%"]
-                );
+               return $query->where("name", 'like', "%{$keyword}%");
             })
             ->orderBy('updated_at', 'desc')
             ->paginate($perPage, ['*'], 'project_page', $projectPage)
@@ -755,7 +751,7 @@ class HomeController extends Controller
             ->where('status_approve', 'approved')
             ->where('published_at', '<=', now())
             ->when($keyword, function ($query, $keyword) use ($locale) {
-                return $query->where("name->{$locale}", 'like', "%{$keyword}%");
+                return $query->where("name", 'like', "%{$keyword}%");
             })
             ->orderBy('published_at', 'desc')
             ->paginate($perPage, ['*'], 'guide_page', $guidePage)
