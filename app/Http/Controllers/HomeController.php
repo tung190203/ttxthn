@@ -189,12 +189,7 @@ class HomeController extends Controller
         ->toArray();
         $projects = Project::withRelations()->whereNull('parent_id')->where('status','approved')
             ->when($request->keyword, function ($query) use ($request) {
-                $keyword = $request->keyword;
-            
-                $query->whereRaw(
-                    "name COLLATE utf8mb4_bin LIKE ?",
-                    ['%' . $keyword . '%']
-                );
+                return $query->where("name", 'like', "%{$request->keyword}%");
             })            
             ->when($request->type_id, function ($query) use ($request) {
                 $query->where('type_number', $request->type_id);
