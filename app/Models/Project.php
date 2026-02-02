@@ -150,7 +150,7 @@ class Project extends Model
 
     public static function makeListProjectArray()
     {
-        return Project::where('status','approved')->pluck('name', 'id')->toArray();
+        return Project::where('status', 'approved')->pluck('name', 'id')->toArray();
     }
 
     public function scopeInBounds($query, $minLat, $maxLat, $minLng, $maxLng)
@@ -183,7 +183,24 @@ class Project extends Model
             )
             ->when(
                 $request->filled('district'),
-                fn($q) => $q->whereHas('districts', fn($q2) => $q2->where('name', $request->district))
+                fn($q) => $q->whereHas('districts', fn($q2) => $q2->where('name', 'like', '%' . $request->district . '%'))
+            );
+    }
+
+    public function scopeFilterProjectOnly($query, Request $request)
+    {
+        return $query
+            ->when(
+                $request->filled('type') && $request->type !== 'all',
+                fn($q) => $q->where('type_number', $request->type)
+            )
+            ->when(
+                $request->filled('industry') && $request->industry !== 'all',
+                fn($q) => $q->where('industry_number', $request->industry)
+            )
+            ->when(
+                $request->filled('district'),
+                fn($q) => $q->whereHas('districts', fn($q2) => $q2->where('name', 'like', '%' . $request->district . '%'))
             );
     }
 
@@ -226,18 +243,18 @@ class Project extends Model
     {
         $types = ProjectType::all();
         $html = '';
-    
+
         // Nếu cần hiển thị option mặc định
         if ($include_default || $selected === null) {
             $isSelected = ($selected === null) ? 'selected' : '';
             $html .= "<option value=\"\" {$isSelected}>-- Chọn loại dự án --</option>";
         }
-    
+
         foreach ($types as $type) {
             $isSelected = ($type->id == $selected) ? 'selected' : '';
             $html .= "<option value=\"{$type->id}\" {$isSelected}>{$type->name}</option>";
         }
-    
+
         // Trường hợp giá trị $selected không nằm trong danh sách, hiển thị "Khác"
         if (
             $selected !== null &&
@@ -246,19 +263,19 @@ class Project extends Model
         ) {
             $html .= "<option value=\"{$selected}\" selected>Khác</option>";
         }
-    
+
         return $html;
     }
     public static function makeListIndustry($selected = null, $include_default = false)
     {
         $industries = ProjectIndustries::all();
         $html = '';
-    
+
         if ($include_default || $selected === null) {
             $isSelected = ($selected === null) ? 'selected' : '';
             $html .= "<option value=\"\" {$isSelected}>-- Chọn Ngành / Lĩnh vực --</option>";
         }
-    
+
         foreach ($industries as $industry) {
             $isSelected = ($industry->id == $selected) ? 'selected' : '';
             $html .= "<option value=\"{$industry->id}\" {$isSelected}>{$industry->name}</option>";
@@ -271,31 +288,31 @@ class Project extends Model
         ) {
             $html .= "<option value=\"{$selected}\" selected>Khác</option>";
         }
-    
+
         return $html;
     }
 
     public static function makeListDistricts()
     {
-       return District::pluck('name', 'id')->toArray();
+        return District::pluck('name', 'id')->toArray();
     }
 
     public static function makeListLayout($selected = null, $include_default = false)
     {
         $layouts = self::LAYOUTS;
-    
+
         $html = '';
-    
+
         if ($include_default || $selected === null) {
             $isSelected = ($selected === null) ? 'selected' : '';
             $html .= "<option value=\"\" {$isSelected}>-- Chọn Layout --</option>";
         }
-    
+
         foreach ($layouts as $id => $name) {
             $isSelected = ($id == $selected) ? 'selected' : '';
             $html .= "<option value=\"{$id}\" {$isSelected}>{$name}</option>";
         }
-    
+
         return $html;
     }
 
@@ -313,7 +330,7 @@ class Project extends Model
 
     public function scopeWithRelations($query)
     {
-        return $query->with(['type', 'industry', 'districts', 'interests'] );
+        return $query->with(['type', 'industry', 'districts', 'interests']);
     }
     public function scopeVisibleFor($query, $user)
     {
@@ -324,25 +341,24 @@ class Project extends Model
                     $sub->where('is_draft', false)
                         ->where(function ($s) {
                             $s->whereDoesntHave('draft')
-                            ->orWhereHas('draft', function ($d) {
-                                $d->where('status', 'rejected');
-                            });
+                                ->orWhereHas('draft', function ($d) {
+                                    $d->where('status', 'rejected');
+                                });
                         });
                 })
-                ->orWhere(function ($sub) {
-                    $sub->where('is_draft', true)
-                        ->where('status', '!=', 'rejected');
-                });
+                    ->orWhere(function ($sub) {
+                        $sub->where('is_draft', true)
+                            ->where('status', '!=', 'rejected');
+                    });
             } else {
                 $q->where(function ($sub) {
                     $sub->where('is_draft', false)
                         ->whereDoesntHave('draft');
                 })
-                ->orWhere(function ($sub) {
-                    $sub->where('is_draft', true);
-                });
+                    ->orWhere(function ($sub) {
+                        $sub->where('is_draft', true);
+                    });
             }
-
         });
     }
 }

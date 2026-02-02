@@ -22,13 +22,13 @@ CKEDITOR.plugins.add("CustomImage", {
                 );
               } else {
                 // Các ảnh khác thì mở cropper
-                // openCropperModal(imageUrl, function (croppedDataUrl) {
-                //   editor.insertHtml(
-                //     '<img src="' +
-                //       croppedDataUrl +
-                //       '" style="max-width:100%; display:block; margin:auto;"/>'
-                //   );
-                // });
+                openCropperModal(imageUrl, function (croppedDataUrl) {
+                  editor.insertHtml(
+                    '<img src="' +
+                      croppedDataUrl +
+                      '" style="max-width:100%; display:block; margin:auto;"/>'
+                  );
+                });
               }
             });
           },
@@ -37,12 +37,12 @@ CKEDITOR.plugins.add("CustomImage", {
     });
 
     // Nút toolbar
-    editor.ui.addButton("CustomImage", {
-      label: "Chèn ảnh có crop",
-      command: "customImageCommand",
-      toolbar: "insert",
-      icon: this.path + "icons/customimage.png",
-    });
+    // editor.ui.addButton("CustomImage", {
+    //   label: "Chèn ảnh có crop",
+    //   command: "customImageCommand",
+    //   toolbar: "insert",
+    //   icon: this.path + "icons/customimage.png",
+    // });
 
     // Xử lý khi paste
     editor.on("paste", function (evt) {

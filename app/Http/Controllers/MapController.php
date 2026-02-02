@@ -37,8 +37,10 @@ class MapController extends Controller
 
             $query->filterByRequest($request);
         } else {
+            $query = Project::with(['type', 'industry', 'districts', 'industrialProjects']);
+
             if (!$hasFilters) {
-                $query = Project::with(['type', 'industry', 'districts', 'industrialProjects']);
+                $query->inBounds($request->minLat, $request->maxLat, $request->minLng, $request->maxLng);
             } else {
                 $projectIds = IndustrialProject::filterProjectIds($request);
 
@@ -46,18 +48,17 @@ class MapController extends Controller
                     return response()->json([]);
                 }
 
-                $query = Project::with([
-                    'type',
-                    'industry',
-                    'districts',
+                $query->with([
                     'industrialProjects' => fn($q) => $q->filterByRequest($request)
                 ])
                     ->whereIn('id', $projectIds)
                     ->whereHas('industrialProjects', fn($q) => $q->filterByRequest($request));
+
+                $query->filterProjectOnly($request);
             }
         }
 
-        $projects = $query->whereNull('parent_id')->where('status','approved')->get();
+        $projects = $query->whereNull('parent_id')->where('status', 'approved')->get();
         $data = $this->returnData($projects);
         return response()->json($data);
     }
