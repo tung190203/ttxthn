@@ -20,6 +20,7 @@ use App\Http\Controllers\Backend\VrTour\SkinController;
 use App\Http\Controllers\Backend\VrTour\HotspotController;
 use App\Http\Controllers\Backend\VrTour\ContentController;
 use App\Models\InvestmentGuide;
+use App\Http\Controllers\Backend\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::localized(function () {
@@ -29,6 +30,7 @@ Route::localized(function () {
 
     Route::prefix('backend')->middleware(['auth', 'can:backend_access'])->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('backend_home');
+        Route::post('/profile/update', [ProfileController::class, 'update'])->name('backend.profile.update');
 
         Route::prefix('category')->group(function () {
             Route::get('/', [CategoryController::class, 'index'])->name('backend_category');
