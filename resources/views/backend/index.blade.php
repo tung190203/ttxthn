@@ -52,7 +52,7 @@
 
 </head>
 
-<body class="hold-transition sidebar-mini layout-fixed {{ !empty($hideSidebar) ? 'sidebar-collapse' : '' }}">
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed {{ !empty($hideSidebar) ? 'sidebar-collapse' : '' }}">
     <div class="wrapper">
         @if(empty($hideHeader))
         @include('backend.header')
