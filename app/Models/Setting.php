@@ -6,11 +6,22 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\App;
 use Spatie\Translatable\HasTranslations;
 
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
+
 class Setting extends Model
 {
-    use HasTranslations;
+    use HasTranslations, LogsActivity;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+    }
     protected $table = 'settings';
-    
+
     // Đảm bảo trường svalue được Spatie xử lý đa ngôn ngữ
     public $translatable = [
         'svalue',
@@ -38,12 +49,12 @@ class Setting extends Model
             return self::$cached['all_setting'];
         }
 
-        $settings = self::get(); 
+        $settings = self::get();
         $results = [];
 
         foreach ($settings as $setting) {
             // Danh sách các key đa ngôn ngữ đơn giản (cần lấy full mảng ['vi' => '...', 'en' => '...'] cho View)
-            $multiLangKeys = ['site_name', 'footer_info', 'copyright_notice', 'copyright','address', 'social_title', 'logo'];
+            $multiLangKeys = ['site_name', 'footer_info', 'copyright_notice', 'copyright', 'address', 'social_title', 'logo'];
 
             if ($setting->skey === 'banners' || $setting->skey === 'features') {
                 // Các trường phức tạp (JSON array): Chỉ lấy giá trị của ngôn ngữ hiện tại
@@ -61,7 +72,7 @@ class Setting extends Model
 
         self::$cached['all_setting'] = $results;
         return $results;
-    }    
+    }
 
     public static function getSettingByKey($key, $default = '')
     {

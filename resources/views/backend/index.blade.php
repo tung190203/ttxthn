@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <title>@yield('title') - {!! config('cms.name') !!}</title>
 
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <meta name="robots" content="noindex"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <link href="{{ asset('backend_assets/vendor/fontawesome/all.min.css') }}" rel="stylesheet">
@@ -42,6 +43,7 @@
         .main-sidebar {
             display: none !important;
         }
+
         .content-wrapper {
             margin-left: 0 !important;
         }
@@ -49,58 +51,60 @@
     @endif
 
 </head>
-<body class="hold-transition sidebar-mini layout-fixed {{ !empty($hideSidebar) ? 'sidebar-collapse' : '' }}">
-<div class="wrapper">
-    @if(empty($hideHeader))
-        @include('backend.header')
-    @endif
-    
-    @if(empty($hideSidebar))
-        @include('backend.blocks.sidebar')
-    @endif
 
-    <div class="content-wrapper">
-        @if(empty($hideBreadcrumb))
-        <div class="content-header">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-sm-6">
-                        <h1 class="m-0 text-dark">@yield('title')</h1>
-                    </div>
-                    <div class="col-sm-6">
-                        <ol class="breadcrumb float-sm-right">
-                            <li class="breadcrumb-item"><a href="{{ route('backend_home') }}">Home</a></li>
-                            @yield('breadcrumb')
-                        </ol>
+<body class="hold-transition sidebar-mini layout-fixed {{ !empty($hideSidebar) ? 'sidebar-collapse' : '' }}">
+    <div class="wrapper">
+        @if(empty($hideHeader))
+        @include('backend.header')
+        @endif
+
+        @if(empty($hideSidebar))
+        @include('backend.blocks.sidebar')
+        @endif
+
+        <div class="content-wrapper">
+            @if(empty($hideBreadcrumb))
+            <div class="content-header">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <h1 class="m-0 text-dark">@yield('title')</h1>
+                        </div>
+                        <div class="col-sm-6">
+                            <ol class="breadcrumb float-sm-right">
+                                <li class="breadcrumb-item"><a href="{{ route('backend_dashboard') }}">Home</a></li>
+                                @yield('breadcrumb')
+                            </ol>
+                        </div>
                     </div>
                 </div>
             </div>
+            @endif
+
+            <section class="content">
+                @yield('content')
+            </section>
         </div>
+
+        @if(empty($hideFooter))
+        @include('backend.footer')
         @endif
 
-        <section class="content">
-            @yield('content')
-        </section>
     </div>
 
-    @if(empty($hideFooter))
-        @include('backend.footer')
-    @endif
+    <script src="{{ asset('backend_assets/vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ asset('backend_assets/vendor/overlayScrollbars/jquery.overlayScrollbars.min.js') }}"></script>
+    <script src="{{ asset('backend_assets/vendor/bootstrap/bootstrap-switch.min.js') }}"></script>
+    <script src="{{ asset('backend_assets/js/adminlte.js') }}"></script>
+    <script src="{{ asset('backend_assets/vendor/toastr/toastr.min.js') }}"></script>
 
-</div>
+    <script src="{{ asset('backend_assets/js/app.js') }}"></script>
 
-<script src="{{ asset('backend_assets/vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
-<script src="{{ asset('backend_assets/vendor/overlayScrollbars/jquery.overlayScrollbars.min.js') }}"></script>
-<script src="{{ asset('backend_assets/vendor/bootstrap/bootstrap-switch.min.js') }}"></script>
-<script src="{{ asset('backend_assets/js/adminlte.js') }}"></script>
-<script src="{{ asset('backend_assets/vendor/toastr/toastr.min.js') }}"></script>
+    <x-forms.notification success="{{ session('success') }}" error="{{ session('error') }}" />
 
-<script src="{{ asset('backend_assets/js/app.js') }}"></script>
-
-<x-forms.notification success="{{ session('success') }}" error="{{ session('error') }}"/>
-
-@yield('script')
-@yield('bottom')
+    @yield('script')
+    @yield('bottom')
 
 </body>
+
 </html>

@@ -10,9 +10,20 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Gate;
 use Spatie\Translatable\HasTranslations;
 
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
+
 class Project extends Model
 {
-    use HasFactory, HasTranslations;
+    use HasFactory, HasTranslations, LogsActivity;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+    }
     protected $table = 'projects';
 
     protected $fillable = [

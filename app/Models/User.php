@@ -7,11 +7,22 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Gate;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, LogsActivity;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->dontLogIfAttributesChangedOnly(['remember_token', 'updated_at']);
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -213,23 +224,23 @@ class User extends Authenticatable
                     $sub->where('is_draft', false)
                         ->where(function ($s) {
                             $s->whereDoesntHave('draft')
-                            ->orWhereHas('draft', function ($d) {
-                                $d->where('status_approve', 'rejected');
-                            });
+                                ->orWhereHas('draft', function ($d) {
+                                    $d->where('status_approve', 'rejected');
+                                });
                         });
                 })
-                ->orWhere(function ($sub) {
-                    $sub->where('is_draft', true)
-                        ->where('status_approve', '!=', 'rejected');
-                });
+                    ->orWhere(function ($sub) {
+                        $sub->where('is_draft', true)
+                            ->where('status_approve', '!=', 'rejected');
+                    });
             } else {
                 $q->where(function ($sub) {
                     $sub->where('is_draft', false)
                         ->whereDoesntHave('draft');
                 })
-                ->orWhere(function ($sub) {
-                    $sub->where('is_draft', true);
-                });
+                    ->orWhere(function ($sub) {
+                        $sub->where('is_draft', true);
+                    });
             }
         });
     }

@@ -12,6 +12,11 @@ return [
         'contents' => [
             'title' => 'Content',
             'items' => [
+                'dashboard' => [
+                    'icon' => 'fas fa-tachometer-alt',
+                    'route' => 'backend_dashboard',
+                    'title' => 'Dashboard',
+                ],
                 'category' => [
                     'icon' => 'fas fa-th',
                     'route' => 'backend_category',
@@ -51,6 +56,11 @@ return [
                     'icon' => 'fas fa-window-restore',
                     'route' => 'backend_popup',
                     'title' => 'Popup',
+                ],
+                'guest' => [
+                    'icon' => 'fas fa-user',
+                    'route' => 'backend_guest',
+                    'title' => 'Người dùng',
                 ],
                'vr_tour' => [
                    'icon' => 'fas fa-vr-cardboard',

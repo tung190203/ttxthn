@@ -7,13 +7,24 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Http\Request;
 use Spatie\Translatable\HasTranslations;
 
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
+
 class IndustrialProject extends Model
 {
 
-    use HasFactory, HasTranslations;
+    use HasFactory, HasTranslations, LogsActivity;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+    }
     protected $table = 'industrial_projects';
     const INDUSTRIAL_PROJECT_PER_PAGE = 9;
-    
+
     protected $fillable = [
         'project_id',
         'code',
@@ -86,7 +97,7 @@ class IndustrialProject extends Model
                     $search = strtolower($request->search);
                     $q->where(function ($subQuery) use ($search) {
                         $subQuery->whereRaw('LOWER(name) LIKE ?', ["%{$search}%"]);
-                            // ->orWhereRaw('LOWER(code) LIKE ?', ["%{$search}%"]);
+                        // ->orWhereRaw('LOWER(code) LIKE ?', ["%{$search}%"]);
 
                         if (is_numeric($search)) {
                             $value = (float) $search;
@@ -111,10 +122,10 @@ class IndustrialProject extends Model
                 })
             );
     }
-//     public function hotspots()
-// {
-//     // dd($this);
-//     return $this->hasMany(Hotspot::class, 'vrtour_id', 'vrtour_id')
-//                 ->where('potision', 'like', 'cmss%');
-// }
+    //     public function hotspots()
+    // {
+    //     // dd($this);
+    //     return $this->hasMany(Hotspot::class, 'vrtour_id', 'vrtour_id')
+    //                 ->where('potision', 'like', 'cmss%');
+    // }
 }

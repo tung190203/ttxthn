@@ -45,6 +45,7 @@ class ComposerStaticInitb9b2a73e9a4b9d857341bdb730c0d006
         'ce9671a430e4846b44e1c68c7611f9f5' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery.php',
         'a1cfe24d14977df6878b9bf804af2d1c' => __DIR__ . '/..' . '/nunomaduro/collision/src/Adapters/Phpunit/Autoload.php',
         'ec07570ca5a812141189b1fa81503674' => __DIR__ . '/..' . '/phpunit/phpunit/src/Framework/Assert/Functions.php',
+        '72b1e3f4a2af9b30b3f137b3ec2057fc' => __DIR__ . '/..' . '/spatie/laravel-activitylog/src/helpers.php',
         'ff086428ca04349ca1a7b01ea2d9a650' => __DIR__ . '/../..' . '/app/Helper/function.php',
     );
 
@@ -112,6 +113,7 @@ class ComposerStaticInitb9b2a73e9a4b9d857341bdb730c0d006
             'Spatie\\LaravelPackageTools\\' => 27,
             'Spatie\\FlysystemDropbox\\' => 24,
             'Spatie\\Dropbox\\' => 15,
+            'Spatie\\Activitylog\\' => 19,
         ),
         'R' => 
         array (
@@ -399,6 +401,10 @@ class ComposerStaticInitb9b2a73e9a4b9d857341bdb730c0d006
         'Spatie\\Dropbox\\' => 
         array (
             0 => __DIR__ . '/..' . '/spatie/dropbox-api/src',
+        ),
+        'Spatie\\Activitylog\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/spatie/laravel-activitylog/src',
         ),
         'Ramsey\\Uuid\\' => 
         array (
@@ -731,6 +737,8 @@ class ComposerStaticInitb9b2a73e9a4b9d857341bdb730c0d006
         'AWS\\CRT\\NativeResource' => __DIR__ . '/..' . '/aws/aws-crt-php/src/AWS/CRT/NativeResource.php',
         'AWS\\CRT\\OptionValue' => __DIR__ . '/..' . '/aws/aws-crt-php/src/AWS/CRT/Options.php',
         'AWS\\CRT\\Options' => __DIR__ . '/..' . '/aws/aws-crt-php/src/AWS/CRT/Options.php',
+        'App\\Console\\Commands\\DeleteAllHotspots' => __DIR__ . '/../..' . '/app/Console/Commands/DeleteAllHotspots.php',
+        'App\\Console\\Commands\\RenameVrtourFolders' => __DIR__ . '/../..' . '/app/Console/Commands/RenameVrtourFolders.php',
         'App\\Console\\Commands\\SeedCountries' => __DIR__ . '/../..' . '/app/Console/Commands/SeedCountries.php',
         'App\\Exports\\ProjectsExport' => __DIR__ . '/../..' . '/app/Exports/ProjectsExport.php',
         'App\\Helper\\CKFinder' => __DIR__ . '/../..' . '/app/Helper/CKFinder.php',
@@ -749,6 +757,7 @@ class ComposerStaticInitb9b2a73e9a4b9d857341bdb730c0d006
         'App\\Http\\Controllers\\Backend\\DashboardController' => __DIR__ . '/../..' . '/app/Http/Controllers/Backend/DashboardController.php',
         'App\\Http\\Controllers\\Backend\\FileManagerController' => __DIR__ . '/../..' . '/app/Http/Controllers/Backend/FileManagerController.php',
         'App\\Http\\Controllers\\Backend\\GroupController' => __DIR__ . '/../..' . '/app/Http/Controllers/Backend/GroupController.php',
+        'App\\Http\\Controllers\\Backend\\GuestController' => __DIR__ . '/../..' . '/app/Http/Controllers/Backend/GuestController.php',
         'App\\Http\\Controllers\\Backend\\InvestMentGuideController' => __DIR__ . '/../..' . '/app/Http/Controllers/Backend/InvestMentGuideController.php',
         'App\\Http\\Controllers\\Backend\\LandingPageController' => __DIR__ . '/../..' . '/app/Http/Controllers/Backend/LandingPageController.php',
         'App\\Http\\Controllers\\Backend\\MemberController' => __DIR__ . '/../..' . '/app/Http/Controllers/Backend/MemberController.php',
@@ -756,6 +765,7 @@ class ComposerStaticInitb9b2a73e9a4b9d857341bdb730c0d006
         'App\\Http\\Controllers\\Backend\\PageController' => __DIR__ . '/../..' . '/app/Http/Controllers/Backend/PageController.php',
         'App\\Http\\Controllers\\Backend\\PopupController' => __DIR__ . '/../..' . '/app/Http/Controllers/Backend/PopupController.php',
         'App\\Http\\Controllers\\Backend\\PostController' => __DIR__ . '/../..' . '/app/Http/Controllers/Backend/PostController.php',
+        'App\\Http\\Controllers\\Backend\\ProfileController' => __DIR__ . '/../..' . '/app/Http/Controllers/Backend/ProfileController.php',
         'App\\Http\\Controllers\\Backend\\ProjectController' => __DIR__ . '/../..' . '/app/Http/Controllers/Backend/ProjectController.php',
         'App\\Http\\Controllers\\Backend\\SettingController' => __DIR__ . '/../..' . '/app/Http/Controllers/Backend/SettingController.php',
         'App\\Http\\Controllers\\Backend\\UserController' => __DIR__ . '/../..' . '/app/Http/Controllers/Backend/UserController.php',
@@ -786,6 +796,7 @@ class ComposerStaticInitb9b2a73e9a4b9d857341bdb730c0d006
         'App\\Libs\\Http' => __DIR__ . '/../..' . '/app/Libs/Http.php',
         'App\\Libs\\Util' => __DIR__ . '/../..' . '/app/Libs/Util.php',
         'App\\Libs\\Validate' => __DIR__ . '/../..' . '/app/Libs/Validate.php',
+        'App\\Mail\\ContactMail' => __DIR__ . '/../..' . '/app/Mail/ContactMail.php',
         'App\\Models\\Category' => __DIR__ . '/../..' . '/app/Models/Category.php',
         'App\\Models\\ConnectMap' => __DIR__ . '/../..' . '/app/Models/ConnectMap.php',
         'App\\Models\\Contact' => __DIR__ . '/../..' . '/app/Models/Contact.php',
@@ -2239,6 +2250,7 @@ class ComposerStaticInitb9b2a73e9a4b9d857341bdb730c0d006
         'Database\\Factories\\ProjectTypeFactory' => __DIR__ . '/../..' . '/database/factories/ProjectTypeFactory.php',
         'Database\\Factories\\UserFactory' => __DIR__ . '/../..' . '/database/factories/UserFactory.php',
         'Database\\Seeders\\DatabaseSeeder' => __DIR__ . '/../..' . '/database/seeders/DatabaseSeeder.php',
+        'Database\\Seeders\\UpdateVrtourCodeSeeder' => __DIR__ . '/../..' . '/database/seeders/UpdateVrtourCodeSeeder.php',
         'DateError' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/DateError.php',
         'DateException' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/DateException.php',
         'DateInvalidOperationException' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/DateInvalidOperationException.php',
@@ -8443,6 +8455,26 @@ class ComposerStaticInitb9b2a73e9a4b9d857341bdb730c0d006
         'SebastianBergmann\\Type\\UnknownType' => __DIR__ . '/..' . '/sebastian/type/src/type/UnknownType.php',
         'SebastianBergmann\\Type\\VoidType' => __DIR__ . '/..' . '/sebastian/type/src/type/VoidType.php',
         'SebastianBergmann\\Version' => __DIR__ . '/..' . '/sebastian/version/src/Version.php',
+        'Spatie\\Activitylog\\ActivityLogStatus' => __DIR__ . '/..' . '/spatie/laravel-activitylog/src/ActivityLogStatus.php',
+        'Spatie\\Activitylog\\ActivityLogger' => __DIR__ . '/..' . '/spatie/laravel-activitylog/src/ActivityLogger.php',
+        'Spatie\\Activitylog\\ActivitylogServiceProvider' => __DIR__ . '/..' . '/spatie/laravel-activitylog/src/ActivitylogServiceProvider.php',
+        'Spatie\\Activitylog\\CauserResolver' => __DIR__ . '/..' . '/spatie/laravel-activitylog/src/CauserResolver.php',
+        'Spatie\\Activitylog\\CleanActivitylogCommand' => __DIR__ . '/..' . '/spatie/laravel-activitylog/src/CleanActivitylogCommand.php',
+        'Spatie\\Activitylog\\Contracts\\Activity' => __DIR__ . '/..' . '/spatie/laravel-activitylog/src/Contracts/Activity.php',
+        'Spatie\\Activitylog\\Contracts\\LoggablePipe' => __DIR__ . '/..' . '/spatie/laravel-activitylog/src/Contracts/LoggablePipe.php',
+        'Spatie\\Activitylog\\EventLogBag' => __DIR__ . '/..' . '/spatie/laravel-activitylog/src/EventLogBag.php',
+        'Spatie\\Activitylog\\Exceptions\\CouldNotLogActivity' => __DIR__ . '/..' . '/spatie/laravel-activitylog/src/Exceptions/CouldNotLogActivity.php',
+        'Spatie\\Activitylog\\Exceptions\\CouldNotLogChanges' => __DIR__ . '/..' . '/spatie/laravel-activitylog/src/Exceptions/CouldNotLogChanges.php',
+        'Spatie\\Activitylog\\Exceptions\\InvalidConfiguration' => __DIR__ . '/..' . '/spatie/laravel-activitylog/src/Exceptions/InvalidConfiguration.php',
+        'Spatie\\Activitylog\\Facades\\Activity' => __DIR__ . '/..' . '/spatie/laravel-activitylog/src/Facades/Activity.php',
+        'Spatie\\Activitylog\\Facades\\CauserResolver' => __DIR__ . '/..' . '/spatie/laravel-activitylog/src/Facades/CauserResolver.php',
+        'Spatie\\Activitylog\\Facades\\LogBatch' => __DIR__ . '/..' . '/spatie/laravel-activitylog/src/Facades/LogBatch.php',
+        'Spatie\\Activitylog\\LogBatch' => __DIR__ . '/..' . '/spatie/laravel-activitylog/src/LogBatch.php',
+        'Spatie\\Activitylog\\LogOptions' => __DIR__ . '/..' . '/spatie/laravel-activitylog/src/LogOptions.php',
+        'Spatie\\Activitylog\\Models\\Activity' => __DIR__ . '/..' . '/spatie/laravel-activitylog/src/Models/Activity.php',
+        'Spatie\\Activitylog\\PendingActivityLog' => __DIR__ . '/..' . '/spatie/laravel-activitylog/src/PendingActivityLog.php',
+        'Spatie\\Activitylog\\Traits\\CausesActivity' => __DIR__ . '/..' . '/spatie/laravel-activitylog/src/Traits/CausesActivity.php',
+        'Spatie\\Activitylog\\Traits\\LogsActivity' => __DIR__ . '/..' . '/spatie/laravel-activitylog/src/Traits/LogsActivity.php',
         'Spatie\\Dropbox\\Client' => __DIR__ . '/..' . '/spatie/dropbox-api/src/Client.php',
         'Spatie\\Dropbox\\Exceptions\\BadRequest' => __DIR__ . '/..' . '/spatie/dropbox-api/src/Exceptions/BadRequest.php',
         'Spatie\\Dropbox\\InMemoryTokenProvider' => __DIR__ . '/..' . '/spatie/dropbox-api/src/InMemoryTokenProvider.php',

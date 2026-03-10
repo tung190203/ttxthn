@@ -44,6 +44,14 @@ class Guest extends Auththenticatable
         return $this->belongsTo(Nation::class, 'nation_id', 'id');
     }
 
+    public function getAvatarUrlAttribute()
+    {
+        if ($this->avatar) {
+            return asset('storage/' . $this->avatar);
+        }
+        return null;
+    }
+
     public function interests()
     {
         return $this->hasMany(Interest::class, 'guest_id', 'id');

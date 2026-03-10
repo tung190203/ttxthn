@@ -1,62 +1,62 @@
 @props([
-    'name',
-    'placeholder' => '',
-    'value' => '',
-    'label' => '',
-    'messages' => [],
-    'rows' => 5,
-    'help' => '',
-    'editor' => false,
-    'required' => false,
-    'class_label' => 'col-sm-3',
-    'class_input' => 'col-sm-9',
-    'repeatable' => false,
+'name',
+'placeholder' => '',
+'value' => '',
+'label' => '',
+'messages' => [],
+'rows' => 5,
+'help' => '',
+'editor' => false,
+'required' => false,
+'class_label' => 'col-sm-3',
+'class_input' => 'col-sm-9',
+'repeatable' => false,
 ])
 
 <div class="form-group row">
     <label class="@if ($required) required @endif {{ $class_label }} col-form-label"
         for="{{ $name }}">
-        {{ $label }}
+        {!! $label !!}
     </label>
 
     <div class="{{ $class_input }}" id="{{ $name }}_wrapper">
         @php
-            $values = $repeatable ? (is_array($value) ? $value : explode(';', $value)) : [$value];
+        $values = $repeatable ? (is_array($value) ? $value : explode(';', $value)) : [$value];
         @endphp
 
         @foreach ($values as $index => $val)
-            @php
-                $inputId = $repeatable ? $name . '_' . $index : $name;
-                $inputName = $repeatable ? $name . '[]' : $name;
-            @endphp
+        @php
+        $inputId = $repeatable ? $name . '_' . $index : $name;
+        $inputName = $repeatable ? $name . '[]' : $name;
+        @endphp
 
-            <div class="repeatable-textarea mb-2 position-relative">
-                <textarea name="{{ $inputName }}" id="{{ $inputId }}"
-                    class="form-control {{ !empty($messages) ? 'is-invalid' : '' }}" placeholder="{{ $placeholder ?? $label }}"
-                    rows="{{ $rows }}" {{ $attributes }}>{!! $val !!}</textarea>
+        <div class="repeatable-textarea mb-2 position-relative">
+            <textarea name="{{ $inputName }}" id="{{ $inputId }}"
+                class="form-control {{ !empty($messages) ? 'is-invalid' : '' }}" placeholder="{{ $placeholder ?? strip_tags($label) }}"
+                rows="{{ $rows }}" {{ $attributes }}>{!! $val !!}</textarea>
 
-                @if ($repeatable)
-                    <button type="button" class="btn btn-sm btn-danger position-absolute" style="top: 0; right: 0;"
-                        onclick="this.parentElement.remove()">×</button>
-                @endif
+            @if ($repeatable)
+            <button type="button" class="btn btn-sm btn-danger position-absolute" style="top: 0; right: 0;"
+                onclick="this.parentElement.remove()">×</button>
+            @endif
 
-                @if ($editor)
-                    <script>
-                        CKEDITOR.replace("{{ $inputId }}", {
-                            extraPlugins: 'CustomImage,html5video,iconbuttons',
-                            removeButtons: 'Image',
-                            allowedContent: true,
-                            removePlugins: 'pastefilter', // Tắt filter khi paste
-                            pasteFilter: null, // Không filter gì cả
-                            forcePasteAsPlainText: false, // Không ép paste dưới dạng plain text
+            @if ($editor)
+            <script>
+                CKEDITOR.replace("{{ $inputId }}", {
+                    extraPlugins: 'CustomImage,html5video,iconbuttons',
+                    removeButtons: 'Image',
+                    allowedContent: true,
+                    removePlugins: 'pastefilter', // Tắt filter khi paste
+                    pasteFilter: null, // Không filter gì cả
+                    forcePasteAsPlainText: false, // Không ép paste dưới dạng plain text
 
-                            // Hoặc cấu hình chi tiết hơn:
-                            pasteFromWordRemoveFontStyles: false,
-                            pasteFromWordRemoveStyles: false,
-                        });
-                        CKEDITOR.on('dialogDefinition', function(ev) {
-                            if (ev.data.name === 'html5video') {
-                                var def = ev.data.definition;
+                    // Hoặc cấu hình chi tiết hơn:
+                    pasteFromWordRemoveFontStyles: false,
+                    pasteFromWordRemoveStyles: false,
+                });
+                CKEDITOR.on('dialogDefinition', function(ev) {
+                    if (ev.data.name === 'html5video') {
+                        var def = ev.data.definition;
 
                         def.onShow = function() {
                             setTimeout(function() {
@@ -118,45 +118,45 @@
                 <button type="button" class="btn btn-sm btn-danger position-absolute" style="top: 0; right: 0;" onclick="this.parentElement.remove()">×</button>
             `;
 
-            const addBtn = wrapper.querySelector('.add-textarea-btn');
-            wrapper.insertBefore(div, addBtn); // Thêm trước nút thêm
+        const addBtn = wrapper.querySelector('.add-textarea-btn');
+        wrapper.insertBefore(div, addBtn); // Thêm trước nút thêm
 
-            if (useEditor && typeof CKEDITOR !== 'undefined') {
-                CKEDITOR.replace(id, {
-                    extraPlugins: 'CustomImage,html5video,iconbuttons',
-                    removeButtons: 'Image',
-                    allowedContent: true,
-                    removePlugins: 'pastefilter', // Tắt filter khi paste
-                    pasteFilter: null, // Không filter gì cả
-                    forcePasteAsPlainText: false, // Không ép paste dưới dạng plain text
+        if (useEditor && typeof CKEDITOR !== 'undefined') {
+            CKEDITOR.replace(id, {
+                extraPlugins: 'CustomImage,html5video,iconbuttons',
+                removeButtons: 'Image',
+                allowedContent: true,
+                removePlugins: 'pastefilter', // Tắt filter khi paste
+                pasteFilter: null, // Không filter gì cả
+                forcePasteAsPlainText: false, // Không ép paste dưới dạng plain text
 
-                    // Hoặc cấu hình chi tiết hơn:
-                    pasteFromWordRemoveFontStyles: false,
-                    pasteFromWordRemoveStyles: false,
-                });
-                CKEDITOR.on('dialogDefinition', function(ev) {
-                    if (ev.data.name === 'html5video') {
-                        var def = ev.data.definition;
+                // Hoặc cấu hình chi tiết hơn:
+                pasteFromWordRemoveFontStyles: false,
+                pasteFromWordRemoveStyles: false,
+            });
+            CKEDITOR.on('dialogDefinition', function(ev) {
+                if (ev.data.name === 'html5video') {
+                    var def = ev.data.definition;
 
-                        def.onShow = function() {
-                            setTimeout(function() {
-                                // Lấy tất cả checkbox trong dialog video
-                                var checkboxes = document.querySelectorAll(
-                                    '.cke_dialog_ui_checkbox_input');
-                                checkboxes.forEach(function(checkbox) {
-                                    // Auto check "Responsive width" và "Show controls"
-                                    var label = checkbox.parentNode.textContent.trim()
-                                        .toLowerCase();
-                                    if (label.includes('responsive') || label.includes(
-                                            'controls')) {
-                                        checkbox.checked = true;
-                                    }
-                                });
-                            }, 50);
-                        };
-                    }
-                });
-            }
+                    def.onShow = function() {
+                        setTimeout(function() {
+                            // Lấy tất cả checkbox trong dialog video
+                            var checkboxes = document.querySelectorAll(
+                                '.cke_dialog_ui_checkbox_input');
+                            checkboxes.forEach(function(checkbox) {
+                                // Auto check "Responsive width" và "Show controls"
+                                var label = checkbox.parentNode.textContent.trim()
+                                    .toLowerCase();
+                                if (label.includes('responsive') || label.includes(
+                                        'controls')) {
+                                    checkbox.checked = true;
+                                }
+                            });
+                        }, 50);
+                    };
+                }
+            });
         }
-    </script>
+    }
+</script>
 @endif
