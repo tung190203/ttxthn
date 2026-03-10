@@ -7,8 +7,20 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Gate;
 
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
+
 class Page extends Model
 {
+    use LogsActivity;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+    }
     public static function makeListPage($selected_id = 0, $include_default = false)
     {
         $language = App::getLocale();
@@ -24,7 +36,6 @@ class Page extends Model
             $html .= "<option value=\"$page->id\" $selected>" . $page->name . "</option>";
         }
         return $html;
-
     }
 
     protected static function boot()

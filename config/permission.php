@@ -5,6 +5,10 @@ return [
         'label' => 'Truy cập backend',
         'super_admin_only' => false,
     ],
+    'dashboard' => [
+        'label' => 'Dashboard',
+        'super_admin_only' => false,
+    ],
     'category' => [
         'label' => 'Danh mục',
         'items' => [
@@ -45,6 +49,15 @@ return [
         ],
         'super_admin_only' => false,
     ],
+    'guest' => [
+        'label' => 'Người dùng',
+        'items' => [
+            'add' => 'Thêm',
+            'edit' => 'Sửa',
+            'delete' => 'Xóa',
+        ],
+        'super_admin_only' => false,
+    ],
     // 'widget' => [
     //     'label' => 'Widget',
     //     'items' => [
@@ -73,21 +86,21 @@ return [
         ],
         'super_admin_only' => false,
     ],
-//    'member' => [
-//        'label' => 'Đại lý/cửa hàng',
-//        'items' => [
-//            'add' => 'Thêm',
-//            'edit' => 'Sửa',
-//            'delete' => 'Xóa',
-//        ]
-//    ],
-//    'lading_page' => [
-//        'label' => 'Lading page',
-//        'items' => [
-//            'home' => 'Trang chủ',
-//            'job' => 'Trang công việc',
-//        ]
-//    ],
+    //    'member' => [
+    //        'label' => 'Đại lý/cửa hàng',
+    //        'items' => [
+    //            'add' => 'Thêm',
+    //            'edit' => 'Sửa',
+    //            'delete' => 'Xóa',
+    //        ]
+    //    ],
+    //    'lading_page' => [
+    //        'label' => 'Lading page',
+    //        'items' => [
+    //            'home' => 'Trang chủ',
+    //            'job' => 'Trang công việc',
+    //        ]
+    //    ],
     'file_manager' => [
         'label' => 'Quản lý file'
     ],

@@ -8,9 +8,20 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Gate;
 use Spatie\Translatable\HasTranslations;
 
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
+
 class Category extends Model
 {
-    use HasTranslations;
+    use HasTranslations, LogsActivity;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+    }
     protected $table = "categories";
     public array $parents = [];
 
@@ -105,7 +116,7 @@ class Category extends Model
     public static function makeListCategoryForInvestMent($parent_id = 0, $type = -1, $selected_id = '', $include_default = false)
     {
         $parentIds = Category::where('parent_id', 2)->where('status_approve', 'approved')->pluck('id')->toArray();
-        $query = Category::whereIn('id',[2,...$parentIds]);
+        $query = Category::whereIn('id', [2, ...$parentIds]);
         if ($type > -1) {
             $query = $query->where('type', $type);
         }
@@ -126,12 +137,11 @@ class Category extends Model
             $html .= "<option value=\"$category->id\" $selected>" . $category->name . "</option>";
         }
         return $html;
-
     }
 
     public static function makeListCategoryForPost($parent_id = 0, $type = -1, $selected_id = '', $include_default = false)
     {
-        $query = Category::where('id',1)->where('status_approve','approved');
+        $query = Category::where('id', 1)->where('status_approve', 'approved');
         if ($type > -1) {
             $query = $query->where('type', $type);
         }
@@ -152,7 +162,6 @@ class Category extends Model
             $html .= "<option value=\"$category->id\" $selected>" . $category->name . "</option>";
         }
         return $html;
-
     }
 
     public static function makeListCategory($parent_id = 0, $type = -1, $selected_id = '', $include_default = false)
@@ -178,7 +187,6 @@ class Category extends Model
             $html .= "<option value=\"$category->id\" $selected>" . $category->name . "</option>";
         }
         return $html;
-
     }
 
     public static function makeArrayListCategory($parent_id = 0, $type = -1): array
@@ -389,23 +397,23 @@ class Category extends Model
                     $sub->where('is_draft', false)
                         ->where(function ($s) {
                             $s->whereDoesntHave('draft')
-                            ->orWhereHas('draft', function ($d) {
-                                $d->where('status_approve', 'rejected');
-                            });
+                                ->orWhereHas('draft', function ($d) {
+                                    $d->where('status_approve', 'rejected');
+                                });
                         });
                 })
-                ->orWhere(function ($sub) {
-                    $sub->where('is_draft', true)
-                        ->where('status_approve', '!=', 'rejected');
-                });
+                    ->orWhere(function ($sub) {
+                        $sub->where('is_draft', true)
+                            ->where('status_approve', '!=', 'rejected');
+                    });
             } else {
                 $q->where(function ($sub) {
                     $sub->where('is_draft', false)
                         ->whereDoesntHave('draft');
                 })
-                ->orWhere(function ($sub) {
-                    $sub->where('is_draft', true);
-                });
+                    ->orWhere(function ($sub) {
+                        $sub->where('is_draft', true);
+                    });
             }
         });
     }

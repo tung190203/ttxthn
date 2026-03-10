@@ -15,6 +15,7 @@ use App\Http\Controllers\Backend\SettingController;
 use App\Http\Controllers\Backend\WidgetController;
 use App\Http\Controllers\Backend\UserController;
 use App\Http\Controllers\Backend\GroupController;
+use App\Http\Controllers\Backend\GuestController;
 use App\Http\Controllers\Backend\InvestMentGuideController;
 use App\Http\Controllers\Backend\VrTour\SkinController;
 use App\Http\Controllers\Backend\VrTour\HotspotController;
@@ -29,7 +30,7 @@ Route::localized(function () {
     })->middleware(['auth', 'verified'])->name('dashboard');
 
     Route::prefix('backend')->middleware(['auth', 'can:backend_access'])->group(function () {
-        Route::get('/', [DashboardController::class, 'index'])->name('backend_home');
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('backend_dashboard');
         Route::post('/profile/update', [ProfileController::class, 'update'])->name('backend.profile.update');
 
         Route::prefix('category')->group(function () {
@@ -76,6 +77,16 @@ Route::localized(function () {
             Route::post('/bulk_delete', [PopupController::class, 'bulkDelete'])->name('backend_popup_bulk_delete');
             Route::post('approve/{popup}', [PopupController::class, 'approve'])->name('backend_popup_approve');
             Route::post('/reject/{popup}', [PopupController::class, 'reject'])->name('backend_popup_reject');
+        });
+
+        Route::prefix('guest')->group(function () {
+            Route::get('/', [GuestController::class, 'index'])->name('backend_guest');
+            Route::post('/', [GuestController::class, 'saveDataIndex'])->name('backend_guest_save_data_index');
+            Route::get('/create', [GuestController::class, 'edit'])->name('backend_guest_create');
+            Route::get('/edit/{guest}', [GuestController::class, 'edit'])->name('backend_guest_edit');
+            Route::post('/save/{guest?}', [GuestController::class, 'save'])->name('backend_guest_save');
+            Route::get('/delete/{id}', [GuestController::class, 'delete'])->name('backend_guest_delete');
+            Route::post('/bulk_delete', [GuestController::class, 'bulkDelete'])->name('backend_guest_bulk_delete');
         });
 
         Route::prefix('member')->group(function () {

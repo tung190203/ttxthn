@@ -10,9 +10,20 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Gate;
 use Spatie\Translatable\HasTranslations;
 
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
+
 class InvestmentGuide extends Model
 {
-    use HasGlobalScopes, HasTranslations;
+    use HasGlobalScopes, HasTranslations, LogsActivity;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+    }
 
     protected $table = 'investment_guides';
 
@@ -76,11 +87,9 @@ class InvestmentGuide extends Model
     {
         parent::boot();
 
-        static::deleting(function ($investment_guide) {
-        });
+        static::deleting(function ($investment_guide) {});
 
-        static::saved(function ($investment_guide) {
-        });
+        static::saved(function ($investment_guide) {});
     }
 
     public function draft()
@@ -315,23 +324,23 @@ class InvestmentGuide extends Model
                     $sub->where('is_draft', false)
                         ->where(function ($s) {
                             $s->whereDoesntHave('draft')
-                            ->orWhereHas('draft', function ($d) {
-                                $d->where('status_approve', 'rejected');
-                            });
+                                ->orWhereHas('draft', function ($d) {
+                                    $d->where('status_approve', 'rejected');
+                                });
                         });
                 })
-                ->orWhere(function ($sub) {
-                    $sub->where('is_draft', true)
-                        ->where('status_approve', '!=', 'rejected');
-                });
+                    ->orWhere(function ($sub) {
+                        $sub->where('is_draft', true)
+                            ->where('status_approve', '!=', 'rejected');
+                    });
             } else {
                 $q->where(function ($sub) {
                     $sub->where('is_draft', false)
                         ->whereDoesntHave('draft');
                 })
-                ->orWhere(function ($sub) {
-                    $sub->where('is_draft', true);
-                });
+                    ->orWhere(function ($sub) {
+                        $sub->where('is_draft', true);
+                    });
             }
         });
     }
