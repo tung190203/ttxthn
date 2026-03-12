@@ -154,8 +154,8 @@
                                                 </li>
                                                  @php
                                                     $locale = app()->getLocale();
-                                                    $thousandSeparator = $locale == 'vn' ? '.' : ',';
-                                                    $decimalSeparator = $locale == 'vn' ? ',' : '.';
+                                                    $thousandSeparator = $locale !== 'en' ? '.' : ',';
+                                                    $decimalSeparator = $locale !== 'en' ? ',' : '.';
                                                 @endphp
 
                                                 <li>
