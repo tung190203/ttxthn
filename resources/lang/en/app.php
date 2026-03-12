@@ -26,6 +26,8 @@ return [
     'traffic_map' => 'Traffic Map',
     'satellite_map' => 'Satellite Map',
     'topo_map' => 'Topographic Map',
+    'boundary_map' => 'Boundaries',
+    'map_3d' => '3D Map (Auto-Tilt)',
     'reset_map' => 'Reset Map',
     'current_location' => 'Current Location',
     'unable_to_get_current_location' => 'Unable to get current location',

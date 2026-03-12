@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\IndustrialProject;
 use App\Models\Project;
 use Illuminate\Http\Request;
+use App\Models\District;
 
 class MapController extends Controller
 {
@@ -65,15 +66,12 @@ class MapController extends Controller
 
     public function getDistricts()
     {
-        $districts = Project::with('districts')
-            ->get()
-            ->pluck('districts')
-            ->flatten()
-            ->unique('name')
-            ->sortBy('name')
-            ->values();
+        $districts = District::query()
+            ->select('name')
+            ->orderBy('name')
+            ->pluck('name');
 
-        return response()->json($districts->pluck('name'));
+        return response()->json($districts);
     }
 
     private function returnData($projects)

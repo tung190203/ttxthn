@@ -26,7 +26,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::localized(function () {
     Route::get('/backend', function () {
-        return view('backend.dashboard.index');
+        return redirect()->route('backend_dashboard');
     })->middleware(['auth', 'verified'])->name('dashboard');
 
     Route::prefix('backend')->middleware(['auth', 'can:backend_access'])->group(function () {
