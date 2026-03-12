@@ -253,9 +253,18 @@
                                                             <span>{{ $formattedArea }} {{ $item['unit'] ?? '' }}</span>
                                                         </li>                                                                 
                                                         </li>
-                                                        <li><img class="me-2" src="{{ asset('/images/icon-save-money.svg') }}"
-                                                                alt="" />
-                                                            <span>{{ number_format($item['price'], 0, ',', '.') }} {{ __('app.billion_vnd') }}</span>
+                                                        @php
+                                                            $locale = app()->getLocale();
+                                                        @endphp
+
+                                                        <li>
+                                                            <img class="me-2" src="{{ asset('/images/icon-save-money.svg') }}" alt="" />
+                                                            <span>
+                                                                {{ $locale == 'vn'
+                                                                    ? number_format($item['price'], 0, ',', '.')
+                                                                    : number_format($item['price'], 0, '.', ',') }}
+                                                                {{ __('app.billion_vnd') }}
+                                                            </span>
                                                         </li>
                                                     </ul>
                                                 </div>
@@ -432,9 +441,32 @@
 @endsection
 
 @push('bottom')
+    <style>
+        /* Xóa ô vuông xanh (focus outline) khi click/focus vào ranh giới */
+        .leaflet-interactive:focus {
+            outline: none !important;
+        }
+        /* Style lại tooltip cho tinh tế hơn */
+        .boundary-tooltip {
+            background: rgba(255, 255, 255, 0.9);
+            border: none !important;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            color: #333;
+            font-weight: 600;
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+        .boundary-tooltip:before {
+            border: none !important;
+        }
+    </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+    <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
+    <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+    <script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.0.21/leaflet-maplibre-gl.js"></script>
     <script src="/js/boundaries.js"></script>
 
     <script>
@@ -445,11 +477,85 @@
             'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}');
         const topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png');
 
+        // MapLibre GL 3D Layer
+        const map3d = L.maplibreGL({style: 'https://api.maptiler.com/maps/streets-v2/style.json?key=ziR13X4sfKXctiAkrRRQ'});
+
+        // Add 3D building extrusion when MapLibre map is ready
+        map3d.on('styleload', function() {
+            const glMap = map3d.getMaplibreMap();
+            if (glMap && !glMap.getLayer('3d-buildings')) {
+                const layers = glMap.getStyle().layers;
+                let labelLayerId;
+                for (let i = 0; i < layers.length; i++) {
+                    if (layers[i].type === 'symbol' && layers[i].layout['text-field']) {
+                        labelLayerId = layers[i].id;
+                        break;
+                    }
+                }
+
+                glMap.addLayer({
+                        'id': '3d-buildings',
+                        'source': 'openmaptiles',
+                        'source-layer': 'building',
+                        'type': 'fill-extrusion',
+                        'minzoom': 15,
+                        'paint': {
+                            'fill-extrusion-color': '#aaa',
+                            'fill-extrusion-height': [
+                                'interpolate', ['linear'],
+                                ['zoom'],
+                                15, 0,
+                                15.05, ['get', 'render_height']
+                            ],
+                            'fill-extrusion-base': [
+                                'interpolate', ['linear'],
+                                ['zoom'],
+                                15, 0,
+                                15.05, ['get', 'render_min_height']
+                            ],
+                            'fill-extrusion-opacity': 0.6
+                        }
+                    },
+                    labelLayerId
+                );
+            }
+        });
+
         const baseLayers = {
             "{{ __('app.default_map') }}": defaults,
             "{{ __('app.traffic_map') }}": streets,
             "{{ __('app.satellite_map') }}": satellite,
-            "{{ __('app.topo_map') }}": topo
+            "{{ __('app.topo_map') }}": topo,
+            "{{ __('app.map_3d') }}": map3d
+        };
+
+        // Boundary overlay layer – hiển thị tất cả ranh giới phường/xã
+        const boundaryOverlayGroup = L.layerGroup();
+        Object.entries(boundaries).forEach(([name, coords]) => {
+            const poly = L.polygon(coords, {
+                color: '#1a6fc4',
+                weight: 1.5,
+                dashArray: '4, 4',
+                fillColor: '#4a9ede',
+                fillOpacity: 0.08,
+                interactive: true
+            });
+            poly.bindTooltip(name, {
+                sticky: true,
+                direction: 'top',
+                className: 'boundary-tooltip'
+            });
+            poly.on('mouseover', function() {
+                this.setStyle({ fillOpacity: 0.25, weight: 2.5 });
+            });
+            poly.on('mouseout', function() {
+                this.setStyle({ fillOpacity: 0.08, weight: 1.5 });
+            });
+            boundaryOverlayGroup.addLayer(poly);
+        });
+
+        const overlayLayers = {
+            "{{ __('app.boundary_map') }}": boundaryOverlayGroup
         };
 
         const defaultCenter = [21.0285, 105.8542];
@@ -457,8 +563,8 @@
 
         // Toạ độ giới hạn vùng Hà Nội (tương đối chính xác)
         const bounds = L.latLngBounds(
-            [20.7, 105.3], // Góc dưới bên trái (SW)
-            [21.4, 106.1] // Góc trên bên phải (NE)
+            [20.4, 104.9],
+            [21.7, 106.4]
         );
 
         // Tạo bản đồ và giới hạn vùng
@@ -469,9 +575,57 @@
             maxBounds: bounds, // Giới hạn không cho pan ra khỏi vùng này
             maxBoundsViscosity: 1.0, // 1.0 = không bao giờ cho kéo ra ngoài
             minZoom: 10, // Không cho zoom out thấp hơn mức này
-            maxZoom: 18, // Không cho zoom in quá mức này
-            attributionControl: false
+            maxZoom: 21, // Cho phép zoom in sâu hơn (đến mức 21)
+            attributionControl: false,
+            keyboard: false // Disable default keyboard panning to allow custom 3D rotation
         });
+
+        // Auto-tilt logic for Map3D - Optimized
+        let tilingTicking = false;
+        function updateTilt() {
+            if (map.hasLayer(map3d)) {
+                const z = map.getZoom();
+                const glMap = map3d.getMaplibreMap();
+                if (glMap) {
+                    // Start tilting at zoom 15, max tilt (60 degrees) at zoom 19+
+                    let pitch = 0;
+                    if (z >= 15) {
+                        pitch = Math.min(60, (z - 15) * 15);
+                    }
+                    // Only update if pitch actually changed to save performance
+                    if (glMap.getPitch() !== pitch) {
+                        glMap.setPitch(pitch);
+                    }
+                }
+            }
+            tilingTicking = false;
+        }
+
+        // Only update tilt on zoom to prevent lag during movement (panning)
+        map.on('zoomend', function() {
+            if (!tilingTicking) {
+                requestAnimationFrame(updateTilt);
+                tilingTicking = true;
+            }
+        });
+
+        // 3D Rotation and Tilt Controls via Keyboard & Smooth Ease
+        function rotate3D(bearingDelta, pitchDelta) {
+            if (!map.hasLayer(map3d)) return;
+            const glMap = map3d.getMaplibreMap();
+            if (!glMap) return;
+
+            const currentBearing = glMap.getBearing();
+            const currentPitch = glMap.getPitch();
+            
+            glMap.easeTo({
+                bearing: currentBearing + bearingDelta,
+                pitch: Math.min(85, Math.max(0, currentPitch + pitchDelta)),
+                duration: 200,
+                easing: (t) => t
+            });
+        }
+
         const redIcon = new L.Icon({
             iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
             shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
@@ -593,7 +747,7 @@
             applyFiltersWithBounds();
         }
 
-        L.control.layers(baseLayers).addTo(map);
+        L.control.layers(baseLayers, overlayLayers).addTo(map);
 
         let markersLayer = L.markerClusterGroup();
         let allDistricts = [];

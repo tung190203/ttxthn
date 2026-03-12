@@ -152,7 +152,19 @@
                                                     @endphp
                                                     <span>{{ $formattedArea }} {{ $item->unit_type_text ?? '' }}</span>
                                                 </li>
-                                                <li><img class="me-2" src="{{ asset('/images/icon-save-money.svg') }}" alt=""/><span>{{ number_format($item->price, 0, '.',',' )}} {{ __('app.billion_vnd') }}</span>
+                                                 @php
+                                                    $locale = app()->getLocale();
+                                                    $thousandSeparator = $locale == 'vn' ? '.' : ',';
+                                                    $decimalSeparator = $locale == 'vn' ? ',' : '.';
+                                                @endphp
+
+                                                <li>
+                                                    <img class="me-2" src="{{ asset('/images/icon-save-money.svg') }}" alt=""/>
+                                                    <span>
+                                                        {{ number_format($item->price, 0, $decimalSeparator, $thousandSeparator) }}
+                                                        {{ __('app.billion_vnd') }}
+                                                    </span>
+                                                </li>
                                                 </li>
                                             </ul>
                                         </div>
