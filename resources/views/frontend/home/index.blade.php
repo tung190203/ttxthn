@@ -471,11 +471,23 @@
 
     <script>
         // Tile layers
-        const defaults = L.tileLayer('https://api.maptiler.com/maps/outdoor-v2/{z}/{x}/{y}.png?key=ziR13X4sfKXctiAkrRRQ');
-        const streets = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
+        const defaults = L.tileLayer('https://api.maptiler.com/maps/outdoor-v2/{z}/{x}/{y}.png?key=ziR13X4sfKXctiAkrRRQ', {
+            maxNativeZoom: 19,
+            maxZoom: 21
+        });
+        const streets = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxNativeZoom: 19,
+            maxZoom: 21
+        });
         const satellite = L.tileLayer(
-            'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}');
-        const topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png');
+            'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                maxNativeZoom: 18,
+                maxZoom: 21
+            });
+        const topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+            maxNativeZoom: 17,
+            maxZoom: 21
+        });
 
         // MapLibre GL 3D Layer
         const map3d = L.maplibreGL({
@@ -522,6 +534,284 @@
                     labelLayerId
                 );
             }
+
+            // ── TRAFFIC SIMULATION ──────────────────────────────────────────
+            (function initTrafficSimulation(glMap) {
+                const VEHICLE_COUNT = 18;
+                const MIN_ZOOM      = 15;
+                const PALETTE = [
+                    '#ffffff', '#e0e0e0', '#ffd700', '#ff5555',
+                    '#88ddff', '#99ee66', '#ffaa00', '#cc88ff'
+                ];
+
+                // ── Nguồn GeoJSON + layer circle (luôn hiển thị, ko cần icon) ─
+                glMap.addSource('veh-src', {
+                    type: 'geojson',
+                    data: { type: 'FeatureCollection', features: [] }
+                });
+
+                // Vòng ngoài (thân xe)
+                glMap.addLayer({
+                    id: 'veh-body',
+                    type: 'circle',
+                    source: 'veh-src',
+                    minzoom: MIN_ZOOM,
+                    paint: {
+                        'circle-radius': 5,
+                        'circle-color': ['get', 'col'],
+                        'circle-stroke-color': 'rgba(0,0,0,0.6)',
+                        'circle-stroke-width': 1.2,
+                        'circle-opacity': 0.92
+                    }
+                });
+
+                // Điểm mũi xe (hướng di chuyển) – offset nhỏ theo bearing
+                glMap.addLayer({
+                    id: 'veh-head',
+                    type: 'circle',
+                    source: 'veh-src',
+                    minzoom: MIN_ZOOM,
+                    paint: {
+                        'circle-radius': 2,
+                        'circle-color': '#ffe700',
+                        'circle-translate': ['literal', [4, 0]],  // offset nhỏ
+                        'circle-translate-anchor': 'map',
+                        'circle-opacity': 0.95
+                    }
+                });
+
+                // ── Sinh đường theo lưới thực tế từ view hiện tại ───────────
+                function makeProceduralRoads() {
+                    const c   = glMap.getCenter();
+                    const lat = c.lat, lng = c.lng;
+                    const R   = 0.004; // ~400m
+                    const out = [];
+
+                    // Đường ngang
+                    for (let i = -5; i <= 5; i++) {
+                        const y = lat + i * R / 4;
+                        const pts = [];
+                        for (let j = -6; j <= 6; j++) {
+                            pts.push([lng + j * R / 5, y]);
+                        }
+                        out.push(pts);
+                    }
+                    // Đường dọc
+                    for (let i = -4; i <= 4; i++) {
+                        const x = lng + i * R / 4;
+                        const pts = [];
+                        for (let j = -6; j <= 6; j++) {
+                            pts.push([x, lat + j * R / 5]);
+                        }
+                        out.push(pts);
+                    }
+                    // Đường chéo nhẹ
+                    out.push([
+                        [lng - R, lat - R * 0.4],
+                        [lng - R / 2, lat - R * 0.2],
+                        [lng, lat],
+                        [lng + R / 2, lat + R * 0.2],
+                        [lng + R, lat + R * 0.4]
+                    ]);
+                    out.push([
+                        [lng - R, lat + R * 0.35],
+                        [lng, lat],
+                        [lng + R, lat - R * 0.35]
+                    ]);
+                    return out;
+                }
+
+                // ── Cố gắng lấy đường từ vector tiles (nếu đã load) ─────────
+                function tryGetTileRoads() {
+                    let feats = [];
+                    try {
+                        // openmaptiles source, transportation source-layer
+                        feats = glMap.querySourceFeatures('openmaptiles', {
+                            sourceLayer: 'transportation'
+                        });
+                    } catch (e) { /* source chưa sẵn sàng */ }
+
+                    if (!feats.length) {
+                        // fallback: tất cả line type features
+                        try { feats = glMap.queryRenderedFeatures(); } catch (e) {}
+                    }
+
+                    const seen = new Set();
+                    const roads = [];
+                    for (const f of feats) {
+                        if (!f.geometry) continue;
+                        const lines = f.geometry.type === 'LineString'
+                            ? [f.geometry.coordinates]
+                            : f.geometry.type === 'MultiLineString'
+                                ? f.geometry.coordinates : [];
+                        for (const line of lines) {
+                            if (line.length < 2) continue;
+                            const key = line[0][0].toFixed(4) + line[0][1].toFixed(4);
+                            if (seen.has(key)) continue;
+                            seen.add(key);
+                            roads.push(line);
+                            if (roads.length >= 60) break;
+                        }
+                        if (roads.length >= 60) break;
+                    }
+                    return roads;
+                }
+
+                // ── State ────────────────────────────────────────────────────
+                let roads = [];
+                let fleet = [];
+
+                function calcBrg(a, b) {
+                    const toR = Math.PI / 180, toD = 180 / Math.PI;
+                    const dL  = (b[0] - a[0]) * toR;
+                    const p1  = a[1] * toR, p2 = b[1] * toR;
+                    const y   = Math.sin(dL) * Math.cos(p2);
+                    const x   = Math.cos(p1) * Math.sin(p2) - Math.sin(p1) * Math.cos(p2) * Math.cos(dL);
+                    return (Math.atan2(y, x) * toD + 360) % 360;
+                }
+
+                function segM(a, b) {
+                    const R = 6371000, r = Math.PI / 180;
+                    const dLat = (b[1] - a[1]) * r, dLon = (b[0] - a[0]) * r;
+                    const s = Math.sin(dLat / 2) ** 2 + Math.cos(a[1] * r) * Math.cos(b[1] * r) * Math.sin(dLon / 2) ** 2;
+                    return 2 * R * Math.asin(Math.sqrt(Math.min(1, s)));
+                }
+
+                function spawn() {
+                    if (!roads.length) return null;
+                    const road = roads[Math.floor(Math.random() * roads.length)];
+                    if (!road || road.length < 2) return null;
+                    return {
+                        road,
+                        seg: Math.floor(Math.random() * (road.length - 1)),
+                        t:   Math.random(),
+                        spd: 6 + Math.random() * 12,   // m/s  (≈20-65 km/h)
+                        col: PALETTE[Math.floor(Math.random() * PALETTE.length)]
+                    };
+                }
+
+                function initFleet() {
+                    fleet = [];
+                    for (let i = 0; i < VEHICLE_COUNT; i++) {
+                        const v = spawn();
+                        if (v) fleet.push(v);
+                    }
+                }
+
+                // ── Animation loop ───────────────────────────────────────────
+                let rafId  = null;
+                let lastTs = 0;
+
+                function tick(ts) {
+                    const dt = Math.min(ts - lastTs, 80);
+                    lastTs = ts;
+
+                    const feats = fleet.map(v => {
+                        const a = v.road[v.seg], b = v.road[v.seg + 1];
+                        if (!a || !b) { v.seg = 0; v.t = 0; return null; }
+
+                        const m    = segM(a, b);
+                        const step = m > 0 ? (v.spd * dt * 0.001) / m : 0.04;
+                        v.t += step;
+                        while (v.t >= 1) {
+                            v.t -= 1;
+                            v.seg = (v.seg + 1) % (v.road.length - 1);
+                        }
+
+                        const A = v.road[v.seg], B = v.road[v.seg + 1] || A;
+                        const lng = A[0] + (B[0] - A[0]) * v.t;
+                        const lat = A[1] + (B[1] - A[1]) * v.t;
+
+                        return {
+                            type: 'Feature',
+                            geometry: { type: 'Point', coordinates: [lng, lat] },
+                            properties: { col: v.col, brg: calcBrg(A, B) }
+                        };
+                    }).filter(Boolean);
+
+                    const src = glMap.getSource('veh-src');
+                    if (src) src.setData({ type: 'FeatureCollection', features: feats });
+                    glMap.triggerRepaint();
+                    rafId = requestAnimationFrame(tick);
+                }
+
+                // ── Start / Stop ─────────────────────────────────────────────
+                function start() {
+                    if (rafId) return;
+
+                    // Lấy đường: ưu tiên tile data, fallback procedural ngay lập tức
+                    const tileRoads = tryGetTileRoads();
+                    roads = tileRoads.length >= 5 ? tileRoads : makeProceduralRoads();
+
+                    if (!fleet.length || fleet.every(v => !v.road)) initFleet();
+
+                    lastTs = performance.now();
+                    rafId  = requestAnimationFrame(tick);
+
+                    // Upgrade sang tile roads sau 2s (nếu chưa có)
+                    if (tileRoads.length < 5) {
+                        setTimeout(() => {
+                            const tr = tryGetTileRoads();
+                            if (tr.length >= 5) {
+                                roads = tr;
+                                fleet = [];       // respawn trên đường thực
+                                initFleet();
+                            }
+                        }, 2000);
+                    }
+                }
+
+                function stop() {
+                    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+                    const src = glMap.getSource('veh-src');
+                    if (src) src.setData({ type: 'FeatureCollection', features: [] });
+                    fleet = [];
+                    roads = [];
+                }
+
+                // ── Lifecycle ────────────────────────────────────────────────
+                function check() {
+                    if (map.hasLayer(map3d) && map.getZoom() >= MIN_ZOOM) {
+                        start();
+                    } else {
+                        stop();
+                    }
+                }
+
+                // Bắt đầu ngay khi style/tiles sẵn sàng
+                glMap.once('idle', () => setTimeout(check, 100));
+
+                map.on('zoomend',        () => setTimeout(check, 200));
+                map.on('baselayerchange',() => setTimeout(check, 700));
+                map.on('moveend', () => {
+                    if (!rafId) return;
+                    // Refresh đường khi pan
+                    const tr = tryGetTileRoads();
+                    if (tr.length >= 5) {
+                        roads = tr;
+                        // Re-spawn xe trên đường mới
+                        fleet = fleet.map(() => spawn()).filter(Boolean);
+                        while (fleet.length < VEHICLE_COUNT) {
+                            const v = spawn(); if (v) fleet.push(v);
+                        }
+                    } else {
+                        // Tạo lại procedural nếu pan xa
+                        roads = makeProceduralRoads();
+                        fleet = [];
+                        initFleet();
+                    }
+                });
+
+                // Bổ sung xe định kỳ nếu fleet thiếu
+                setInterval(() => {
+                    if (!rafId || !roads.length) return;
+                    while (fleet.length < VEHICLE_COUNT) {
+                        const v = spawn(); if (v) fleet.push(v);
+                    }
+                }, 2500);
+
+            })(glMap);
+            // ── END TRAFFIC SIMULATION ──────────────────────────────────────
         });
 
         const baseLayers = {
