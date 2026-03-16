@@ -478,7 +478,10 @@
         const topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png');
 
         // MapLibre GL 3D Layer
-        const map3d = L.maplibreGL({style: 'https://api.maptiler.com/maps/streets-v2/style.json?key=ziR13X4sfKXctiAkrRRQ'});
+        const map3d = L.maplibreGL({
+            style: 'https://api.maptiler.com/maps/streets-v2/style.json?key=ziR13X4sfKXctiAkrRRQ',
+            updateInterval: 0 // Eliminate 30fps throttle to fix 3D panning jitter
+        });
 
         // Add 3D building extrusion when MapLibre map is ready
         map3d.on('styleload', function() {
@@ -643,22 +646,30 @@
         const currentLocation = L.control({
             position: window.innerWidth <= 1024 ? 'topright' : 'bottomright'
         });
+        const fullScreenControl = L.control({
+            position: window.innerWidth <= 1024 ? 'topright' : 'bottomright'
+        });
 
         window.addEventListener('resize', () => {
             const newPosition = window.innerWidth <= 1024 ? 'topright' : 'bottomright';
             resetControl.setPosition(newPosition);
             currentLocation.setPosition(newPosition);
+            fullScreenControl.setPosition(newPosition);
+
             resetControl.remove();
             currentLocation.remove();
+            fullScreenControl.remove();
 
             if (newPosition === 'topright') {
-                // Muốn B trước A
+                // Muốn C -> B -> A trên mobile (hiển thị dưới cùng lên)
+                fullScreenControl.addTo(map);
                 currentLocation.addTo(map);
                 resetControl.addTo(map);
             } else {
-                // Muốn A trước B
+                // Muốn A -> B -> C trên web
                 resetControl.addTo(map);
                 currentLocation.addTo(map);
+                fullScreenControl.addTo(map);
             }
         });
 
@@ -728,12 +739,73 @@
                 }
             };
 
-
             return btn;
         };
 
         currentLocation.addTo(map);
 
+        fullScreenControl.onAdd = function(map) {
+            const btn = L.DomUtil.create('button', 'leaflet-bar leaflet-control leaflet-control-custom');
+            btn.innerHTML = '<i class="fas fa-expand"></i>';
+            btn.title = '{{ __("app.full_screen") }}';
+
+            btn.style.backgroundColor = 'white';
+            btn.style.width = '48px';
+            btn.style.height = '48px';
+            btn.style.margin = '0px';
+            btn.style.cursor = 'pointer';
+            btn.style.fontSize = '18px';
+            btn.style.lineHeight = '30px';
+            btn.style.textAlign = 'center';
+            btn.style.margin = '10px';
+            btn.style.marginBottom = '0';
+
+            L.DomEvent.disableClickPropagation(btn);
+
+            btn.onclick = function() {
+                const mapElement = document.getElementById('map');
+                
+                if (!document.fullscreenElement) {
+                    if (mapElement.requestFullscreen) {
+                        mapElement.requestFullscreen();
+                    } else if (mapElement.mozRequestFullScreen) { /* Firefox */
+                        mapElement.mozRequestFullScreen();
+                    } else if (mapElement.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+                        mapElement.webkitRequestFullscreen();
+                    } else if (mapElement.msRequestFullscreen) { /* IE/Edge */
+                        mapElement.msRequestFullscreen();
+                    }
+                    btn.innerHTML = '<i class="fas fa-compress"></i>';
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    } else if (document.mozCancelFullScreen) {
+                        document.mozCancelFullScreen();
+                    } else if (document.webkitExitFullscreen) {
+                        document.webkitExitFullscreen();
+                    } else if (document.msExitFullscreen) {
+                        document.msExitFullscreen();
+                    }
+                    btn.innerHTML = '<i class="fas fa-expand"></i>';
+                }
+            };
+
+            // Lắng nghe sự kiện thoát full screen (ví dụ: nhấn ESC) để cập nhật lại icon
+            document.addEventListener('fullscreenchange', exitHandler);
+            document.addEventListener('webkitfullscreenchange', exitHandler);
+            document.addEventListener('mozfullscreenchange', exitHandler);
+            document.addEventListener('MSFullscreenChange', exitHandler);
+
+            function exitHandler() {
+                if (!document.fullscreenElement && !document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
+                    btn.innerHTML = '<i class="fas fa-expand"></i>';
+                }
+            }
+
+            return btn;
+        };
+
+        fullScreenControl.addTo(map);
 
         function resetMap() {
             resetProjectTab();
