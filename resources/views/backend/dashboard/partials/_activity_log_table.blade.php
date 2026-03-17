@@ -78,23 +78,23 @@
                                     @endphp
 
                                     @if($attributes)
-                                    <table class="table table-sm table-bordered">
+                                    <table class="table table-sm table-bordered" style="white-space: normal; table-layout: fixed; width: 100%;">
                                         <thead class="bg-light">
                                             <tr>
-                                                <th>Trường</th>
-                                                @if($old) <th>Giá trị cũ</th> @endif
-                                                <th>Giá trị mới</th>
+                                                <th style="width: 30%;">Trường</th>
+                                                @if($old) <th style="width: 35%;">Giá trị cũ</th> @endif
+                                                <th style="width: {{ $old ? '35%' : '70%' }};">Giá trị mới</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             @foreach($attributes as $key => $value)
                                             @if($key == 'updated_at' || $key == 'created_at') @continue @endif
                                             <tr>
-                                                <td class="font-weight-bold">{{ $translations[$key] ?? $key }}</td>
+                                                <td class="font-weight-bold" style="word-break: break-word;">{{ $translations[$key] ?? $key }}</td>
                                                 @if($old)
-                                                <td class="text-muted">{{ is_array($old[$key]) ? json_encode($old[$key]) : $old[$key] }}</td>
+                                                <td class="text-muted" style="word-break: break-word;">{{ is_array($old[$key]) ? json_encode($old[$key]) : $old[$key] }}</td>
                                                 @endif
-                                                <td class="text-success">{{ is_array($value) ? json_encode($value) : $value }}</td>
+                                                <td class="text-success" style="word-break: break-word;">{{ is_array($value) ? json_encode($value) : $value }}</td>
                                             </tr>
                                             @endforeach
                                         </tbody>
@@ -110,7 +110,7 @@
                                         <h6 class="font-weight-bold">Thông tin bổ sung:</h6>
                                         <ul class="list-unstyled">
                                             @foreach($otherProps as $key => $value)
-                                            <li><strong>{{ $translations[$key] ?? $key }}:</strong> {{ $value }}</li>
+                                            <li style="word-break: break-all;"><strong>{{ $translations[$key] ?? $key }}:</strong> {{ $value }}</li>
                                             @endforeach
                                         </ul>
                                     </div>
