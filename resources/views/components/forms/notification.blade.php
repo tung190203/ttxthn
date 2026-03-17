@@ -34,8 +34,8 @@
     console.log("{{ session('error') }}");
     @endif
 
-    @if($errors - > any())
-    @foreach($errors - > all() as $error_msg)
+    @if($errors -> any())
+    @foreach($errors -> all() as $error_msg)
     toastr["error"]("{{ $error_msg }}", "Lỗi!")
     console.log("{{ $error_msg }}");
     @endforeach
