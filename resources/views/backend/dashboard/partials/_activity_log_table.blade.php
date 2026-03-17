@@ -53,7 +53,7 @@
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
-                                <div class="modal-body">
+                                <div class="modal-body" style="white-space: normal !important;">
                                     @php
                                     $properties = $activity->properties;
                                     $attributes = $properties['attributes'] ?? null;
@@ -110,7 +110,7 @@
                                         <h6 class="font-weight-bold">Thông tin bổ sung:</h6>
                                         <ul class="list-unstyled">
                                             @foreach($otherProps as $key => $value)
-                                            <li style="word-break: break-all;"><strong>{{ $translations[$key] ?? $key }}:</strong> {{ $value }}</li>
+                                            <li style="word-break: break-word; overflow-wrap: anywhere;"><strong>{{ $translations[$key] ?? $key }}:</strong> {{ $value }}</li>
                                             @endforeach
                                         </ul>
                                     </div>
