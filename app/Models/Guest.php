@@ -47,6 +47,9 @@ class Guest extends Auththenticatable
     public function getAvatarUrlAttribute()
     {
         if ($this->avatar) {
+            if (str_starts_with($this->avatar, '/') || str_starts_with($this->avatar, 'http')) {
+                return $this->avatar;
+            }
             return asset('storage/' . $this->avatar);
         }
         return null;
