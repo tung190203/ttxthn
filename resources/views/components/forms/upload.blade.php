@@ -30,7 +30,13 @@
             $file_type = \App\Libs\Util::getFileType($value);
             @endphp
             @if($file_type == 'image')
-            <img src="{{ $value }}" class="mt-3">
+                @php
+                    $img_src = $value;
+                    if (!str_starts_with($img_src, '/') && !str_starts_with($img_src, 'http')) {
+                        $img_src = asset('storage/' . $img_src);
+                    }
+                @endphp
+                <img src="{{ $img_src }}" class="mt-3">
             @elseif($file_type == 'pdf')
             <iframe src="{{ $value }}" class="w-100 mt-3"></iframe>
             @endif
