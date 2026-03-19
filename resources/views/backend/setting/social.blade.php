@@ -32,10 +32,8 @@
                     @csrf
                     <div class="card-body">
 
-                        <x-forms.upload name="setting[og_image]" value="{{ $settings['og_image'] ?? '' }}" label="OG:image"
+                        <x-forms.upload name="settings[og_image]" value="{{ $settings['og_image'] ?? '' }}" label="OG:image"
                                         type="image"/>
-                        <x-forms.input name="settings[social_title]" value="{{ $settings['social_title'] ?? '' }}"
-                                       label="Tiêu đề mạng xã hội"/>
                         <x-forms.input name="settings[facebook]" value="{{ $settings['facebook'] ?? '' }}"
                                        label="Facebook"/>
                         <x-forms.input name="settings[youtube]" value="{{ $settings['youtube'] ?? '' }}"

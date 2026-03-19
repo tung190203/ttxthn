@@ -20,7 +20,8 @@ class SkinController extends Controller
 {
     public function __construct()
     {
-        $this->selectedMainMenu = 'skin';
+        $this->selectedMainMenu = 'vr_tour';
+        $this->selectedSubMenu('skin');
         parent::__construct();
 
         if (!Gate::allows('skin')) {
