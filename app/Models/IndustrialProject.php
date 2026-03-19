@@ -96,8 +96,8 @@ class IndustrialProject extends Model
                 function ($q) use ($request) {
                     $search = strtolower($request->search);
                     $q->where(function ($subQuery) use ($search) {
-                        $subQuery->whereRaw('LOWER(name) LIKE ?', ["%{$search}%"]);
-                        // ->orWhereRaw('LOWER(code) LIKE ?', ["%{$search}%"]);
+                        $subQuery->whereRaw('LOWER(name) LIKE ?', ["%{$search}%"])
+                        ->orWhereRaw('LOWER(code) LIKE ?', ["%{$search}%"]);
 
                         if (is_numeric($search)) {
                             $value = (float) $search;
