@@ -14,7 +14,8 @@ class ContentController extends Controller
 {
     public function __construct()
     {
-        $this->selectedMainMenu = 'content';
+        $this->selectedMainMenu = 'vr_tour';
+        $this->selectedSubMenu('content');
         parent::__construct();
 
         if (!Gate::allows('content')) {
