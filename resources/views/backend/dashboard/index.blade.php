@@ -245,11 +245,23 @@ DashBoard
 
         // Project Distribution Pie Chart
         var pieCanvas = $('#project-dist-canvas').get(0).getContext('2d')
+        var industryLabels = @json($industryLabels);
+        
+        // Tạo dải màu tự động tránh trùng lặp
+        var generateColors = function(count) {
+            var colors = [];
+            for (var i = 0; i < count; i++) {
+                var hue = (i * 137.508) % 360;
+                colors.push('hsl(' + Math.floor(hue) + ', 75%, 55%)');
+            }
+            return colors;
+        };
+
         var pieData = {
-            labels: @json($industryLabels),
+            labels: industryLabels,
             datasets: [{
                 data: @json($industryData),
-                backgroundColor: ['#f56954', '#00a65a', '#f39c12', '#00c0ef', '#3c8dbc', '#d2d6de', '#3b8bba', '#28a745', '#ffc107', '#adb5bd']
+                backgroundColor: generateColors(industryLabels.length)
             }]
         }
         var pieOptions = {
