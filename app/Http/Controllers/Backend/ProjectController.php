@@ -358,6 +358,7 @@ class ProjectController extends Controller
                 }
                 $project->setTranslation('slug', $firstLocale, $slug);
                 $project->vrtour_code = 'vrtour-' . $slug;
+                $project->link = $request->input('link') ?? env('APP_URL')."/project-detail/$slug";
                 $project->save();
 
                 if ($request->filled('districts')) {
@@ -396,7 +397,7 @@ class ProjectController extends Controller
                         $slug = $originalSlug . '-' . $counter++;
                     }
                     $mainProject->setTranslation('slug', $firstLocale, $slug);
-
+                    $project->link = $request->input('link') ?? env('APP_URL')."/project-detail/$slug";
                     $mainProject->save();
 
                     // Đồng bộ districts
@@ -477,6 +478,12 @@ class ProjectController extends Controller
                     }
                 }
             }
+
+            createFile('vrtour/' . $project->vrtour_code, 'location.js');
+            file_put_contents('vrtour/' . $project->vrtour_code . '/location.js', json_encode([
+                'location'  => $project->location_in_tour,
+                'general'   => $project->link
+            ]));
 
             return redirect()
                 ->route('backend_project_edit', $project)
