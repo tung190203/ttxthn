@@ -98,7 +98,7 @@
                                 {!! $dataGrid !!}
                             </div>
                         </div>
-                        {{ $projects->links() }}
+                        {{ $projects->withQueryString()->links() }}
                     </div>
                 </div>
             </form>

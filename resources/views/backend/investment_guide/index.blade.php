@@ -72,7 +72,7 @@
                                 {!! $dataGrid !!}
                             </div>
                         </div>
-                        {{ $investment_guides->links() }}
+                        {{ $investment_guides->withQueryString()->links() }}
                     </div>
                 </div>
             </form>
