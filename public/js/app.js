@@ -206,14 +206,21 @@ $(function () {
 $(function () {
   const $window = $(window);
   const $header = $('.header');
+  const $headerWrapper = $('.header__wrapper');
 
   $window.on('scroll', function () {
     if ($window.width() < 1200) return;
 
     if ($(window).scrollTop() > 80) {
-      $header.addClass('is-sticky');
+      if (!$header.hasClass('is-sticky')) {
+        $header.css('min-height', $headerWrapper.outerHeight() + 'px');
+        $header.addClass('is-sticky');
+      }
     } else {
-      $header.removeClass('is-sticky');
+      if ($header.hasClass('is-sticky')) {
+        $header.removeClass('is-sticky');
+        $header.css('min-height', '');
+      }
     }
   });
 });
