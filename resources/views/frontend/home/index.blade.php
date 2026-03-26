@@ -1186,6 +1186,10 @@
                 10: { color: "#2a84d0", icon: "/images/custom-icon-map/technology.png" },
                 11: { color: "#2a84d0", icon: "/images/custom-icon-map/education.png" },
                 12: { color: "#2a84d0", icon: "/images/custom-icon-map/bus.png" },
+                13: { color: "#2a84d0", icon: "/images/custom-icon-map/nature.png" },
+                14: { color: "#2a84d0", icon: "/images/custom-icon-map/healthcare.png" },
+                15: { color: "#2a84d0", icon: "/images/custom-icon-map/united.png" },
+                16: { color: "#2a84d0", icon: "/images/custom-icon-map/hitech.png" },
             };
 
             const style = industryStyles[loc.industry_number];
