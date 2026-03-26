@@ -1189,7 +1189,7 @@
                 13: { color: "#2a84d0", icon: "/images/custom-icon-map/nature.png" },
                 14: { color: "#2a84d0", icon: "/images/custom-icon-map/healthcare.png" },
                 15: { color: "#2a84d0", icon: "/images/custom-icon-map/united.png" },
-                16: { color: "#2a84d0", icon: "/images/custom-icon-map/hitech.png" },
+                16: { color: "#2a84d0", icon: "/images/custom-icon-map/artificial-intelligence.png" },
             };
 
             const style = industryStyles[loc.industry_number];
