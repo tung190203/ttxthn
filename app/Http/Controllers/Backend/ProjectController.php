@@ -300,7 +300,7 @@ class ProjectController extends Controller
 
         foreach (array_keys($locales) as $locale) {
             $translatableData['name'][$locale] = $request->input("name.{$locale}");
-            $translatableData['slug'][$locale] = $request->input("slug.vi"); // ✅ Fixed: dùng đúng locale
+            $translatableData['slug'][$locale] = $request->input("slug.{$locale}");
             $translatableData['short_desc'][$locale] = $request->input("short_desc.{$locale}");
             $translatableData['description'][$locale] = $request->input("description.{$locale}");
             $translatableData['design_short_desc'][$locale] = $request->input("design_short_desc.{$locale}");
@@ -349,16 +349,22 @@ class ProjectController extends Controller
                 $project->is_draft = false;
                 $project->status = $user->is_super_admin ? 'approved' : 'pending';
 
-                // Tạo slug unique cho ngôn ngữ chính
-                $slug = $project->getTranslation('slug', $firstLocale) ?: Str::slug($project->getTranslation('name', $firstLocale));
-                $originalSlug = $slug;
-                $counter = 1;
-                while (Project::where('slug', $slug)->exists()) {
-                    $slug = $originalSlug . '-' . $counter++;
+                // Tạo slug unique cho tất cả ngôn ngữ
+                $slugTranslations = [];
+                foreach (array_keys($locales) as $locale) {
+                    $requestedSlug = $translatableData['slug'][$locale] ?: Str::slug($translatableData['name'][$locale]);
+                    $slug = Str::slug($requestedSlug);
+                    $originalSlug = $slug;
+                    $counter = 1;
+                    while (Project::where("slug->$locale", $slug)->exists()) {
+                        $slug = $originalSlug . '-' . $counter++;
+                    }
+                    $slugTranslations[$locale] = $slug;
                 }
-                $project->setTranslation('slug', $firstLocale, $slug);
-                $project->vrtour_code = 'vrtour-' . $slug;
-                $project->link = $request->input('link') ?? env('APP_URL')."/project-detail/$slug";
+                $project->setTranslations('slug', $slugTranslations);
+                $firstLocaleSlug = $slugTranslations[$firstLocale];
+                $project->vrtour_code = 'vrtour-' . $firstLocaleSlug;
+                $project->link = $request->input('link') ?? env('APP_URL')."/project-detail/$firstLocaleSlug";
                 $project->save();
 
                 if ($request->filled('districts')) {
@@ -388,16 +394,21 @@ class ProjectController extends Controller
                     $mainProject->is_draft = false;
                     $mainProject->parent_id = null;
 
-                    // Slug unique cho ngôn ngữ chính (loại bỏ -draft)
-                    $requestedSlug = $mainProject->getTranslation('slug', $firstLocale) ?: Str::slug($mainProject->getTranslation('name', $firstLocale));
-                    $slug = preg_replace('/-draft$/', '', Str::slug($requestedSlug));
-                    $originalSlug = $slug;
-                    $counter = 1;
-                    while (Project::where('slug', $slug)->where('id', '<>', $mainProject->id)->exists()) {
-                        $slug = $originalSlug . '-' . $counter++;
+                    // Slug unique cho tất cả ngôn ngữ
+                    $mainProjectSlugTranslations = [];
+                    foreach (array_keys($locales) as $locale) {
+                        $requestedSlug = $translatableData['slug'][$locale] ?: Str::slug($translatableData['name'][$locale]);
+                        $slug = preg_replace('/-draft$/', '', Str::slug($requestedSlug));
+                        $originalSlug = $slug;
+                        $counter = 1;
+                        while (Project::where("slug->$locale", $slug)->where('id', '<>', $mainProject->id)->exists()) {
+                            $slug = $originalSlug . '-' . $counter++;
+                        }
+                        $mainProjectSlugTranslations[$locale] = $slug;
                     }
-                    $mainProject->setTranslation('slug', $firstLocale, $slug);
-                    $project->link = $request->input('link') ?? env('APP_URL')."/project-detail/$slug";
+                    $mainProject->setTranslations('slug', $mainProjectSlugTranslations);
+                    $firstLocaleSlug = $mainProjectSlugTranslations[$firstLocale];
+                    $mainProject->link = $request->input('link') ?? env('APP_URL')."/project-detail/$firstLocaleSlug";
                     $mainProject->save();
 
                     // Đồng bộ districts
@@ -418,34 +429,47 @@ class ProjectController extends Controller
                 } else {
                     // 🟨 Người dùng thường
                     if ($project->status === 'approved' && !$project->is_draft) {
-                        // Bản chính đã duyệt → tạo nháp mới
-                        $draft = $project->replicate();
+                        // Bản chính đã duyệt → kiểm tra xem đã có bản nháp chưa
+                        $draft = $project->draft;
+                        
+                        if (!$draft) {
+                            // Chưa có nháp -> tạo nháp mới từ bản chính
+                            $draft = $project->replicate();
+                            $draft->parent_id = $project->id;
+                            $draft->is_draft = true;
+                        }
+
+                        // Cập nhật nháp với dữ liệu mới từ request
                         $draft->fill($validated);
                         $draft->legal_file = $validated['files_images'];
-
-                        // Copy các trường đa ngôn ngữ từ bản chính
-                        $translatableKeys = array_keys($translatableData);
-                        foreach ($translatableKeys as $key) {
-                            $draft->setTranslations($key, $project->getTranslations($key));
-                        }
-
-                        $draft->is_draft = true;
                         $draft->status = 'pending';
                         $draft->approval_level = $user->is_approve ? 1 : 0;
-                        $draft->parent_id = $project->id;
 
-                        // Thêm hậu tố '-draft' vào slug của bản nháp (ngôn ngữ chính)
-                        $currentSlug = $draft->getTranslation('slug', $firstLocale) ?: Str::slug($draft->getTranslation('name', $firstLocale));
-                        $draft->setTranslation('slug', $firstLocale, $currentSlug . '-draft');
-
-                        $draft->save();
-
-                        // Cập nhật nháp với dữ liệu mới từ request (bao gồm đa ngôn ngữ)
-                        $draft->fill($validated);
-                        $draft->legal_file = $validated['files_images'] ?? $draft->legal_file;
-                        foreach ($translatableData as $key => $values) {
-                            $draft->setTranslations($key, $values);
+                        // Xử lý slug cho bản nháp (luôn có hậu tố -draft và đảm bảo unique)
+                        $draftSlugTranslations = [];
+                        foreach (array_keys($locales) as $locale) {
+                            $requestedSlug = $translatableData['slug'][$locale] ?: Str::slug($translatableData['name'][$locale]);
+                            if (!Str::endsWith($requestedSlug, '-draft')) {
+                                $requestedSlug .= '-draft';
+                            }
+                            
+                            $slug = $requestedSlug;
+                            $originalSlug = $slug;
+                            $counter = 1;
+                            while (Project::where("slug->$locale", $slug)->where('id', '<>', $draft->id)->exists()) {
+                                $slug = $originalSlug . '-' . $counter++;
+                            }
+                            $draftSlugTranslations[$locale] = $slug;
                         }
+                        $draft->setTranslations('slug', $draftSlugTranslations);
+                        
+                        // Gán các trường đa ngôn ngữ còn lại
+                        foreach ($translatableData as $key => $values) {
+                            if ($key !== 'slug') {
+                                $draft->setTranslations($key, $values);
+                            }
+                        }
+
                         $draft->save();
 
                         if ($request->filled('districts')) {
@@ -463,6 +487,22 @@ class ProjectController extends Controller
                         $project->legal_file = $validated['files_images'];
 
                         foreach ($translatableData as $key => $values) {
+                            if ($key === 'slug') {
+                                // Đảm bảo draft luôn có hậu tố -draft nếu chưa có và check unique
+                                foreach ($values as $lang => $slugVal) {
+                                    if (!Str::endsWith($slugVal, '-draft')) {
+                                        $slugVal .= '-draft';
+                                    }
+                                    
+                                    $slug = $slugVal;
+                                    $originalSlug = $slug;
+                                    $counter = 1;
+                                    while (Project::where("slug->$lang", $slug)->where('id', '<>', $project->id)->exists()) {
+                                        $slug = $originalSlug . '-' . $counter++;
+                                    }
+                                    $values[$lang] = $slug;
+                                }
+                            }
                             $project->setTranslations($key, $values);
                         }
 
@@ -498,6 +538,8 @@ class ProjectController extends Controller
     public function approve(Project $project)
     {
         $user = auth('web')->user();
+        $locales = config('app.locales', ['vi' => 'Tiếng Việt', 'en' => 'Tiếng Anh']);
+        $firstLocale = array_key_first($locales);
 
         if (!($user->is_super_admin || $user->is_approve)) {
             abort(403, 'Bạn không có quyền duyệt dự án.');
@@ -524,14 +566,19 @@ class ProjectController extends Controller
                     $parent->status = 'approved';
                     $parent->approval_level = $parent->max_approval;
 
-                    $slug = Str::slug($parent->name);
-                    $originalSlug = $slug;
-                    $counter = 1;
-                    while (Project::where('slug', $slug)->where('id', '<>', $parent->id)->exists()) {
-                        $slug = $originalSlug . '-' . $counter;
-                        $counter++;
+                    // Tạo slug unique cho tất cả ngôn ngữ khi duyệt
+                    $parentSlugTranslations = [];
+                    foreach (array_keys($locales) as $locale) {
+                        $requestedSlug = $parent->getTranslation('slug', $locale) ?: Str::slug($parent->getTranslation('name', $locale));
+                        $slug = preg_replace('/-draft$/', '', Str::slug($requestedSlug));
+                        $originalSlug = $slug;
+                        $counter = 1;
+                        while (Project::where("slug->$locale", $slug)->where('id', '<>', $parent->id)->exists()) {
+                            $slug = $originalSlug . '-' . $counter++;
+                        }
+                        $parentSlugTranslations[$locale] = $slug;
                     }
-                    $parent->slug = $slug;
+                    $parent->setTranslations('slug', $parentSlugTranslations);
 
                     $parent->save();
 
