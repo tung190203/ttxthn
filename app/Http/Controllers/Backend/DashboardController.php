@@ -46,7 +46,7 @@ class DashboardController extends Controller
             $investmentGuideChartData = [];
 
             for ($i = $range - 1; $i >= 0; $i--) {
-                $date = now()->subMonths($i);
+                $date = now()->startOfMonth()->subMonths($i);
                 $month = $date->format('m');
                 $year = $date->format('Y');
 

@@ -104,7 +104,8 @@
                         
                         <x-forms.select-multiple name="projects" label="Thuộc các dự án" :options="$option_projects" 
                             :selected="old('projects', $post->projects->pluck('id')->toArray())"
-                            :messages="$errors->get('projects')" help="Chọn các dự án trực thuộc" />
+                            :messages="$errors->get('projects')" help="Chọn các dự án trực thuộc"
+                            selectAll="true" selectLabel="dự án" />
 
                         <x-forms.upload name="image" value="{{ old('image') ?: $post->image }}" label="Image" type="image"
                             :messages="$errors->get('image')" />

@@ -7,6 +7,8 @@
     'messages' => [],
     'required' => false,
     'help' => '',
+    'selectAll' => false,
+    'selectLabel' => 'mục',
 ])
 
 @php
@@ -58,6 +60,14 @@
                 </div>
 
                 <div id="dropdown-options-{{ $name }}" class="px-2 pb-2">
+                    @if($selectAll)
+                        <div class="form-check border-bottom mb-2 pb-1">
+                            <input type="checkbox" class="form-check-input custom-large" id="select_all_{{ $name }}"
+                                onchange="toggleAll_{{ $name }}(this.checked)"
+                                {{ count($selected) === count($options) && count($options) > 0 ? 'checked' : '' }}>
+                            <label class="form-check-label fw-bold" for="select_all_{{ $name }}">Chọn tất cả</label>
+                        </div>
+                    @endif
                     @foreach ($options as $key => $value)
                         <div class="form-check">
                             <input type="checkbox" class="form-check-input custom-large" name="{{ $name }}[]"
@@ -92,6 +102,28 @@
     function toggleDropdown_{{ $name }}() {
         const el = document.getElementById('dropdown_{{ $name }}');
         el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        if (el.style.display === 'block') {
+            updateSelectAllState_{{ $name }}();
+        }
+    }
+
+    function toggleAll_{{ $name }}(checked) {
+        const checkboxes = document.querySelectorAll('#dropdown-options-{{ $name }} .form-check:not(.border-bottom) input[type="checkbox"]');
+        checkboxes.forEach(cb => {
+            if (cb.closest('.form-check').style.display !== 'none') {
+                cb.checked = checked;
+            }
+        });
+        updateTags_{{ $name }}();
+    }
+
+    function updateSelectAllState_{{ $name }}() {
+        const selectAllCb = document.getElementById('select_all_{{ $name }}');
+        if (!selectAllCb) return;
+
+        const checkboxes = document.querySelectorAll('#dropdown-options-{{ $name }} .form-check:not(.border-bottom) input[type="checkbox"]');
+        const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+        selectAllCb.checked = checkboxes.length > 0 && checkedCount === checkboxes.length;
     }
 
     function updateTags_{{ $name }}() {
@@ -124,8 +156,8 @@
             summary.className = 'badge bg-primary text-white d-flex align-items-center px-2 py-2 rounded-pill mr-1';
             summary.style.height = '28px';
             summary.innerText = selectedCount === totalCount ?
-                'Đã lựa chọn tất cả khu vực' :
-                `${selectedCount} trên ${totalCount} khu vực đã chọn`;
+                'Đã lựa chọn tất cả {{ $selectLabel }}' :
+                `${selectedCount} trên ${totalCount} {{ $selectLabel }} đã chọn`;
             container.appendChild(summary);
         } else {
             selectedLabels.forEach(item => {
@@ -147,6 +179,7 @@
                 container.appendChild(span);
             });
         }
+        updateSelectAllState_{{ $name }}();
     }
 
     function removeTag_{{ $name }}(value, event) {

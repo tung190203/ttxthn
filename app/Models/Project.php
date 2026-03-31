@@ -223,13 +223,6 @@ class Project extends Model
                 $project->slug = Str::slug($project->name);
             }
         });
-
-        static::updating(function ($project) {
-            // Ví dụ nếu muốn cập nhật lại slug khi đổi name
-            if ($project->isDirty('name')) {
-                $project->slug = Str::slug($project->name);
-            }
-        });
     }
 
     public static function makeOptionColumnButton(): array
