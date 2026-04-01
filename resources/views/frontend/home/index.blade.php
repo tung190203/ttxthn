@@ -1306,9 +1306,24 @@
                 boundaryPolygon = null;
             }
 
-            if (districtName === "all" || !boundaries[districtName]) return;
+            if (districtName === "all") return;
+            
+            // `districtName` currently could be the translated name or the VI name.
+            // When selecting from dropdown, we'll try to pass the VI name as data-value.
+            // If it's passed directly as translated name, let's map it back to VI name.
+            let viName = districtName;
+            
+            // Reverse lookup if the name isn't found in boundaries
+            if (!boundaries[viName]) {
+                const foundEntry = Object.entries(districtDisplayNames).find(([vi, loc]) => loc === viName);
+                if (foundEntry) {
+                    viName = foundEntry[0];
+                }
+            }
 
-            boundaryPolygon = L.polygon(boundaries[districtName], {
+            if (!boundaries[viName]) return;
+
+            boundaryPolygon = L.polygon(boundaries[viName], {
                 color: "blue",
                 weight: 2,
                 dashArray: "5, 5",
@@ -1505,8 +1520,8 @@
                 url: `/${lang}/api/districts`,
                 method: 'GET',
                 success: function(res) {
-                    // Extract names for the search dropdown
-                    allDistricts = res.map(d => d.name).sort();
+                    // Extract objects for the search dropdown containing both display and VI names
+                    allDistricts = res.map(d => ({ name: d.name, name_vi: d.name_vi })).sort((a,b) => a.name.localeCompare(b.name));
                     
                     // Merge boundaries from DB and store display names
                     res.forEach(d => {
@@ -1571,23 +1586,29 @@
             }
 
             filtered.forEach(d => {
-                dropdown.append(`<div class="px-3 py-2 hover-options" data-value="${d}">${d}</div>`);
+                dropdown.append(`<div class="px-3 py-2 hover-options" data-value="${d.name_vi}" data-display="${d.name}">${d.name}</div>`);
             });
             dropdown.show();
         }
 
         $('#districtFilter').on('input', function() {
             const keyword = removeDiacritics($(this).val());
-            const filtered = allDistricts.filter(d => removeDiacritics(d).includes(keyword));
+            const filtered = allDistricts.filter(d => removeDiacritics(d.name).includes(keyword));
             $('.custom_tabs').addClass('position-custom');
             renderDistrictDropdown(filtered);
         });
 
-        $(document).on('click', '#districtDropdown div', function() {
-            const val = $(this).data('value');
-            $('#districtFilter').val(val);
+        $(document).on('click', '#districtDropdown div.hover-options', function() {
+            const val = $(this).data('value'); // name_vi
+            const display = $(this).data('display'); // translated name
+            $('#districtFilter').val(display); // Show translated name in input
+            $('#districtFilter').attr('data-real-value', val); // However mapping will still pass original value safely
             $('#districtDropdown').hide();
             $('.custom_tabs').removeClass('position-custom');
+            
+            // We pass the display name to applyFiltersWithBounds, or let it read from input
+            // But MapController filter logic currently assumes localized name since it uses getDistricts API.
+            // Wait, does MapController filtering use 'district' => translated name or VI name?
             applyFiltersWithBounds();
         });
 
@@ -1600,14 +1621,16 @@
 
         $('#districtFilterSp').on('input', function() {
             const keyword = removeDiacritics($(this).val());
-            const filtered = allDistricts.filter(d => removeDiacritics(d).includes(keyword));
+            const filtered = allDistricts.filter(d => removeDiacritics(d.name).includes(keyword));
             $('.custom_tabs').addClass('position-custom');
             renderDistrictDropdown(filtered);
         });
 
-        $(document).on('click', '#districtDropdownSp div', function() {
+        $(document).on('click', '#districtDropdownSp div.hover-options', function() {
             const val = $(this).data('value');
-            $('#districtFilterSp').val(val);
+            const display = $(this).data('display');
+            $('#districtFilterSp').val(display);
+            $('#districtFilterSp').attr('data-real-value', val);
             $('#districtDropdownSp').hide();
             $('.custom_tabs').removeClass('position-custom');
             applyFiltersWithBounds();
@@ -1619,6 +1642,7 @@
                 $('.custom_tabs').removeClass('position-custom');
             }
         });
+
 
         // MAP MOVE
         let mapMoveTimeout = null;
