@@ -1118,6 +1118,10 @@
         let currentDistrict = null;
         let isMapTriggered = false;
 
+        function removeDiacritics(str) {
+            return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+        }
+
         function getTypeName(typeNumber) {
             const types = {
                 1: "{{ __('app.public_private_partnership') }}",
@@ -1546,8 +1550,8 @@
         }
 
         $('#districtFilter').on('input', function() {
-            const keyword = $(this).val().toLowerCase();
-            const filtered = allDistricts.filter(d => d.toLowerCase().includes(keyword));
+            const keyword = removeDiacritics($(this).val());
+            const filtered = allDistricts.filter(d => removeDiacritics(d).includes(keyword));
             $('.custom_tabs').addClass('position-custom');
             renderDistrictDropdown(filtered);
         });
@@ -1568,8 +1572,8 @@
         });
 
         $('#districtFilterSp').on('input', function() {
-            const keyword = $(this).val().toLowerCase();
-            const filtered = allDistricts.filter(d => d.toLowerCase().includes(keyword));
+            const keyword = removeDiacritics($(this).val());
+            const filtered = allDistricts.filter(d => removeDiacritics(d).includes(keyword));
             $('.custom_tabs').addClass('position-custom');
             renderDistrictDropdown(filtered);
         });
