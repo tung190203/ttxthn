@@ -67,9 +67,16 @@ class MapController extends Controller
     public function getDistricts()
     {
         $districts = District::query()
-            ->select('name')
+            ->select('name', 'boundary')
             ->orderBy('name')
-            ->pluck('name');
+            ->get()
+            ->map(function ($district) {
+                return [
+                    'name' => $district->name,
+                    'name_vi' => $district->getTranslation('name', 'vi'),
+                    'boundary' => $district->boundary,
+                ];
+            });
 
         return response()->json($districts);
     }

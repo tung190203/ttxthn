@@ -822,30 +822,40 @@
             "{{ __('app.map_3d') }}": map3d
         };
 
-        // Boundary overlay layer – hiển thị tất cả ranh giới phường/xã
         const boundaryOverlayGroup = L.layerGroup();
-        Object.entries(boundaries).forEach(([name, coords]) => {
-            const poly = L.polygon(coords, {
-                color: '#1a6fc4',
-                weight: 1.5,
-                dashArray: '4, 4',
-                fillColor: '#4a9ede',
-                fillOpacity: 0.08,
-                interactive: true
+        let districtDisplayNames = {}; // Map of VI Name -> Localized Name
+
+        function renderBoundaryLayers() {
+            if (typeof boundaries === 'undefined') return;
+            boundaryOverlayGroup.clearLayers();
+            
+            Object.entries(boundaries).forEach(([nameVi, coords]) => {
+                const displayName = districtDisplayNames[nameVi] || nameVi;
+                const poly = L.polygon(coords, {
+                    color: '#1a6fc4',
+                    weight: 1.5,
+                    dashArray: '4, 4',
+                    fillColor: '#4a9ede',
+                    fillOpacity: 0.08,
+                    interactive: true
+                });
+                poly.bindTooltip(displayName, {
+                    sticky: true,
+                    direction: 'top',
+                    className: 'boundary-tooltip'
+                });
+                poly.on('mouseover', function() {
+                    this.setStyle({ fillOpacity: 0.25, weight: 2.5 });
+                });
+                poly.on('mouseout', function() {
+                    this.setStyle({ fillOpacity: 0.08, weight: 1.5 });
+                });
+                boundaryOverlayGroup.addLayer(poly);
             });
-            poly.bindTooltip(name, {
-                sticky: true,
-                direction: 'top',
-                className: 'boundary-tooltip'
-            });
-            poly.on('mouseover', function() {
-                this.setStyle({ fillOpacity: 0.25, weight: 2.5 });
-            });
-            poly.on('mouseout', function() {
-                this.setStyle({ fillOpacity: 0.08, weight: 1.5 });
-            });
-            boundaryOverlayGroup.addLayer(poly);
-        });
+        }
+        
+        // Initial render with static data
+        renderBoundaryLayers();
 
         const overlayLayers = {
             "{{ __('app.boundary_map') }}": boundaryOverlayGroup
@@ -1495,7 +1505,24 @@
                 url: `/${lang}/api/districts`,
                 method: 'GET',
                 success: function(res) {
-                    allDistricts = res.sort();
+                    // Extract names for the search dropdown
+                    allDistricts = res.map(d => d.name).sort();
+                    
+                    // Merge boundaries from DB and store display names
+                    res.forEach(d => {
+                        // Store the translation mapping
+                        if (d.name_vi) {
+                            districtDisplayNames[d.name_vi] = d.name;
+                        }
+                        
+                        if (d.boundary && d.name_vi) {
+                            boundaries[d.name_vi] = d.boundary;
+                        }
+                    });
+
+                    // Refresh the map overlay with localized names and updated boundaries
+                    renderBoundaryLayers();
+
                     allDistrictsLoaded = true;
                 },
                 error: function(err) {
