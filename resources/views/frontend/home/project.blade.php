@@ -185,11 +185,110 @@
 @push('bottom')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const form = document.querySelector('.aside-form');
-        document.querySelectorAll('.auto-submit').forEach(el => {
-            el.addEventListener('change', function () {
-                form.submit();
+        const container = document.querySelector('.col-lg-9');
+
+        function fetchProjects(url, pushState = true) {
+            container.style.opacity = '0.5';
+
+            fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                // Update Project List and Pagination
+                const newContainer = doc.querySelector('.col-lg-9');
+                if (newContainer) {
+                    container.innerHTML = newContainer.innerHTML;
+                }
+
+                // Update Project Nav (Tất cả, Đang kêu gọi, Có nhà đầu tư)
+                const navList = document.querySelector('.project-nav__list');
+                const newNavList = doc.querySelector('.project-nav__list');
+                if (navList && newNavList) {
+                    navList.innerHTML = newNavList.innerHTML;
+                }
+
+                // Update Aside Form
+                const asideFormContainer = document.querySelector('.col-lg-3');
+                const newAsideFormContainer = doc.querySelector('.col-lg-3');
+                if (asideFormContainer && newAsideFormContainer) {
+                    asideFormContainer.innerHTML = newAsideFormContainer.innerHTML;
+                }
+
+                container.style.opacity = '1';
+
+                if (pushState) {
+                    window.history.pushState({path: url}, '', url);
+                }
+
+                // Re-initialize tippy if exists
+                if(typeof tippy !== 'undefined') {
+                    tippy('[data-tippy-content]');
+                }
+
+                // Re-bind project__like if exists
+                if (window.jQuery && typeof toggleInterest === 'function') {
+                    $(container).find('.project__like').off('click').on('click', e => {
+                        e.preventDefault();
+                        toggleInterest($(e.currentTarget));
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+                container.style.opacity = '1';
             });
+        }
+
+        // Global click listener cho nav links và pagination links
+        document.body.addEventListener('click', function (e) {
+            const navLink = e.target.closest('.project-nav__list a');
+            const paginationLink = e.target.closest('.pagination a');
+
+            if (navLink) {
+                e.preventDefault();
+                fetchProjects(navLink.href);
+            } else if (paginationLink) {
+                e.preventDefault();
+                fetchProjects(paginationLink.href);
+            }
+        });
+
+        // Global form submit
+        document.body.addEventListener('submit', function (e) {
+            const form = e.target.closest('.aside-form');
+            if (form) {
+                e.preventDefault();
+                const url = new URL(form.action);
+                const formData = new FormData(form);
+                const searchParams = new URLSearchParams(formData);
+                url.search = searchParams.toString();
+                fetchProjects(url.toString());
+            }
+        });
+
+        // Tự động submit form khi thay đổi select hoặc checkbox
+        document.body.addEventListener('change', function (e) {
+            if (e.target.closest('.auto-submit')) {
+                const form = e.target.closest('.aside-form');
+                if (form) {
+                    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+                }
+            }
+        });
+
+        // Handle browser navigation
+        window.addEventListener('popstate', function (e) {
+            if (e.state && e.state.path) {
+                fetchProjects(e.state.path, false);
+            } else {
+                fetchProjects(window.location.href, false);
+            }
         });
     });
 </script>
