@@ -110,4 +110,111 @@
 @endsection
 
 @push('bottom')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const container = document.querySelector('.col-lg-9');
+
+        function fetchInvestments(url, pushState = true) {
+            container.style.opacity = '0.5';
+
+            fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                // Update Project List and Pagination
+                const newContainer = doc.querySelector('.col-lg-9');
+                if (newContainer) {
+                    container.innerHTML = newContainer.innerHTML;
+                }
+
+                // Update Project Nav
+                const navList = document.querySelector('.project-nav__list');
+                const newNavList = doc.querySelector('.project-nav__list');
+                if (navList && newNavList) {
+                    navList.innerHTML = newNavList.innerHTML;
+                }
+
+                // Update Form
+                const asideFormContainer = document.querySelector('.col-lg-3');
+                const newAsideFormContainer = doc.querySelector('.col-lg-3');
+                if (asideFormContainer && newAsideFormContainer) {
+                    asideFormContainer.innerHTML = newAsideFormContainer.innerHTML;
+                }
+
+                container.style.opacity = '1';
+
+                if (pushState) {
+                    window.history.pushState({path: url}, '', url);
+                }
+
+                // Re-initialize tippy if exists
+                if(typeof tippy !== 'undefined') {
+                    tippy('[data-tippy-content]');
+                }
+
+                // Re-bind news__like for the heart icon
+                if (window.jQuery && typeof toggleInterest === 'function') {
+                    $(container).find('.news__like').off('click').on('click', e => {
+                        e.preventDefault();
+                        toggleInterest($(e.currentTarget));
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+                container.style.opacity = '1';
+            });
+        }
+
+        // Global click listener for nav and pagination links
+        document.body.addEventListener('click', function (e) {
+            const navLink = e.target.closest('.project-nav__list a');
+            const paginationLink = e.target.closest('.pagination a');
+
+            if (navLink) {
+                e.preventDefault();
+                fetchInvestments(navLink.href);
+            } else if (paginationLink) {
+                e.preventDefault();
+                fetchInvestments(paginationLink.href);
+            }
+        });
+
+        // Global form submit
+        document.body.addEventListener('submit', function (e) {
+            const form = e.target.closest('.aside-form');
+            if (form) {
+                e.preventDefault();
+                const url = new URL(form.action);
+                const formData = new FormData(form);
+                const searchParams = new URLSearchParams(formData);
+                url.search = searchParams.toString();
+                fetchInvestments(url.toString());
+            }
+        });
+
+        // Global change for auto-submitting select/checkboxes
+        document.body.addEventListener('change', function (e) {
+            if (e.target.closest('.aside-form select[name="cat_id"]')) {
+                const form = e.target.closest('.aside-form');
+                form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+            }
+        });
+
+        // Handle browser navigation
+        window.addEventListener('popstate', function (e) {
+            if (e.state && e.state.path) {
+                fetchInvestments(e.state.path, false);
+            } else {
+                fetchInvestments(window.location.href, false);
+            }
+        });
+    });
+</script>
 @endpush
