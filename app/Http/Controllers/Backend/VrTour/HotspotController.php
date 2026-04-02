@@ -11,6 +11,7 @@ use App\Libs\Util;
 use App\Models\Project;
 use App\Models\Hotspot;
 use App\Models\IndustrialProject;
+use App\Models\ProductType;
 use Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -72,6 +73,7 @@ class HotspotController extends Controller
                     $new_hp = new Hotspot;
                     $new_hp->vrtour_id = $vrtour_id;
                     $new_hp->potision = $hp['position'];
+                    $new_hp->acreage = $hp['acreage'] ?? null;
                     $new_hp->url = $hp['url'];
                     $new_hp->opacity = $hp['opacity'];
                     $new_hp->tooltip = (!str_contains($hp['position'], 'cms_eye') && !str_contains($hp['position'], 'cms_fly')) ? $hp['tooltip'] : '';
@@ -102,6 +104,7 @@ class HotspotController extends Controller
                     [
                         // Dữ liệu update / create
                         'name'        => $value->tooltip,
+                        'acreage'     => $value->acreage,
                         'description' => $translations, // Spatie tự JSON
                         'link'        => $link_vrtour . 'vista3d/search.html?search_link='
                             . $link_vrtour . '?media-index=' . $media_index
@@ -136,8 +139,13 @@ class HotspotController extends Controller
         if (!Gate::allows('hotspot/edit')) {
             abort(403, self::MESSAGE_UNAUTHORIZED);
         }
-        $hotspot = Hotspot::findorFail($hotspot_id);
-        return view('backend.vrtour.hotspot.edit', compact(['hotspot']));
+        $hotspot = Hotspot::with('IndustrialProject.productType')->findOrFail($hotspot_id);
+        $productType = ProductType::latest('id')->get();
+
+        $selected = optional($hotspot->IndustrialProject)->product_type;
+
+        $option_product_types = ProductType::makeOptions($productType, $selected);
+        return view('backend.vrtour.hotspot.edit', compact(['hotspot', 'option_product_types']));
     }
 
     public function store(Request $request, $hotspot_id)
@@ -150,6 +158,7 @@ class HotspotController extends Controller
             'hp_potision'   => 'required',
             'hp_opacity'    => 'required',
         ]);
+        $translations = ['vi' => $request->hp_tooltip, 'en' => $request->hp_tooltip_en ?? null,];
         $new_hp             = Hotspot::findorFail($hotspot_id);
         $new_hp->potision   = $request->hp_potision;
         $new_hp->url        = $request->hp_url;
@@ -159,7 +168,18 @@ class HotspotController extends Controller
         $new_hp->tooltip_en = $request->hp_tooltip_en;
         $new_hp->user_id    = Auth::id();
         $new_hp->save();
-        file_put_contents('vrtour/'.Project::find($new_hp->vrtour_id)->vrtour_code.'/hotspot.js', Hotspot::where('vrtour_id', $new_hp->vrtour_id)->get());
-        return redirect()->to(route('backend_vrtour_hotspot_index') . '?vrtour='.$new_hp->vrtour_id.'&type='.($new_hp->type == 3 ? 1 : 0))->with('success', 'Cập nhật thông tin thành công');
+        IndustrialProject::updateOrCreate(
+            [
+                'project_id' => $new_hp->vrtour_id,
+                'code'       => $new_hp->potision
+            ],
+            [
+                'name'        => $new_hp->tooltip,
+                'product_type'=> $request->product_type,
+                'description' => $translations, // Spatie tự JSON
+            ]
+        );
+        file_put_contents('vrtour/' . Project::find($new_hp->vrtour_id)->vrtour_code . '/hotspot.js', Hotspot::where('vrtour_id', $new_hp->vrtour_id)->get());
+        return redirect()->to(route('backend_vrtour_hotspot_index') . '?vrtour=' . $new_hp->vrtour_id . '&type=' . ($new_hp->type == 3 ? 1 : 0))->with('success', 'Cập nhật thông tin thành công');
     }
 }

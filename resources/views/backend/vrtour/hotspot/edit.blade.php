@@ -35,13 +35,21 @@
                         <x-forms.upload name="hp_url" value="{{ old('hp_url') ?: $hotspot->url }}" label="Ảnh VN"
                                         type="image" :messages="$errors->get('hp_url')"/>
                         <x-forms.upload name="hp_url_en" value="{{ old('hp_url_en') ?: $hotspot->url_en }}" label="Ảnh EN"
-                                        type="image" :messages="$errors->get('hp_url_en')"/>
-                        <x-forms.input name="hp_potision" value="{{ (old('hp_potision') ?: $hotspot->potision) }}"
-                                       label="Vị trí" type="text" :messages="$errors->get('hp_potision')" readonly/>
+                                        type="image" :messages="$errors->get('hp_url_en')"/>                  
+                       @php
+                       $displayPotision = old('hp_potision') ?: (str_starts_with($hotspot->potision, 'cmss_') ? substr($hotspot->potision, 5) : $hotspot->potision);
+                       $realPotision = old('hp_potision') ?: $hotspot->potision;
+                       @endphp
+                       <x-forms.input name="hp_potision_display" :value="$displayPotision" label="Vị trí" type="text" readonly />
+                       <input type="hidden" name="hp_potision" value="{{ $realPotision }}">
                         <x-forms.input name="hp_tooltip" value="{{ (old('hp_tooltip') ?: $hotspot->tooltip) }}"
                                        label="Mô tả VN" type="text" :messages="$errors->get('hp_tooltip')"/>
                         <x-forms.input name="hp_tooltip_en" value="{{ (old('hp_tooltip_en') ?: $hotspot->tooltip_en) }}"
                                        label="Mô tả EN" type="text" :messages="$errors->get('hp_tooltip_en')"/>
+                        @if(\Illuminate\Support\Str::startsWith($hotspot->potision, 'cmss'))
+                        <x-forms.input name="acreage" value="{{ old('acreage') ?: $hotspot->acreage }}" label="Diện tích" type="text" :messages="$errors->get('acreage')" />
+                        <x-forms.select name="product_type" label="Loại sản phẩm" :options="$option_product_types" :messages="$errors->get('product_type')" />
+                        @endif
                         <x-forms.switch name="hp_opacity" label="Hiển thị" value="{{ $hotspot->opacity }}"
                             :messages="$errors->get('hp_opacity')" />
                     </div>
