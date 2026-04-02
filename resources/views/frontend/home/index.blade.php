@@ -1361,7 +1361,7 @@
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     <div>
                         <strong>${item.description ?? labels.unknown}</strong><br>
-                        <small>${labels.projects}: ${item.project_name}</small> - ${labels.code}: ${item.code}<br>
+                        <small>${labels.projects}: ${item.project_name}</small> - ${labels.code}: ${item.code.replace(/^cmss_/, '')}<br>
                         <small>${labels.area}: ${item.acreage ?? labels.unknown} - ${labels.projectTypes}: ${item.product_type_name ?? labels.unknown}</small>
                     </div>
                     <a href="${item.link}" target="_blank" class="btn custom-btn btn-sm">${labels.location}</a>

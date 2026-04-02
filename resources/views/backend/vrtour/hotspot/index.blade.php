@@ -31,6 +31,7 @@
                                 <div class="form-group">
                                     <select class="form-control" id="slt_vrtour_type" style="height: 38px">
                                         <option value="0">-- Hotspot chính --</option>
+                                        <option value="2">-- Lô đất --</option>
                                         <option value="1">-- Toàn bộ --</option>
                                     </select>
                                 </div>
