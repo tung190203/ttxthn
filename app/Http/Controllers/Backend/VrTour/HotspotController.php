@@ -49,7 +49,12 @@ class HotspotController extends Controller
             $link_vrtour = $vrtour->link_vrtour;
             $media_index = $vrtour->media_index;
             //get hotspot from db
-            $hotspot_db = Hotspot::where('vrtour_id', $vrtour_id)->whereIn('type', $request->type == 0 ? [1, 2] : [1, 2, 3])->get();
+            $typeFilter = match ((int) $request->type ) {
+                0 => [1, 2],
+                1 => [1, 2, 3],
+                2 => [2],
+            };
+            $hotspot_db = Hotspot::where('vrtour_id', $vrtour_id)->whereIn('type', $typeFilter)->get();
             if ($request->reset == 'true') {
                 $hotspots = Hotspot::where('vrtour_id', $vrtour_id)
                     ->with('IndustrialProject')
@@ -116,10 +121,11 @@ class HotspotController extends Controller
             }
             // --- KẾT THÚC KHỐI SỬA ĐỔI ---
             foreach ($hotspot_db as $key => $hp) {
+                $potision = str_starts_with($hp->potision, 'cmss_') ? substr($hp->potision, 5) : $hp->potision;
                 $html .= '<tr>';
                 $html .= '<td>' . (++$key) . '</td>';
                 $html .= '<td><img src="' . $hp->url . '" style="width:100px;height:100px;""></td>';
-                $html .= '<td>' . $hp->potision . '</td>';
+                $html .= '<td>' . $potision . '</td>';
                 $html .= '<td>' . $hp->tooltip . '</td>';
                 $html .= '<td>' . $hp->opacity . '</td>';
                 $html .= '<td class="grid_row1">';
