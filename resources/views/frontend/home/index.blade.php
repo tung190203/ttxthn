@@ -373,7 +373,7 @@
 
     <script>
         // Tile layers
-        const defaults = L.tileLayer('https://api.maptiler.com/maps/outdoor-v2/{z}/{x}/{y}.png?key=ziR13X4sfKXctiAkrRRQ', {
+        const defaults = L.tileLayer('https://api.maptiler.com/maps/outdoor-v2/{z}/{x}/{y}.png?key=XBpVjYxcoHhAi6NqhQMb', {
             maxNativeZoom: 19,
             maxZoom: 21
         });
