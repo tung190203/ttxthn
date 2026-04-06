@@ -103,11 +103,11 @@
                             
                         <div class="row">
                             <div class="col-md-12">
-                                <x-forms.input name="lat" value="{{ old('lat') ?: $project->lat }}" label="Kinh độ (Lat)"
+                                <x-forms.input name="lat" value="{{ old('lat') ?: $project->lat }}" label="Vĩ độ (Lat)"
                                     :messages="$errors->get('lat')" />
                             </div>
                             <div class="col-md-12">
-                                <x-forms.input name="lng" value="{{ old('lng') ?: $project->lng }}" label="Vĩ độ (Lng)"
+                                <x-forms.input name="lng" value="{{ old('lng') ?: $project->lng }}" label="Kinh độ (Lng)"
                                     :messages="$errors->get('lng')" />
                             </div>
                         </div>
