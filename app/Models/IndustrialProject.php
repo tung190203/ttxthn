@@ -63,7 +63,8 @@ class IndustrialProject extends Model
                     $search = $request->search;
 
                     $subQuery->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($search) . '%'])
-                        ->orWhereRaw('LOWER(code) LIKE ?', ['%' . strtolower($search) . '%']);
+                        ->orWhereRaw('LOWER(code) LIKE ?', ['%' . strtolower($search) . '%'])
+                        ->orWhereRaw('LOWER(intended_use) LIKE ?', ['%' . strtolower($search) . '%']);
 
                     if (is_numeric($search)) {
                         $value = (float) $search;
@@ -97,11 +98,12 @@ class IndustrialProject extends Model
                     $search = strtolower($request->search);
                     $q->where(function ($subQuery) use ($search) {
                         $subQuery->whereRaw('LOWER(name) LIKE ?', ["%{$search}%"])
-                        ->orWhereRaw('LOWER(code) LIKE ?', ["%{$search}%"]);
+                        ->orWhereRaw('LOWER(code) LIKE ?', ["%{$search}%"])
+                        ->orWhereRaw('LOWER(intended_use) LIKE ?', ["%{$search}%"]);
 
                         if (is_numeric($search)) {
                             $value = (float) $search;
-                            $subQuery->orWhereBetween('acreage', [$value - 0.5, $value + 0.5]);
+                            $subQuery->orWhereBetween('acreage', [$value - 5, $value + 5]);
                         }
                     });
                 }
