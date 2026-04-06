@@ -70,6 +70,68 @@ DashBoard
         <!-- ./col -->
     </div>
 
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card card-outline card-info shadow-sm">
+                <div class="card-header d-flex align-items-center">
+                    <h3 class="card-title">
+                        <i class="fas fa-robot mr-2 text-info"></i>
+                        Giám sát Hệ thống AI Bot
+                    </h3>
+                </div>
+                <div class="card-body bg-light">
+                    <div class="row" id="ai-monitor-grid">
+                        <!-- AI Health Cards -->
+                        <div class="col-md-3">
+                            <div class="info-box bg-white border shadow-xs mb-3">
+                                <span class="info-box-icon text-muted" id="ai-status-icon"><i class="fas fa-signal"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text text-uppercase font-weight-bold letter-spacing-1" style="font-size: 10px; color: #999;">Trạng thái hệ thống</span>
+                                    <span class="info-box-number text-muted" id="ai-status-text">Đang kiểm tra...</span>
+                                    <div class="progress progress-xxs mt-2" style="height: 2px;">
+                                        <div class="progress-bar bg-info" id="ai-status-progress" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="info-box bg-white border shadow-xs mb-3">
+                                <span class="info-box-icon text-muted" id="ai-storage-icon"><i class="fas fa-database"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text text-uppercase font-weight-bold letter-spacing-1" style="font-size: 10px; color: #999;">Vector Storage</span>
+                                    <span class="info-box-number text-muted" id="ai-storage-text">---</span>
+                                    <span class="info-box-description text-xs text-muted" id="ai-storage-detail">Đang tải...</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="info-box bg-white border shadow-xs mb-3">
+                                <span class="info-box-icon text-muted" id="ai-llm-icon"><i class="fas fa-brain"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text text-uppercase font-weight-bold letter-spacing-1" style="font-size: 10px; color: #999;">LLM Provider</span>
+                                    <span class="info-box-number text-muted" id="ai-llm-text">---</span>
+                                    <span class="info-box-description text-xs text-muted" id="ai-llm-detail">Đang tải...</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="info-box bg-white border shadow-xs mb-3">
+                                <span class="info-box-icon text-muted"><i class="fas fa-chart-bar"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text text-uppercase font-weight-bold letter-spacing-1" style="font-size: 10px; color: #999;">Thống kê hôm nay</span>
+                                    <span class="info-box-number text-muted" id="ai-usage-text">0 Tokens</span>
+                                    <span class="info-box-description text-xs text-muted" id="ai-usage-detail">0 Yêu cầu</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="row">
         <!-- Left col -->
         <section class="col-lg-7 connectedSortable">
@@ -364,6 +426,72 @@ DashBoard
             fetchActivities(url);
             window.history.pushState({}, '', url);
         });
+
+        // AI Bot Monitoring logic
+        var aiMonitorTimeout;
+        function updateAiMonitor() {
+            $.ajax({
+                url: "{{ route('backend_ai_monitor_status') }}",
+                type: 'GET',
+                success: function(response) {
+                    if (response.success) {
+                        var data = response.data;
+                        var now = new Date();
+                        $('#ai-last-check').text('Cập nhật lúc: ' + now.toLocaleTimeString());
+                        
+                        // 1. System Status
+                        var isHealthy = data.health.status === 'healthy';
+                        $('#ai-status-icon').html('<i class="fas fa-check-circle text-success"></i>');
+                        if (!isHealthy) {
+                            $('#ai-status-icon').html('<i class="fas fa-exclamation-triangle text-warning"></i>');
+                        }
+                        $('#ai-status-text').removeClass('text-muted').addClass(isHealthy ? 'text-success' : 'text-danger').text(data.health.status.toUpperCase());
+                        $('#ai-status-progress').css('width', '100%').removeClass('bg-info').addClass(isHealthy ? 'bg-success' : 'bg-danger');
+
+                        // 2. Storage
+                        var statusObj = data.status || {};
+                        var storage = statusObj.storage || {};
+                        var storageHealthy = storage.available === true;
+                        $('#ai-storage-icon').html('<i class="fas fa-database ' + (storageHealthy ? 'text-info' : 'text-danger') + '"></i>');
+                        $('#ai-storage-text').removeClass('text-muted').addClass(storageHealthy ? 'text-success' : 'text-danger').text(storageHealthy ? 'Hoạt động' : 'Lỗi');
+                        $('#ai-storage-detail').text(storage.type || 'Hệ thống lưu trữ vector');
+
+                        // 3. LLM
+                        var llm = statusObj.llm || {};
+                        var llmHealthy = llm.default_provider ? true : false;
+                        $('#ai-llm-icon').html('<i class="fas fa-brain ' + (llmHealthy ? 'text-primary' : 'text-danger') + '"></i>');
+                        $('#ai-llm-text').removeClass('text-muted').addClass(llmHealthy ? 'text-success' : 'text-danger').text(llmHealthy ? 'Hoạt động' : 'Lỗi');
+                        var llmInfo = llm.default_provider ? (llm.default_provider.toUpperCase() + '/' + (llm.default_model || 'AI')) : 'Liên kết AI';
+                        $('#ai-llm-detail').text(llmInfo);
+
+                        // 4. Metrics
+                        // Aggregating from histograms as per actual structure
+                        var metricsRoot = data.metrics || {};
+                        var innerMetrics = metricsRoot.metrics || {};
+                        var histograms = innerMetrics.histograms || {};
+                        
+                        var totalReq = 0;
+                        // Iterate through metrics to find request counts
+                        Object.keys(histograms).forEach(function(key) {
+                            if (key.indexOf('chatbot_llm_latency_ms') !== -1) {
+                                totalReq += histograms[key].count || 0;
+                            }
+                        });
+                        
+                        $('#ai-usage-text').removeClass('text-muted').text('Online');
+                        $('#ai-usage-detail').text(totalReq + ' yêu cầu đã xử lý');
+                    }
+                },
+                error: function() {
+                    $('#ai-status-icon').html('<i class="fas fa-times-circle text-danger"></i>');
+                    $('#ai-status-text').removeClass('text-success').addClass('text-danger').text('NGOẠI TUYẾN');
+                    $('#ai-status-progress').css('width', '0%');
+                }
+            });
+        }
+
+        // Initial update
+        updateAiMonitor();
     })
 </script>
 @endsection

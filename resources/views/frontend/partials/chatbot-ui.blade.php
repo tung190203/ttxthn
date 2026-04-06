@@ -1,6 +1,6 @@
 <!-- Chatbot Floating Button -->
 <div id="ai-chatbot-btn-container" class="chatbot-btn-container">
-    <div class="chatbot-tooltip">Trợ lý AI đang sẵn sàng hỗ trợ bạn!</div>
+    <div class="chatbot-tooltip">{{ __('app.assistant_ready') }}</div>
     <div id="ai-chatbot-btn" class="chatbot-floating-btn" onclick="toggleChatbot()">
         <i class="fal fa-comment-alt-lines fa-2x text-white"></i>
     </div>
@@ -9,34 +9,35 @@
 <!-- Chatbot Window -->
 <div id="ai-chatbot-window" class="chatbot-window">
     <div class="chatbot-header">
-        <div class="d-flex align-items-center">
-            <div class="chatbot-avatar">
+        <div class="d-flex align-items-center" style="min-width:0; flex:1; overflow:hidden;">
+            <div class="chatbot-avatar" style="flex-shrink:0;">
                 <i class="fas fa-robot"></i>
             </div>
-            <div class="ms-2">
+            <div class="ms-2" style="min-width:0; overflow:hidden;">
                 <div class="d-flex align-items-center">
-                    <h5 class="mb-0 text-white" style="font-size: 16px; font-weight: 600;">Trợ lý AI Đầu Tư</h5>
-                    <span id="chatbot-status-dot" class="ms-2" style="width: 8px; height: 8px; background-color: #94a3b8; border-radius: 50%; display: inline-block;" title="Kiểm tra trạng thái..."></span>
+                    <h5 class="mb-0 text-white" style="font-size: 15px; font-weight: 600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ __('app.assistant_ai') }}</h5>
+                    <span id="chatbot-status-dot" class="ms-2" style="width: 8px; height: 8px; background-color: #94a3b8; border-radius: 50%; display: inline-block; flex-shrink:0;" title="{{ __('app.checking_status') }}"></span>
                 </div>
                 <div class="d-flex align-items-center">
-                    <small class="text-white-50" style="font-size: 12px;" id="chatbot-stage-indicator">Đang trực tuyến</small>
-                    <select id="chatbot-model-select" class="ms-2 border-0 bg-transparent text-white-50" style="font-size: 10px; outline: none; cursor: pointer;">
-                        <option value="">Mặc định</option>
+                    <small class="text-white-50" style="font-size: 11px; white-space:nowrap;" id="chatbot-stage-indicator">{{ __('app.online') }}</small>
+                    <select id="chatbot-model-select" class="ms-2 border-0 bg-transparent text-white-50" style="font-size: 10px; outline: none; cursor: pointer; max-width:80px;">
+                        <option value="">{{ __('app.default') }}</option>
                     </select>
                 </div>
             </div>
         </div>
         <div class="chatbot-actions">
-            <button onclick="resetChatSession()" class="btn btn-sm text-white" title="Làm mới trò chuyện"><i class="fal fa-sync"></i></button>
-            <button onclick="deleteChatSession()" class="btn btn-sm text-white" title="Xóa cuộc trò chuyện"><i class="fal fa-trash-alt"></i></button>
-            <button onclick="toggleChatbot()" class="btn btn-sm text-white" title="Đóng"><i class="fal fa-times"></i></button>
+            <button onclick="resetChatSession()" class="text-white" title="{{ __('app.chatbot_refresh_title') }}"><i class="fal fa-sync"></i></button>
+            <button onclick="deleteChatSession()" class="text-white" title="{{ __('app.chatbot_delete_title') }}"><i class="fal fa-trash-alt"></i></button>
+            <button id="chatbot-expand-btn" onclick="toggleExpandChatbot()" class="text-white" title="{{ __('app.chatbot_expand_title') }}"><i class="fal fa-expand-alt"></i></button>
+            <button onclick="toggleChatbot()" class="text-white" title="{{ __('app.chatbot_close_title') }}"><i class="fal fa-times"></i></button>
         </div>
     </div>
 
     <div class="chatbot-body" id="chatbot-messages">
         <div class="chatbot-message bot-message" data-id="welcome">
             <div class="message-content">
-                Xin chào! Tôi có thể giúp gì cho bạn trong việc tìm kiếm dự án và thông tin đầu tư?
+                {{ __('app.chatbot_welcome') }}
             </div>
         </div>
     </div>
@@ -44,25 +45,25 @@
     <!-- Feedback Modal (Simple Overlay) -->
     <div id="chatbot-feedback-modal" class="chatbot-modal">
         <div class="chatbot-modal-content">
-            <h6 class="mb-3">Gửi phản hồi cho chúng tôi</h6>
+            <h6 class="mb-3">{{ __('app.chatbot_feedback_title') }}</h6>
             <input type="hidden" id="feedback-message-id">
             <input type="hidden" id="feedback-rating">
             <div class="mb-3">
-                <label class="form-label small">Lý do (tùy chọn):</label>
+                <label class="form-label small">{{ __('app.chatbot_feedback_reason') }}</label>
                 <select id="feedback-type" class="form-select form-select-sm">
-                    <option value="helpful">Hữu ích</option>
-                    <option value="not_helpful">Không hữu ích</option>
-                    <option value="incorrect">Thông tin sai lệch</option>
-                    <option value="other">Khác</option>
+                    <option value="helpful">{{ __('app.chatbot_feedback_helpful') }}</option>
+                    <option value="not_helpful">{{ __('app.chatbot_feedback_not_helpful') }}</option>
+                    <option value="incorrect">{{ __('app.chatbot_feedback_incorrect') }}</option>
+                    <option value="other">{{ __('app.chatbot_feedback_other') }}</option>
                 </select>
             </div>
             <div class="mb-3">
-                <label class="form-label small">Bình luận:</label>
-                <textarea id="feedback-comment" class="form-control form-control-sm" rows="3" placeholder="Nhập ý kiến của bạn..."></textarea>
+                <label class="form-label small">{{ __('app.chatbot_feedback_comment') }}</label>
+                <textarea id="feedback-comment" class="form-control form-control-sm" rows="3" placeholder="{{ __('app.chatbot_feedback_placeholder') }}"></textarea>
             </div>
             <div class="d-flex justify-content-end gap-2">
-                <button onclick="hideFeedbackModal()" class="btn btn-sm btn-light">Hủy</button>
-                <button onclick="submitFeedbackForm()" class="btn btn-sm btn-primary">Gửi</button>
+                <button onclick="hideFeedbackModal()" class="btn btn-sm btn-light">{{ __('app.chatbot_feedback_cancel') }}</button>
+                <button onclick="submitFeedbackForm()" class="btn btn-sm btn-primary">{{ __('app.chatbot_feedback_send') }}</button>
             </div>
         </div>
     </div>
@@ -71,10 +72,15 @@
         <!-- Suggested actions will be appended here -->
     </div>
 
+    <!-- Scroll to Bottom Button -->
+    <div id="chatbot-scroll-btn" class="chatbot-scroll-btn" onclick="scrollToBottom()" title="{{ __('app.chatbot_scroll_down') }}">
+        <i class="fas fa-chevron-down"></i>
+    </div>
+
     <div class="chatbot-footer">
         <form id="chatbot-form" onsubmit="sendChatMessage(event)">
             <div class="chatbot-input-group">
-                <input type="text" id="chatbot-input" placeholder="Nhập tin nhắn..." autocomplete="off">
+                <input type="text" id="chatbot-input" placeholder="{{ __('app.chatbot_input_placeholder') }}" autocomplete="off">
                 <button type="submit" id="chatbot-send-btn">
                     <i class="fas fa-paper-plane"></i>
                 </button>
@@ -195,6 +201,26 @@
         pointer-events: all;
     }
 
+    /* Expanded (fullscreen) state */
+    .chatbot-window.expanded {
+        width: calc(100vw - 60px);
+        max-width: 1200px;
+        height: calc(100vh - 80px);
+        max-height: calc(100vh - 80px);
+        bottom: 30px;
+        right: 30px;
+        border-radius: 24px;
+    }
+
+    @media (max-width: 768px) {
+        .chatbot-window.expanded {
+            width: calc(100vw - 20px);
+            height: calc(100vh - 60px);
+            bottom: 10px;
+            right: 10px;
+        }
+    }
+
     .chatbot-header {
         background: var(--cb-primary-gradient);
         padding: 15px 20px;
@@ -218,13 +244,22 @@
         backdrop-filter: blur(5px);
     }
 
+    .chatbot-actions {
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+        gap: 2px;
+        margin-left: 8px;
+    }
+
     .chatbot-actions button {
         background: none;
         border: none;
         outline: none;
-        padding: 5px 8px;
+        padding: 4px 6px;
         border-radius: 8px;
         transition: background 0.2s;
+        line-height: 1;
     }
 
     .chatbot-actions button:hover {
@@ -540,13 +575,265 @@
         40% { transform: scale(1); }
     }
 
+    /* Scroll to bottom button */
+    .chatbot-scroll-btn {
+        position: absolute;
+        bottom: 80px; /* ngay trên footer */
+        left: 50%;
+        transform: translateX(-50%) translateY(10px);
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: white;
+        border: 1px solid var(--cb-border);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.14);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: var(--cb-primary);
+        font-size: 14px;
+        z-index: 5;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease, transform 0.25s ease, box-shadow 0.2s;
+    }
+    .chatbot-scroll-btn.visible {
+        opacity: 1;
+        pointer-events: all;
+        transform: translateX(-50%) translateY(0);
+    }
+    .chatbot-scroll-btn:hover {
+        background: var(--cb-primary);
+        color: white;
+        box-shadow: 0 6px 20px rgba(26,111,196,0.3);
+    }
+
     @keyframes fadeIn {
         from { opacity: 0; transform: translateY(10px); }
         to { opacity: 1; transform: translateY(0); }
     }
+
+    /* =========================================
+       RESPONSIVE - Mobile Small (≤ 480px)
+    ========================================= */
+    @media (max-width: 480px) {
+        /* Floating button + tooltip */
+        .chatbot-btn-container {
+            bottom: 16px;
+            right: 16px;
+        }
+        .chatbot-tooltip {
+            display: none; /* ẩn tooltip trên mobile nhỏ */
+        }
+        .chatbot-floating-btn {
+            width: 52px;
+            height: 52px;
+        }
+
+        /* Chat window chiếm gần toàn màn hình */
+        .chatbot-window {
+            bottom: 0;
+            right: 0;
+            left: 0;
+            width: 100vw;
+            max-width: 100vw;
+            height: 92dvh;            /* dùng dvh để tránh thanh browser */
+            max-height: 92dvh;
+            border-radius: 20px 20px 0 0;
+            transform: translateY(30px);
+        }
+        .chatbot-window.active {
+            transform: translateY(0);
+        }
+
+        /* Expanded = full screen trên mobile */
+        .chatbot-window.expanded {
+            bottom: 0;
+            right: 0;
+            left: 0;
+            width: 100vw;
+            height: 100dvh;
+            max-height: 100dvh;
+            border-radius: 0;
+        }
+
+        /* Header compact hơn */
+        .chatbot-header {
+            padding: 12px 14px;
+        }
+        .chatbot-avatar {
+            width: 34px;
+            height: 34px;
+            font-size: 16px;
+        }
+
+        /* Body */
+        .chatbot-body {
+            padding: 14px;
+            gap: 12px;
+        }
+        .chatbot-message {
+            max-width: 92%;
+        }
+        .message-content {
+            font-size: 13px;
+            padding: 10px 13px;
+        }
+
+        /* Input */
+        .chatbot-footer {
+            padding: 10px 14px;
+            /* Tránh bàn phím ảo che input */
+            padding-bottom: env(safe-area-inset-bottom, 10px);
+        }
+        .chatbot-input-group input {
+            font-size: 16px; /* Ngăn iOS auto-zoom */
+        }
+        .chatbot-input-group button {
+            width: 34px;
+            height: 34px;
+        }
+
+        /* Suggested actions */
+        .chatbot-suggested-actions {
+            padding: 8px 14px;
+        }
+        .suggested-action-btn {
+            font-size: 12px;
+            padding: 5px 11px;
+        }
+
+        /* Related items */
+        .related-item-card {
+            padding: 10px;
+            font-size: 12px;
+        }
+        .related-item-icon {
+            width: 34px;
+            height: 34px;
+            font-size: 15px;
+        }
+
+        /* Feedback hover → always visible trên touch */
+        .chatbot-message-feedback {
+            opacity: 1;
+        }
+    }
+
+    /* =========================================
+       RESPONSIVE - Tablet (481px – 768px)
+    ========================================= */
+    @media (min-width: 481px) and (max-width: 768px) {
+        .chatbot-btn-container {
+            bottom: 20px;
+            right: 20px;
+        }
+        .chatbot-tooltip {
+            font-size: 12px;
+            padding: 6px 12px;
+        }
+        .chatbot-window {
+            width: calc(100vw - 40px);
+            max-width: 400px;
+            height: 75vh;
+            max-height: 75vh;
+            bottom: 90px;
+            right: 20px;
+        }
+        .chatbot-window.expanded {
+            width: calc(100vw - 32px);
+            height: calc(100vh - 40px);
+            bottom: 20px;
+            right: 16px;
+            border-radius: 20px;
+        }
+        .chatbot-message {
+            max-width: 88%;
+        }
+        .chatbot-input-group input {
+            font-size: 16px; /* Ngăn iOS auto-zoom */
+        }
+
+        /* Feedback luôn hiển thị trên touch */
+        .chatbot-message-feedback {
+            opacity: 1;
+        }
+    }
+
+    /* =========================================
+       RESPONSIVE - Desktop lớn (≥ 1024px)
+    ========================================= */
+    @media (min-width: 1024px) {
+        .chatbot-window {
+            width: 400px;
+            height: 640px;
+        }
+        .chatbot-window.expanded {
+            width: calc(100vw - 80px);
+            max-width: 1280px;
+            height: calc(100vh - 80px);
+            bottom: 40px;
+            right: 40px;
+        }
+        /* Tooltip đẹp hơn trên màn lớn */
+        .chatbot-tooltip {
+            font-size: 13px;
+        }
+    }
+
+    /* =========================================
+       Safe area (iPhone notch / Dynamic Island)
+    ========================================= */
+    @supports (padding: env(safe-area-inset-bottom)) {
+        @media (max-width: 480px) {
+            .chatbot-window {
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+            .chatbot-btn-container {
+                bottom: calc(16px + env(safe-area-inset-bottom));
+            }
+        }
+    }
 </style>
 
 <script>
+    // Localization strings passed from Blade
+    const chatbotLang = {
+        resetTitle:         @json(__('app.chatbot_reset_confirm_title')),
+        resetText:          @json(__('app.chatbot_reset_confirm_text')),
+        resetConfirmBtn:    @json(__('app.chatbot_reset_confirm_btn')),
+        resetCancel:        @json(__('app.chatbot_cancel')),
+        resetting:          @json(__('app.chatbot_resetting')),
+        resetNewMsg:        @json(__('app.chatbot_reset_new_msg')),
+        resetSuccess:       @json(__('app.chatbot_reset_success')),
+        resetError:         @json(__('app.chatbot_reset_error')),
+        deleteTitle:        @json(__('app.chatbot_delete_confirm_title')),
+        deleteText:         @json(__('app.chatbot_delete_confirm_text')),
+        deleteConfirmBtn:   @json(__('app.chatbot_delete_confirm_btn')),
+        deleting:           @json(__('app.chatbot_deleting')),
+        deleteNewMsg:       @json(__('app.chatbot_delete_new_msg')),
+        deleteSuccess:      @json(__('app.chatbot_delete_success')),
+        deleteError:        @json(__('app.chatbot_delete_error')),
+        statusHealthy:      @json(__('app.chatbot_status_healthy')),
+        statusError:        @json(__('app.chatbot_status_error')),
+        stageLabel:         @json(__('app.chatbot_stage_label')),
+        onlineLabel:        @json(__('app.chatbot_online_label')),
+        errorConnection:    @json(__('app.chatbot_error_connection')),
+        errorNetwork:       @json(__('app.chatbot_error_network')),
+        errorLabel:         @json(__('app.chatbot_error_label')),
+        thankYou:           @json(__('app.chatbot_thank_you')),
+        feedbackSent:       @json(__('app.chatbot_feedback_sent')),
+        feedbackError:      @json(__('app.chatbot_feedback_error')),
+        feedbackUseful:     @json(__('app.chatbot_feedback_useful')),
+        feedbackNotUseful:  @json(__('app.chatbot_feedback_not_useful')),
+        expandTitle:        @json(__('app.chatbot_expand_title')),
+        compressTitle:      @json(__('app.chatbot_compress_title')),
+        viewProject:        @json(__('app.chatbot_view_project')),
+        viewDocument:       @json(__('app.chatbot_view_document')),
+        defaultItemName:    @json(__('app.chatbot_default_item_name')),
+    };
+
     // Generate or retrieve session ID
     function getChatSessionId() {
         let sid = localStorage.getItem('ttxt_chat_session_id');
@@ -559,21 +846,21 @@
 
     async function resetChatSession() {
         const result = await Swal.fire({
-            title: 'Làm mới trò chuyện?',
-            text: "Tin nhắn sẽ bị xóa nhưng phiên làm việc vẫn được giữ nguyên.",
+            title: chatbotLang.resetTitle,
+            text: chatbotLang.resetText,
             icon: 'question',
             showCancelButton: true,
             confirmButtonColor: 'var(--cb-primary)',
             cancelButtonColor: '#94a3b8',
-            confirmButtonText: 'Đồng ý',
-            cancelButtonText: 'Hủy'
+            confirmButtonText: chatbotLang.resetConfirmBtn,
+            cancelButtonText: chatbotLang.resetCancel
         });
 
         if (!result.isConfirmed) return;
 
         const sid = getChatSessionId();
         const messagesContainer = document.getElementById('chatbot-messages');
-        messagesContainer.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin"></i> Đang làm mới...</div>';
+        messagesContainer.innerHTML = `<div class="text-center py-4"><i class="fas fa-spinner fa-spin"></i> ${chatbotLang.resetting}</div>`;
 
         try {
             await fetch(`/chat/session/${sid}/clear`, {
@@ -584,16 +871,16 @@
             messagesContainer.innerHTML = `
                 <div class="chatbot-message bot-message">
                     <div class="message-content">
-                        Bắt đầu cuộc trò chuyện mới. Xin chào! Tôi có thể giúp gì cho bạn?
+                        ${chatbotLang.resetNewMsg}
                     </div>
                 </div>
             `;
             document.getElementById('chatbot-suggested-actions').style.display = 'none';
-            document.getElementById('chatbot-stage-indicator').innerText = 'Trực tuyến';
+            document.getElementById('chatbot-stage-indicator').innerText = chatbotLang.onlineLabel;
             
             Swal.fire({
                 icon: 'success',
-                title: 'Đã làm mới!',
+                title: chatbotLang.resetSuccess,
                 showConfirmButton: false,
                 timer: 1000,
                 toast: true,
@@ -601,27 +888,27 @@
             });
         } catch (e) { 
             console.error(e);
-            Swal.fire('Lỗi', 'Không thể làm mới phiên chat.', 'error');
+            Swal.fire(chatbotLang.errorLabel, chatbotLang.resetError, 'error');
         }
     }
 
     async function deleteChatSession() {
         const result = await Swal.fire({
-            title: 'Xóa toàn bộ cuộc trò chuyện?',
-            text: "Dữ liệu sẽ bị xóa vĩnh viễn trên hệ thống và không thể khôi phục.",
+            title: chatbotLang.deleteTitle,
+            text: chatbotLang.deleteText,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#ef4444',
             cancelButtonColor: '#94a3b8',
-            confirmButtonText: 'Xóa vĩnh viễn',
-            cancelButtonText: 'Hủy'
+            confirmButtonText: chatbotLang.deleteConfirmBtn,
+            cancelButtonText: chatbotLang.resetCancel
         });
 
         if (!result.isConfirmed) return;
 
         const sid = getChatSessionId();
         const messagesContainer = document.getElementById('chatbot-messages');
-        messagesContainer.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin"></i> Đang xóa dữ liệu...</div>';
+        messagesContainer.innerHTML = `<div class="text-center py-4"><i class="fas fa-spinner fa-spin"></i> ${chatbotLang.deleting}</div>`;
 
         try {
             await fetch(`/chat/session/${sid}`, {
@@ -635,16 +922,16 @@
             messagesContainer.innerHTML = `
                 <div class="chatbot-message bot-message">
                     <div class="message-content">
-                        Dữ liệu đã được xóa sạch. Tôi sẵn sàng cho câu hỏi tiếp theo của bạn!
+                        ${chatbotLang.deleteNewMsg}
                     </div>
                 </div>
             `;
             document.getElementById('chatbot-suggested-actions').style.display = 'none';
-            document.getElementById('chatbot-stage-indicator').innerText = 'Trực tuyến';
+            document.getElementById('chatbot-stage-indicator').innerText = chatbotLang.onlineLabel;
 
             Swal.fire({
                 icon: 'success',
-                title: 'Xoá cuộc hội thoại thành công!',
+                title: chatbotLang.deleteSuccess,
                 showConfirmButton: false,
                 timer: 1500,
                 toast: true,
@@ -652,7 +939,7 @@
             });
         } catch (e) { 
             console.error(e);
-            Swal.fire('Lỗi', 'Không thể xóa dữ liệu.', 'error');
+            Swal.fire(chatbotLang.errorLabel, chatbotLang.deleteError, 'error');
         }
     }
 
@@ -665,14 +952,51 @@
             scrollToBottom();
             if(tooltipEl) tooltipEl.style.display = 'none'; // Hide tooltip when open
         } else {
+            // Reset expanded state when closing
+            windowEl.classList.remove('expanded');
+            const expandBtn = document.getElementById('chatbot-expand-btn');
+            if (expandBtn) {
+                expandBtn.title = chatbotLang.expandTitle;
+                expandBtn.querySelector('i').className = 'fal fa-expand-alt';
+            }
             if(tooltipEl) tooltipEl.style.display = 'block'; // Show tooltip when closed
         }
     }
 
+    function toggleExpandChatbot() {
+        const windowEl = document.getElementById('ai-chatbot-window');
+        const expandBtn = document.getElementById('chatbot-expand-btn');
+        const isExpanded = windowEl.classList.toggle('expanded');
+        if (isExpanded) {
+            expandBtn.title = chatbotLang.compressTitle;
+            expandBtn.querySelector('i').className = 'fal fa-compress-alt';
+        } else {
+            expandBtn.title = chatbotLang.expandTitle;
+            expandBtn.querySelector('i').className = 'fal fa-expand-alt';
+        }
+        scrollToBottom();
+    }
+
     function scrollToBottom() {
         const body = document.getElementById('chatbot-messages');
-        body.scrollTop = body.scrollHeight;
+        body.scrollTo({ top: body.scrollHeight, behavior: 'smooth' });
+        document.getElementById('chatbot-scroll-btn').classList.remove('visible');
     }
+
+    // Show/hide scroll-to-bottom button on scroll
+    (function initScrollBtn() {
+        const body = document.getElementById('chatbot-messages');
+        const btn  = document.getElementById('chatbot-scroll-btn');
+        if (!body || !btn) return;
+        body.addEventListener('scroll', () => {
+            const distFromBottom = body.scrollHeight - body.scrollTop - body.clientHeight;
+            if (distFromBottom > 80) {
+                btn.classList.add('visible');
+            } else {
+                btn.classList.remove('visible');
+            }
+        });
+    })();
 
     function renderMarkdownBasic(text) {
         if (!text) return '';
@@ -715,14 +1039,14 @@
             });
             Swal.fire({
                 icon: 'success',
-                title: 'Cảm ơn bạn!',
-                text: 'Phản hồi của bạn đã được gửi thành công.',
+                title: chatbotLang.thankYou,
+                text: chatbotLang.feedbackSent,
                 timer: 2000,
                 showConfirmButton: false
             });
             hideFeedbackModal();
         } catch (e) {
-            Swal.fire('Lỗi', 'Có lỗi xảy ra khi gửi phản hồi.', 'error');
+            Swal.fire(chatbotLang.errorLabel, chatbotLang.feedbackError, 'error');
         }
     }
 
@@ -748,7 +1072,7 @@
                         'deep_dive': 'Deep Dive', 'compare_projects': 'Comparing',
                         'policy_procedure': 'Policy & Procedure', 'cta': 'Call to Action', 'fallback': 'Fallback'
                     };
-                    document.getElementById('chatbot-stage-indicator').innerText = 'Giai đoạn: ' + (stageNames[metadata.stage] || metadata.stage);
+                    document.getElementById('chatbot-stage-indicator').innerText = chatbotLang.stageLabel + (stageNames[metadata.stage] || metadata.stage);
                 }
 
                 if (metadata.entities) {
@@ -771,8 +1095,8 @@
                                     <i class="${item.type === 'project' ? 'fas fa-city' : 'fas fa-file-alt'}"></i>
                                 </div>
                                 <div class="related-item-info">
-                                    <div class="related-item-title">${item.name || item.title || 'Dự án'}</div>
-                                    <div class="text-muted" style="font-size: 11px;">${item.type === 'project' ? 'Xem chi tiết dự án' : 'Xem tài liệu'}</div>
+                                    <div class="related-item-title">${item.name || item.title || chatbotLang.defaultItemName}</div>
+                                    <div class="text-muted" style="font-size: 11px;">${item.type === 'project' ? chatbotLang.viewProject : chatbotLang.viewDocument}</div>
                                 </div>
                             </a>
                         `;
@@ -788,8 +1112,8 @@
                 </div>
                 ${relatedItemsHtml}
                 <div class="chatbot-message-feedback">
-                    <button class="feedback-btn" onclick="showFeedbackModal('${msgId}', 5)" title="Hữu ích"><i class="far fa-thumbs-up"></i></button>
-                    <button class="feedback-btn" onclick="showFeedbackModal('${msgId}', 1)" title="Không hữu ích"><i class="far fa-thumbs-down"></i></button>
+                    <button class="feedback-btn" onclick="showFeedbackModal('${msgId}', 5)" title="${chatbotLang.feedbackUseful}"><i class="far fa-thumbs-up"></i></button>
+                    <button class="feedback-btn" onclick="showFeedbackModal('${msgId}', 1)" title="${chatbotLang.feedbackNotUseful}"><i class="far fa-thumbs-down"></i></button>
                 </div>
             `;
         }
@@ -849,10 +1173,10 @@
                 const dot = document.getElementById('chatbot-status-dot');
                 if (hData.status === 'healthy') {
                     dot.style.backgroundColor = '#22c55e'; // Green
-                    dot.title = 'Hệ thống ổn định';
+                    dot.title = chatbotLang.statusHealthy;
                 } else {
                     dot.style.backgroundColor = '#ef4444'; // Red
-                    dot.title = 'Hệ thống đang gặp sự cố';
+                    dot.title = chatbotLang.statusError;
                 }
             }
         } catch (e) { console.error('Health check failed', e); }
@@ -905,9 +1229,9 @@
                 appendMessage('bot', data.response, { stage: data.stage, entities: data.entities, related_items: data.related_items }, data.message_id);
                 if (data.suggested_actions) renderSuggestedActions(data.suggested_actions);
             } else {
-                appendMessage('bot', 'Xin lỗi, đã có lỗi kết nối.');
+                appendMessage('bot', chatbotLang.errorConnection);
             }
-        } catch (e) { removeTypingIndicator(); btn.disabled = false; appendMessage('bot', 'Lỗi mạng.'); }
+        } catch (e) { removeTypingIndicator(); btn.disabled = false; appendMessage('bot', chatbotLang.errorNetwork); }
     }
 
     document.addEventListener('DOMContentLoaded', () => {

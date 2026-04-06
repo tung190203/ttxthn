@@ -63,4 +63,14 @@ class AiChatService
     {
         return $this->client()->get($this->baseUrl . '/api/v1/models');
     }
+
+    public function getStatus()
+    {
+        return $this->client()->get($this->baseUrl . '/api/v1/status');
+    }
+
+    public function getMetrics()
+    {
+        return $this->client()->get($this->baseUrl . '/api/v1/metrics');
+    }
 }

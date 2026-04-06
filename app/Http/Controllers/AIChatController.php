@@ -17,6 +17,7 @@ class AIChatController extends Controller
     public function chat(Request $request)
     {
         $payload = [
+            'language' => "auto",
             'message' => $request->message,
             'session_id' => $request->session_id,
         ];
