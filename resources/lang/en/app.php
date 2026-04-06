@@ -129,5 +129,7 @@ return [
     'investment_products' => 'Industrial products',
     'investment_products_link' => 'industrial-projects',
     'project_name' => 'Project Name',
-    'contact_success' => 'Contact submitted successfully.'
+    'contact_success' => 'Contact submitted successfully.',
+    'intended_use' => 'Intended use',
+    'name_project' => 'Name project',
 ];

@@ -1427,15 +1427,17 @@
                 area: '{{ __('app.area') }}',
                 projectTypes: '{{ __('app.project_types') }}',
                 unknown: '{{ __('app.unknown') }}',
-                location: '{{ __('app.location') }}'
+                location: '{{ __('app.location') }}',
+                intendedUse: '{{ __('app.intended_use') }}',
+                nameProject: '{{ __('app.name_project') }}',
             };
 
             resultList.innerHTML = items.map(item => `
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     <div>
-                        <strong>${item.description ?? labels.unknown}</strong><br>
+                        <strong>${item.intended_use ?? labels.unknown}</strong><br>
                         <small>${labels.projects}: ${item.project_name}</small> - ${labels.code}: ${item.code.replace(/^cmss_/, '')}<br>
-                        <small>${labels.area}: ${item.acreage ?? labels.unknown} - ${labels.projectTypes}: ${item.product_type_name ?? labels.unknown}</small>
+                        <small>${labels.nameProject}: ${item.description ?? labels.unknown} - ${labels.area}: ${item.acreage ?? labels.unknown} ${item.unit} - ${labels.projectTypes}: ${item.product_type_name ?? labels.unknown}</small>
                     </div>
                     <a href="${item.link}" target="_blank" class="btn custom-btn btn-sm">${labels.location}</a>
                 </li>

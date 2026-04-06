@@ -106,6 +106,8 @@ class MapController extends Controller
                         'product_type_name' => $industrialProject->productType->name ?? null,
                         'price' => $industrialProject->price,
                         'link' => $industrialProject->link,
+                        'intended_use' => $industrialProject->intended_use,
+                        'unit' => $industrialProject->unit ? "km" : "ha",
                     ];
                 })->toArray(),
             ];
