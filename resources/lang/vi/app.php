@@ -129,5 +129,8 @@ return [
     'investment_products' => 'Sản phẩm đầu tư',
     'investment_products_link' => 'san-pham-dau-tu',
     'project_name' => 'Tên dự án',
-    'contact_success' => 'Gửi liên hệ thành công.'
+    'contact_success' => 'Gửi liên hệ thành công.',
+    'intended_use' => 'Chức năng.',
+    'name_project' => 'Tên lô đất',
+
 ];

@@ -136,6 +136,7 @@ class HotspotController extends Controller
             DB::commit();
             return response()->json(['data' => $html]);
         } catch (\Exception $e) {
+            dd($e->getMessage());
             DB::rollBack();
             return response()->json(['data' => $html]);
         }
@@ -151,7 +152,8 @@ class HotspotController extends Controller
         $selected = optional($hotspot->IndustrialProject)->product_type;
 
         $option_product_types = ProductType::makeOptions($productType, $selected);
-        return view('backend.vrtour.hotspot.edit', compact(['hotspot', 'option_product_types']));
+        $hotspot_unit = Hotspot::makeUnitOptions($hotspot->unit);
+        return view('backend.vrtour.hotspot.edit', compact(['hotspot', 'option_product_types','hotspot_unit']));
     }
 
     public function store(Request $request, $hotspot_id)
@@ -172,6 +174,10 @@ class HotspotController extends Controller
         $new_hp->opacity    = $request->hp_opacity;
         $new_hp->tooltip    = $request->hp_tooltip;
         $new_hp->tooltip_en = $request->hp_tooltip_en;
+        $new_hp->acreage    = $request->acreage;
+        $new_hp->intended_use    = $request->intended_use;
+        $new_hp->unit       = $request->unit;
+
         $new_hp->user_id    = Auth::id();
         $new_hp->save();
         IndustrialProject::updateOrCreate(
@@ -182,6 +188,9 @@ class HotspotController extends Controller
             [
                 'name'        => $new_hp->tooltip,
                 'product_type'=> $request->product_type,
+                'intended_use'=> $request->intended_use,
+                'unit'        => $request->unit,
+                'acreage'     => $request->acreage,
                 'description' => $translations, // Spatie tự JSON
             ]
         );

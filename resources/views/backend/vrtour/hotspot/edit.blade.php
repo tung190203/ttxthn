@@ -49,6 +49,8 @@
                         @if(\Illuminate\Support\Str::startsWith($hotspot->potision, 'cmss'))
                         <x-forms.input name="acreage" value="{{ old('acreage') ?: $hotspot->acreage }}" label="Diện tích" type="text" :messages="$errors->get('acreage')" />
                         <x-forms.select name="product_type" label="Loại sản phẩm" :options="$option_product_types" :messages="$errors->get('product_type')" />
+                        <x-forms.input name="intended_use" value="{{ old('intended_use') ?: $hotspot->intended_use }}" label="Chức năng" type="text" :messages="$errors->get('intended_use')" />
+                        <x-forms.select name="unit" label="Đơn vị tính" :options="$hotspot_unit" :messages="$errors->get('unit')" />
                         @endif
                         <x-forms.switch name="hp_opacity" label="Hiển thị" value="{{ $hotspot->opacity }}"
                             :messages="$errors->get('hp_opacity')" />
