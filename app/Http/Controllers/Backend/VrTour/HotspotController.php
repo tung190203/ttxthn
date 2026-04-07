@@ -108,7 +108,7 @@ class HotspotController extends Controller
                     ],
                     [
                         // Dữ liệu update / create
-                        'name'        => $value->tooltip,
+                        'name'        => $vrtour->name,
                         'acreage'     => $value->acreage,
                         'description' => $translations, // Spatie tự JSON
                         'link'        => $link_vrtour . 'vista3d/search.html?search_link='
@@ -186,7 +186,7 @@ class HotspotController extends Controller
                 'code'       => $new_hp->potision
             ],
             [
-                'name'        => $new_hp->tooltip,
+                'name'        => Project::find($new_hp->vrtour_id)->name,
                 'product_type'=> $request->product_type,
                 'intended_use'=> $request->intended_use,
                 'unit'        => $request->unit,

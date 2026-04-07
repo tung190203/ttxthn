@@ -18,19 +18,20 @@
                     <div class="pj-search__top">
                         <div class="pj-search__col">
                             <div class="input-group">
-                                <input class="form-control" type="text" id="searchInput" placeholder="{{ __('app.enter_project_name') }}">
+                                <input class="form-control" type="text" id="searchInput"
+                                    placeholder="{{ __('app.enter_project_name') }}">
                                 <div class="input-group-text"><i class="fal fa-lg fa-search"></i></div>
                             </div>
                         </div>
                         <div class="pj-search__col">
-                            <button class="pj-search__btn" id="applyBtn" type="button">{{__('app.search')}}</button>
+                            <button class="pj-search__btn" id="applyBtn" type="button">{{ __('app.search') }}</button>
                         </div>
                     </div>
                     <div class="pj-search__bottom">
                         <div class="pj-search__col custom-select" style="position: relative;">
                             <div class="input-group">
-                                <input class="form-control" type="text" id="districtFilter" placeholder="{{ __('app.locations') }}"
-                                    autocomplete="off">
+                                <input class="form-control" type="text" id="districtFilter"
+                                    placeholder="{{ __('app.locations') }}" autocomplete="off">
                                 <div class="input-group-text cursor-pointer" id="openDropdown">
                                     <i class="fal fa-lg fa-map-marker-alt cursor-pointer"></i>
                                 </div>
@@ -42,7 +43,7 @@
                         </div>
                         <div class="pj-search__col">
                             <select class="form-select" id="typeFilter">
-                                <option value="all">{{__('app.project_types')}}</option>
+                                <option value="all">{{ __('app.project_types') }}</option>
                                 @foreach ($types as $type)
                                     <option value="{{ $type['id'] }}">{{ $type['name'] }}</option>
                                 @endforeach
@@ -50,7 +51,7 @@
                         </div>
                         <div class="pj-search__col">
                             <select class="form-select" id="industryFilter">
-                                <option value="all">{{__('app.industry_field')}}</option>
+                                <option value="all">{{ __('app.industry_field') }}</option>
                                 @foreach ($industries as $industry)
                                     <option value="{{ $industry['id'] }}">{{ $industry['name'] }}</option>
                                 @endforeach
@@ -59,7 +60,7 @@
                         <div class="pj-search__col">
                             <div class="range-input">
                                 <div class="range-input__content">
-                                    <div class="range-input__label">{{__('app.investment_scale')}}</div>
+                                    <div class="range-input__label">{{ __('app.investment_scale') }}</div>
                                     <div class="range-input__price">0</div>
                                 </div>
                                 <input class="range-input__input" id="priceRange" type="range" value="0"
@@ -73,22 +74,38 @@
                 <div class="pj-search__body custom_body tab-content orange-theme" id="industrialTabContent"
                     style="display: none">
                     <div class="pj-search__top">
-                        <div class="pj-search__col">
+                        <div class="pj-search__col position-relative">
                             <div class="input-group">
                                 <input class="form-control" type="text" id="searchInputSp"
-                                    placeholder="{{ __('app.search_keyword') }}">
+                                    placeholder="{{ __('app.search_keyword') }}" autocomplete="off">
                                 <div class="input-group-text"><i class="fal fa-lg fa-search"></i></div>
+                            </div>
+
+                            <!-- POPUP GỢI Ý - Đã thêm z-index và xử lý truncate -->
+                            <div id="suggestionPopupSp" class="suggestion-orange-popup shadow-lg" style="z-index: 10000;">
+                                <div class="suggestion-header">
+                                    <span>{{ __('app.suggested_projects') }}</span>
+                                    <!-- Spinner để báo hiệu đang tìm kiếm -->
+                                    <div class="spinner-border spinner-border-sm text-warning d-none"
+                                        id="suggestionLoaderSp"></div>
+                                </div>
+                                <div class="suggestion-content">
+                                    <ul class="list-unstyled mb-0" id="suggestionListSp">
+
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                         <div class="pj-search__col">
-                            <button class="pj-search__btn orange-btn" id="applyBtnSp" type="button">{{__('app.search')}}</button>
+                            <button class="pj-search__btn orange-btn" id="applyBtnSp"
+                                type="button">{{ __('app.search') }}</button>
                         </div>
                     </div>
                     <div class="pj-search__bottom">
                         <div class="pj-search__col custom-select" style="position: relative;">
                             <div class="input-group">
-                                <input class="form-control" type="text" id="districtFilterSp" placeholder="{{ __('app.locations') }}"
-                                    autocomplete="off">
+                                <input class="form-control" type="text" id="districtFilterSp"
+                                    placeholder="{{ __('app.locations') }}" autocomplete="off">
                                 <div class="input-group-text cursor-pointer" id="openDropdownSp">
                                     <i class="fal fa-lg fa-map-marker-alt cursor-pointer"></i>
                                 </div>
@@ -129,8 +146,10 @@
 
                 <!-- Tabs dưới form -->
                 <div class="custom_tabs">
-                    <button class="custom-btn active text-uppercase" id="projectTab" onclick="showTab('project')">{{ __('app.search_project') }}</button>
-                    <button class="custom-btn text-uppercase" id="industrialTab" onclick="showTab('industrial')">{{ __('app.industrial_products') }}</button>
+                    <button class="custom-btn active text-uppercase" id="projectTab"
+                        onclick="showTab('project')">{{ __('app.search_project') }}</button>
+                    <button class="custom-btn text-uppercase" id="industrialTab"
+                        onclick="showTab('industrial')">{{ __('app.industrial_products') }}</button>
                 </div>
             </div>
         </div>
@@ -147,7 +166,7 @@
                             </div>
                         </div>
                         <div class="pj-search__col">
-                            <button class="pj-search__btn" id="applyBtn" type="button">{{__('app.search')}}</button>
+                            <button class="pj-search__btn" id="applyBtn" type="button">{{ __('app.search') }}</button>
                         </div>
                     </div>
                 </div>
@@ -229,7 +248,8 @@
                                                     @endif
                                                     <ul class="project__info">
                                                         <li>
-                                                            <img class="me-2" src="{{ asset('/images/icon-map-marker.svg') }}"
+                                                            <img class="me-2"
+                                                                src="{{ asset('/images/icon-map-marker.svg') }}"
                                                                 alt="" />
                                                             <span
                                                                 data-tippy-content="{{ __('app.project_under') }} {{ $item['districts'] }}">
@@ -237,7 +257,9 @@
                                                             </span>
                                                         </li>
                                                         <li>
-                                                            <img class="me-2" src="{{ asset('/images/icon-dimension.svg') }}" alt="" />
+                                                            <img class="me-2"
+                                                                src="{{ asset('/images/icon-dimension.svg') }}"
+                                                                alt="" />
                                                             @php
                                                                 $locale = app()->getLocale();
                                                                 if ($locale === 'vn') {
@@ -245,24 +267,30 @@
                                                                 } elseif ($locale === 'en') {
                                                                     $locale = 'en_US';
                                                                 }
-                
-                                                                $fmt = new \NumberFormatter($locale, \NumberFormatter::DECIMAL);
-                                                                $fmt->setAttribute(\NumberFormatter::FRACTION_DIGITS, 2);
+
+                                                                $fmt = new \NumberFormatter(
+                                                                    $locale,
+                                                                    \NumberFormatter::DECIMAL,
+                                                                );
+                                                                $fmt->setAttribute(
+                                                                    \NumberFormatter::FRACTION_DIGITS,
+                                                                    2,
+                                                                );
                                                                 $formattedArea = $fmt->format($item['area'] ?? 0);
                                                             @endphp
                                                             <span>{{ $formattedArea }} {{ $item['unit'] ?? '' }}</span>
-                                                        </li>                                                                 
+                                                        </li>
                                                         </li>
                                                         @php
                                                             $locale = app()->getLocale();
                                                         @endphp
 
                                                         <li>
-                                                            <img class="me-2" src="{{ asset('/images/icon-save-money.svg') }}" alt="" />
+                                                            <img class="me-2"
+                                                                src="{{ asset('/images/icon-save-money.svg') }}"
+                                                                alt="" />
                                                             <span>
-                                                                {{ $locale == 'vn'
-                                                                    ? number_format($item['price'], 0, ',', '.')
-                                                                    : number_format($item['price'], 0, '.', ',') }}
+                                                                {{ $locale == 'vn' ? number_format($item['price'], 0, ',', '.') : number_format($item['price'], 0, '.', ',') }}
                                                                 {{ __('app.billion_vnd') }}
                                                             </span>
                                                         </li>
@@ -279,7 +307,8 @@
                         $locale = app()->getLocale() === 'vi' ? 'vn' : app()->getLocale();
                     @endphp
                     <nav class="d-flex justify-content-center mt-40 mt-lg-60">
-                        <a class="button" href="{{ url($locale . '/' . __('app.projects_link') ) }}" style="text-transform: capitalize;">{{ __('app.view_more') }}</a>
+                        <a class="button" href="{{ url($locale . '/' . __('app.projects_link')) }}"
+                            style="text-transform: capitalize;">{{ __('app.view_more') }}</a>
                     </nav>
                 @endif
             </div>
@@ -301,10 +330,10 @@
                                                 <img src="{{ $item['icon'] ?? '' }}" alt="" />
                                             </div>
                                             <div class="counter__number">
-                                                {{ $item['title'][$locale] ?? $item['title']['vi'] ?? '0' }}
+                                                {{ $item['title'][$locale] ?? ($item['title']['vi'] ?? '0') }}
                                             </div>
                                             <div class="counter__title">
-                                                {{ $item['content'][$locale] ?? $item['content']['vi'] ?? '' }}
+                                                {{ $item['content'][$locale] ?? ($item['content']['vi'] ?? '') }}
                                             </div>
                                         </div>
                                     </div>
@@ -363,7 +392,9 @@
                 @php
                     $locale = app()->getLocale() === 'vi' ? 'vn' : app()->getLocale();
                 @endphp
-                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="{{ url($locale . '/' . __('app.news_link')) }}" style="text-transform: capitalize;">{{ __('app.view_more') }}</a>
+                <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button"
+                        href="{{ url($locale . '/' . __('app.news_link')) }}"
+                        style="text-transform: capitalize;">{{ __('app.view_more') }}</a>
                 </nav>
             </div>
         </section>
@@ -389,13 +420,14 @@
                 @endif
             </div>
         </section>
-        
+
         <div class="modal fade" id="filterResultModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">{{ __('app.filter_results') }}</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('app.close') }}"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="{{ __('app.close') }}"></button>
                     </div>
                     <div class="modal-body">
                         <ul id="resultList" class="list-group"></ul>
@@ -406,37 +438,36 @@
                 </div>
             </div>
         </div>
-        <div id="homePopup" 
-        style="display:none; position:fixed; inset:0;
+        <div id="homePopup"
+            style="display:none; position:fixed; inset:0;
                background:rgba(0,0,0,0.6); z-index:9999;
                justify-content:center; align-items:center;">
-      
-        <div id="popupBox"
-          style="position:relative; width:80%; max-width:900px;
+
+            <div id="popupBox"
+                style="position:relative; width:80%; max-width:900px;
                  background:#fff; border-radius:12px; overflow:hidden;
                  box-shadow:0 4px 20px rgba(0,0,0,0.3);">
-      
-          <div id="popupBody" 
-            style="position:relative; width:100%; aspect-ratio:16/9; overflow:hidden;">
-            
-            <a id="popupLink" href="#" target="_blank"
-              style="display:block; width:100%; height:100%;
+
+                <div id="popupBody" style="position:relative; width:100%; aspect-ratio:16/9; overflow:hidden;">
+
+                    <a id="popupLink" href="#" target="_blank"
+                        style="display:block; width:100%; height:100%;
                      background-position:center; background-repeat:no-repeat;
                      background-size:cover;">
-            </a>
-      
-            <button id="closePopup"
-              style="position:absolute; top:10px; right:10px;
+                    </a>
+
+                    <button id="closePopup"
+                        style="position:absolute; top:10px; right:10px;
                      border:none; background:rgba(0,0,0,0.5);
                      color:#fff; font-size:24px; font-weight:bold;
                      cursor:pointer; border-radius:50%; width:36px; height:36px;
                      line-height:32px; text-align:center;">
-              ×
-            </button>
-          </div>
+                        ×
+                    </button>
+                </div>
+            </div>
         </div>
-      </div>
-      
+
     </div>
 @endsection
 
@@ -446,19 +477,116 @@
         .leaflet-interactive:focus {
             outline: none !important;
         }
+
         /* Style lại tooltip cho tinh tế hơn */
         .boundary-tooltip {
             background: rgba(255, 255, 255, 0.9);
             border: none !important;
             border-radius: 4px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
             color: #333;
             font-weight: 600;
             padding: 4px 8px;
             font-size: 12px;
         }
+
         .boundary-tooltip:before {
             border: none !important;
+        }
+
+        .suggestion-orange-popup {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #fff;
+            z-index: 1000;
+            margin-top: 8px;
+            border-radius: 8px;
+            display: none;
+            overflow: hidden;
+        }
+
+        .suggestion-orange-popup.active {
+            display: block;
+            animation: fadeInDown 0.2s ease-out;
+        }
+
+        .suggestion-header {
+            background: #fff3e0;
+            padding: 8px 15px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #e65100;
+            text-transform: uppercase;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ffe0b2;
+        }
+
+        .suggestion-content {
+            max-height: 280px;
+            overflow-y: auto;
+        }
+
+        .suggestion-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            text-decoration: none;
+            border-bottom: 1px solid #f5f5f5;
+            transition: background 0.2s;
+        }
+
+        .suggestion-item .icon-box {
+            width: 36px;
+            height: 36px;
+            background: #fff3e0;
+            color: #ff9800;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .suggestion-item .info .name {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+            line-height: 1.2;
+        }
+
+        .suggestion-item .info .sub {
+            font-size: 12px;
+            color: #777;
+        }
+
+        /* Footer */
+        .suggestion-footer {
+            padding: 10px;
+            text-align: center;
+            background: #fafafa;
+        }
+
+        .suggestion-footer a {
+            font-size: 13px;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -538,7 +666,7 @@
             // ── TRAFFIC SIMULATION ──────────────────────────────────────────
             (function initTrafficSimulation(glMap) {
                 const VEHICLE_COUNT = 18;
-                const MIN_ZOOM      = 15;
+                const MIN_ZOOM = 15;
                 const PALETTE = [
                     '#ffffff', '#e0e0e0', '#ffd700', '#ff5555',
                     '#88ddff', '#99ee66', '#ffaa00', '#cc88ff'
@@ -547,7 +675,10 @@
                 // ── Nguồn GeoJSON + layer circle (luôn hiển thị, ko cần icon) ─
                 glMap.addSource('veh-src', {
                     type: 'geojson',
-                    data: { type: 'FeatureCollection', features: [] }
+                    data: {
+                        type: 'FeatureCollection',
+                        features: []
+                    }
                 });
 
                 // Vòng ngoài (thân xe)
@@ -574,7 +705,7 @@
                     paint: {
                         'circle-radius': 2,
                         'circle-color': '#ffe700',
-                        'circle-translate': ['literal', [4, 0]],  // offset nhỏ
+                        'circle-translate': ['literal', [4, 0]], // offset nhỏ
                         'circle-translate-anchor': 'map',
                         'circle-opacity': 0.95
                     }
@@ -582,9 +713,10 @@
 
                 // ── Sinh đường theo lưới thực tế từ view hiện tại ───────────
                 function makeProceduralRoads() {
-                    const c   = glMap.getCenter();
-                    const lat = c.lat, lng = c.lng;
-                    const R   = 0.004; // ~400m
+                    const c = glMap.getCenter();
+                    const lat = c.lat,
+                        lng = c.lng;
+                    const R = 0.004; // ~400m
                     const out = [];
 
                     // Đường ngang
@@ -629,21 +761,24 @@
                         feats = glMap.querySourceFeatures('openmaptiles', {
                             sourceLayer: 'transportation'
                         });
-                    } catch (e) { /* source chưa sẵn sàng */ }
+                    } catch (e) {
+                        /* source chưa sẵn sàng */ }
 
                     if (!feats.length) {
                         // fallback: tất cả line type features
-                        try { feats = glMap.queryRenderedFeatures(); } catch (e) {}
+                        try {
+                            feats = glMap.queryRenderedFeatures();
+                        } catch (e) {}
                     }
 
                     const seen = new Set();
                     const roads = [];
                     for (const f of feats) {
                         if (!f.geometry) continue;
-                        const lines = f.geometry.type === 'LineString'
-                            ? [f.geometry.coordinates]
-                            : f.geometry.type === 'MultiLineString'
-                                ? f.geometry.coordinates : [];
+                        const lines = f.geometry.type === 'LineString' ?
+                            [f.geometry.coordinates] :
+                            f.geometry.type === 'MultiLineString' ?
+                            f.geometry.coordinates : [];
                         for (const line of lines) {
                             if (line.length < 2) continue;
                             const key = line[0][0].toFixed(4) + line[0][1].toFixed(4);
@@ -662,18 +797,23 @@
                 let fleet = [];
 
                 function calcBrg(a, b) {
-                    const toR = Math.PI / 180, toD = 180 / Math.PI;
-                    const dL  = (b[0] - a[0]) * toR;
-                    const p1  = a[1] * toR, p2 = b[1] * toR;
-                    const y   = Math.sin(dL) * Math.cos(p2);
-                    const x   = Math.cos(p1) * Math.sin(p2) - Math.sin(p1) * Math.cos(p2) * Math.cos(dL);
+                    const toR = Math.PI / 180,
+                        toD = 180 / Math.PI;
+                    const dL = (b[0] - a[0]) * toR;
+                    const p1 = a[1] * toR,
+                        p2 = b[1] * toR;
+                    const y = Math.sin(dL) * Math.cos(p2);
+                    const x = Math.cos(p1) * Math.sin(p2) - Math.sin(p1) * Math.cos(p2) * Math.cos(dL);
                     return (Math.atan2(y, x) * toD + 360) % 360;
                 }
 
                 function segM(a, b) {
-                    const R = 6371000, r = Math.PI / 180;
-                    const dLat = (b[1] - a[1]) * r, dLon = (b[0] - a[0]) * r;
-                    const s = Math.sin(dLat / 2) ** 2 + Math.cos(a[1] * r) * Math.cos(b[1] * r) * Math.sin(dLon / 2) ** 2;
+                    const R = 6371000,
+                        r = Math.PI / 180;
+                    const dLat = (b[1] - a[1]) * r,
+                        dLon = (b[0] - a[0]) * r;
+                    const s = Math.sin(dLat / 2) ** 2 + Math.cos(a[1] * r) * Math.cos(b[1] * r) * Math.sin(
+                        dLon / 2) ** 2;
                     return 2 * R * Math.asin(Math.sqrt(Math.min(1, s)));
                 }
 
@@ -684,8 +824,8 @@
                     return {
                         road,
                         seg: Math.floor(Math.random() * (road.length - 1)),
-                        t:   Math.random(),
-                        spd: 6 + Math.random() * 12,   // m/s  (≈20-65 km/h)
+                        t: Math.random(),
+                        spd: 6 + Math.random() * 12, // m/s  (≈20-65 km/h)
                         col: PALETTE[Math.floor(Math.random() * PALETTE.length)]
                     };
                 }
@@ -699,7 +839,7 @@
                 }
 
                 // ── Animation loop ───────────────────────────────────────────
-                let rafId  = null;
+                let rafId = null;
                 let lastTs = 0;
 
                 function tick(ts) {
@@ -707,10 +847,15 @@
                     lastTs = ts;
 
                     const feats = fleet.map(v => {
-                        const a = v.road[v.seg], b = v.road[v.seg + 1];
-                        if (!a || !b) { v.seg = 0; v.t = 0; return null; }
+                        const a = v.road[v.seg],
+                            b = v.road[v.seg + 1];
+                        if (!a || !b) {
+                            v.seg = 0;
+                            v.t = 0;
+                            return null;
+                        }
 
-                        const m    = segM(a, b);
+                        const m = segM(a, b);
                         const step = m > 0 ? (v.spd * dt * 0.001) / m : 0.04;
                         v.t += step;
                         while (v.t >= 1) {
@@ -718,19 +863,29 @@
                             v.seg = (v.seg + 1) % (v.road.length - 1);
                         }
 
-                        const A = v.road[v.seg], B = v.road[v.seg + 1] || A;
+                        const A = v.road[v.seg],
+                            B = v.road[v.seg + 1] || A;
                         const lng = A[0] + (B[0] - A[0]) * v.t;
                         const lat = A[1] + (B[1] - A[1]) * v.t;
 
                         return {
                             type: 'Feature',
-                            geometry: { type: 'Point', coordinates: [lng, lat] },
-                            properties: { col: v.col, brg: calcBrg(A, B) }
+                            geometry: {
+                                type: 'Point',
+                                coordinates: [lng, lat]
+                            },
+                            properties: {
+                                col: v.col,
+                                brg: calcBrg(A, B)
+                            }
                         };
                     }).filter(Boolean);
 
                     const src = glMap.getSource('veh-src');
-                    if (src) src.setData({ type: 'FeatureCollection', features: feats });
+                    if (src) src.setData({
+                        type: 'FeatureCollection',
+                        features: feats
+                    });
                     glMap.triggerRepaint();
                     rafId = requestAnimationFrame(tick);
                 }
@@ -746,7 +901,7 @@
                     if (!fleet.length || fleet.every(v => !v.road)) initFleet();
 
                     lastTs = performance.now();
-                    rafId  = requestAnimationFrame(tick);
+                    rafId = requestAnimationFrame(tick);
 
                     // Upgrade sang tile roads sau 2s (nếu chưa có)
                     if (tileRoads.length < 5) {
@@ -754,7 +909,7 @@
                             const tr = tryGetTileRoads();
                             if (tr.length >= 5) {
                                 roads = tr;
-                                fleet = [];       // respawn trên đường thực
+                                fleet = []; // respawn trên đường thực
                                 initFleet();
                             }
                         }, 2000);
@@ -762,9 +917,15 @@
                 }
 
                 function stop() {
-                    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+                    if (rafId) {
+                        cancelAnimationFrame(rafId);
+                        rafId = null;
+                    }
                     const src = glMap.getSource('veh-src');
-                    if (src) src.setData({ type: 'FeatureCollection', features: [] });
+                    if (src) src.setData({
+                        type: 'FeatureCollection',
+                        features: []
+                    });
                     fleet = [];
                     roads = [];
                 }
@@ -781,8 +942,8 @@
                 // Bắt đầu ngay khi style/tiles sẵn sàng
                 glMap.once('idle', () => setTimeout(check, 100));
 
-                map.on('zoomend',        () => setTimeout(check, 200));
-                map.on('baselayerchange',() => setTimeout(check, 700));
+                map.on('zoomend', () => setTimeout(check, 200));
+                map.on('baselayerchange', () => setTimeout(check, 700));
                 map.on('moveend', () => {
                     if (!rafId) return;
                     // Refresh đường khi pan
@@ -792,7 +953,8 @@
                         // Re-spawn xe trên đường mới
                         fleet = fleet.map(() => spawn()).filter(Boolean);
                         while (fleet.length < VEHICLE_COUNT) {
-                            const v = spawn(); if (v) fleet.push(v);
+                            const v = spawn();
+                            if (v) fleet.push(v);
                         }
                     } else {
                         // Tạo lại procedural nếu pan xa
@@ -806,7 +968,8 @@
                 setInterval(() => {
                     if (!rafId || !roads.length) return;
                     while (fleet.length < VEHICLE_COUNT) {
-                        const v = spawn(); if (v) fleet.push(v);
+                        const v = spawn();
+                        if (v) fleet.push(v);
                     }
                 }, 2500);
 
@@ -839,10 +1002,16 @@
                 className: 'boundary-tooltip'
             });
             poly.on('mouseover', function() {
-                this.setStyle({ fillOpacity: 0.25, weight: 2.5 });
+                this.setStyle({
+                    fillOpacity: 0.25,
+                    weight: 2.5
+                });
             });
             poly.on('mouseout', function() {
-                this.setStyle({ fillOpacity: 0.08, weight: 1.5 });
+                this.setStyle({
+                    fillOpacity: 0.08,
+                    weight: 1.5
+                });
             });
             boundaryOverlayGroup.addLayer(poly);
         });
@@ -875,6 +1044,7 @@
 
         // Auto-tilt logic for Map3D - Optimized
         let tilingTicking = false;
+
         function updateTilt() {
             if (map.hasLayer(map3d)) {
                 const z = map.getZoom();
@@ -910,7 +1080,7 @@
 
             const currentBearing = glMap.getBearing();
             const currentPitch = glMap.getPitch();
-            
+
             glMap.easeTo({
                 bearing: currentBearing + bearingDelta,
                 pitch: Math.min(85, Math.max(0, currentPitch + pitchDelta)),
@@ -966,7 +1136,7 @@
         resetControl.onAdd = function(map) {
             const btn = L.DomUtil.create('button', 'leaflet-bar leaflet-control leaflet-control-custom');
             btn.innerHTML = '<i class="fas fa-redo-alt"></i>';
-            btn.title = '{{ __("app.reset_map") }}';
+            btn.title = '{{ __('app.reset_map') }}';
 
             btn.style.backgroundColor = 'white';
             btn.style.width = '48px';
@@ -991,7 +1161,7 @@
         currentLocation.onAdd = function(map) {
             const btn = L.DomUtil.create('button', 'leaflet-bar leaflet-control leaflet-control-custom');
             btn.innerHTML = '<i class="fas fa-crosshairs"></i>';
-            btn.title = '{{ __("app.current_location") }}';
+            btn.title = '{{ __('app.current_location') }}';
 
             btn.style.backgroundColor = 'white';
             btn.style.width = '48px';
@@ -1037,7 +1207,7 @@
         fullScreenControl.onAdd = function(map) {
             const btn = L.DomUtil.create('button', 'leaflet-bar leaflet-control leaflet-control-custom');
             btn.innerHTML = '<i class="fas fa-expand"></i>';
-            btn.title = '{{ __("app.full_screen") }}';
+            btn.title = '{{ __('app.full_screen') }}';
 
             btn.style.backgroundColor = 'white';
             btn.style.width = '48px';
@@ -1054,15 +1224,18 @@
 
             btn.onclick = function() {
                 const mapElement = document.getElementById('map');
-                
+
                 if (!document.fullscreenElement) {
                     if (mapElement.requestFullscreen) {
                         mapElement.requestFullscreen();
-                    } else if (mapElement.mozRequestFullScreen) { /* Firefox */
+                    } else if (mapElement.mozRequestFullScreen) {
+                        /* Firefox */
                         mapElement.mozRequestFullScreen();
-                    } else if (mapElement.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+                    } else if (mapElement.webkitRequestFullscreen) {
+                        /* Chrome, Safari & Opera */
                         mapElement.webkitRequestFullscreen();
-                    } else if (mapElement.msRequestFullscreen) { /* IE/Edge */
+                    } else if (mapElement.msRequestFullscreen) {
+                        /* IE/Edge */
                         mapElement.msRequestFullscreen();
                     }
                     btn.innerHTML = '<i class="fas fa-compress"></i>';
@@ -1087,7 +1260,8 @@
             document.addEventListener('MSFullscreenChange', exitHandler);
 
             function exitHandler() {
-                if (!document.fullscreenElement && !document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
+                if (!document.fullscreenElement && !document.webkitIsFullScreen && !document.mozFullScreen && !document
+                    .msFullscreenElement) {
                     btn.innerHTML = '<i class="fas fa-expand"></i>';
                 }
             }
@@ -1178,22 +1352,70 @@
 
         function createMarker(loc) {
             const industryStyles = {
-                1: { color: "#2a84d0", icon: "/images/custom-icon-map/bridge.png" },
-                2: { color: "#2a84d0", icon: "/images/custom-icon-map/anchor.png" },
-                3: { color: "#2a84d0", icon: "/images/custom-icon-map/enviroment.png" },
-                4: { color: "#2a84d0", icon: "/images/custom-icon-map/cityscape.png" },
-                5: { color: "#2a84d0", icon: "/images/custom-icon-map/finance.png" },
-                6: { color: "#2a84d0", icon: "/images/custom-icon-map/industrial.png" },
-                7: { color: "#2a84d0", icon: "/images/custom-icon-map/train.png" },
-                8: { color: "#2a84d0", icon: "/images/custom-icon-map/tourism.png" },
-                9: { color: "#2a84d0", icon: "/images/custom-icon-map/planting.png" },
-                10: { color: "#2a84d0", icon: "/images/custom-icon-map/technology.png" },
-                11: { color: "#2a84d0", icon: "/images/custom-icon-map/education.png" },
-                12: { color: "#2a84d0", icon: "/images/custom-icon-map/bus.png" },
-                13: { color: "#2a84d0", icon: "/images/custom-icon-map/nature.png" },
-                14: { color: "#2a84d0", icon: "/images/custom-icon-map/healthcare.png" },
-                15: { color: "#2a84d0", icon: "/images/custom-icon-map/united.png" },
-                16: { color: "#2a84d0", icon: "/images/custom-icon-map/artificial-intelligence.png" },
+                1: {
+                    color: "#2a84d0",
+                    icon: "/images/custom-icon-map/bridge.png"
+                },
+                2: {
+                    color: "#2a84d0",
+                    icon: "/images/custom-icon-map/anchor.png"
+                },
+                3: {
+                    color: "#2a84d0",
+                    icon: "/images/custom-icon-map/enviroment.png"
+                },
+                4: {
+                    color: "#2a84d0",
+                    icon: "/images/custom-icon-map/cityscape.png"
+                },
+                5: {
+                    color: "#2a84d0",
+                    icon: "/images/custom-icon-map/finance.png"
+                },
+                6: {
+                    color: "#2a84d0",
+                    icon: "/images/custom-icon-map/industrial.png"
+                },
+                7: {
+                    color: "#2a84d0",
+                    icon: "/images/custom-icon-map/train.png"
+                },
+                8: {
+                    color: "#2a84d0",
+                    icon: "/images/custom-icon-map/tourism.png"
+                },
+                9: {
+                    color: "#2a84d0",
+                    icon: "/images/custom-icon-map/planting.png"
+                },
+                10: {
+                    color: "#2a84d0",
+                    icon: "/images/custom-icon-map/technology.png"
+                },
+                11: {
+                    color: "#2a84d0",
+                    icon: "/images/custom-icon-map/education.png"
+                },
+                12: {
+                    color: "#2a84d0",
+                    icon: "/images/custom-icon-map/bus.png"
+                },
+                13: {
+                    color: "#2a84d0",
+                    icon: "/images/custom-icon-map/nature.png"
+                },
+                14: {
+                    color: "#2a84d0",
+                    icon: "/images/custom-icon-map/healthcare.png"
+                },
+                15: {
+                    color: "#2a84d0",
+                    icon: "/images/custom-icon-map/united.png"
+                },
+                16: {
+                    color: "#2a84d0",
+                    icon: "/images/custom-icon-map/artificial-intelligence.png"
+                },
             };
 
             const style = industryStyles[loc.industry_number];
@@ -1216,7 +1438,8 @@
             let tourButtonHtml = '';
             if (tourUrl) {
                 if (tourUrl !== 'null' && tourUrl.trim() !== '') {
-                    tourButtonHtml = `<a href="${tourUrl}" target="_blank" class="btn btn-sm btn-secondary text-white">{{ __('app.virtual_tour') }}</a>`;
+                    tourButtonHtml =
+                        `<a href="${tourUrl}" target="_blank" class="btn btn-sm btn-secondary text-white">{{ __('app.virtual_tour') }}</a>`;
                 }
             }
 
@@ -1457,11 +1680,12 @@
             if (totalPages <= 1) return;
 
             function createPageBtn(label, pageNum, active = false) {
-                const $li = $("<li></li>").addClass(`page-item ${active ? "active" : ""}`).html(`<button class="page-link" ${active ? "disabled" : ""}>${label}</button>`);
+                const $li = $("<li></li>").addClass(`page-item ${active ? "active" : ""}`).html(
+                    `<button class="page-link" ${active ? "disabled" : ""}>${label}</button>`);
                 if (!active && pageNum !== null) {
-                 $li.on("click", () => renderList(pageNum));
+                    $li.on("click", () => renderList(pageNum));
                 }
-                $("#pagination") .append($li);
+                $("#pagination").append($li);
             }
 
             // Previous
@@ -1723,7 +1947,7 @@
                 $miniBox.show();
             }
         });
-        $(document).ready(function () {
+        $(document).ready(function() {
             const popup = $('#homePopup');
             const closeBtn = $('#closePopup');
             const popupBody = $('#popupBody');
@@ -1731,7 +1955,7 @@
 
             // Danh sách popup (ảnh + link)
             const popups = [
-                @foreach($popups as $popup)
+                @foreach ($popups as $popup)
                     {
                         image: "{{ asset($popup->image) }}",
                         link: "{{ $popup->link }}"
@@ -1756,7 +1980,7 @@
                 if (popups.length > 1) {
                     setInterval(() => {
                         current = (current + 1) % popups.length;
-                        popupBody.fadeOut(200, function () {
+                        popupBody.fadeOut(200, function() {
                             const item = popups[current];
                             popupLink.css('background-image', 'url(' + item.image + ')');
                             popupLink.attr('href', item.link);
@@ -1766,12 +1990,92 @@
                 }
 
                 // Đóng popup
-                closeBtn.on('click', function (e) {
+                closeBtn.on('click', function(e) {
                     e.preventDefault();
                     popup.fadeOut(200);
                     sessionStorage.setItem('home_popup_closed', 'true');
                 });
             }
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            const $input = $('#searchInputSp');
+            const $popup = $('#suggestionPopupSp');
+            const $list = $('#suggestionListSp');
+            const $loader = $('#suggestionLoaderSp');
+            let delayTimer;
+
+            // Hàm thực hiện gọi AJAX
+            function fetchSuggestions(keyword = '') {
+                $loader.removeClass('d-none');
+
+                $.ajax({
+                    url: "{{ route('ajax_project_suggestions') }}",
+                    method: 'GET',
+                    data: {
+                        keyword: keyword
+                    },
+                    success: function(data) {
+                        $loader.addClass('d-none');
+                        let html = '';
+
+                        if (data && data.length > 0) {
+                            data.forEach(function(item) {
+                                html += `
+                            <li>
+                                <a href="javascript:void(0)" class="suggestion-item" data-name="${item.name}">
+                                    <div class="info">
+                                        <div class="name text-truncate fw-bold">${item.name}</div>
+                                        <div class="sub text-truncate small text-muted">${item.district_name || 'Đang cập nhật vị trí'}</div>
+                                    </div>
+                                </a>
+                            </li>`;
+                            });
+                            $list.html(html);
+                            $popup.addClass('active');
+                        } else {
+                            $list.html(
+                                '<div class="p-3 text-muted small text-center">Không tìm thấy dự án phù hợp</div>'
+                                );
+                            $popup.addClass('active');
+                        }
+                    },
+                    error: function() {
+                        $loader.addClass('d-none');
+                    }
+                });
+            }
+
+            // Sự kiện khi gõ phím (Debounce)
+            $input.on('keyup', function() {
+                let keyword = $(this).val();
+                clearTimeout(delayTimer);
+
+                delayTimer = setTimeout(function() {
+                    fetchSuggestions(keyword);
+                }, 300);
+            });
+
+            $input.on('focus click', function() {
+                let keyword = $(this).val();
+                if (!$popup.hasClass('active')) {
+                    fetchSuggestions(keyword);
+                }
+            });
+
+            $(document).on('click', '.suggestion-item', function(e) {
+                e.preventDefault();
+                const projectName = $(this).data('name');
+                $input.val(projectName);
+                $popup.removeClass('active');
+            });
+
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('.pj-search__col').length) {
+                    $popup.removeClass('active');
+                }
+            });
         });
     </script>
 @endpush

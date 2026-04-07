@@ -50,7 +50,7 @@ Route::localized(function () {
         Route::match(['get', 'post'], '/contact', [HomeController::class, 'contact'])->name('contact');
         Route::post('/interest', [InterestController::class, 'toggleInterest'])->name('interest');
         Route::get('/search', [HomeController::class, 'search'])->name('search');
-
+        Route::get('/ajax-project-suggestions', [HomeController::class, 'ajaxSuggestions'])->name('ajax_project_suggestions');
         //    Route::post('/subscriber', [HomeController::class, 'subscriber'])->name('subscriber');
         Route::get('/page/{slug}.html', [HomeController::class, 'page'])->where(['slug' => '[a-z0-9\-]+'])->name('page_content');
         //    Route::post('contact-post', [HomeController::class, 'contactPost'])->name('contact_post');

@@ -9,6 +9,8 @@ return [
     'choice_project' => 'Chọn dự án',
     'product_type' => 'Loại hình sản phẩm',
     'search_keyword' => 'Từ khoá tìm kiếm',
+    'suggested_projects' => 'Gợi ý tìm kiếm',
+    'view_all_results' => 'Xem tất cả kết quả',
     'rental_price' => 'Giá thuê',
     'search_project' => 'Tìm kiếm dự án',
     'industrial_products' => 'Sản phẩm khu, cụm công nghiệp',
