@@ -9,6 +9,8 @@ return [
     'choice_project' => 'Select project',
     'product_type' => 'Investment type',
     'search_keyword' => 'Search keywords',
+    'suggested_projects' => 'Search suggestions',
+    'view_all_results' => 'View all results',
     'rental_price' => 'Rental price',
     'search_project' => 'Search Projects',
     'industrial_products' => 'Industrial Park, Cluster products',

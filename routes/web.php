@@ -51,6 +51,7 @@ Route::localized(function () {
         Route::match(['get', 'post'], '/contact', [HomeController::class, 'contact'])->name('contact');
         Route::post('/interest', [InterestController::class, 'toggleInterest'])->name('interest');
         Route::get('/search', [HomeController::class, 'search'])->name('search');
+        Route::get('/ajax-project-suggestions', [HomeController::class, 'ajaxSuggestions'])->name('ajax_project_suggestions');
         Route::post('/chat', [AIChatController::class, 'chat']);
         Route::get('/chat/session/{sessionId}', [AIChatController::class, 'sessionHistory']);
         Route::post('/chat/session/{sessionId}/clear', [AIChatController::class, 'clearSession']);

@@ -59,7 +59,7 @@ class HomeController extends Controller
             })
             ->toArray();
         
-        $list_projects = Project::where('industry_number', 6)->whereNull('parent_id')->where('status','approved')->get()->map(function ($project) {
+        $list_projects = Project::whereIn('industry_number', [6, 16])->whereNull('parent_id')->where('status','approved')->get()->map(function ($project) {
             return [
                 'id' => $project->id,
                 'name' => $project->name,
@@ -777,6 +777,36 @@ class HomeController extends Controller
             'key',
             'setting'
         ));
+    }
+
+    public function ajaxSuggestions(Request $request)
+    {
+        $keyword = $request->get('keyword');
+
+        $query = Project::with('districts')
+            ->where('status', 'approved')
+            ->whereNull('parent_id')
+            ->whereIn('industry_number', [6, 16]);
+
+        if (!empty($keyword)) {
+            $query->where('name', 'like', '%' . $keyword . '%');
+        }
+
+        $projects = $query->select('id', 'name', 'slug')
+            ->latest() 
+            ->take(10)
+            ->get();
+
+        $results = $projects->map(function ($project) {
+            return [
+                'id'   => $project->id,
+                'name' => $project->name,
+                'slug' => route('project_detail', $project->slug),
+                'district_name' => $project->districts->pluck('name')->implode(', ')
+            ];
+        });
+
+        return response()->json($results);
     }
 
     protected function ajaxSearch(Request $request)
