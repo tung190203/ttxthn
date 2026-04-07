@@ -115,6 +115,7 @@ class HotspotController extends Controller
                             . $link_vrtour . '?media-index=' . $media_index
                             . '&hct=HOLDER_SELECT_LANGUAGE_CN2&trigger-overlay-name=' . $value->potision
                             . '&focus-overlay-name=' . $value->potision
+                            . '&show-overlays-names=' . $value->potision
                             . '&skip-loading',
                     ]
                 );
