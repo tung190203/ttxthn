@@ -39,4 +39,8 @@ return [
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect' => '',
     ],
+    'ai_chat' => [
+        'api_key' => env('AI_CHAT_API_KEY'),
+        'api_url' => env('AI_CHAT_API_URL'),
+    ],
 ];

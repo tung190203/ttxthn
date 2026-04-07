@@ -200,117 +200,9 @@
                     </div>
                 </div>
 
-                @if (empty($project_category))
-                    <p class="text-center">
-                        {{ __('app.no_suitable_project') }}
-                    </p>
-                @else
-                    <!-- phần slider giữ nguyên -->
-                    <div class="news-slider">
-                        <div class="news-slider__nav">
-                            <div class="news-slider__prev"><i class="fal fa-fw fa-lg fa-angle-left"></i></div>
-                            <div class="news-slider__next"><i class="fal fa-fw fa-lg fa-angle-right"></i></div>
-                        </div>
-                        <div class="news-slider__container swiper-container">
-                            <div class="swiper-wrapper">
-                                @foreach ($project_category as $item)
-                                    <div class="swiper-slide">
-                                        <div>
-                                            <div class="project">
-                                                <a class="project__frame"
-                                                    href="{{ route('project_detail', ['slug' => $item['slug']]) }}">
-                                                    <img src="{{ $item['detail_image'] ?? './images/project-1.jpg' }}"
-                                                        alt="" />
-                                                </a>
-                                                <div class="project__body">
-                                                    <h3 class="project__title">
-                                                        <a href="{{ route('project_detail', ['slug' => $item['slug']]) }}"
-                                                            data-tippy-content="{{ $item['name'] }}">
-                                                            {{ $item['name'] }}
-                                                        </a>
-                                                    </h3>
-                                                    @if ($item['is_invest'] == 0)
-                                                        <div class="project__overlay">
-                                                            <span>{{ __('app.projects_calling_for_investment') }}</span>
-                                                            <a class="project__like" href="javascript:void(0)"
-                                                                data-id="{{ $item['id'] }}"
-                                                                data-type="App\Models\Project"><i
-                                                                    class="fas fa-fw fa-lg fa-heart {{ $item['is_interested'] ? 'text-danger' : '' }}"></i></a>
-                                                        </div>
-                                                    @else
-                                                        <div class="project__overlay">
-                                                            <span>{{ __('app.projects_with_investors') }}</span>
-                                                            <a class="project__like" href="javascript:void(0)"
-                                                                data-id="{{ $item['id'] }}"
-                                                                data-type="App\Models\Project"><i
-                                                                    class="fas fa-fw fa-lg fa-heart {{ $item['is_interested'] ? 'text-danger' : '' }}"></i></a>
-                                                        </div>
-                                                    @endif
-                                                    <ul class="project__info">
-                                                        <li>
-                                                            <img class="me-2"
-                                                                src="{{ asset('/images/icon-map-marker.svg') }}"
-                                                                alt="" />
-                                                            <span
-                                                                data-tippy-content="{{ __('app.project_under') }} {{ $item['districts'] }}">
-                                                                {{ __('app.project_under') }} {{ $item['districts'] }}
-                                                            </span>
-                                                        </li>
-                                                        <li>
-                                                            <img class="me-2"
-                                                                src="{{ asset('/images/icon-dimension.svg') }}"
-                                                                alt="" />
-                                                            @php
-                                                                $locale = app()->getLocale();
-                                                                if ($locale === 'vn') {
-                                                                    $locale = 'vi_VN';
-                                                                } elseif ($locale === 'en') {
-                                                                    $locale = 'en_US';
-                                                                }
-
-                                                                $fmt = new \NumberFormatter(
-                                                                    $locale,
-                                                                    \NumberFormatter::DECIMAL,
-                                                                );
-                                                                $fmt->setAttribute(
-                                                                    \NumberFormatter::FRACTION_DIGITS,
-                                                                    2,
-                                                                );
-                                                                $formattedArea = $fmt->format($item['area'] ?? 0);
-                                                            @endphp
-                                                            <span>{{ $formattedArea }} {{ $item['unit'] ?? '' }}</span>
-                                                        </li>
-                                                        </li>
-                                                        @php
-                                                            $locale = app()->getLocale();
-                                                        @endphp
-
-                                                        <li>
-                                                            <img class="me-2"
-                                                                src="{{ asset('/images/icon-save-money.svg') }}"
-                                                                alt="" />
-                                                            <span>
-                                                                {{ $locale == 'vn' ? number_format($item['price'], 0, ',', '.') : number_format($item['price'], 0, '.', ',') }}
-                                                                {{ __('app.billion_vnd') }}
-                                                            </span>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-                    </div>
-                    @php
-                        $locale = app()->getLocale() === 'vi' ? 'vn' : app()->getLocale();
-                    @endphp
-                    <nav class="d-flex justify-content-center mt-40 mt-lg-60">
-                        <a class="button" href="{{ url($locale . '/' . __('app.projects_link')) }}"
-                            style="text-transform: capitalize;">{{ __('app.view_more') }}</a>
-                    </nav>
-                @endif
+                <div id="project-slider-wrapper" style="position: relative; min-height: 200px;">
+                    @include('frontend.home.partials.project_slider')
+                </div>
             </div>
         </section>
         <section class="section section--bg-pattern" style="padding: 23px 0">
@@ -599,7 +491,7 @@
 
     <script>
         // Tile layers
-        const defaults = L.tileLayer('https://api.maptiler.com/maps/outdoor-v2/{z}/{x}/{y}.png?key=ziR13X4sfKXctiAkrRRQ', {
+        const defaults = L.tileLayer('https://api.maptiler.com/maps/outdoor-v2/{z}/{x}/{y}.png?key=XBpVjYxcoHhAi6NqhQMb', {
             maxNativeZoom: 19,
             maxZoom: 21
         });
@@ -985,36 +877,40 @@
             "{{ __('app.map_3d') }}": map3d
         };
 
-        // Boundary overlay layer – hiển thị tất cả ranh giới phường/xã
         const boundaryOverlayGroup = L.layerGroup();
-        Object.entries(boundaries).forEach(([name, coords]) => {
-            const poly = L.polygon(coords, {
-                color: '#1a6fc4',
-                weight: 1.5,
-                dashArray: '4, 4',
-                fillColor: '#4a9ede',
-                fillOpacity: 0.08,
-                interactive: true
-            });
-            poly.bindTooltip(name, {
-                sticky: true,
-                direction: 'top',
-                className: 'boundary-tooltip'
-            });
-            poly.on('mouseover', function() {
-                this.setStyle({
-                    fillOpacity: 0.25,
-                    weight: 2.5
-                });
-            });
-            poly.on('mouseout', function() {
-                this.setStyle({
+        let districtDisplayNames = {}; // Map of VI Name -> Localized Name
+
+        function renderBoundaryLayers() {
+            if (typeof boundaries === 'undefined') return;
+            boundaryOverlayGroup.clearLayers();
+            
+            Object.entries(boundaries).forEach(([nameVi, coords]) => {
+                const displayName = districtDisplayNames[nameVi] || nameVi;
+                const poly = L.polygon(coords, {
+                    color: '#1a6fc4',
+                    weight: 1.5,
+                    dashArray: '4, 4',
+                    fillColor: '#4a9ede',
                     fillOpacity: 0.08,
-                    weight: 1.5
+                    interactive: true
                 });
+                poly.bindTooltip(displayName, {
+                    sticky: true,
+                    direction: 'top',
+                    className: 'boundary-tooltip'
+                });
+                poly.on('mouseover', function() {
+                    this.setStyle({ fillOpacity: 0.25, weight: 2.5 });
+                });
+                poly.on('mouseout', function() {
+                    this.setStyle({ fillOpacity: 0.08, weight: 1.5 });
+                });
+                boundaryOverlayGroup.addLayer(poly);
             });
-            boundaryOverlayGroup.addLayer(poly);
-        });
+        }
+        
+        // Initial render with static data
+        renderBoundaryLayers();
 
         const overlayLayers = {
             "{{ __('app.boundary_map') }}": boundaryOverlayGroup
@@ -1519,9 +1415,24 @@
                 boundaryPolygon = null;
             }
 
-            if (districtName === "all" || !boundaries[districtName]) return;
+            if (districtName === "all") return;
+            
+            // `districtName` currently could be the translated name or the VI name.
+            // When selecting from dropdown, we'll try to pass the VI name as data-value.
+            // If it's passed directly as translated name, let's map it back to VI name.
+            let viName = districtName;
+            
+            // Reverse lookup if the name isn't found in boundaries
+            if (!boundaries[viName]) {
+                const foundEntry = Object.entries(districtDisplayNames).find(([vi, loc]) => loc === viName);
+                if (foundEntry) {
+                    viName = foundEntry[0];
+                }
+            }
 
-            boundaryPolygon = L.polygon(boundaries[districtName], {
+            if (!boundaries[viName]) return;
+
+            boundaryPolygon = L.polygon(boundaries[viName], {
                 color: "blue",
                 weight: 2,
                 dashArray: "5, 5",
@@ -1721,7 +1632,24 @@
                 url: `/${lang}/api/districts`,
                 method: 'GET',
                 success: function(res) {
-                    allDistricts = res.sort();
+                    // Extract objects for the search dropdown containing both display and VI names
+                    allDistricts = res.map(d => ({ name: d.name, name_vi: d.name_vi })).sort((a,b) => a.name.localeCompare(b.name));
+                    
+                    // Merge boundaries from DB and store display names
+                    res.forEach(d => {
+                        // Store the translation mapping
+                        if (d.name_vi) {
+                            districtDisplayNames[d.name_vi] = d.name;
+                        }
+                        
+                        if (d.boundary && d.name_vi) {
+                            boundaries[d.name_vi] = d.boundary;
+                        }
+                    });
+
+                    // Refresh the map overlay with localized names and updated boundaries
+                    renderBoundaryLayers();
+
                     allDistrictsLoaded = true;
                 },
                 error: function(err) {
@@ -1770,23 +1698,29 @@
             }
 
             filtered.forEach(d => {
-                dropdown.append(`<div class="px-3 py-2 hover-options" data-value="${d}">${d}</div>`);
+                dropdown.append(`<div class="px-3 py-2 hover-options" data-value="${d.name_vi}" data-display="${d.name}">${d.name}</div>`);
             });
             dropdown.show();
         }
 
         $('#districtFilter').on('input', function() {
             const keyword = removeDiacritics($(this).val());
-            const filtered = allDistricts.filter(d => removeDiacritics(d).includes(keyword));
+            const filtered = allDistricts.filter(d => removeDiacritics(d.name).includes(keyword));
             $('.custom_tabs').addClass('position-custom');
             renderDistrictDropdown(filtered);
         });
 
-        $(document).on('click', '#districtDropdown div', function() {
-            const val = $(this).data('value');
-            $('#districtFilter').val(val);
+        $(document).on('click', '#districtDropdown div.hover-options', function() {
+            const val = $(this).data('value'); // name_vi
+            const display = $(this).data('display'); // translated name
+            $('#districtFilter').val(display); // Show translated name in input
+            $('#districtFilter').attr('data-real-value', val); // However mapping will still pass original value safely
             $('#districtDropdown').hide();
             $('.custom_tabs').removeClass('position-custom');
+            
+            // We pass the display name to applyFiltersWithBounds, or let it read from input
+            // But MapController filter logic currently assumes localized name since it uses getDistricts API.
+            // Wait, does MapController filtering use 'district' => translated name or VI name?
             applyFiltersWithBounds();
         });
 
@@ -1799,14 +1733,16 @@
 
         $('#districtFilterSp').on('input', function() {
             const keyword = removeDiacritics($(this).val());
-            const filtered = allDistricts.filter(d => removeDiacritics(d).includes(keyword));
+            const filtered = allDistricts.filter(d => removeDiacritics(d.name).includes(keyword));
             $('.custom_tabs').addClass('position-custom');
             renderDistrictDropdown(filtered);
         });
 
-        $(document).on('click', '#districtDropdownSp div', function() {
+        $(document).on('click', '#districtDropdownSp div.hover-options', function() {
             const val = $(this).data('value');
-            $('#districtFilterSp').val(val);
+            const display = $(this).data('display');
+            $('#districtFilterSp').val(display);
+            $('#districtFilterSp').attr('data-real-value', val);
             $('#districtDropdownSp').hide();
             $('.custom_tabs').removeClass('position-custom');
             applyFiltersWithBounds();
@@ -1818,6 +1754,7 @@
                 $('.custom_tabs').removeClass('position-custom');
             }
         });
+
 
         // MAP MOVE
         let mapMoveTimeout = null;
@@ -1996,6 +1933,61 @@
                     sessionStorage.setItem('home_popup_closed', 'true');
                 });
             }
+            
+            // Handle AJAX click for project categories
+            $(document).on('click', '.project-nav-fixed a, .project-nav-scroll a', function (e) {
+                var href = $(this).attr('href');
+                if (href && href.indexOf('#investment-section') !== -1) {
+                    e.preventDefault();
+                    
+                    var $wrapper = $('#project-slider-wrapper');
+                    
+                    // Add loading state
+                    $wrapper.css('opacity', '0.5');
+
+                    // Update active classes
+                    $('.project-nav-fixed a, .project-nav-scroll a').removeClass('active');
+                    $(this).addClass('active');
+
+                    $.ajax({
+                        url: href,
+                        type: 'GET',
+                        data: { ajax_project_slider: 1 },
+                        success: function (response) {
+                            $wrapper.html(response);
+                            $wrapper.css('opacity', '1');
+
+                            // Re-initialize Swiper specifically for the project section
+                            var $sliderContainer = $('#project-slider-wrapper .news-slider');
+                            if ($sliderContainer.length > 0 && typeof Swiper !== 'undefined') {
+                                $sliderContainer.addClass('has-nav');
+                                new Swiper($sliderContainer.find('.news-slider__container')[0], {
+                                    loop: false,
+                                    navigation: {
+                                        prevEl: $sliderContainer.find('.news-slider__prev')[0],
+                                        nextEl: $sliderContainer.find('.news-slider__next')[0]
+                                    },
+                                    spaceBetween: 0,
+                                    speed: 500,
+                                    slidesPerView: 2,
+                                    breakpoints: {
+                                        992: { slidesPerView: 3 }
+                                    }
+                                });
+                            }
+
+                            // Re-initialize Tippy tooltips
+                            if (typeof tippy === 'function') {
+                                tippy('#project-slider-wrapper [data-tippy-content]');
+                            }
+                        },
+                        error: function () {
+                            $wrapper.css('opacity', '1');
+                            console.error('Failed to load projects');
+                        }
+                    });
+                }
+            });
         });
     </script>
     <script>

@@ -22,6 +22,7 @@ use App\Http\Controllers\Backend\VrTour\HotspotController;
 use App\Http\Controllers\Backend\VrTour\ContentController;
 use App\Models\InvestmentGuide;
 use App\Http\Controllers\Backend\ProfileController;
+use App\Http\Controllers\Backend\AIChatMonitorController;
 use Illuminate\Support\Facades\Route;
 
 Route::localized(function () {
@@ -210,6 +211,10 @@ Route::localized(function () {
                 Route::get('edit/{id}', [ContentController::class, 'edit'])->name('backend_vrtour_content_edit');
                 Route::post('save/{id}', [ContentController::class, 'store'])->name('backend_vrtour_content_store');
             });
+        });
+
+        Route::prefix('ai-monitor')->group(function () {
+            Route::get('/status', [AIChatMonitorController::class, 'getApiStatus'])->name('backend_ai_monitor_status');
         });
     });
 });

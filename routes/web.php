@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AIChatController;
 use App\Http\Controllers\BaseLoginController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InterestController;
@@ -51,6 +52,14 @@ Route::localized(function () {
         Route::post('/interest', [InterestController::class, 'toggleInterest'])->name('interest');
         Route::get('/search', [HomeController::class, 'search'])->name('search');
         Route::get('/ajax-project-suggestions', [HomeController::class, 'ajaxSuggestions'])->name('ajax_project_suggestions');
+        Route::post('/chat', [AIChatController::class, 'chat']);
+        Route::get('/chat/session/{sessionId}', [AIChatController::class, 'sessionHistory']);
+        Route::post('/chat/session/{sessionId}/clear', [AIChatController::class, 'clearSession']);
+        Route::delete('/chat/session/{sessionId}', [AIChatController::class, 'deleteSession']);
+        Route::post('/chat/feedback', [AIChatController::class, 'submitFeedback']);
+        Route::get('/chat/health', [AIChatController::class, 'getHealthStatus']);
+        Route::get('/chat/models', [AIChatController::class, 'getModelsList']);
+
         //    Route::post('/subscriber', [HomeController::class, 'subscriber'])->name('subscriber');
         Route::get('/page/{slug}.html', [HomeController::class, 'page'])->where(['slug' => '[a-z0-9\-]+'])->name('page_content');
         //    Route::post('contact-post', [HomeController::class, 'contactPost'])->name('contact_post');

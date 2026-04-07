@@ -48,6 +48,12 @@ class PostController extends Controller
         $setting['meta_description'] = ($category->meta_description) ?: $setting['meta_description'];
         $setting['menu_active'] = $category->slug;
 
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('frontend.home.partials.news_list', compact('posts', 'setting'))->render()
+            ]);
+        }
+
         return view('frontend.home.news',
             compact(
                 'category',

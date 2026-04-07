@@ -121,6 +121,11 @@ class HomeController extends Controller
         $maxPrice = $rawProjects->max('price');
         $maxPriceSp = Project::where('industry_number', 6)->where('status','approved')->max('price');
         $popups = Popup::where('status_approve', 'approved')->get();
+
+        if ($request->ajax() && $request->has('ajax_project_slider')) {
+            return view('frontend.home.partials.project_slider', compact('project_category'))->render();
+        }
+
         return view(
             'frontend.home.index',
             compact(
