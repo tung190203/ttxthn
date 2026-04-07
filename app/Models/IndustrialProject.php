@@ -33,6 +33,8 @@ class IndustrialProject extends Model
         'acreage',
         'description',
         'product_type',
+        'intended_use',
+        'unit',
         'price',
     ];
 
