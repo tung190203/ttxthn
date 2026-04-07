@@ -11,6 +11,7 @@ return [
     'search_keyword' => 'Search keywords',
     'suggested_projects' => 'Search suggestions',
     'view_all_results' => 'View all results',
+    'name_project' => 'Plot name',
     'rental_price' => 'Rental price',
     'search_project' => 'Search Projects',
     'industrial_products' => 'Industrial Park, Cluster products',
