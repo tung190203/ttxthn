@@ -30,6 +30,7 @@ return [
     'satellite_map' => 'Bản đồ vệ tinh',
     'topo_map' => 'Bản đồ địa hình',
     'boundary_map' => 'Ranh giới',
+    'railway_map' => 'Bản đồ đường sắt',
     'map_3d' => 'Bản đồ 3D (Tự động)',
     'reset_map' => 'Đặt lại bản đồ',
     'current_location' => 'Vị trí hiện tại',

@@ -382,6 +382,21 @@
             font-size: 12px;
         }
 
+        .railway-tooltip {
+            background: rgba(33, 33, 33, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            border-radius: 6px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            color: #fff;
+            font-weight: 500;
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+
+        .railway-tooltip:before {
+            border: none !important;
+        }
+
         .boundary-tooltip:before {
             border: none !important;
         }
@@ -488,6 +503,7 @@
     <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
     <script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.0.21/leaflet-maplibre-gl.js"></script>
     <script src="/js/boundaries.js"></script>
+    <script src="/js/railways.js"></script>
 
     <script>
         // Tile layers
@@ -869,16 +885,53 @@
             // ── END TRAFFIC SIMULATION ──────────────────────────────────────
         });
 
+        const boundaryOverlayGroup = L.layerGroup();
+        const railwayOverlayGroup = L.layerGroup();
+        let districtDisplayNames = {}; // Map of VI Name -> Localized Name
+
         const baseLayers = {
             "{{ __('app.default_map') }}": defaults,
             "{{ __('app.traffic_map') }}": streets,
             "{{ __('app.satellite_map') }}": satellite,
             "{{ __('app.topo_map') }}": topo,
-            "{{ __('app.map_3d') }}": map3d
+            "{{ __('app.map_3d') }}": map3d,
+            "{{ __('app.railway_map') }}": L.layerGroup([defaults, railwayOverlayGroup])
         };
 
-        const boundaryOverlayGroup = L.layerGroup();
-        let districtDisplayNames = {}; // Map of VI Name -> Localized Name
+        function renderRailwayLayers() {
+            railwayOverlayGroup.clearLayers();
+            Object.entries(railways).forEach(([name, data]) => {
+                const poly = L.polyline(data.coords, {
+                    color: data.color,
+                    weight: 4,
+                    opacity: 0.8,
+                    lineJoin: 'round',
+                    interactive: true
+                });
+                
+                poly.bindTooltip(name, {
+                    sticky: true,
+                    direction: 'top',
+                    className: 'railway-tooltip'
+                });
+
+                poly.on('mouseover', function() {
+                    this.setStyle({
+                        weight: 7,
+                        opacity: 1
+                    });
+                });
+
+                poly.on('mouseout', function() {
+                    this.setStyle({
+                        weight: 4,
+                        opacity: 0.8
+                    });
+                });
+
+                railwayOverlayGroup.addLayer(poly);
+            });
+        }
 
         function renderBoundaryLayers() {
             if (typeof boundaries === 'undefined') return;
@@ -911,6 +964,7 @@
         
         // Initial render with static data
         renderBoundaryLayers();
+        renderRailwayLayers();
 
         const overlayLayers = {
             "{{ __('app.boundary_map') }}": boundaryOverlayGroup
