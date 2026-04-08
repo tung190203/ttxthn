@@ -894,8 +894,7 @@
             "{{ __('app.traffic_map') }}": streets,
             "{{ __('app.satellite_map') }}": satellite,
             "{{ __('app.topo_map') }}": topo,
-            "{{ __('app.map_3d') }}": map3d,
-            "{{ __('app.railway_map') }}": L.layerGroup([defaults, railwayOverlayGroup])
+            "{{ __('app.map_3d') }}": map3d
         };
 
         function renderRailwayLayers() {
@@ -967,7 +966,8 @@
         renderRailwayLayers();
 
         const overlayLayers = {
-            "{{ __('app.boundary_map') }}": boundaryOverlayGroup
+            "{{ __('app.boundary_map') }}": boundaryOverlayGroup,
+            "{{ __('app.railway_map') }}": railwayOverlayGroup
         };
 
         const defaultCenter = [21.0285, 105.8542];
