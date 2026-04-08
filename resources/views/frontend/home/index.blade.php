@@ -527,7 +527,7 @@
 
         // MapLibre GL 3D Layer
         const map3d = L.maplibreGL({
-            style: 'https://api.maptiler.com/maps/streets-v2/style.json?key=ziR13X4sfKXctiAkrRRQ',
+            style: 'https://api.maptiler.com/maps/streets-v2/style.json?key=XBpVjYxcoHhAi6NqhQMb',
             updateInterval: 0 // Eliminate 30fps throttle to fix 3D panning jitter
         });
 
