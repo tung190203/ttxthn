@@ -194,4 +194,5 @@ return [
     'chatbot_view_document' => 'Xem tài liệu',
     'chatbot_default_item_name' => 'Dự án',
     'chatbot_retry_btn' => 'Thử lại',
+    'chatbot_listening' => 'Đang nghe...',
 ];
