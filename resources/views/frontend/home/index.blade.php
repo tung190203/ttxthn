@@ -6,7 +6,18 @@
 @section('content')
     <div class="page__content">
         <!-- main content-->
-        <section class="banner-home">
+        <section class="banner-home" style="position: relative;">
+            @if(file_exists(public_path('videos/intro.mp4')))
+                <div id="video-loader-container" style="display: none;">
+                    <video id="loader-video" autoplay muted playsinline preload="auto">
+                        <source src="/videos/intro.mp4" type="video/mp4">
+                        Trình duyệt của bạn không hỗ trợ video.
+                    </video>
+                    <button id="skip-video-btn" class="btn-skip-video">
+                        Bỏ qua video <i class="fas fa-forward ms-2"></i>
+                    </button>
+                </div>
+            @endif
             <div class="w-full">
                 <div id="map"></div>
             </div>
@@ -471,7 +482,6 @@
             color: #777;
         }
 
-        /* Footer */
         .suggestion-footer {
             padding: 10px;
             text-align: center;
@@ -495,6 +505,64 @@
                 transform: translateY(0);
             }
         }
+
+        /* Video Loader Styles */
+        #video-loader-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 20000;
+            background: #000;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: auto;
+        }
+        #loader-video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .btn-skip-video {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            padding: 12px 24px;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            z-index: 2001;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        @media (max-width: 768px) {
+            .btn-skip-video {
+                bottom: 20px;
+                right: 20px;
+                padding: 10px 20px;
+                font-size: 12px;
+            }
+        }
+        .btn-skip-video:hover {
+            background: rgba(0, 0, 0, 0.8);
+            border-color: #fff;
+            transform: translateY(-2px);
+        }
+        .video-fade-out {
+            opacity: 0;
+            transition: opacity 0.8s ease-out;
+            pointer-events: none;
+        }
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -506,6 +574,70 @@
     <script src="/js/railways.js"></script>
 
     <script>
+        $(document).ready(function() {
+            const videoContainer = $('#video-loader-container');
+            const loaderVideo = document.getElementById('loader-video');
+            const skipBtn = $('#skip-video-btn');
+            
+            if (!loaderVideo) return;
+
+            // Lấy ngày hiện tại YYYY-MM-DD
+            const today = new Date().toISOString().split('T')[0];
+            const hiddenDate = localStorage.getItem('hide_video_date');
+
+            if (hiddenDate === today) {
+                videoContainer.remove();
+            } else {
+                videoContainer.show();
+                
+                // Ngăn chặn bản đồ tranh chấp sự kiện click/tua của video
+                if (typeof L !== 'undefined' && L.DomEvent) {
+                    L.DomEvent.disableClickPropagation(videoContainer[0]);
+                    L.DomEvent.disableScrollPropagation(videoContainer[0]);
+                }
+
+                // Tự động đóng khi video kết thúc
+                loaderVideo.onended = function() {
+                    closeVideoLoader();
+                };
+                
+                // Đảm bảo video chạy nếu autoplay bị chặn
+                loaderVideo.play().catch(error => {
+                    console.log("Autoplay was prevented:", error);
+                });
+            }
+
+            skipBtn.on('click', function() {
+                loaderVideo.pause(); // Tạm dừng để hiện popup
+                
+                Swal.fire({
+                    title: 'Bỏ qua video?',
+                    text: "Bạn có muốn ẩn video này trong ngày hôm nay không?",
+                    showCancelButton: true,
+                    confirmButtonColor: '#1a6fc4',
+                    cancelButtonColor: '#aaa',
+                    confirmButtonText: 'Xác nhận',
+                    cancelButtonText: 'Hủy',
+                    reverseButtons: true,
+                    backdrop: `rgba(0,0,0,0.4)`
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        localStorage.setItem('hide_video_date', today);
+                        closeVideoLoader();
+                    } else {
+                        closeVideoLoader();
+                    }
+                });
+            });
+
+            function closeVideoLoader() {
+                videoContainer.addClass('video-fade-out');
+                setTimeout(() => {
+                    videoContainer.remove();
+                }, 800);
+            }
+        });
+
         // Tile layers
         const defaults = L.tileLayer('https://api.maptiler.com/maps/outdoor-v2/{z}/{x}/{y}.png?key=XBpVjYxcoHhAi6NqhQMb', {
             maxNativeZoom: 19,
