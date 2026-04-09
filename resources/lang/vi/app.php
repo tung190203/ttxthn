@@ -157,7 +157,7 @@ return [
     'chatbot_feedback_not_helpful' => 'Không hữu ích',
     'chatbot_feedback_incorrect' => 'Thông tin sai lệch',
     'chatbot_feedback_other' => 'Khác',
-    'chatbot_feedback_comment' => 'Bình luận:',
+    'chatbot_feedback_comment' => 'Ý kiến của bạn:',
     'chatbot_feedback_placeholder' => 'Nhập ý kiến của bạn...',
     'chatbot_feedback_cancel' => 'Hủy',
     'chatbot_feedback_send' => 'Gửi',
@@ -193,4 +193,5 @@ return [
     'chatbot_view_project' => 'Xem chi tiết dự án',
     'chatbot_view_document' => 'Xem tài liệu',
     'chatbot_default_item_name' => 'Dự án',
+    'chatbot_retry_btn' => 'Thử lại',
 ];
