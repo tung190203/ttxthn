@@ -63,7 +63,7 @@
             </div>
             <div class="d-flex justify-content-end gap-2">
                 <button onclick="hideFeedbackModal()" class="btn btn-sm btn-light">{{ __('app.chatbot_feedback_cancel') }}</button>
-                <button onclick="submitFeedbackForm()" class="btn btn-sm btn-primary">{{ __('app.chatbot_feedback_send') }}</button>
+                <button onclick="submitFeedbackForm()" class="btn btn-sm text-white btn-primary">{{ __('app.chatbot_feedback_send') }}</button>
             </div>
         </div>
     </div>
@@ -467,6 +467,27 @@
         color: white;
     }
 
+    .retry-action-btn {
+        background: white;
+        color: #ef4444;
+        border-color: #ef4444;
+    }
+    
+    .retry-action-btn:hover, .retry-action-btn:active {
+        background: #ef4444 !important;
+        color: white !important;
+        border-color: #ef4444 !important;
+    }
+
+    .chatbot-suggested-actions.active-drag {
+        cursor: grabbing;
+        cursor: -webkit-grabbing;
+    }
+    
+    .chatbot-suggested-actions.active-drag .suggested-action-btn {
+        pointer-events: none;
+    }
+
     .chatbot-footer {
         padding: 15px 20px;
         background: white;
@@ -596,7 +617,7 @@
         z-index: 5;
         opacity: 0;
         pointer-events: none;
-        transition: opacity 0.25s ease, transform 0.25s ease, box-shadow 0.2s;
+        transition: opacity 0.25s ease, transform 0.25s ease, box-shadow 0.2s, bottom 0.25s ease;
     }
     .chatbot-scroll-btn.visible {
         opacity: 1;
@@ -832,6 +853,7 @@
         viewProject:        @json(__('app.chatbot_view_project')),
         viewDocument:       @json(__('app.chatbot_view_document')),
         defaultItemName:    @json(__('app.chatbot_default_item_name')),
+        retryBtn:           @json(__('app.chatbot_retry_btn')),
     };
 
     // Generate or retrieve session ID
@@ -876,6 +898,7 @@
                 </div>
             `;
             document.getElementById('chatbot-suggested-actions').style.display = 'none';
+            document.getElementById('chatbot-scroll-btn').style.bottom = '80px';
             document.getElementById('chatbot-stage-indicator').innerText = chatbotLang.onlineLabel;
             
             Swal.fire({
@@ -927,6 +950,7 @@
                 </div>
             `;
             document.getElementById('chatbot-suggested-actions').style.display = 'none';
+            document.getElementById('chatbot-scroll-btn').style.bottom = '80px';
             document.getElementById('chatbot-stage-indicator').innerText = chatbotLang.onlineLabel;
 
             Swal.fire({
@@ -1000,8 +1024,20 @@
 
     function renderMarkdownBasic(text) {
         if (!text) return '';
-        let html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        let html = text;
+        
+        // 1. Markdown Links: [text](https://...)
+        html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" style="color: var(--cb-primary); text-decoration: underline;">$1</a>');
+        
+        // 2. Raw URLs (not preceding with a quote to avoid replacing href="...")
+        html = html.replace(/(^|[^"'])(https?:\/\/[^\s<)\]"']+)/g, '$1<a href="$2" target="_blank" style="color: var(--cb-primary); text-decoration: underline;">$2</a>');
+        
+        // 3. Bold text
+        html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        
+        // 4. Line breaks
         html = html.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
+        
         return `<p>${html}</p>`;
     }
 
@@ -1139,7 +1175,11 @@
 
     function renderSuggestedActions(actions) {
         const container = document.getElementById('chatbot-suggested-actions');
-        if (!actions || actions.length === 0) { container.style.display = 'none'; return; }
+        if (!actions || actions.length === 0) { 
+            container.style.display = 'none'; 
+            document.getElementById('chatbot-scroll-btn').style.bottom = '80px';
+            return; 
+        }
         container.innerHTML = '';
         actions.forEach(a => {
             const btn = document.createElement('button');
@@ -1148,6 +1188,7 @@
             container.appendChild(btn);
         });
         container.style.display = 'flex';
+        document.getElementById('chatbot-scroll-btn').style.bottom = '140px';
     }
 
     async function loadChatHistory() {
@@ -1200,17 +1241,27 @@
         } catch (e) { console.error('Failed to fetch models', e); }
     }
 
-    async function sendChatMessage(e) {
+    async function sendChatMessage(e, retryMsg = null, errorNodeToRemove = null) {
         if(e) e.preventDefault();
+        
+        if (errorNodeToRemove) {
+            errorNodeToRemove.remove();
+        }
+        
         const input = document.getElementById('chatbot-input');
         const btn = document.getElementById('chatbot-send-btn');
         const modelSelect = document.getElementById('chatbot-model-select');
-        const msg = input.value.trim();
+        
+        const msg = retryMsg !== null ? retryMsg : input.value.trim();
         if (!msg) return;
 
-        appendMessage('user', msg);
+        if (retryMsg === null) {
+            appendMessage('user', msg);
+        }
+        
         input.value = ''; btn.disabled = true;
         document.getElementById('chatbot-suggested-actions').style.display = 'none';
+        document.getElementById('chatbot-scroll-btn').style.bottom = '80px';
         appendTypingIndicator();
 
         try {
@@ -1229,13 +1280,65 @@
                 appendMessage('bot', data.response, { stage: data.stage, entities: data.entities, related_items: data.related_items }, data.message_id);
                 if (data.suggested_actions) renderSuggestedActions(data.suggested_actions);
             } else {
-                appendMessage('bot', chatbotLang.errorConnection);
+                appendErrorMessage(msg, chatbotLang.errorConnection);
             }
-        } catch (e) { removeTypingIndicator(); btn.disabled = false; appendMessage('bot', chatbotLang.errorNetwork); }
+        } catch (e) { removeTypingIndicator(); btn.disabled = false; appendErrorMessage(msg, chatbotLang.errorNetwork); }
+    }
+
+    function appendErrorMessage(originalMsg, errorText) {
+        const container = document.getElementById('chatbot-messages');
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `chatbot-message bot-message error-message-box`;
+        
+        const escapedMsg = originalMsg.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        
+        msgDiv.innerHTML = `
+            <div class="message-content" style="background-color: #fef2f2; color: #ef4444; border-color: #fecaca;">
+                <div><i class="fas fa-exclamation-triangle"></i> ${errorText}</div>
+                <button class="suggested-action-btn retry-action-btn mt-2" onclick="sendChatMessage(event, '${escapedMsg}', this.closest('.chatbot-message'))">
+                    <i class="fas fa-redo"></i> ${chatbotLang.retryBtn || 'Thử lại'}
+                </button>
+            </div>
+        `;
+        container.appendChild(msgDiv);
+        scrollToBottom();
     }
 
     document.addEventListener('DOMContentLoaded', () => {
         loadChatHistory();
         fetchHealthAndModels();
+
+        // Drag to scroll for suggested actions
+        const suggestSlider = document.getElementById('chatbot-suggested-actions');
+        let suggestIsDown = false;
+        let suggestStartX;
+        let suggestScrollLeft;
+
+        suggestSlider.addEventListener('mousedown', (e) => {
+            suggestIsDown = true;
+            suggestStartX = e.pageX - suggestSlider.offsetLeft;
+            suggestScrollLeft = suggestSlider.scrollLeft;
+        });
+
+        suggestSlider.addEventListener('mouseleave', () => {
+            suggestIsDown = false;
+            suggestSlider.classList.remove('active-drag');
+        });
+
+        suggestSlider.addEventListener('mouseup', () => {
+            suggestIsDown = false;
+            suggestSlider.classList.remove('active-drag');
+        });
+
+        suggestSlider.addEventListener('mousemove', (e) => {
+            if (!suggestIsDown) return;
+            e.preventDefault();
+            const x = e.pageX - suggestSlider.offsetLeft;
+            const walk = (x - suggestStartX) * 1.5;
+            if (Math.abs(walk) > 5) {
+                suggestSlider.classList.add('active-drag');
+            }
+            suggestSlider.scrollLeft = suggestScrollLeft - walk;
+        });
     });
 </script>
