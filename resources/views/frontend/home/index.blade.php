@@ -639,7 +639,7 @@
         });
 
         // Tile layers
-        const defaults = L.tileLayer('https://api.maptiler.com/maps/outdoor-v2/{z}/{x}/{y}.png?key=XBpVjYxcoHhAi6NqhQMb', {
+        const defaults = L.tileLayer('https://api.maptiler.com/maps/outdoor-v2/{z}/{x}/{y}.png?key=8cBUtiYp86dx1jzzYd5J', {
             maxNativeZoom: 19,
             maxZoom: 21
         });
@@ -659,7 +659,7 @@
 
         // MapLibre GL 3D Layer
         const map3d = L.maplibreGL({
-            style: 'https://api.maptiler.com/maps/streets-v2/style.json?key=XBpVjYxcoHhAi6NqhQMb',
+            style: 'https://api.maptiler.com/maps/streets-v2/style.json?key=8cBUtiYp86dx1jzzYd5J',
             updateInterval: 0 // Eliminate 30fps throttle to fix 3D panning jitter
         });
 
