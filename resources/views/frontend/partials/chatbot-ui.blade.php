@@ -81,6 +81,9 @@
         <form id="chatbot-form" onsubmit="sendChatMessage(event)">
             <div class="chatbot-input-group">
                 <input type="text" id="chatbot-input" placeholder="{{ __('app.chatbot_input_placeholder') }}" autocomplete="off">
+                <button type="button" id="chatbot-mic-btn" onclick="toggleSpeechRecognition()" aria-label="Voice input" title="Nhập bằng giọng nói">
+                    <i class="fas fa-microphone"></i>
+                </button>
                 <button type="submit" id="chatbot-send-btn">
                     <i class="fas fa-paper-plane"></i>
                 </button>
@@ -531,7 +534,8 @@
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        transition: background 0.2s;
+        transition: background 0.2s, box-shadow 0.2s, color 0.2s;
+        margin-left: 6px;
     }
 
     .chatbot-input-group button:hover {
@@ -540,6 +544,28 @@
 
     .chatbot-input-group button:disabled {
         background: #cbd5e1;
+    }
+    
+    #chatbot-mic-btn {
+        background: transparent;
+        color: #94a3b8;
+    }
+    
+    #chatbot-mic-btn:hover {
+        background: rgba(0,0,0,0.05);
+        color: var(--cb-primary);
+    }
+    
+    #chatbot-mic-btn.recording {
+        background: #ef4444;
+        color: white;
+        animation: pulseRecording 1.5s infinite;
+    }
+    
+    @keyframes pulseRecording {
+        0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+        70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
     }
 
     /* Modal Styling */
@@ -854,6 +880,8 @@
         viewDocument:       @json(__('app.chatbot_view_document')),
         defaultItemName:    @json(__('app.chatbot_default_item_name')),
         retryBtn:           @json(__('app.chatbot_retry_btn')),
+        inputPlaceholder:   @json(__('app.chatbot_input_placeholder')),
+        listening:          @json(__('app.chatbot_listening')),
     };
 
     // Generate or retrieve session ID
@@ -1307,6 +1335,9 @@
     document.addEventListener('DOMContentLoaded', () => {
         loadChatHistory();
         fetchHealthAndModels();
+        
+        // Init speech logic
+        initSpeechRecognition();
 
         // Drag to scroll for suggested actions
         const suggestSlider = document.getElementById('chatbot-suggested-actions');
@@ -1341,4 +1372,118 @@
             suggestSlider.scrollLeft = suggestScrollLeft - walk;
         });
     });
+
+    // === Speech Recognition Logic ===
+    let speechRecognition = null;
+    let isMicRecording = false;
+
+    function initSpeechRecognition() {
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            const micBtn = document.getElementById('chatbot-mic-btn');
+            if (micBtn) micBtn.style.display = 'none';
+            return false;
+        }
+
+        const WebSpeechAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+        speechRecognition = new WebSpeechAPI();
+        speechRecognition.continuous = false;
+        speechRecognition.interimResults = true;
+        speechRecognition.lang = 'vi-VN';
+
+        let finalTranscriptStr = '';
+
+        speechRecognition.onstart = function() {
+            isMicRecording = true;
+            finalTranscriptStr = ''; // reset on start
+            document.getElementById('chatbot-mic-btn').classList.add('recording');
+            const input = document.getElementById('chatbot-input');
+            input.value = ''; // clear input to capture voice cleanly
+            input.placeholder = chatbotLang.listening || "Đang nghe...";
+        };
+
+        speechRecognition.onresult = function(event) {
+            let interimTranscript = '';
+            
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                    finalTranscriptStr += event.results[i][0].transcript;
+                } else {
+                    interimTranscript += event.results[i][0].transcript;
+                }
+            }
+            
+            const input = document.getElementById('chatbot-input');
+            if (finalTranscriptStr || interimTranscript) {
+                input.value = finalTranscriptStr + interimTranscript;
+            }
+        };
+
+        speechRecognition.onerror = function(event) {
+            console.error("Speech recognition error", event.error);
+            stopRecordingState();
+            
+            if (event.error !== 'no-speech') {
+                let errorMsg = 'Chưa thể lấy tín hiệu giọng nói.';
+                if (event.error === 'not-allowed') {
+                    errorMsg = 'Bạn chưa cấp quyền Micro (Hoặc đang chạy http thường không bảo mật).';
+                } else if (event.error === 'network') {
+                    errorMsg = 'Lỗi kết nối mạng máy chủ nhận diện.';
+                } else if (event.error === 'aborted') {
+                    return; // Ignore manual abort
+                }
+                
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi ghi âm (' + event.error + ')',
+                    text: errorMsg,
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 5000
+                });
+            }
+        };
+
+        speechRecognition.onend = function() {
+            stopRecordingState();
+        };
+
+        return true;
+    }
+
+    function stopRecordingState() {
+        isMicRecording = false;
+        const micBtn = document.getElementById('chatbot-mic-btn');
+        if (micBtn) micBtn.classList.remove('recording');
+        const input = document.getElementById('chatbot-input');
+        if (input) input.placeholder = chatbotLang.inputPlaceholder || "Nhập tin nhắn...";
+    }
+
+    function toggleSpeechRecognition() {
+        if (!speechRecognition) {
+            const initialized = initSpeechRecognition();
+            if (!initialized) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Chưa hỗ trợ',
+                    text: 'Trình duyệt của bạn không hỗ trợ nhận diện giọng nói.',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+                return;
+            }
+        }
+        
+        if (isMicRecording) {
+            speechRecognition.stop();
+        } else {
+            try {
+                speechRecognition.start();
+            } catch (e) {
+                console.error(e);
+            }
+        }
+    }
 </script>
