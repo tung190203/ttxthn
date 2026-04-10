@@ -32,8 +32,6 @@
             </div>
         </div>
         <div class="chatbot-actions">
-            <button onclick="resetChatSession()" class="text-white" title="{{ __('app.chatbot_refresh_title') }}"><i class="fal fa-sync"></i></button>
-
             <button onclick="deleteChatSession()" class="text-white" title="{{ __('app.chatbot_delete_title') }}"><i class="fal fa-trash-alt"></i></button>
             <button id="chatbot-expand-btn" onclick="toggleExpandChatbot()" class="text-white" title="{{ __('app.chatbot_expand_title') }}"><i class="fal fa-expand-alt"></i></button>
             <button onclick="toggleChatbot()" class="text-white" title="{{ __('app.chatbot_close_title') }}"><i class="fal fa-times"></i></button>
@@ -904,15 +902,8 @@
 <script>
     // Localization strings passed from Blade
     const chatbotLang = {
-        resetTitle:         @json(__('app.chatbot_reset_confirm_title')),
-        resetText:          @json(__('app.chatbot_reset_confirm_text')),
-        resetConfirmBtn:    @json(__('app.chatbot_reset_confirm_btn')),
-        resetCancel:        @json(__('app.chatbot_cancel')),
-        resetting:          @json(__('app.chatbot_resetting')),
-        resetNewMsg:        @json(__('app.chatbot_reset_new_msg')),
-        resetSuccess:       @json(__('app.chatbot_reset_success')),
-        resetError:         @json(__('app.chatbot_reset_error')),
         deleteTitle:        @json(__('app.chatbot_delete_confirm_title')),
+        deleteCancel:        @json(__('app.chatbot_cancel')),
         deleteText:         @json(__('app.chatbot_delete_confirm_text')),
         deleteConfirmBtn:   @json(__('app.chatbot_delete_confirm_btn')),
         deleting:           @json(__('app.chatbot_deleting')),
@@ -951,58 +942,6 @@
         return sid;
     }
 
-    async function resetChatSession() {
-        const result = await Swal.fire({
-            title: chatbotLang.resetTitle,
-            text: chatbotLang.resetText,
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: 'var(--cb-primary)',
-            cancelButtonColor: '#94a3b8',
-            confirmButtonText: chatbotLang.resetConfirmBtn,
-            cancelButtonText: chatbotLang.resetCancel
-        });
-
-        if (!result.isConfirmed) return;
-
-        const sid = getChatSessionId();
-        const messagesContainer = document.getElementById('chatbot-messages');
-        messagesContainer.innerHTML = `<div class="text-center py-4"><i class="fas fa-spinner fa-spin"></i> ${chatbotLang.resetting}</div>`;
-
-        try {
-            await fetch(`/chat/session/${sid}/clear`, {
-                method: 'POST',
-                headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') }
-            });
-            
-            messagesContainer.innerHTML = `
-                <div class="chatbot-message bot-message">
-                    <div class="message-content">
-                        ${chatbotLang.resetNewMsg}
-                    </div>
-                </div>
-            `;
-            document.getElementById('chatbot-suggested-actions').style.display = 'none';
-            document.getElementById('chatbot-scroll-btn').style.bottom = '80px';
-            document.getElementById('chatbot-status-text').innerText = chatbotLang.onlineLabel;
-            const stageInd = document.getElementById('chatbot-stage-indicator');
-            stageInd.innerText = '';
-            stageInd.style.display = 'none';
-            
-            Swal.fire({
-                icon: 'success',
-                title: chatbotLang.resetSuccess,
-                showConfirmButton: false,
-                timer: 1000,
-                toast: true,
-                position: 'top-end'
-            });
-        } catch (e) { 
-            console.error(e);
-            Swal.fire(chatbotLang.errorLabel, chatbotLang.resetError, 'error');
-        }
-    }
-
     async function deleteChatSession() {
         const result = await Swal.fire({
             title: chatbotLang.deleteTitle,
@@ -1012,7 +951,7 @@
             confirmButtonColor: '#ef4444',
             cancelButtonColor: '#94a3b8',
             confirmButtonText: chatbotLang.deleteConfirmBtn,
-            cancelButtonText: chatbotLang.resetCancel
+            cancelButtonText: chatbotLang.deleteCancel
         });
 
         if (!result.isConfirmed) return;
