@@ -25,13 +25,15 @@
                     <h5 class="mb-0 text-white" style="font-size: 15px; font-weight: 600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ \App\Models\Setting::getSettingByKey('chatbot_name', __('app.assistant_ai')) }}</h5>
                     <span id="chatbot-status-dot" class="ms-2" style="width: 8px; height: 8px; background-color: #94a3b8; border-radius: 50%; display: inline-block; flex-shrink:0;" title="{{ __('app.checking_status') }}"></span>
                 </div>
-                <div class="d-flex align-items-center">
+                <div class="d-flex align-items-center mb-1">
                     <span id="chatbot-status-text" class="text-white-50" style="font-size: 11px;">{{ __('app.checking_status') }}</span>
                 </div>
+                <div id="chatbot-stage-indicator" class="text-white-50" style="font-size: 10px; display: none; line-height: 1;"></div>
             </div>
         </div>
         <div class="chatbot-actions">
             <button onclick="resetChatSession()" class="text-white" title="{{ __('app.chatbot_refresh_title') }}"><i class="fal fa-sync"></i></button>
+
             <button onclick="deleteChatSession()" class="text-white" title="{{ __('app.chatbot_delete_title') }}"><i class="fal fa-trash-alt"></i></button>
             <button id="chatbot-expand-btn" onclick="toggleExpandChatbot()" class="text-white" title="{{ __('app.chatbot_expand_title') }}"><i class="fal fa-expand-alt"></i></button>
             <button onclick="toggleChatbot()" class="text-white" title="{{ __('app.chatbot_close_title') }}"><i class="fal fa-times"></i></button>
@@ -665,6 +667,53 @@
         to { opacity: 1; transform: translateY(0); }
     }
 
+    /* Markdown Table Styling */
+    .table-responsive {
+        overflow-x: auto;
+        margin: 10px 0;
+        border-radius: 8px;
+        border: 1px solid #cbd5e1;
+    }
+    .chatbot-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+        background: white;
+        border: 1px solid #cbd5e1;
+    }
+    .chatbot-table th {
+        background: #f1f5f9;
+        color: #1e293b;
+        font-weight: 700;
+        padding: 10px 12px;
+        text-align: left;
+        border: 1px solid #cbd5e1;
+        white-space: nowrap;
+    }
+    .chatbot-table td {
+        padding: 10px 12px;
+        border: 1px solid #cbd5e1;
+        color: #334155;
+        line-height: 1.5;
+    }
+    .chatbot-table tr:nth-child(even) {
+        background: #f8fafc;
+    }
+    .bot-message .message-content h3 {
+        font-size: 16px;
+        margin-top: 15px;
+        margin-bottom: 10px;
+        font-weight: 700;
+        color: var(--cb-primary);
+    }
+    .bot-message .message-content ul, .bot-message .message-content ol {
+        padding-left: 20px;
+        margin-bottom: 10px;
+    }
+    .bot-message .message-content li {
+        margin-bottom: 5px;
+    }
+
     /* =========================================
        RESPONSIVE - Mobile Small (≤ 480px)
     ========================================= */
@@ -810,6 +859,10 @@
         .chatbot-message-feedback {
             opacity: 1;
         }
+
+        .bot-message .message-content li {
+            margin-bottom: 5px;
+        }
     }
 
     /* =========================================
@@ -931,7 +984,10 @@
             `;
             document.getElementById('chatbot-suggested-actions').style.display = 'none';
             document.getElementById('chatbot-scroll-btn').style.bottom = '80px';
-            document.getElementById('chatbot-stage-indicator').innerText = chatbotLang.onlineLabel;
+            document.getElementById('chatbot-status-text').innerText = chatbotLang.onlineLabel;
+            const stageInd = document.getElementById('chatbot-stage-indicator');
+            stageInd.innerText = '';
+            stageInd.style.display = 'none';
             
             Swal.fire({
                 icon: 'success',
@@ -983,7 +1039,10 @@
             `;
             document.getElementById('chatbot-suggested-actions').style.display = 'none';
             document.getElementById('chatbot-scroll-btn').style.bottom = '80px';
-            document.getElementById('chatbot-stage-indicator').innerText = chatbotLang.onlineLabel;
+            document.getElementById('chatbot-status-text').innerText = chatbotLang.onlineLabel;
+            const stageInd = document.getElementById('chatbot-stage-indicator');
+            stageInd.innerText = '';
+            stageInd.style.display = 'none';
 
             Swal.fire({
                 icon: 'success',
@@ -1056,21 +1115,104 @@
 
     function renderMarkdownBasic(text) {
         if (!text) return '';
+        
+        let lines = text.split('\n');
+        let html = '';
+        let inTable = false;
+        let tableRows = [];
+
+        function flushTable() {
+            if (tableRows.length > 0) {
+                html += renderTable(tableRows);
+                tableRows = [];
+            }
+            inTable = false;
+        }
+
+        for (let i = 0; i < lines.length; i++) {
+            let line = lines[i].trim();
+
+            // Table detection
+            if (line.startsWith('|') && line.includes('|')) {
+                inTable = true;
+                tableRows.push(line);
+                continue;
+            } else if (inTable) {
+                flushTable();
+            }
+
+            // Headers
+            if (line.startsWith('### ')) {
+                html += `<h3>${processInline(line.substring(4))}</h3>`;
+            } else if (line.startsWith('## ')) {
+                html += `<h2>${processInline(line.substring(3))}</h2>`;
+            } else if (line.startsWith('# ')) {
+                html += `<h1>${processInline(line.substring(2))}</h1>`;
+            } 
+            // Lists
+            else if (line.startsWith('- ') || line.startsWith('* ')) {
+                html += `<ul><li>${processInline(line.substring(2))}</li></ul>`;
+            }
+            else if (/^\d+\.\s/.test(line)) {
+                html += `<ol><li>${processInline(line.replace(/^\d+\.\s/, ''))}</li></ol>`;
+            }
+            // Paragraphs
+            else {
+                if (line) html += `<p>${processInline(line)}</p>`;
+            }
+        }
+        flushTable();
+
+        // Cleanup multiple ul/ol tags
+        html = html.replace(/<\/ul><ul>/g, '');
+        html = html.replace(/<\/ol><ol>/g, '');
+
+        return html;
+    }
+
+    function processInline(text) {
+        if (!text) return '';
         let html = text;
-        
-        // 1. Markdown Links: [text](https://...)
+        // Links
         html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" style="color: var(--cb-primary); text-decoration: underline;">$1</a>');
-        
-        // 2. Raw URLs (not preceding with a quote to avoid replacing href="...")
+        // Raw URLs
         html = html.replace(/(^|[^"'])(https?:\/\/[^\s<)\]"']+)/g, '$1<a href="$2" target="_blank" style="color: var(--cb-primary); text-decoration: underline;">$2</a>');
-        
-        // 3. Bold text
+        // Bold
         html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        return html;
+    }
+
+    function renderTable(rows) {
+        if (rows.length < 2) return rows.join('<br>');
         
-        // 4. Line breaks
-        html = html.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
+        let html = '<div class="table-responsive"><table class="chatbot-table">';
+        let startIdx = 0;
+
+        // Check for separator row |---|
+        let isSeparator = rows[1] && rows[1].includes('-') && rows[1].includes('|');
         
-        return `<p>${html}</p>`;
+        // Header
+        let headerCells = rows[0].split('|').filter((c, idx, arr) => (idx > 0 && idx < arr.length - 1) || c.trim() !== '').map(c => c.trim()).filter(c => c !== '');
+        if (headerCells.length === 0) headerCells = rows[0].split('|').map(c => c.trim()).filter(c => c !== '');
+
+        html += '<thead><tr>';
+        headerCells.forEach(c => html += `<th>${processInline(c)}</th>`);
+        html += '</tr></thead>';
+        
+        startIdx = isSeparator ? 2 : 1;
+        
+        // Body
+        html += '<tbody>';
+        for (let i = startIdx; i < rows.length; i++) {
+            let bodyCells = rows[i].split('|').filter((c, idx, arr) => (idx > 0 && idx < arr.length - 1) || c.trim() !== '').map(c => c.trim()).filter(c => c !== '');
+            if (bodyCells.length === 0) bodyCells = rows[i].split('|').map(c => c.trim()).filter(c => c !== '');
+            
+            html += '<tr>';
+            bodyCells.forEach(c => html += `<td>${processInline(c)}</td>`);
+            html += '</tr>';
+        }
+        html += '</tbody></table></div>';
+        return html;
     }
 
     function showFeedbackModal(messageId, rating) {
@@ -1140,7 +1282,10 @@
                         'deep_dive': 'Deep Dive', 'compare_projects': 'Comparing',
                         'policy_procedure': 'Policy & Procedure', 'cta': 'Call to Action', 'fallback': 'Fallback'
                     };
-                    document.getElementById('chatbot-stage-indicator').innerText = chatbotLang.stageLabel + (stageNames[metadata.stage] || metadata.stage);
+                    const stageText = chatbotLang.stageLabel + (stageNames[metadata.stage] || metadata.stage);
+                    const stageInd = document.getElementById('chatbot-stage-indicator');
+                    stageInd.innerText = stageText;
+                    stageInd.style.display = 'block';
                 }
 
                 if (metadata.entities) {
@@ -1244,33 +1389,18 @@
             if (hRes.ok) {
                 const hData = await hRes.json();
                 const dot = document.getElementById('chatbot-status-dot');
+                const statusTxt = document.getElementById('chatbot-status-text');
                 if (hData.status === 'healthy') {
                     dot.style.backgroundColor = '#22c55e'; // Green
                     dot.title = chatbotLang.statusHealthy;
+                    if (statusTxt) statusTxt.innerText = chatbotLang.onlineLabel || 'Đang trực tuyến';
                 } else {
                     dot.style.backgroundColor = '#ef4444'; // Red
                     dot.title = chatbotLang.statusError;
+                    if (statusTxt) statusTxt.innerText = chatbotLang.statusError;
                 }
             }
         } catch (e) { console.error('Health check failed', e); }
-
-        // Models List
-        try {
-            const mRes = await fetch('/chat/models');
-            if (mRes.ok) {
-                const mData = await mRes.json();
-                const select = document.getElementById('chatbot-model-select');
-                if (mData.models && mData.models.length > 0) {
-                    mData.models.forEach(m => {
-                        const opt = document.createElement('option');
-                        opt.value = m.id || m.name;
-                        opt.innerText = m.name || m.id;
-                        opt.style.color = '#334155';
-                        select.appendChild(opt);
-                    });
-                }
-            }
-        } catch (e) { console.error('Failed to fetch models', e); }
     }
 
     async function sendChatMessage(e, retryMsg = null, errorNodeToRemove = null) {
@@ -1282,7 +1412,6 @@
         
         const input = document.getElementById('chatbot-input');
         const btn = document.getElementById('chatbot-send-btn');
-        const modelSelect = document.getElementById('chatbot-model-select');
         
         const msg = retryMsg !== null ? retryMsg : input.value.trim();
         if (!msg) return;
@@ -1302,8 +1431,7 @@
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
                 body: JSON.stringify({ 
                     session_id: getChatSessionId(), 
-                    message: msg,
-                    model: modelSelect.value || undefined
+                    message: msg
                 })
             });
             removeTypingIndicator(); btn.disabled = false;
