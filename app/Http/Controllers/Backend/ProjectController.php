@@ -364,7 +364,7 @@ class ProjectController extends Controller
                 $project->setTranslations('slug', $slugTranslations);
                 $firstLocaleSlug = $slugTranslations[$firstLocale];
                 $project->vrtour_code = 'vrtour-' . $firstLocaleSlug;
-                $project->link = $request->input('link') ?? env('APP_URL')."/project-detail/$firstLocaleSlug";
+                $project->link = $request->input('link') ?? url("/project-detail/$firstLocaleSlug");
                 $project->save();
 
                 if ($request->filled('districts')) {
@@ -408,7 +408,7 @@ class ProjectController extends Controller
                     }
                     $mainProject->setTranslations('slug', $mainProjectSlugTranslations);
                     $firstLocaleSlug = $mainProjectSlugTranslations[$firstLocale];
-                    $mainProject->link = $request->input('link') ?? env('APP_URL')."/project-detail/$firstLocaleSlug";
+                    $mainProject->link = $request->input('link') ?? url("/project-detail/$firstLocaleSlug");
                     $mainProject->save();
 
                     // Đồng bộ districts
