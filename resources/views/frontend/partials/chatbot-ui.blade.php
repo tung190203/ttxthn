@@ -1,6 +1,6 @@
 <!-- Chatbot Floating Button -->
 <div id="ai-chatbot-btn-container" class="chatbot-btn-container">
-    <div class="chatbot-tooltip">{{ __('app.assistant_ready') }}</div>
+    <div class="chatbot-tooltip">{{ \App\Models\Setting::getSettingByKey('chatbot_tooltip', __('app.assistant_ready')) }}</div>
     <div id="ai-chatbot-btn" class="chatbot-floating-btn" onclick="toggleChatbot()">
         <i class="fal fa-comment-alt-lines fa-2x text-white"></i>
     </div>
@@ -11,18 +11,22 @@
     <div class="chatbot-header">
         <div class="d-flex align-items-center" style="min-width:0; flex:1; overflow:hidden;">
             <div class="chatbot-avatar" style="flex-shrink:0;">
-                <i class="fas fa-robot"></i>
+                @php
+                    $cb_avatar = \App\Models\Setting::getSettingByKey('chatbot_avatar');
+                @endphp
+                @if(!empty($cb_avatar))
+                    <img src="{{ asset($cb_avatar) }}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                @else
+                    <i class="fas fa-robot"></i>
+                @endif
             </div>
             <div class="ms-2" style="min-width:0; overflow:hidden;">
                 <div class="d-flex align-items-center">
-                    <h5 class="mb-0 text-white" style="font-size: 15px; font-weight: 600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ __('app.assistant_ai') }}</h5>
+                    <h5 class="mb-0 text-white" style="font-size: 15px; font-weight: 600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ \App\Models\Setting::getSettingByKey('chatbot_name', __('app.assistant_ai')) }}</h5>
                     <span id="chatbot-status-dot" class="ms-2" style="width: 8px; height: 8px; background-color: #94a3b8; border-radius: 50%; display: inline-block; flex-shrink:0;" title="{{ __('app.checking_status') }}"></span>
                 </div>
                 <div class="d-flex align-items-center">
-                    <small class="text-white-50" style="font-size: 11px; white-space:nowrap;" id="chatbot-stage-indicator">{{ __('app.online') }}</small>
-                    <select id="chatbot-model-select" class="ms-2 border-0 bg-transparent text-white-50" style="font-size: 10px; outline: none; cursor: pointer; max-width:80px;">
-                        <option value="">{{ __('app.default') }}</option>
-                    </select>
+                    <span id="chatbot-status-text" class="text-white-50" style="font-size: 11px;">{{ __('app.checking_status') }}</span>
                 </div>
             </div>
         </div>
@@ -37,7 +41,7 @@
     <div class="chatbot-body" id="chatbot-messages">
         <div class="chatbot-message bot-message" data-id="welcome">
             <div class="message-content">
-                {{ __('app.chatbot_welcome') }}
+                {{ \App\Models\Setting::getSettingByKey('chatbot_welcome_message', __('app.chatbot_welcome')) }}
             </div>
         </div>
     </div>
@@ -95,12 +99,12 @@
 <style>
     /* Premium Chatbot Styling */
     :root {
-        --cb-primary: #1a6fc4;
-        --cb-primary-gradient: linear-gradient(135deg, #1a6fc4, #00d2ff);
+        --cb-primary: {{ $setting['chatbot_primary_color'] ?? '#1a6fc4' }};
+        --cb-primary-gradient: linear-gradient(135deg, {{ $setting['chatbot_primary_color'] ?? '#1a6fc4' }}, #00d2ff);
         --cb-bg: #f8fafc;
         --cb-text: #334155;
         --cb-bot-msg: #ffffff;
-        --cb-user-msg: #1a6fc4;
+        --cb-user-msg: {{ $setting['chatbot_primary_color'] ?? '#1a6fc4' }};
         --cb-border: #e2e8f0;
     }
 

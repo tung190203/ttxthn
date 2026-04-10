@@ -128,6 +128,7 @@ return [
             'general' => 'Cài đặt chung',
             'seo' => 'Cài đặt SEO',
             'social' => 'Cài đặt mạng xã hội',
+            'chatbot' => 'Cài đặt chatbot',
         ],
         'super_admin_only' => true,
     ]

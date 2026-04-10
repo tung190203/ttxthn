@@ -119,6 +119,10 @@ return [
                         'social' => [
                             'title' => 'Mạng xã hội',
                             'route' => 'backend_setting_social'
+                        ],
+                        'chatbot' => [
+                            'title' => 'Chatbot',
+                            'route' => 'backend_setting_chatbot'
                         ]
                     ]
                 ],
