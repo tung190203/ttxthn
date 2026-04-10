@@ -44,11 +44,6 @@ class AiChatService
         return $this->client()->get($this->baseUrl . "/api/v1/session/{$sessionId}");
     }
 
-    public function clearSession($sessionId)
-    {
-        return $this->client()->post($this->baseUrl . "/api/v1/session/{$sessionId}/clear");
-    }
-
     public function deleteSession($sessionId)
     {
         return $this->client()->delete($this->baseUrl . "/api/v1/session/{$sessionId}");
@@ -57,11 +52,6 @@ class AiChatService
     public function getHealthStatus()
     {
         return $this->client()->get($this->baseUrl . '/api/v1/health');
-    }
-
-    public function getModelsList()
-    {
-        return $this->client()->get($this->baseUrl . '/api/v1/models');
     }
 
     public function getStatus()

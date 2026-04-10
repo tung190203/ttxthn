@@ -141,7 +141,6 @@ return [
     'default' => 'Mặc định',
 
     // Chatbot actions
-    'chatbot_refresh_title' => 'Làm mới trò chuyện',
     'chatbot_delete_title' => 'Xóa cuộc trò chuyện',
     'chatbot_expand_title' => 'Phóng to',
     'chatbot_compress_title' => 'Thu nhỏ',
@@ -165,18 +164,11 @@ return [
     'chatbot_feedback_not_useful' => 'Không hữu ích',
 
     // Chatbot JS strings
-    'chatbot_reset_confirm_title' => 'Làm mới trò chuyện?',
-    'chatbot_reset_confirm_text' => 'Tin nhắn sẽ bị xóa nhưng phiên làm việc vẫn được giữ nguyên.',
-    'chatbot_reset_confirm_btn' => 'Đồng ý',
-    'chatbot_resetting' => 'Đang làm mới...',
-    'chatbot_reset_new_msg' => 'Bắt đầu cuộc trò chuyện mới. Xin chào! Tôi có thể giúp gì cho bạn?',
-    'chatbot_reset_success' => 'Đã làm mới!',
-    'chatbot_reset_error' => 'Không thể làm mới phiên chat.',
     'chatbot_delete_confirm_title' => 'Xóa toàn bộ cuộc trò chuyện?',
     'chatbot_delete_confirm_text' => 'Dữ liệu sẽ bị xóa vĩnh viễn trên hệ thống và không thể khôi phục.',
     'chatbot_delete_confirm_btn' => 'Xóa vĩnh viễn',
     'chatbot_deleting' => 'Đang xóa dữ liệu...',
-    'chatbot_delete_new_msg' => 'Dữ liệu đã được xóa sạch. Tôi sẵn sàng cho câu hỏi tiếp theo của bạn!',
+    'chatbot_delete_new_msg' => 'Dữ liệu đã được xóa. Tôi sẵn sàng cho câu hỏi tiếp theo của bạn!',
     'chatbot_delete_success' => 'Xoá cuộc hội thoại thành công!',
     'chatbot_delete_error' => 'Không thể xóa dữ liệu.',
     'chatbot_status_healthy' => 'Hệ thống ổn định',
