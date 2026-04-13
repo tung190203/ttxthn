@@ -65,7 +65,8 @@ class Project extends Model
         'status',
         'view_num',
         'views_month',
-        'views_month_code'
+        'views_month_code',
+        'boundary'
     ];
 
     public $translatable = [

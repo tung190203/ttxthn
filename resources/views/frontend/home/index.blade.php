@@ -1617,6 +1617,10 @@
             updateRailwayStyles();
             stationOverlayGroup.clearLayers(); // Ẩn các nhà ga khi bỏ chọn tuyến
             depotOverlayGroup.clearLayers();   // Ẩn các depot khi bỏ chọn tuyến
+            if (window._currentProjectBoundaryPolygon) {
+                map.removeLayer(window._currentProjectBoundaryPolygon);
+                window._currentProjectBoundaryPolygon = null;
+            }
         });
 
         // Ngăn chặn sự kiện cuộn/nhấp chuột truyền từ legend xuống bản đồ
@@ -1870,7 +1874,7 @@
         }
 
         L.control.layers(baseLayers, overlayLayers).addTo(map);
-        railwayOverlayGroup.addTo(map); 
+        // railwayOverlayGroup.addTo(map); 
         // stationOverlayGroup.addTo(map); // Optional: if you want stations to persist toggle separately
         map.on('overlayadd', function(e) {
             if (e.name === "{{ __('app.railway_map') }}") {
@@ -2076,6 +2080,39 @@
     `;
 
             marker.bindPopup(popupContent);
+
+            if (loc.boundary) {
+                marker.on('click', function() {
+                    if (window._currentProjectBoundaryPolygon) {
+                        map.removeLayer(window._currentProjectBoundaryPolygon);
+                        window._currentProjectBoundaryPolygon = null;
+                    }
+                    try {
+                        const coords = JSON.parse(loc.boundary);
+                        if (coords && coords.length > 0) {
+                            window._currentProjectBoundaryPolygon = L.polygon(coords, {
+                                color: '#e65100',
+                                weight: 2,
+                                dashArray: '5, 5',
+                                fillColor: '#ffa726',
+                                fillOpacity: 0.2,
+                                interactive: true
+                            }).addTo(map);
+                            
+                            if (window._currentProjectBoundaryPolygon) {
+                                window._currentProjectBoundaryPolygon.bindTooltip(loc.name, {
+                                    sticky: true,
+                                    direction: 'top',
+                                    className: 'boundary-tooltip'
+                                });
+                            }
+                        }
+                    } catch (e) {
+                        console.error("Lỗi vẽ toạ độ boundary dự án:", e);
+                    }
+                });
+            }
+
             return marker;
         }
 
