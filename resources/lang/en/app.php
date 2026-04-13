@@ -12,6 +12,7 @@ return [
     'suggested_projects' => 'Search suggestions',
     'view_all_results' => 'View all results',
     'name_project' => 'Plot name',
+    'lot' => 'Plot',
     'rental_price' => 'Rental price',
     'search_project' => 'Search Projects',
     'industrial_products' => 'Industrial Park, Cluster products',
