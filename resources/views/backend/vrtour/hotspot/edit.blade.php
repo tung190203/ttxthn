@@ -42,10 +42,14 @@
                        @endphp
                        <x-forms.input name="hp_potision_display" :value="$displayPotision" label="Vị trí" type="text" readonly />
                        <input type="hidden" name="hp_potision" value="{{ $realPotision }}">
-                        <x-forms.input name="hp_tooltip" value="{{ (old('hp_tooltip') ?: $hotspot->tooltip) }}"
-                                       label="Mô tả VN" type="text" :messages="$errors->get('hp_tooltip')"/>
-                        <x-forms.input name="hp_tooltip_en" value="{{ (old('hp_tooltip_en') ?: $hotspot->tooltip_en) }}"
-                                       label="Mô tả EN" type="text" :messages="$errors->get('hp_tooltip_en')"/>
+                        <x-forms.textarea 
+                            name="hp_tooltip"
+                            :value="old('hp_tooltip') ?: $hotspot->tooltip"
+                            label="Mô tả VN"
+                            :messages="$errors->get('hp_tooltip')"
+                        />
+                        <x-forms.textarea name="hp_tooltip_en" value="{{ (old('hp_tooltip_en') ?: $hotspot->tooltip_en) }}"
+                                       label="Mô tả EN"  :messages="$errors->get('hp_tooltip_en')"/>
                         @if(\Illuminate\Support\Str::startsWith($hotspot->potision, 'cmss'))
                         <x-forms.input name="acreage" value="{{ old('acreage') ?: $hotspot->acreage }}" label="Diện tích" type="text" :messages="$errors->get('acreage')" />
                         <x-forms.select name="product_type" label="Loại sản phẩm" :options="$option_product_types" :messages="$errors->get('product_type')" />

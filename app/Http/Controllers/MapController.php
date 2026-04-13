@@ -101,6 +101,7 @@ class MapController extends Controller
                 'is_invest' => $project->is_invest,
                 'banner_image' => $project->banner_image,
                 'detail_image' => $project->detail_image,
+                'boundary' => $project->boundary,
                 'districts' => $project->districts->pluck('name')->toArray(),
                 'industrial' => $project->industrialProjects->map(function ($industrialProject) {
                     return [

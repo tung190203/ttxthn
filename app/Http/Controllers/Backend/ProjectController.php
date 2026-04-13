@@ -238,6 +238,7 @@ class ProjectController extends Controller
             'detail_image' => 'nullable|max:2048',
             'lat' => 'nullable|numeric',
             'lng' => 'nullable|numeric',
+            'boundary' => 'nullable|string',
             'area' => 'nullable|numeric|min:0',
             'unit' => 'nullable|integer',
             'type_number' => 'nullable|integer|min:0|exists:project_types,id',

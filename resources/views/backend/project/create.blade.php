@@ -111,6 +111,9 @@
                                     :messages="$errors->get('lng')" />
                             </div>
                         </div>
+
+                        <x-forms.textarea name="boundary" value="{{ old('boundary') ?: $project->boundary }}" label="Tọa độ boundary dự án (khoanh vùng, tuỳ chọn) JSON: [[lat,lng], [lat,lng],...]"
+                            :messages="$errors->get('boundary')" />
                         
                         <x-forms.input name="area" value="{{ old('area') ?: $project->area }}" label="Giá trị"
                             :messages="$errors->get('area')" />
