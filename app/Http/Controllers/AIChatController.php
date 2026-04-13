@@ -37,13 +37,6 @@ class AIChatController extends Controller
         return response()->json($response->json());
     }
 
-    public function clearSession($sessionId)
-    {
-        $response = $this->aiChatService->clearSession($sessionId);
-
-        return response()->json($response->json());
-    }
-
     public function deleteSession($sessionId)
     {
         $response = $this->aiChatService->deleteSession($sessionId);
@@ -67,13 +60,6 @@ class AIChatController extends Controller
     public function getHealthStatus()
     {
         $response = $this->aiChatService->getHealthStatus();
-        return response()->json($response->json());
-    }
-
-    public function getModelsList()
-    {
-        $response = $this->aiChatService->getModelsList();
-
         return response()->json($response->json());
     }
 }

@@ -6,9 +6,42 @@
 @section('content')
     <div class="page__content">
         <!-- main content-->
-        <section class="banner-home">
+        <section class="banner-home" style="position: relative;">
+            @if(file_exists(public_path('videos/intro.mp4')))
+                <div id="video-loader-container" style="display: none;">
+                    <video id="loader-video" autoplay muted playsinline preload="auto">
+                        <source src="/videos/intro.mp4" type="video/mp4">
+                        Trình duyệt của bạn không hỗ trợ video.
+                    </video>
+                    <button id="skip-video-btn" class="btn-skip-video">
+                        Bỏ qua video <i class="fas fa-forward ms-2"></i>
+                    </button>
+                </div>
+            @endif
             <div class="w-full">
-                <div id="map"></div>
+                <div id="map">
+                    <!-- Railway Legend -->
+                    <div id="railway-legend" style="display:none;">
+                        <!-- Icon hiển thị khi thu gọn -->
+                        <button id="railway-legend-icon" class="railway-legend__icon-btn" title="Mở chú thích">
+                            <i class="fas fa-train"></i>
+                        </button>
+                        
+                        <!-- Panel hiển thị khi mở rộng -->
+                        <div id="railway-legend-panel">
+                            <div class="railway-legend__header">
+                                <i class="fas fa-train me-2"></i>
+                                <span>Chú thích tuyến ĐSĐT</span>
+                                <button id="railway-legend-toggle" title="Thu gọn"><i class="fas fa-times"></i></button>
+                            </div>
+                            <div id="railway-legend__body">
+                                <div class="railway-legend__grid" id="railway-legend-items">
+                                    <!-- Items sẽ được render bởi JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
         <div class="pj-search" id="pjSearchFull">
@@ -365,6 +398,19 @@
 
 @push('bottom')
     <style>
+        /* pj-search wrapper phủ lên bản đồ nhưng phải trong suốt với sự kiện chuột
+           để không chặn click/drag bản đồ ở vùng trống xung quanh form */
+        #pjSearchFull,
+        #pjSearchMini {
+            pointer-events: none;
+        }
+        /* Chỉ cho phép tương tác trên phần nội dung thực của form */
+        #pjSearchFull .pj-search__body,
+        #pjSearchFull .custom_tabs,
+        #pjSearchMini .pj-search__body {
+            pointer-events: auto;
+        }
+
         /* Xóa ô vuông xanh (focus outline) khi click/focus vào ranh giới */
         .leaflet-interactive:focus {
             outline: none !important;
@@ -471,7 +517,6 @@
             color: #777;
         }
 
-        /* Footer */
         .suggestion-footer {
             padding: 10px;
             text-align: center;
@@ -495,6 +540,295 @@
                 transform: translateY(0);
             }
         }
+
+        /* Video Loader Styles */
+        #video-loader-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 20000;
+            background: #000;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: auto;
+        }
+        #loader-video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .btn-skip-video {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            padding: 12px 24px;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            z-index: 2001;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        @media (max-width: 768px) {
+            .btn-skip-video {
+                bottom: 20px;
+                right: 20px;
+                padding: 10px 20px;
+                font-size: 12px;
+            }
+        }
+        .btn-skip-video:hover {
+            background: rgba(0, 0, 0, 0.8);
+            border-color: #fff;
+            transform: translateY(-2px);
+        }
+        .video-fade-out {
+            opacity: 0;
+            transition: opacity 0.8s ease-out;
+            pointer-events: none;
+        }
+
+        /* ── RAILWAY LEGEND ─────────────────────────────────────── */
+        #railway-legend {
+            position: absolute;
+            bottom: 24px;
+            left: 12px;
+            z-index: 1500;
+            pointer-events: none; /* Let clicks pass through empty spaces */
+        }
+        
+        .railway-legend__icon-btn {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #1a6fc4;
+            color: #fff;
+            border: 2px solid #fff;
+            box-shadow: 0 4px 15px rgba(26, 111, 196, 0.4);
+            font-size: 18px;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            
+            /* Animation */
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform-origin: center;
+            opacity: 0;
+            transform: scale(0.5);
+            visibility: hidden;
+            pointer-events: none;
+            z-index: 2;
+            display: flex; /* So the flex rules stay even when hidden */
+        }
+        .railway-legend__icon-btn:hover {
+            background: #1d7ddc;
+        }
+
+        #railway-legend.legend-collapsed .railway-legend__icon-btn {
+            opacity: 1;
+            transform: scale(1);
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        #railway-legend-panel {
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(26, 111, 196, 0.2);
+            border-radius: 10px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            min-width: 220px;
+            max-width: 280px;
+            overflow: hidden;
+            pointer-events: auto;
+            
+            /* Animation */
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform-origin: bottom left;
+            opacity: 1;
+            transform: scale(1);
+            visibility: visible;
+            position: relative;
+            z-index: 1;
+        }
+
+        #railway-legend.legend-collapsed #railway-legend-panel {
+            opacity: 0;
+            transform: scale(0.6) translateY(20px);
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .railway-legend__header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 14px;
+            background: #1a6fc4;
+            border-bottom: 1px solid #1459a0;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            user-select: none;
+        }
+        .railway-legend__header span {
+            flex: 1;
+        }
+        #railway-legend-toggle {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.8);
+            cursor: pointer;
+            padding: 0 2px;
+            font-size: 15px;
+            transition: color 0.2s;
+            line-height: 1;
+        }
+        #railway-legend-toggle:hover { color: #fff; }
+        
+        #railway-legend__body {
+            max-height: 250px;
+            overflow-y: auto;
+        }
+        
+        /* Custom scrollbar for legend body */
+        #railway-legend__body::-webkit-scrollbar {
+            width: 5px;
+        }
+        #railway-legend__body::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.05);
+        }
+        #railway-legend__body::-webkit-scrollbar-thumb {
+            background: rgba(26, 111, 196, 0.4);
+            border-radius: 10px;
+        }
+        #railway-legend__body::-webkit-scrollbar-thumb:hover {
+            background: rgba(26, 111, 196, 0.6);
+        }
+
+        .railway-legend__grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            padding: 12px 14px;
+        }
+        .railway-legend__item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            color: #333;
+            font-size: 12px;
+            font-weight: 500;
+            line-height: 1.35;
+        }
+        .railway-legend__swatch {
+            flex-shrink: 0;
+            width: 24px;
+            height: 6px;
+            border-radius: 3px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            margin-top: 5px;
+        }
+        /* Mobile: 1 cột, góc dưới trái, nhỏ hơn */
+        @media (max-width: 768px) {
+            #railway-legend {
+                top: 100px;
+                bottom: auto;
+                left: 10px;
+            }
+            .railway-legend__icon-btn {
+                bottom: auto;
+                top: 0;
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+            #railway-legend-panel {
+                transform-origin: top left;
+                min-width: 180px;
+                max-width: 240px;
+                border-radius: 8px;
+            }
+            #railway-legend.legend-collapsed #railway-legend-panel {
+                transform: scale(0.6) translateY(-20px);
+            }
+            .railway-legend__header {
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+            #railway-legend__body {
+                max-height: 200px;
+            }
+            .railway-legend__grid {
+                gap: 10px;
+                padding: 10px;
+            }
+            .railway-legend__item {
+                font-size: 11.5px;
+            }
+        }
+        /* RAILWAY STATION ICON */
+        .railway-station-icon {
+            background: #8b1d41;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+            transition: all 0.3s ease;
+        }
+        .railway-station-icon:hover {
+            transform: scale(1.2);
+            background: #a3224d;
+            z-index: 1000 !important;
+        }
+        .railway-station-icon i {
+            font-size: 11px;
+        }
+        
+        .station-popup .leaflet-popup-content-wrapper {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 8px;
+            padding: 5px;
+        }
+        .station-popup__title {
+            color: #8b1d41;
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .station-popup__line {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+            font-style: italic;
+        }
+        .station-popup__desc {
+            font-size: 12px;
+            color: #333;
+            line-height: 1.4;
+        }
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -504,10 +838,76 @@
     <script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.0.21/leaflet-maplibre-gl.js"></script>
     <script src="/js/boundaries.js"></script>
     <script src="/js/railways.js"></script>
+    <script src="/js/railway_stations.js"></script>
+    <script src="/js/railway_depots.js"></script>
 
     <script>
+        $(document).ready(function() {
+            const videoContainer = $('#video-loader-container');
+            const loaderVideo = document.getElementById('loader-video');
+            const skipBtn = $('#skip-video-btn');
+            
+            if (!loaderVideo) return;
+
+            // Lấy ngày hiện tại YYYY-MM-DD
+            const today = new Date().toISOString().split('T')[0];
+            const hiddenDate = localStorage.getItem('hide_video_date');
+
+            if (hiddenDate === today) {
+                videoContainer.remove();
+            } else {
+                videoContainer.show();
+                
+                // Ngăn chặn bản đồ tranh chấp sự kiện click/tua của video
+                if (typeof L !== 'undefined' && L.DomEvent) {
+                    L.DomEvent.disableClickPropagation(videoContainer[0]);
+                    L.DomEvent.disableScrollPropagation(videoContainer[0]);
+                }
+
+                // Tự động đóng khi video kết thúc
+                loaderVideo.onended = function() {
+                    closeVideoLoader();
+                };
+                
+                // Đảm bảo video chạy nếu autoplay bị chặn
+                loaderVideo.play().catch(error => {
+                    console.log("Autoplay was prevented:", error);
+                });
+            }
+
+            skipBtn.on('click', function() {
+                loaderVideo.pause(); // Tạm dừng để hiện popup
+                
+                Swal.fire({
+                    title: 'Bỏ qua video?',
+                    text: "Bạn có muốn ẩn video này trong ngày hôm nay không?",
+                    showCancelButton: true,
+                    confirmButtonColor: '#1a6fc4',
+                    cancelButtonColor: '#aaa',
+                    confirmButtonText: 'Xác nhận',
+                    cancelButtonText: 'Hủy',
+                    reverseButtons: true,
+                    backdrop: `rgba(0,0,0,0.4)`
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        localStorage.setItem('hide_video_date', today);
+                        closeVideoLoader();
+                    } else {
+                        closeVideoLoader();
+                    }
+                });
+            });
+
+            function closeVideoLoader() {
+                videoContainer.addClass('video-fade-out');
+                setTimeout(() => {
+                    videoContainer.remove();
+                }, 800);
+            }
+        });
+
         // Tile layers
-        const defaults = L.tileLayer('https://api.maptiler.com/maps/outdoor-v2/{z}/{x}/{y}.png?key=XBpVjYxcoHhAi6NqhQMb', {
+        const defaults = L.tileLayer('https://api.maptiler.com/maps/outdoor-v2/{z}/{x}/{y}.png?key=8cBUtiYp86dx1jzzYd5J', {
             maxNativeZoom: 19,
             maxZoom: 21
         });
@@ -527,7 +927,7 @@
 
         // MapLibre GL 3D Layer
         const map3d = L.maplibreGL({
-            style: 'https://api.maptiler.com/maps/streets-v2/style.json?key=ziR13X4sfKXctiAkrRRQ',
+            style: 'https://api.maptiler.com/maps/streets-v2/style.json?key=8cBUtiYp86dx1jzzYd5J',
             updateInterval: 0 // Eliminate 30fps throttle to fix 3D panning jitter
         });
 
@@ -887,6 +1287,8 @@
 
         const boundaryOverlayGroup = L.layerGroup();
         const railwayOverlayGroup = L.layerGroup();
+        const stationOverlayGroup = L.layerGroup();
+        const depotOverlayGroup = L.layerGroup();
         let districtDisplayNames = {}; // Map of VI Name -> Localized Name
 
         const baseLayers = {
@@ -894,9 +1296,97 @@
             "{{ __('app.traffic_map') }}": streets,
             "{{ __('app.satellite_map') }}": satellite,
             "{{ __('app.topo_map') }}": topo,
-            "{{ __('app.map_3d') }}": map3d,
-            "{{ __('app.railway_map') }}": L.layerGroup([defaults, railwayOverlayGroup])
+            "{{ __('app.map_3d') }}": map3d
         };
+
+        // ── RAILWAY FOCUS STATE ──────────────────────────────────────────
+        let activeRailwayName = null;
+        const railwayPolylines = {}; // Phụ trợ để tìm polyline nhanh từ legend
+
+        function updateRailwayStyles() {
+            railwayOverlayGroup.eachLayer(layer => {
+                if (!(layer instanceof L.Polyline)) return;
+                
+                const name = layer.options.railwayName;
+                
+                // Cấu hình mặc định
+                let weight = 4;
+                let opacity = 0.8;
+                
+                if (activeRailwayName) {
+                    if (name === activeRailwayName) {
+                        weight = 8; // Tuyến đang chọn thì đậm lên
+                        opacity = 1;
+                        layer.bringToFront();
+                    } else {
+                        weight = 3;
+                        opacity = 0.35; // Làm mờ các tuyến khác
+                    }
+                }
+                
+                layer.setStyle({ weight, opacity });
+            });
+        }
+
+        // ── RAILWAY LEGEND ────────────────────────────────────────────────
+        function buildRailwayLegend() {
+            const container = document.getElementById('railway-legend-items');
+            if (!container) return;
+            container.innerHTML = '';
+            Object.entries(railways).forEach(([name, data]) => {
+                const item = document.createElement('div');
+                item.className = 'railway-legend__item';
+                item.style.cursor = 'pointer';
+                item.innerHTML = `
+                    <span class="railway-legend__swatch" style="background:${data.color};"></span>
+                    <span>${name}</span>
+                `;
+
+                // Click vào tên trong legend để focus
+                item.onclick = (e) => {
+                    e.stopPropagation();
+                    activeRailwayName = name;
+                    updateRailwayStyles();
+                    renderRailwayStations(name, data);
+                    renderRailwayDepots(name);
+                    
+                    const targetPoly = railwayPolylines[name];
+                    if (targetPoly) {
+                        map.fitBounds(targetPoly.getBounds(), { padding: [50, 50] });
+                    }
+                };
+
+                container.appendChild(item);
+            });
+        }
+
+        function showRailwayLegend() {
+            const legend = document.getElementById('railway-legend');
+            if (legend) {
+                buildRailwayLegend();
+                legend.classList.remove('legend-collapsed');
+                legend.style.display = 'block';
+            }
+        }
+
+        function hideRailwayLegend() {
+            const legend = document.getElementById('railway-legend');
+            if (legend) legend.style.display = 'none';
+        }
+
+        // Toggle thu gọn/mở rộng body legend
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('#railway-legend-toggle')) {
+                const legend = document.getElementById('railway-legend');
+                if (legend) legend.classList.add('legend-collapsed');
+            }
+            if (e.target.closest('#railway-legend-icon')) {
+                const legend = document.getElementById('railway-legend');
+                if (legend) legend.classList.remove('legend-collapsed');
+            }
+        });
+
+        // ── END RAILWAY LEGEND ───────────────────────────────────────────────
 
         function renderRailwayLayers() {
             railwayOverlayGroup.clearLayers();
@@ -906,8 +1396,11 @@
                     weight: 4,
                     opacity: 0.8,
                     lineJoin: 'round',
-                    interactive: true
+                    interactive: true,
+                    railwayName: name
                 });
+                
+                railwayPolylines[name] = poly; // Lưu lại để legend có thể truy cập
                 
                 poly.bindTooltip(name, {
                     sticky: true,
@@ -915,22 +1408,66 @@
                     className: 'railway-tooltip'
                 });
 
-                poly.on('mouseover', function() {
-                    this.setStyle({
-                        weight: 7,
-                        opacity: 1
-                    });
-                });
-
-                poly.on('mouseout', function() {
-                    this.setStyle({
-                        weight: 4,
-                        opacity: 0.8
-                    });
+                poly.on('click', function(e) {
+                    L.DomEvent.stopPropagation(e);
+                    
+                    // Nếu đã đang focus chính tuyến này, có thể toggle off hoặc giữ nguyên
+                    // Ở đây mặc định là chọn tuyến này
+                    activeRailwayName = name;
+                    updateRailwayStyles();
+                    
+                    renderRailwayStations(name, data);
+                    renderRailwayDepots(name);
+                    
+                    if (map.getZoom() < 13) {
+                        map.fitBounds(this.getBounds(), { padding: [50, 50] });
+                    }
                 });
 
                 railwayOverlayGroup.addLayer(poly);
             });
+        }
+
+        function renderRailwayDepots(selectedName = null) {
+            depotOverlayGroup.clearLayers();
+            if (!selectedName || typeof railwayDepots === 'undefined') return;
+
+            const filteredDepots = railwayDepots.filter(d => {
+                return selectedName.includes(d.line) || d.line.includes(selectedName);
+            });
+
+            filteredDepots.forEach(d => {
+                const poly = L.polygon(d.coords, {
+                    color: '#8b1d41',
+                    weight: 2,
+                    dashArray: '5, 5',
+                    fillColor: '#8b1d41',
+                    fillOpacity: 0.2,
+                    interactive: true
+                });
+
+                poly.bindTooltip(d.name, {
+                    sticky: true,
+                    direction: 'top',
+                    className: 'boundary-tooltip'
+                });
+
+                poly.bindPopup(`
+                    <div class="station-popup">
+                        <div class="station-popup__title">
+                            <i class="fas fa-warehouse"></i> ${d.name}
+                        </div>
+                        <div class="station-popup__line">${d.line}</div>
+                        <div class="station-popup__desc">${d.desc}</div>
+                    </div>
+                `);
+
+                depotOverlayGroup.addLayer(poly);
+            });
+
+            if (!map.hasLayer(depotOverlayGroup)) {
+                depotOverlayGroup.addTo(map);
+            }
         }
 
         function renderBoundaryLayers() {
@@ -963,11 +1500,93 @@
         }
         
         // Initial render with static data
+        function renderRailwayStations(selectedName = null, selectedData = null) {
+            stationOverlayGroup.clearLayers();
+            
+            if (!selectedName || !selectedData) return;
+            
+            // Helper to snap a point to the nearest line coordinate
+            function snapToLine(lat, lng, lineData) {
+                if (!lineData || !lineData.coords) return [lat, lng];
+                
+                // Flatten coordinates to get a simple array of [lat, lng]
+                let coords = lineData.coords;
+                if (Array.isArray(coords[0]) && Array.isArray(coords[0][0])) {
+                    coords = coords.flat(1);
+                }
+
+                let nearest = [lat, lng];
+                let minD = Infinity;
+                
+                for (let i = 0; i < coords.length; i++) {
+                    const p = coords[i];
+                    const d = Math.pow(p[0] - lat, 2) + Math.pow(p[1] - lng, 2);
+                    if (d < minD) {
+                        minD = d;
+                        nearest = p;
+                    }
+                }
+                return nearest;
+            }
+
+            const targetLine = selectedData;
+
+            // Note: railwayStations variable is now loaded from /js/railway_stations.js
+            if (typeof railwayStations === 'undefined') {
+                console.error("railwayStations data not loaded");
+                return;
+            }
+
+            // Filter stations that match the clicked line name
+            // Logic: if selectedName is "ĐSĐT số 3.1", it matches "ĐSĐT số 3"
+            const filteredStations = railwayStations.filter(st => {
+                return selectedName.includes(st.line) || st.line.includes(selectedName);
+            });
+
+            filteredStations.forEach(st => {
+                // Snap the coordinates to the nearest point on the line
+                const snapped = snapToLine(st.lat, st.lng, targetLine);
+                
+                const icon = L.divIcon({
+                    className: 'railway-station-icon',
+                    html: '<i class="fas fa-train"></i>',
+                    iconSize: [26, 26],
+                    iconAnchor: [13, 13],
+                    popupAnchor: [0, -13]
+                });
+
+                const marker = L.marker(snapped, { icon: icon });
+                
+                const popupContent = `
+                    <div class="station-popup">
+                        <div class="station-popup__title">
+                            <i class="fas fa-train"></i> ${st.name}
+                        </div>
+                        <div class="station-popup__line">${st.line}</div>
+                        <div class="station-popup__desc">${st.desc}</div>
+                    </div>
+                `;
+                
+                marker.bindPopup(popupContent, {
+                    className: 'station-popup',
+                    maxWidth: 220
+                });
+                
+                stationOverlayGroup.addLayer(marker);
+            });
+            
+            if (!map.hasLayer(stationOverlayGroup)) {
+                stationOverlayGroup.addTo(map);
+            }
+        }
+
         renderBoundaryLayers();
         renderRailwayLayers();
+        // renderRailwayStations(); // Hidden by default, shown on click
 
         const overlayLayers = {
-            "{{ __('app.boundary_map') }}": boundaryOverlayGroup
+            "{{ __('app.boundary_map') }}": boundaryOverlayGroup,
+            "{{ __('app.railway_map') }}": railwayOverlayGroup
         };
 
         const defaultCenter = [21.0285, 105.8542];
@@ -991,6 +1610,23 @@
             attributionControl: false,
             keyboard: false // Disable default keyboard panning to allow custom 3D rotation
         });
+
+        // Click ra ngoài bản đồ để bỏ chọn (reset focus)
+        map.on('click', function() {
+            activeRailwayName = null;
+            updateRailwayStyles();
+            stationOverlayGroup.clearLayers(); // Ẩn các nhà ga khi bỏ chọn tuyến
+            depotOverlayGroup.clearLayers();   // Ẩn các depot khi bỏ chọn tuyến
+        });
+
+        // Ngăn chặn sự kiện cuộn/nhấp chuột truyền từ legend xuống bản đồ
+        if (typeof L !== 'undefined') {
+            const legendEl = document.getElementById('railway-legend');
+            if (legendEl) {
+                L.DomEvent.disableClickPropagation(legendEl);
+                L.DomEvent.disableScrollPropagation(legendEl);
+            }
+        }
 
         // Auto-tilt logic for Map3D - Optimized
         let tilingTicking = false;
@@ -1234,6 +1870,18 @@
         }
 
         L.control.layers(baseLayers, overlayLayers).addTo(map);
+        railwayOverlayGroup.addTo(map); 
+        // stationOverlayGroup.addTo(map); // Optional: if you want stations to persist toggle separately
+        map.on('overlayadd', function(e) {
+            if (e.name === "{{ __('app.railway_map') }}") {
+                showRailwayLegend();
+            }
+        });
+        map.on('overlayremove', function(e) {
+            if (e.name === "{{ __('app.railway_map') }}") {
+                hideRailwayLegend();
+            }
+        });
 
         let markersLayer = L.markerClusterGroup();
         let allDistricts = [];

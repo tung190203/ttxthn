@@ -142,7 +142,6 @@ return [
     'default' => 'Default',
 
     // Chatbot actions
-    'chatbot_refresh_title' => 'Refresh conversation',
     'chatbot_delete_title' => 'Delete conversation',
     'chatbot_expand_title' => 'Expand',
     'chatbot_compress_title' => 'Compress',
@@ -166,13 +165,6 @@ return [
     'chatbot_feedback_not_useful' => 'Not helpful',
 
     // Chatbot JS strings
-    'chatbot_reset_confirm_title' => 'Refresh conversation?',
-    'chatbot_reset_confirm_text' => 'Messages will be cleared but the session will be kept.',
-    'chatbot_reset_confirm_btn' => 'Confirm',
-    'chatbot_resetting' => 'Refreshing...',
-    'chatbot_reset_new_msg' => 'Starting a new conversation. Hello! How can I help you?',
-    'chatbot_reset_success' => 'Refreshed!',
-    'chatbot_reset_error' => 'Failed to refresh chat session.',
     'chatbot_delete_confirm_title' => 'Delete entire conversation?',
     'chatbot_delete_confirm_text' => 'Data will be permanently deleted from the system and cannot be recovered.',
     'chatbot_delete_confirm_btn' => 'Delete permanently',

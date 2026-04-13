@@ -1,6 +1,6 @@
 <!-- Chatbot Floating Button -->
 <div id="ai-chatbot-btn-container" class="chatbot-btn-container">
-    <div class="chatbot-tooltip">{{ __('app.assistant_ready') }}</div>
+    <div class="chatbot-tooltip">{{ \App\Models\Setting::getSettingByKey('chatbot_tooltip', __('app.assistant_ready')) }}</div>
     <div id="ai-chatbot-btn" class="chatbot-floating-btn" onclick="toggleChatbot()">
         <i class="fal fa-comment-alt-lines fa-2x text-white"></i>
     </div>
@@ -11,23 +11,27 @@
     <div class="chatbot-header">
         <div class="d-flex align-items-center" style="min-width:0; flex:1; overflow:hidden;">
             <div class="chatbot-avatar" style="flex-shrink:0;">
-                <i class="fas fa-robot"></i>
+                @php
+                    $cb_avatar = \App\Models\Setting::getSettingByKey('chatbot_avatar');
+                @endphp
+                @if(!empty($cb_avatar))
+                    <img src="{{ asset($cb_avatar) }}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                @else
+                    <i class="fas fa-robot"></i>
+                @endif
             </div>
             <div class="ms-2" style="min-width:0; overflow:hidden;">
                 <div class="d-flex align-items-center">
-                    <h5 class="mb-0 text-white" style="font-size: 15px; font-weight: 600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ __('app.assistant_ai') }}</h5>
+                    <h5 class="mb-0 text-white" style="font-size: 15px; font-weight: 600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ \App\Models\Setting::getSettingByKey('chatbot_name', __('app.assistant_ai')) }}</h5>
                     <span id="chatbot-status-dot" class="ms-2" style="width: 8px; height: 8px; background-color: #94a3b8; border-radius: 50%; display: inline-block; flex-shrink:0;" title="{{ __('app.checking_status') }}"></span>
                 </div>
-                <div class="d-flex align-items-center">
-                    <small class="text-white-50" style="font-size: 11px; white-space:nowrap;" id="chatbot-stage-indicator">{{ __('app.online') }}</small>
-                    <select id="chatbot-model-select" class="ms-2 border-0 bg-transparent text-white-50" style="font-size: 10px; outline: none; cursor: pointer; max-width:80px;">
-                        <option value="">{{ __('app.default') }}</option>
-                    </select>
+                <div class="d-flex align-items-center mb-1">
+                    <span id="chatbot-status-text" class="text-white-50" style="font-size: 11px;">{{ __('app.checking_status') }}</span>
                 </div>
+                <div id="chatbot-stage-indicator" class="text-white-50" style="font-size: 10px; display: none; line-height: 1;"></div>
             </div>
         </div>
         <div class="chatbot-actions">
-            <button onclick="resetChatSession()" class="text-white" title="{{ __('app.chatbot_refresh_title') }}"><i class="fal fa-sync"></i></button>
             <button onclick="deleteChatSession()" class="text-white" title="{{ __('app.chatbot_delete_title') }}"><i class="fal fa-trash-alt"></i></button>
             <button id="chatbot-expand-btn" onclick="toggleExpandChatbot()" class="text-white" title="{{ __('app.chatbot_expand_title') }}"><i class="fal fa-expand-alt"></i></button>
             <button onclick="toggleChatbot()" class="text-white" title="{{ __('app.chatbot_close_title') }}"><i class="fal fa-times"></i></button>
@@ -37,7 +41,7 @@
     <div class="chatbot-body" id="chatbot-messages">
         <div class="chatbot-message bot-message" data-id="welcome">
             <div class="message-content">
-                {{ __('app.chatbot_welcome') }}
+                {{ \App\Models\Setting::getSettingByKey('chatbot_welcome_message', __('app.chatbot_welcome')) }}
             </div>
         </div>
     </div>
@@ -63,7 +67,7 @@
             </div>
             <div class="d-flex justify-content-end gap-2">
                 <button onclick="hideFeedbackModal()" class="btn btn-sm btn-light">{{ __('app.chatbot_feedback_cancel') }}</button>
-                <button onclick="submitFeedbackForm()" class="btn btn-sm btn-primary">{{ __('app.chatbot_feedback_send') }}</button>
+                <button onclick="submitFeedbackForm()" class="btn btn-sm text-white btn-primary">{{ __('app.chatbot_feedback_send') }}</button>
             </div>
         </div>
     </div>
@@ -81,6 +85,9 @@
         <form id="chatbot-form" onsubmit="sendChatMessage(event)">
             <div class="chatbot-input-group">
                 <input type="text" id="chatbot-input" placeholder="{{ __('app.chatbot_input_placeholder') }}" autocomplete="off">
+                <button type="button" id="chatbot-mic-btn" onclick="toggleSpeechRecognition()" aria-label="Voice input" title="Nhập bằng giọng nói">
+                    <i class="fas fa-microphone"></i>
+                </button>
                 <button type="submit" id="chatbot-send-btn">
                     <i class="fas fa-paper-plane"></i>
                 </button>
@@ -92,12 +99,12 @@
 <style>
     /* Premium Chatbot Styling */
     :root {
-        --cb-primary: #1a6fc4;
-        --cb-primary-gradient: linear-gradient(135deg, #1a6fc4, #00d2ff);
+        --cb-primary: {{ $setting['chatbot_primary_color'] ?? '#1a6fc4' }};
+        --cb-primary-gradient: linear-gradient(135deg, {{ $setting['chatbot_primary_color'] ?? '#1a6fc4' }}, #00d2ff);
         --cb-bg: #f8fafc;
         --cb-text: #334155;
         --cb-bot-msg: #ffffff;
-        --cb-user-msg: #1a6fc4;
+        --cb-user-msg: {{ $setting['chatbot_primary_color'] ?? '#1a6fc4' }};
         --cb-border: #e2e8f0;
     }
 
@@ -467,6 +474,27 @@
         color: white;
     }
 
+    .retry-action-btn {
+        background: white;
+        color: #ef4444;
+        border-color: #ef4444;
+    }
+    
+    .retry-action-btn:hover, .retry-action-btn:active {
+        background: #ef4444 !important;
+        color: white !important;
+        border-color: #ef4444 !important;
+    }
+
+    .chatbot-suggested-actions.active-drag {
+        cursor: grabbing;
+        cursor: -webkit-grabbing;
+    }
+    
+    .chatbot-suggested-actions.active-drag .suggested-action-btn {
+        pointer-events: none;
+    }
+
     .chatbot-footer {
         padding: 15px 20px;
         background: white;
@@ -510,7 +538,8 @@
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        transition: background 0.2s;
+        transition: background 0.2s, box-shadow 0.2s, color 0.2s;
+        margin-left: 6px;
     }
 
     .chatbot-input-group button:hover {
@@ -519,6 +548,28 @@
 
     .chatbot-input-group button:disabled {
         background: #cbd5e1;
+    }
+    
+    #chatbot-mic-btn {
+        background: transparent;
+        color: #94a3b8;
+    }
+    
+    #chatbot-mic-btn:hover {
+        background: rgba(0,0,0,0.05);
+        color: var(--cb-primary);
+    }
+    
+    #chatbot-mic-btn.recording {
+        background: #ef4444;
+        color: white;
+        animation: pulseRecording 1.5s infinite;
+    }
+    
+    @keyframes pulseRecording {
+        0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+        70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
     }
 
     /* Modal Styling */
@@ -596,7 +647,7 @@
         z-index: 5;
         opacity: 0;
         pointer-events: none;
-        transition: opacity 0.25s ease, transform 0.25s ease, box-shadow 0.2s;
+        transition: opacity 0.25s ease, transform 0.25s ease, box-shadow 0.2s, bottom 0.25s ease;
     }
     .chatbot-scroll-btn.visible {
         opacity: 1;
@@ -612,6 +663,53 @@
     @keyframes fadeIn {
         from { opacity: 0; transform: translateY(10px); }
         to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Markdown Table Styling */
+    .table-responsive {
+        overflow-x: auto;
+        margin: 10px 0;
+        border-radius: 8px;
+        border: 1px solid #cbd5e1;
+    }
+    .chatbot-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+        background: white;
+        border: 1px solid #cbd5e1;
+    }
+    .chatbot-table th {
+        background: #f1f5f9;
+        color: #1e293b;
+        font-weight: 700;
+        padding: 10px 12px;
+        text-align: left;
+        border: 1px solid #cbd5e1;
+        white-space: nowrap;
+    }
+    .chatbot-table td {
+        padding: 10px 12px;
+        border: 1px solid #cbd5e1;
+        color: #334155;
+        line-height: 1.5;
+    }
+    .chatbot-table tr:nth-child(even) {
+        background: #f8fafc;
+    }
+    .bot-message .message-content h3 {
+        font-size: 16px;
+        margin-top: 15px;
+        margin-bottom: 10px;
+        font-weight: 700;
+        color: var(--cb-primary);
+    }
+    .bot-message .message-content ul, .bot-message .message-content ol {
+        padding-left: 20px;
+        margin-bottom: 10px;
+    }
+    .bot-message .message-content li {
+        margin-bottom: 5px;
     }
 
     /* =========================================
@@ -759,6 +857,10 @@
         .chatbot-message-feedback {
             opacity: 1;
         }
+
+        .bot-message .message-content li {
+            margin-bottom: 5px;
+        }
     }
 
     /* =========================================
@@ -800,15 +902,8 @@
 <script>
     // Localization strings passed from Blade
     const chatbotLang = {
-        resetTitle:         @json(__('app.chatbot_reset_confirm_title')),
-        resetText:          @json(__('app.chatbot_reset_confirm_text')),
-        resetConfirmBtn:    @json(__('app.chatbot_reset_confirm_btn')),
-        resetCancel:        @json(__('app.chatbot_cancel')),
-        resetting:          @json(__('app.chatbot_resetting')),
-        resetNewMsg:        @json(__('app.chatbot_reset_new_msg')),
-        resetSuccess:       @json(__('app.chatbot_reset_success')),
-        resetError:         @json(__('app.chatbot_reset_error')),
         deleteTitle:        @json(__('app.chatbot_delete_confirm_title')),
+        deleteCancel:        @json(__('app.chatbot_cancel')),
         deleteText:         @json(__('app.chatbot_delete_confirm_text')),
         deleteConfirmBtn:   @json(__('app.chatbot_delete_confirm_btn')),
         deleting:           @json(__('app.chatbot_deleting')),
@@ -832,6 +927,9 @@
         viewProject:        @json(__('app.chatbot_view_project')),
         viewDocument:       @json(__('app.chatbot_view_document')),
         defaultItemName:    @json(__('app.chatbot_default_item_name')),
+        retryBtn:           @json(__('app.chatbot_retry_btn')),
+        inputPlaceholder:   @json(__('app.chatbot_input_placeholder')),
+        listening:          @json(__('app.chatbot_listening')),
     };
 
     // Generate or retrieve session ID
@@ -844,54 +942,6 @@
         return sid;
     }
 
-    async function resetChatSession() {
-        const result = await Swal.fire({
-            title: chatbotLang.resetTitle,
-            text: chatbotLang.resetText,
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: 'var(--cb-primary)',
-            cancelButtonColor: '#94a3b8',
-            confirmButtonText: chatbotLang.resetConfirmBtn,
-            cancelButtonText: chatbotLang.resetCancel
-        });
-
-        if (!result.isConfirmed) return;
-
-        const sid = getChatSessionId();
-        const messagesContainer = document.getElementById('chatbot-messages');
-        messagesContainer.innerHTML = `<div class="text-center py-4"><i class="fas fa-spinner fa-spin"></i> ${chatbotLang.resetting}</div>`;
-
-        try {
-            await fetch(`/chat/session/${sid}/clear`, {
-                method: 'POST',
-                headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') }
-            });
-            
-            messagesContainer.innerHTML = `
-                <div class="chatbot-message bot-message">
-                    <div class="message-content">
-                        ${chatbotLang.resetNewMsg}
-                    </div>
-                </div>
-            `;
-            document.getElementById('chatbot-suggested-actions').style.display = 'none';
-            document.getElementById('chatbot-stage-indicator').innerText = chatbotLang.onlineLabel;
-            
-            Swal.fire({
-                icon: 'success',
-                title: chatbotLang.resetSuccess,
-                showConfirmButton: false,
-                timer: 1000,
-                toast: true,
-                position: 'top-end'
-            });
-        } catch (e) { 
-            console.error(e);
-            Swal.fire(chatbotLang.errorLabel, chatbotLang.resetError, 'error');
-        }
-    }
-
     async function deleteChatSession() {
         const result = await Swal.fire({
             title: chatbotLang.deleteTitle,
@@ -901,7 +951,7 @@
             confirmButtonColor: '#ef4444',
             cancelButtonColor: '#94a3b8',
             confirmButtonText: chatbotLang.deleteConfirmBtn,
-            cancelButtonText: chatbotLang.resetCancel
+            cancelButtonText: chatbotLang.deleteCancel
         });
 
         if (!result.isConfirmed) return;
@@ -927,7 +977,11 @@
                 </div>
             `;
             document.getElementById('chatbot-suggested-actions').style.display = 'none';
-            document.getElementById('chatbot-stage-indicator').innerText = chatbotLang.onlineLabel;
+            document.getElementById('chatbot-scroll-btn').style.bottom = '80px';
+            document.getElementById('chatbot-status-text').innerText = chatbotLang.onlineLabel;
+            const stageInd = document.getElementById('chatbot-stage-indicator');
+            stageInd.innerText = '';
+            stageInd.style.display = 'none';
 
             Swal.fire({
                 icon: 'success',
@@ -1000,9 +1054,104 @@
 
     function renderMarkdownBasic(text) {
         if (!text) return '';
-        let html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        html = html.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
-        return `<p>${html}</p>`;
+        
+        let lines = text.split('\n');
+        let html = '';
+        let inTable = false;
+        let tableRows = [];
+
+        function flushTable() {
+            if (tableRows.length > 0) {
+                html += renderTable(tableRows);
+                tableRows = [];
+            }
+            inTable = false;
+        }
+
+        for (let i = 0; i < lines.length; i++) {
+            let line = lines[i].trim();
+
+            // Table detection
+            if (line.startsWith('|') && line.includes('|')) {
+                inTable = true;
+                tableRows.push(line);
+                continue;
+            } else if (inTable) {
+                flushTable();
+            }
+
+            // Headers
+            if (line.startsWith('### ')) {
+                html += `<h3>${processInline(line.substring(4))}</h3>`;
+            } else if (line.startsWith('## ')) {
+                html += `<h2>${processInline(line.substring(3))}</h2>`;
+            } else if (line.startsWith('# ')) {
+                html += `<h1>${processInline(line.substring(2))}</h1>`;
+            } 
+            // Lists
+            else if (line.startsWith('- ') || line.startsWith('* ')) {
+                html += `<ul><li>${processInline(line.substring(2))}</li></ul>`;
+            }
+            else if (/^\d+\.\s/.test(line)) {
+                html += `<ol><li>${processInline(line.replace(/^\d+\.\s/, ''))}</li></ol>`;
+            }
+            // Paragraphs
+            else {
+                if (line) html += `<p>${processInline(line)}</p>`;
+            }
+        }
+        flushTable();
+
+        // Cleanup multiple ul/ol tags
+        html = html.replace(/<\/ul><ul>/g, '');
+        html = html.replace(/<\/ol><ol>/g, '');
+
+        return html;
+    }
+
+    function processInline(text) {
+        if (!text) return '';
+        let html = text;
+        // Links
+        html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" style="color: var(--cb-primary); text-decoration: underline;">$1</a>');
+        // Raw URLs
+        html = html.replace(/(^|[^"'])(https?:\/\/[^\s<)\]"']+)/g, '$1<a href="$2" target="_blank" style="color: var(--cb-primary); text-decoration: underline;">$2</a>');
+        // Bold
+        html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        return html;
+    }
+
+    function renderTable(rows) {
+        if (rows.length < 2) return rows.join('<br>');
+        
+        let html = '<div class="table-responsive"><table class="chatbot-table">';
+        let startIdx = 0;
+
+        // Check for separator row |---|
+        let isSeparator = rows[1] && rows[1].includes('-') && rows[1].includes('|');
+        
+        // Header
+        let headerCells = rows[0].split('|').filter((c, idx, arr) => (idx > 0 && idx < arr.length - 1) || c.trim() !== '').map(c => c.trim()).filter(c => c !== '');
+        if (headerCells.length === 0) headerCells = rows[0].split('|').map(c => c.trim()).filter(c => c !== '');
+
+        html += '<thead><tr>';
+        headerCells.forEach(c => html += `<th>${processInline(c)}</th>`);
+        html += '</tr></thead>';
+        
+        startIdx = isSeparator ? 2 : 1;
+        
+        // Body
+        html += '<tbody>';
+        for (let i = startIdx; i < rows.length; i++) {
+            let bodyCells = rows[i].split('|').filter((c, idx, arr) => (idx > 0 && idx < arr.length - 1) || c.trim() !== '').map(c => c.trim()).filter(c => c !== '');
+            if (bodyCells.length === 0) bodyCells = rows[i].split('|').map(c => c.trim()).filter(c => c !== '');
+            
+            html += '<tr>';
+            bodyCells.forEach(c => html += `<td>${processInline(c)}</td>`);
+            html += '</tr>';
+        }
+        html += '</tbody></table></div>';
+        return html;
     }
 
     function showFeedbackModal(messageId, rating) {
@@ -1072,7 +1221,10 @@
                         'deep_dive': 'Deep Dive', 'compare_projects': 'Comparing',
                         'policy_procedure': 'Policy & Procedure', 'cta': 'Call to Action', 'fallback': 'Fallback'
                     };
-                    document.getElementById('chatbot-stage-indicator').innerText = chatbotLang.stageLabel + (stageNames[metadata.stage] || metadata.stage);
+                    const stageText = chatbotLang.stageLabel + (stageNames[metadata.stage] || metadata.stage);
+                    const stageInd = document.getElementById('chatbot-stage-indicator');
+                    stageInd.innerText = stageText;
+                    stageInd.style.display = 'block';
                 }
 
                 if (metadata.entities) {
@@ -1139,7 +1291,11 @@
 
     function renderSuggestedActions(actions) {
         const container = document.getElementById('chatbot-suggested-actions');
-        if (!actions || actions.length === 0) { container.style.display = 'none'; return; }
+        if (!actions || actions.length === 0) { 
+            container.style.display = 'none'; 
+            document.getElementById('chatbot-scroll-btn').style.bottom = '80px';
+            return; 
+        }
         container.innerHTML = '';
         actions.forEach(a => {
             const btn = document.createElement('button');
@@ -1148,6 +1304,7 @@
             container.appendChild(btn);
         });
         container.style.display = 'flex';
+        document.getElementById('chatbot-scroll-btn').style.bottom = '140px';
     }
 
     async function loadChatHistory() {
@@ -1171,46 +1328,40 @@
             if (hRes.ok) {
                 const hData = await hRes.json();
                 const dot = document.getElementById('chatbot-status-dot');
+                const statusTxt = document.getElementById('chatbot-status-text');
                 if (hData.status === 'healthy') {
                     dot.style.backgroundColor = '#22c55e'; // Green
                     dot.title = chatbotLang.statusHealthy;
+                    if (statusTxt) statusTxt.innerText = chatbotLang.onlineLabel || 'Đang trực tuyến';
                 } else {
                     dot.style.backgroundColor = '#ef4444'; // Red
                     dot.title = chatbotLang.statusError;
+                    if (statusTxt) statusTxt.innerText = chatbotLang.statusError;
                 }
             }
         } catch (e) { console.error('Health check failed', e); }
-
-        // Models List
-        try {
-            const mRes = await fetch('/chat/models');
-            if (mRes.ok) {
-                const mData = await mRes.json();
-                const select = document.getElementById('chatbot-model-select');
-                if (mData.models && mData.models.length > 0) {
-                    mData.models.forEach(m => {
-                        const opt = document.createElement('option');
-                        opt.value = m.id || m.name;
-                        opt.innerText = m.name || m.id;
-                        opt.style.color = '#334155';
-                        select.appendChild(opt);
-                    });
-                }
-            }
-        } catch (e) { console.error('Failed to fetch models', e); }
     }
 
-    async function sendChatMessage(e) {
+    async function sendChatMessage(e, retryMsg = null, errorNodeToRemove = null) {
         if(e) e.preventDefault();
+        
+        if (errorNodeToRemove) {
+            errorNodeToRemove.remove();
+        }
+        
         const input = document.getElementById('chatbot-input');
         const btn = document.getElementById('chatbot-send-btn');
-        const modelSelect = document.getElementById('chatbot-model-select');
-        const msg = input.value.trim();
+        
+        const msg = retryMsg !== null ? retryMsg : input.value.trim();
         if (!msg) return;
 
-        appendMessage('user', msg);
+        if (retryMsg === null) {
+            appendMessage('user', msg);
+        }
+        
         input.value = ''; btn.disabled = true;
         document.getElementById('chatbot-suggested-actions').style.display = 'none';
+        document.getElementById('chatbot-scroll-btn').style.bottom = '80px';
         appendTypingIndicator();
 
         try {
@@ -1219,8 +1370,7 @@
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
                 body: JSON.stringify({ 
                     session_id: getChatSessionId(), 
-                    message: msg,
-                    model: modelSelect.value || undefined
+                    message: msg
                 })
             });
             removeTypingIndicator(); btn.disabled = false;
@@ -1229,13 +1379,182 @@
                 appendMessage('bot', data.response, { stage: data.stage, entities: data.entities, related_items: data.related_items }, data.message_id);
                 if (data.suggested_actions) renderSuggestedActions(data.suggested_actions);
             } else {
-                appendMessage('bot', chatbotLang.errorConnection);
+                appendErrorMessage(msg, chatbotLang.errorConnection);
             }
-        } catch (e) { removeTypingIndicator(); btn.disabled = false; appendMessage('bot', chatbotLang.errorNetwork); }
+        } catch (e) { removeTypingIndicator(); btn.disabled = false; appendErrorMessage(msg, chatbotLang.errorNetwork); }
+    }
+
+    function appendErrorMessage(originalMsg, errorText) {
+        const container = document.getElementById('chatbot-messages');
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `chatbot-message bot-message error-message-box`;
+        
+        const escapedMsg = originalMsg.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        
+        msgDiv.innerHTML = `
+            <div class="message-content" style="background-color: #fef2f2; color: #ef4444; border-color: #fecaca;">
+                <div><i class="fas fa-exclamation-triangle"></i> ${errorText}</div>
+                <button class="suggested-action-btn retry-action-btn mt-2" onclick="sendChatMessage(event, '${escapedMsg}', this.closest('.chatbot-message'))">
+                    <i class="fas fa-redo"></i> ${chatbotLang.retryBtn || 'Thử lại'}
+                </button>
+            </div>
+        `;
+        container.appendChild(msgDiv);
+        scrollToBottom();
     }
 
     document.addEventListener('DOMContentLoaded', () => {
         loadChatHistory();
         fetchHealthAndModels();
+        
+        // Init speech logic
+        initSpeechRecognition();
+
+        // Drag to scroll for suggested actions
+        const suggestSlider = document.getElementById('chatbot-suggested-actions');
+        let suggestIsDown = false;
+        let suggestStartX;
+        let suggestScrollLeft;
+
+        suggestSlider.addEventListener('mousedown', (e) => {
+            suggestIsDown = true;
+            suggestStartX = e.pageX - suggestSlider.offsetLeft;
+            suggestScrollLeft = suggestSlider.scrollLeft;
+        });
+
+        suggestSlider.addEventListener('mouseleave', () => {
+            suggestIsDown = false;
+            suggestSlider.classList.remove('active-drag');
+        });
+
+        suggestSlider.addEventListener('mouseup', () => {
+            suggestIsDown = false;
+            suggestSlider.classList.remove('active-drag');
+        });
+
+        suggestSlider.addEventListener('mousemove', (e) => {
+            if (!suggestIsDown) return;
+            e.preventDefault();
+            const x = e.pageX - suggestSlider.offsetLeft;
+            const walk = (x - suggestStartX) * 1.5;
+            if (Math.abs(walk) > 5) {
+                suggestSlider.classList.add('active-drag');
+            }
+            suggestSlider.scrollLeft = suggestScrollLeft - walk;
+        });
     });
+
+    // === Speech Recognition Logic ===
+    let speechRecognition = null;
+    let isMicRecording = false;
+
+    function initSpeechRecognition() {
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            const micBtn = document.getElementById('chatbot-mic-btn');
+            if (micBtn) micBtn.style.display = 'none';
+            return false;
+        }
+
+        const WebSpeechAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+        speechRecognition = new WebSpeechAPI();
+        speechRecognition.continuous = false;
+        speechRecognition.interimResults = true;
+        speechRecognition.lang = 'vi-VN';
+
+        let finalTranscriptStr = '';
+
+        speechRecognition.onstart = function() {
+            isMicRecording = true;
+            finalTranscriptStr = ''; // reset on start
+            document.getElementById('chatbot-mic-btn').classList.add('recording');
+            const input = document.getElementById('chatbot-input');
+            input.value = ''; // clear input to capture voice cleanly
+            input.placeholder = chatbotLang.listening || "Đang nghe...";
+        };
+
+        speechRecognition.onresult = function(event) {
+            let interimTranscript = '';
+            
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                    finalTranscriptStr += event.results[i][0].transcript;
+                } else {
+                    interimTranscript += event.results[i][0].transcript;
+                }
+            }
+            
+            const input = document.getElementById('chatbot-input');
+            if (finalTranscriptStr || interimTranscript) {
+                input.value = finalTranscriptStr + interimTranscript;
+            }
+        };
+
+        speechRecognition.onerror = function(event) {
+            console.error("Speech recognition error", event.error);
+            stopRecordingState();
+            
+            if (event.error !== 'no-speech') {
+                let errorMsg = 'Chưa thể lấy tín hiệu giọng nói.';
+                if (event.error === 'not-allowed') {
+                    errorMsg = 'Bạn chưa cấp quyền Micro (Hoặc đang chạy http thường không bảo mật).';
+                } else if (event.error === 'network') {
+                    errorMsg = 'Lỗi kết nối mạng máy chủ nhận diện.';
+                } else if (event.error === 'aborted') {
+                    return; // Ignore manual abort
+                }
+                
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi ghi âm (' + event.error + ')',
+                    text: errorMsg,
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 5000
+                });
+            }
+        };
+
+        speechRecognition.onend = function() {
+            stopRecordingState();
+        };
+
+        return true;
+    }
+
+    function stopRecordingState() {
+        isMicRecording = false;
+        const micBtn = document.getElementById('chatbot-mic-btn');
+        if (micBtn) micBtn.classList.remove('recording');
+        const input = document.getElementById('chatbot-input');
+        if (input) input.placeholder = chatbotLang.inputPlaceholder || "Nhập tin nhắn...";
+    }
+
+    function toggleSpeechRecognition() {
+        if (!speechRecognition) {
+            const initialized = initSpeechRecognition();
+            if (!initialized) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Chưa hỗ trợ',
+                    text: 'Trình duyệt của bạn không hỗ trợ nhận diện giọng nói.',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+                return;
+            }
+        }
+        
+        if (isMicRecording) {
+            speechRecognition.stop();
+        } else {
+            try {
+                speechRecognition.start();
+            } catch (e) {
+                console.error(e);
+            }
+        }
+    }
 </script>

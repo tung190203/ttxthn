@@ -148,6 +148,7 @@ Route::localized(function () {
             Route::get('/payment', [SettingController::class, 'payment'])->name('backend_setting_payment');
             Route::get('/social', [SettingController::class, 'social'])->name('backend_setting_social');
             Route::get('/seo', [SettingController::class, 'seo'])->name('backend_setting_seo');
+            Route::get('/chatbot', [SettingController::class, 'chatbot'])->name('backend_setting_chatbot');
             Route::post('/save', [SettingController::class, 'save'])->name('backend_setting_save');
         });
 
@@ -215,6 +216,7 @@ Route::localized(function () {
 
         Route::prefix('ai-monitor')->group(function () {
             Route::get('/status', [AIChatMonitorController::class, 'getApiStatus'])->name('backend_ai_monitor_status');
+            Route::get('/advanced-stats', [AIChatMonitorController::class, 'getAdvancedStats'])->name('backend_ai_monitor_advanced_stats');
         });
     });
 });
