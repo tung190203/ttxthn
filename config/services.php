@@ -41,6 +41,7 @@ return [
     ],
     'ai_chat' => [
         'api_key' => env('AI_CHAT_API_KEY'),
+        'api_admin_key' => env('AI_CHAT_ADMIN_KEY'),
         'api_url' => env('AI_CHAT_API_URL'),
     ],
 ];

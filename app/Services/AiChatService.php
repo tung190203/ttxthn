@@ -8,17 +8,20 @@ class AiChatService
 {
     protected $baseUrl;
     protected $apiKey;
+    protected $apiAdminKey;
 
     public function __construct()
     {
         $this->baseUrl = config('services.ai_chat.api_url');
         $this->apiKey = config('services.ai_chat.api_key');
+        $this->apiAdminKey = config('services.ai_chat.api_admin_key');
     }
 
     protected function client()
     {
         return Http::withHeaders([
             'X-API-Key' => $this->apiKey,
+            'X-Admin-API-Key' => $this->apiAdminKey,
             'Content-Type' => 'application/json'
         ]);
     }
@@ -62,5 +65,33 @@ class AiChatService
     public function getMetrics()
     {
         return $this->client()->get($this->baseUrl . '/api/v1/metrics');
+    }
+
+    /**
+     * Admin Statistics Methods
+     */
+
+    public function getAdminOverview($startDate = null, $endDate = null)
+    {
+        return $this->client()->get($this->baseUrl . '/api/v1/admin/stats/overview', [
+            'start_date' => $startDate,
+            'end_date' => $endDate
+        ]);
+    }
+
+    public function getAdminDaily($startDate = null, $endDate = null)
+    {
+        return $this->client()->get($this->baseUrl . '/api/v1/admin/stats/daily', [
+            'start_date' => $startDate,
+            'end_date' => $endDate
+        ]);
+    }
+
+    public function getAdminIntents($startDate = null, $endDate = null)
+    {
+        return $this->client()->get($this->baseUrl . '/api/v1/admin/stats/intents', [
+            'start_date' => $startDate,
+            'end_date' => $endDate
+        ]);
     }
 }

@@ -70,62 +70,101 @@ DashBoard
         <!-- ./col -->
     </div>
 
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card card-outline card-info shadow-sm">
-                <div class="card-header d-flex align-items-center">
-                    <h3 class="card-title">
-                        <i class="fas fa-robot mr-2 text-info"></i>
-                        Giám sát Hệ thống AI Bot
-                    </h3>
+
+    <div class="card card-outline card-info shadow-none bg-transparent">
+        <div class="card-header border-0 pl-0">
+            <h3 class="card-title text-bold">
+                <i class="fas fa-robot mr-2 text-info"></i>
+                BÁO CÁO & THỐNG KÊ AI CHATBOT
+            </h3>
+        </div>
+        <div class="card-body p-0">
+            <!-- AI Usage Statistics Overview -->
+            <div class="row mb-4">
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-white border shadow-sm">
+                        <div class="inner">
+                            <h3 id="ai-total-sessions">0</h3>
+                            <p class="text-muted text-sm">Tổng phiên hội thoại</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-comments text-light" style="opacity: 0.3;"></i>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body bg-light">
-                    <div class="row" id="ai-monitor-grid">
-                        <!-- AI Health Cards -->
-                        <div class="col-md-3">
-                            <div class="info-box bg-white border shadow-xs mb-3">
-                                <span class="info-box-icon text-muted" id="ai-status-icon"><i class="fas fa-signal"></i></span>
-                                <div class="info-box-content">
-                                    <span class="info-box-text text-uppercase font-weight-bold letter-spacing-1" style="font-size: 10px; color: #999;">Trạng thái hệ thống</span>
-                                    <span class="info-box-number text-muted" id="ai-status-text">Đang kiểm tra...</span>
-                                    <div class="progress progress-xxs mt-2" style="height: 2px;">
-                                        <div class="progress-bar bg-info" id="ai-status-progress" style="width: 0%"></div>
-                                    </div>
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-white border shadow-sm">
+                        <div class="inner">
+                            <h3 id="ai-total-messages">0</h3>
+                            <p class="text-muted text-sm">Tổng số tin nhắn</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-comment-dots text-light" style="opacity: 0.3;"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-white border shadow-sm">
+                        <div class="inner">
+                            <h3 id="ai-total-tokens">0</h3>
+                            <p class="text-muted text-sm">Tổng Tokens sử dụng</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-microchip text-light" style="opacity: 0.3;"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-white border shadow-sm">
+                        <div class="inner">
+                            <h3 id="ai-total-cost">$0.00</h3>
+                            <p class="text-muted text-sm">Chi phí ước tính (USD)</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-dollar-sign text-light" style="opacity: 0.3;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Analytics Charts -->
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <div class="card card-outline card-primary shadow-sm h-100">
+                        <div class="card-header border-0">
+                            <h3 class="card-title text-bold text-sm">
+                                <i class="fas fa-chart-line mr-1 text-primary"></i>
+                                Hoạt động AI Bot (7 ngày qua)
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="ai-daily-chart-container" style="height: 300px; position: relative;">
+                                <canvas id="ai-daily-activity-chart"></canvas>
+                                <div class="ai-no-data d-none text-center p-5" style="position: absolute; top: 0; width: 100%;">
+                                    <i class="fas fa-chart-line fa-3x text-light mb-3"></i>
+                                    <p class="text-muted">Chưa có dữ liệu hoạt động trong khoảng thời gian này</p>
                                 </div>
                             </div>
                         </div>
-
-                        <div class="col-md-3">
-                            <div class="info-box bg-white border shadow-xs mb-3">
-                                <span class="info-box-icon text-muted" id="ai-storage-icon"><i class="fas fa-database"></i></span>
-                                <div class="info-box-content">
-                                    <span class="info-box-text text-uppercase font-weight-bold letter-spacing-1" style="font-size: 10px; color: #999;">Vector Storage</span>
-                                    <span class="info-box-number text-muted" id="ai-storage-text">---</span>
-                                    <span class="info-box-description text-xs text-muted" id="ai-storage-detail">Đang tải...</span>
-                                </div>
-                            </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card card-outline card-success shadow-sm h-100">
+                        <div class="card-header border-0">
+                            <h3 class="card-title text-bold text-sm">
+                                <i class="fas fa-pie-chart mr-1 text-success"></i>
+                                Phân bổ ý định (Intents)
+                            </h3>
                         </div>
-
-                        <div class="col-md-3">
-                            <div class="info-box bg-white border shadow-xs mb-3">
-                                <span class="info-box-icon text-muted" id="ai-llm-icon"><i class="fas fa-brain"></i></span>
-                                <div class="info-box-content">
-                                    <span class="info-box-text text-uppercase font-weight-bold letter-spacing-1" style="font-size: 10px; color: #999;">LLM Provider</span>
-                                    <span class="info-box-number text-muted" id="ai-llm-text">---</span>
-                                    <span class="info-box-description text-xs text-muted" id="ai-llm-detail">Đang tải...</span>
+                        <div class="card-body">
+                            <div id="ai-intents-chart-container" style="height: 250px; position: relative;">
+                                <canvas id="ai-intents-chart"></canvas>
+                                <div class="ai-no-data d-none text-center p-4" style="position: absolute; top: 0; width: 100%;">
+                                    <i class="fas fa-comment-slash fa-2x text-light mb-3"></i>
+                                    <p class="text-muted">Chưa có dữ liệu ý định</p>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="col-md-3">
-                            <div class="info-box bg-white border shadow-xs mb-3">
-                                <span class="info-box-icon text-muted"><i class="fas fa-chart-bar"></i></span>
-                                <div class="info-box-content">
-                                    <span class="info-box-text text-uppercase font-weight-bold letter-spacing-1" style="font-size: 10px; color: #999;">Thống kê hôm nay</span>
-                                    <span class="info-box-number text-muted" id="ai-usage-text">0 Tokens</span>
-                                    <span class="info-box-description text-xs text-muted" id="ai-usage-detail">0 Yêu cầu</span>
-                                </div>
-                            </div>
+                            <div id="ai-intents-legend" class="mt-4" style="max-height: 150px; overflow-y: auto;"></div>
                         </div>
                     </div>
                 </div>
@@ -429,69 +468,143 @@ DashBoard
 
         // AI Bot Monitoring logic
         var aiMonitorTimeout;
-        function updateAiMonitor() {
+
+        // Advanced AI Stats
+        var dailyActivityChart;
+        var intentsChart;
+
+        function updateAdvancedAiStats() {
             $.ajax({
-                url: "{{ route('backend_ai_monitor_status') }}",
+                url: "{{ route('backend_ai_monitor_advanced_stats') }}",
                 type: 'GET',
                 success: function(response) {
                     if (response.success) {
                         var data = response.data;
-                        var now = new Date();
-                        $('#ai-last-check').text('Cập nhật lúc: ' + now.toLocaleTimeString());
                         
-                        // 1. System Status
-                        var isHealthy = data.health.status === 'healthy';
-                        $('#ai-status-icon').html('<i class="fas fa-check-circle text-success"></i>');
-                        if (!isHealthy) {
-                            $('#ai-status-icon').html('<i class="fas fa-exclamation-triangle text-warning"></i>');
-                        }
-                        $('#ai-status-text').removeClass('text-muted').addClass(isHealthy ? 'text-success' : 'text-danger').text(data.health.status.toUpperCase());
-                        $('#ai-status-progress').css('width', '100%').removeClass('bg-info').addClass(isHealthy ? 'bg-success' : 'bg-danger');
+                        // 1. Update Overview Stats
+                        var totals = data.overview.totals || {};
+                        $('#ai-total-sessions').text(totals.active_sessions || 0);
+                        $('#ai-total-messages').text(totals.total_messages || 0);
+                        $('#ai-total-tokens').text((totals.total_tokens || 0).toLocaleString());
+                        $('#ai-total-cost').text('$' + (totals.total_cost_usd || 0).toFixed(4));
 
-                        // 2. Storage
-                        var statusObj = data.status || {};
-                        var storage = statusObj.storage || {};
-                        var storageHealthy = storage.available === true;
-                        $('#ai-storage-icon').html('<i class="fas fa-database ' + (storageHealthy ? 'text-info' : 'text-danger') + '"></i>');
-                        $('#ai-storage-text').removeClass('text-muted').addClass(storageHealthy ? 'text-success' : 'text-danger').text(storageHealthy ? 'Hoạt động' : 'Lỗi');
-                        $('#ai-storage-detail').text(storage.type || 'Hệ thống lưu trữ vector');
-
-                        // 3. LLM
-                        var llm = statusObj.llm || {};
-                        var llmHealthy = llm.default_provider ? true : false;
-                        $('#ai-llm-icon').html('<i class="fas fa-brain ' + (llmHealthy ? 'text-primary' : 'text-danger') + '"></i>');
-                        $('#ai-llm-text').removeClass('text-muted').addClass(llmHealthy ? 'text-success' : 'text-danger').text(llmHealthy ? 'Hoạt động' : 'Lỗi');
-                        var llmInfo = llm.default_provider ? (llm.default_provider.toUpperCase() + '/' + (llm.default_model || 'AI')) : 'Liên kết AI';
-                        $('#ai-llm-detail').text(llmInfo);
-
-                        // 4. Metrics
-                        // Aggregating from histograms as per actual structure
-                        var metricsRoot = data.metrics || {};
-                        var innerMetrics = metricsRoot.metrics || {};
-                        var histograms = innerMetrics.histograms || {};
+                        // 2. Update Daily Activity Chart
+                        var dailySeries = data.daily.series || [];
+                        var dailyContainer = $('#ai-daily-chart-container');
                         
-                        var totalReq = 0;
-                        // Iterate through metrics to find request counts
-                        Object.keys(histograms).forEach(function(key) {
-                            if (key.indexOf('chatbot_llm_latency_ms') !== -1) {
-                                totalReq += histograms[key].count || 0;
+                        if (dailySeries.length === 0) {
+                            dailyContainer.find('canvas').addClass('d-none');
+                            dailyContainer.find('.ai-no-data').removeClass('d-none');
+                        } else {
+                            dailyContainer.find('canvas').removeClass('d-none');
+                            dailyContainer.find('.ai-no-data').addClass('d-none');
+                            
+                            var labels = dailySeries.map(item => item.date);
+                            var messages = dailySeries.map(item => item.messages);
+                            var sessions = dailySeries.map(item => item.sessions);
+
+                            if (dailyActivityChart) {
+                                dailyActivityChart.destroy();
                             }
-                        });
+
+                            dailyActivityChart = new Chart($('#ai-daily-activity-chart').get(0).getContext('2d'), {
+                                type: 'line',
+                                data: {
+                                    labels: labels,
+                                    datasets: [
+                                        {
+                                            label: 'Tin nhắn',
+                                            borderColor: '#007bff',
+                                            backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                                            data: messages,
+                                            fill: true,
+                                            tension: 0.4
+                                        },
+                                        {
+                                            label: 'Phiên hội thoại',
+                                            borderColor: '#28a745',
+                                            backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                                            data: sessions,
+                                            fill: true,
+                                            tension: 0.4
+                                        }
+                                    ]
+                                },
+                                options: {
+                                    maintainAspectRatio: false,
+                                    responsive: true,
+                                    title: { display: false },
+                                    legend: { position: 'top' },
+                                    tooltips: { mode: 'index', intersect: false },
+                                    hover: { mode: 'nearest', intersect: true },
+                                    scales: {
+                                        xAxes: [{ gridLines: { display: false }, ticks: { fontSize: 10 } }],
+                                        yAxes: [{ gridLines: { color: 'rgba(0,0,0,0.05)' }, ticks: { beginAtZero: true, fontSize: 10 } }]
+                                    }
+                                }
+                            });
+                        }
+
+                        // 3. Update Intents Chart
+                        var intentsData = data.intents.intents || [];
+                        var intentContainer = $('#ai-intents-chart-container');
                         
-                        $('#ai-usage-text').removeClass('text-muted').text('Online');
-                        $('#ai-usage-detail').text(totalReq + ' yêu cầu đã xử lý');
+                        if (intentsData.length === 0) {
+                            intentContainer.find('canvas').addClass('d-none');
+                            intentContainer.find('.ai-no-data').removeClass('d-none');
+                            $('#ai-intents-legend').html('');
+                        } else {
+                            intentContainer.find('canvas').removeClass('d-none');
+                            intentContainer.find('.ai-no-data').addClass('d-none');
+                            
+                            var intentLabels = intentsData.map(item => item.intent);
+                            var intentCounts = intentsData.map(item => item.count);
+                            var intentColors = generateColors(intentsData.length);
+
+                            if (intentsChart) {
+                                intentsChart.destroy();
+                            }
+
+                            intentsChart = new Chart($('#ai-intents-chart').get(0).getContext('2d'), {
+                                type: 'doughnut',
+                                data: {
+                                    labels: intentLabels,
+                                    datasets: [{
+                                        data: intentCounts,
+                                        backgroundColor: intentColors
+                                    }]
+                                },
+                                options: {
+                                    maintainAspectRatio: false,
+                                    responsive: true,
+                                    legend: { display: false },
+                                    cutoutPercentage: 70
+                                }
+                            });
+
+                            // Generate Intent Legend
+                            var legendHtml = '<div class="row">';
+                            intentsData.forEach((item, index) => {
+                                legendHtml += `
+                                    <div class="col-6 mb-2">
+                                        <div class="d-flex align-items-center">
+                                            <div style="width: 12px; height: 12px; background-color: ${intentColors[index]}; margin-right: 8px; border-radius: 2px;"></div>
+                                            <div class="text-truncate" title="${item.intent}" style="font-size: 11px;">
+                                                <span class="text-bold">${item.percentage.toFixed(1)}%</span> ${item.intent}
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            });
+                            legendHtml += '</div>';
+                            $('#ai-intents-legend').html(legendHtml);
+                        }
                     }
-                },
-                error: function() {
-                    $('#ai-status-icon').html('<i class="fas fa-times-circle text-danger"></i>');
-                    $('#ai-status-text').removeClass('text-success').addClass('text-danger').text('NGOẠI TUYẾN');
-                    $('#ai-status-progress').css('width', '0%');
                 }
             });
         }
 
-        // Initial update
-        updateAiMonitor();
+        updateAdvancedAiStats();
     })
 </script>
 @endsection
