@@ -56,69 +56,66 @@ class HotspotController extends Controller
             };
             $hotspot_db = Hotspot::where('vrtour_id', $vrtour_id)->whereIn('type', $typeFilter)->get();
             if ($request->reset == 'true') {
-                $hotspots = Hotspot::where('vrtour_id', $vrtour_id)
-                    ->with('IndustrialProject')
-                    ->get();
-
-                foreach ($hotspots as $hotspot) {
-                    if ($hotspot->IndustrialProject) {
-                        $hotspot->IndustrialProject->delete();
-                    }
-                    $hotspot->delete();
-                }
-            }
-            if (count($hotspot_db) == 0) {
-                // ... (Khối logic lấy và lưu Hotspot vào DB) ...
                 $response = getDataVrtour($link_vrtour . 'vista3d/hotspot.json');
-                $hotspot = json_decode($response['data'], true);
+                $hotspotsJson = json_decode($response['data'], true);
+
                 $media_index = $response['media_index'];
                 $vrtour->media_index = $media_index;
                 $vrtour->save();
-                foreach ($hotspot as $hp) {
-                    $new_hp = new Hotspot;
-                    $new_hp->vrtour_id = $vrtour_id;
-                    $new_hp->potision = $hp['position'];
-                    $new_hp->acreage = $hp['acreage'] ?? null;
-                    $new_hp->url = $hp['url'];
-                    $new_hp->opacity = $hp['opacity'];
-                    $new_hp->tooltip = (!str_contains($hp['position'], 'cms_eye') && !str_contains($hp['position'], 'cms_fly')) ? $hp['tooltip'] : '';
-                    // GIẢ ĐỊNH: Nếu nguồn JSON có trường tooltip_en, bạn nên lưu nó vào bảng Hotspot tại đây
-                    $new_hp->tooltip_en = $hp['tooltip_en'] ?? null;
-                    $new_hp->type = str_contains($hp['position'], 'cms_') ? 1 : (str_contains($hp['position'], 'cmss_') ? 2 : 3);
-                    $new_hp->user_id = Auth::id();
-                    $new_hp->save();
+                $positionsFromJson = collect($hotspotsJson)->pluck('position')->toArray();
+                $existingHotspots = Hotspot::where('vrtour_id', $vrtour_id)->get()->keyBy('potision');
+                $existingProjects = IndustrialProject::where('project_id', $vrtour_id)->get()->keyBy('code');
+
+                foreach ($hotspotsJson as $hp) {
+                    $position = $hp['position'];
+                    $existsHotspot = $existingHotspots->has($position);
+                    $existsProject = $existingProjects->has($position);
+                    if ($existsHotspot && $existsProject) {
+                        continue;
+                    }
+                    if (!$existsHotspot) {
+                        $new_hp = new Hotspot;
+                        $new_hp->vrtour_id = $vrtour_id;
+                        $new_hp->potision = $position;
+                        $new_hp->acreage = $hp['acreage'] ?? null;
+                        $new_hp->url = $hp['url'];
+                        $new_hp->opacity = $hp['opacity'];
+                        $new_hp->tooltip = (!str_contains($position, 'cms_eye') && !str_contains($position, 'cms_fly')) ? $hp['tooltip'] : '';
+                        $new_hp->tooltip_en = $hp['tooltip_en'] ?? null;
+                        $new_hp->type = str_contains($position, 'cms_') ? 1 : (str_contains($position, 'cmss_') ? 2 : 3);
+                        $new_hp->user_id = Auth::id();
+                        $new_hp->save();
+                    }
+                    if (str_contains($position, 'cmss_') && !$existsProject) {
+
+                        $translations = [
+                            'vi' => $hp['tooltip'] ?? null,
+                            'en' => $hp['tooltip_en'] ?? null,
+                        ];
+
+                        IndustrialProject::create([
+                            'project_id' => $vrtour_id,
+                            'code'       => $position,
+                            'name'       => $vrtour->name,
+                            'acreage'    => $hp['acreage'] ?? null,
+                            'description' => $translations,
+                            'link'       => $link_vrtour . 'vista3d/search.html?search_link='
+                                . $link_vrtour . '?media-index=' . $media_index
+                                . '&hct=HOLDER_SELECT_LANGUAGE_CN2&trigger-overlay-name=' . $position
+                                . '&focus-overlay-name=' . $position
+                                . '&show-overlays-names=' . $position
+                                . '&skip-loading',
+                        ]);
+                    }
                 }
-                $hotspot_db = Hotspot::where('vrtour_id', $vrtour_id)->whereIn('type', $request->type == 0 ? [1, 2] : [3])->get();
+                Hotspot::where('vrtour_id', $vrtour_id)
+                    ->whereNotIn('potision', $positionsFromJson)
+                    ->delete();
+                IndustrialProject::where('project_id', $vrtour_id)
+                    ->whereNotIn('code', $positionsFromJson)
+                    ->delete();
                 createFile('vrtour/' . $vrtour->vrtour_code, 'hotspot.js');
                 file_put_contents('vrtour/' . $vrtour->vrtour_code . '/hotspot.js', Hotspot::where('vrtour_id', $vrtour_id)->get());
-            }
-
-            // --- KHỐI ĐÃ SỬA ĐỔI ĐỂ SỬ DỤNG SPATIE/LARAVEL-TRANSLATABLE ---
-            $hotspotsType2 = Hotspot::where('vrtour_id', $vrtour_id)->where('type', 2)->get();
-            foreach ($hotspotsType2 as $key => $value) {
-                $translations = [
-                    'vi' => $value->tooltip,
-                    'en' => $value->tooltip_en ?? null,
-                ];
-                IndustrialProject::updateOrCreate(
-                    [
-                        // Điều kiện tìm bản ghi
-                        'project_id' => $vrtour_id,
-                        'code'       => $value->potision,
-                    ],
-                    [
-                        // Dữ liệu update / create
-                        'name'        => $vrtour->name,
-                        'acreage'     => $value->acreage,
-                        'description' => $translations, // Spatie tự JSON
-                        'link'        => $link_vrtour . 'vista3d/search.html?search_link='
-                            . $link_vrtour . '?media-index=' . $media_index
-                            . '&hct=HOLDER_SELECT_LANGUAGE_CN2&trigger-overlay-name=' . $value->potision
-                            . '&focus-overlay-name=' . $value->potision
-                            . '&show-overlays-names=' . $value->potision
-                            . '&skip-loading',
-                    ]
-                );
             }
             // --- KẾT THÚC KHỐI SỬA ĐỔI ---
             foreach ($hotspot_db as $key => $hp) {
@@ -177,24 +174,26 @@ class HotspotController extends Controller
         $new_hp->tooltip_en = $request->hp_tooltip_en;
         $new_hp->acreage    = $request->acreage;
         $new_hp->intended_use    = $request->intended_use;
-        $new_hp->unit       = $request->unit;
+        $new_hp->unit       = $request->unit ?? 0;
 
         $new_hp->user_id    = Auth::id();
         $new_hp->save();
-        IndustrialProject::updateOrCreate(
-            [
-                'project_id' => $new_hp->vrtour_id,
-                'code'       => $new_hp->potision
-            ],
-            [
-                'name'        => Project::find($new_hp->vrtour_id)->name,
-                'product_type'=> $request->product_type,
-                'intended_use'=> $request->intended_use,
-                'unit'        => $request->unit,
-                'acreage'     => $request->acreage,
-                'description' => $translations, // Spatie tự JSON
-            ]
-        );
+        if ($new_hp->IndustrialProject) {
+            IndustrialProject::updateOrCreate(
+                [
+                    'project_id' => $new_hp->vrtour_id,
+                    'code'       => $new_hp->potision
+                ],
+                [
+                    'name'        => Project::find($new_hp->vrtour_id)->name,
+                    'product_type' => $request->product_type,
+                    'intended_use' => $request->intended_use,
+                    'unit'        => $request->unit ?? 0,
+                    'acreage'     => $request->acreage,
+                    'description' => $translations, // Spatie tự JSON
+                ]
+            );
+        }
         file_put_contents('vrtour/' . Project::find($new_hp->vrtour_id)->vrtour_code . '/hotspot.js', Hotspot::where('vrtour_id', $new_hp->vrtour_id)->get());
         return redirect()->to(route('backend_vrtour_hotspot_index') . '?vrtour=' . $new_hp->vrtour_id . '&type=' . ($new_hp->type == 3 ? 1 : 0))->with('success', 'Cập nhật thông tin thành công');
     }

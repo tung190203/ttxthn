@@ -1616,8 +1616,8 @@
                 projectTypes: '{{ __('app.project_types') }}',
                 unknown: '{{ __('app.unknown') }}',
                 location: '{{ __('app.location') }}',
-                intendedUse: '{{ __('app.intended_use') }}',
                 nameProject: '{{ __('app.name_project') }}',
+                lot: '{{ __('app.lot') }}',
             };
 
             resultList.innerHTML = items.map(item => `
@@ -1625,7 +1625,7 @@
                     <div>
                         <strong>${item.intended_use ?? labels.unknown}</strong><br>
                         <small>${labels.projects}: ${item.project_name}</small> - ${labels.code}: ${item.code.replace(/^cmss_/, '')}<br>
-                        <small>${labels.nameProject}: ${item.description ?? labels.unknown} - ${labels.area}: ${item.acreage ?? labels.unknown} ${item.unit} - ${labels.projectTypes}: ${item.product_type_name ?? labels.unknown}</small>
+                        <small>${labels.nameProject}: ${labels.lot} ${item.code.replace(/^cmss_/, '') ?? labels.unknown} - ${labels.area}: ${item.acreage ?? labels.unknown} ${item.unit} - ${labels.projectTypes}: ${item.product_type_name ?? labels.unknown}</small>
                     </div>
                     <a href="${item.link}" target="_blank" class="btn custom-btn btn-sm">${labels.location}</a>
                 </li>

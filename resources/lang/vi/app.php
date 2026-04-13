@@ -12,6 +12,7 @@ return [
     'suggested_projects' => 'Gợi ý tìm kiếm',
     'view_all_results' => 'Xem tất cả kết quả',
     'name_project' => 'Tên lô đất',
+    'lot' => 'Lô',
     'rental_price' => 'Giá thuê',
     'search_project' => 'Tìm kiếm dự án',
     'industrial_products' => 'Sản phẩm khu, cụm công nghiệp',
