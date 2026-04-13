@@ -216,6 +216,7 @@ Route::localized(function () {
 
         Route::prefix('ai-monitor')->group(function () {
             Route::get('/status', [AIChatMonitorController::class, 'getApiStatus'])->name('backend_ai_monitor_status');
+            Route::get('/advanced-stats', [AIChatMonitorController::class, 'getAdvancedStats'])->name('backend_ai_monitor_advanced_stats');
         });
     });
 });
