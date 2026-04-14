@@ -829,6 +829,98 @@
             color: #333;
             line-height: 1.4;
         }
+
+        /* Làm nổi bật nút Layer Control của Leaflet */
+        .leaflet-control-layers {
+            border: none !important;
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+        
+        .leaflet-control-layers-expanded {
+            background: #fff !important;
+            border-radius: 10px !important;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15) !important;
+            padding: 12px 18px !important;
+            border: 1px solid rgba(26, 111, 196, 0.2) !important;
+            margin: 10px !important;
+            transform-origin: top right;
+        }
+        
+        /* Ngăn lòi panel ngoài ý muốn */
+        .leaflet-control-layers:not(.leaflet-control-layers-expanded) .leaflet-control-layers-list {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            max-height: 0 !important;
+            pointer-events: none !important;
+        }
+        
+        .leaflet-control-layers-expanded .leaflet-control-layers-list {
+            display: block;
+            animation: fadeInLayerList 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        
+        @keyframes fadeInLayerList {
+            0% {
+                opacity: 0;
+                transform: translateY(-8px) scale(0.95);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .leaflet-control-layers-toggle {
+            width: 52px !important;
+            height: 52px !important;
+            border-radius: 50% !important;
+            background-color: #1a6fc4 !important;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 576 512'%3E%3Cpath fill='%23ffffff' d='M264.5 5.2c14.9-6.9 32.1-6.9 47 0l218.6 101c8.5 3.9 13.9 12.4 13.9 21.8s-5.4 17.9-13.9 21.8l-218.6 101c-14.9 6.9-32.1 6.9-47 0L45.9 149.8C37.4 145.8 32 137.3 32 128s5.4-17.9 13.9-21.8L264.5 5.2zM476.9 209.6l53.2 24.6c8.5 3.9 13.9 12.4 13.9 21.8s-5.4 17.9-13.9 21.8l-218.6 101c-14.9 6.9-32.1 6.9-47 0L45.9 277.8C37.4 273.8 32 265.3 32 256s5.4-17.9 13.9-21.8l53.2-24.6 152 70.2c23.4 10.8 50.4 10.8 73.8 0l152-70.2zM224.1 411.2c23.4 10.8 50.4 10.8 73.8 0l152-70.2 53.2 24.6c8.5 3.9 13.9 12.4 13.9 21.8s-5.4 17.9-13.9 21.8l-218.6 101c-14.9 6.9-32.1 6.9-47 0L45.9 411.8C37.4 407.8 32 399.3 32 390s5.4-17.9 13.9-21.8l53.2-24.6 152 70.2z'/%3E%3C/svg%3E") !important;
+            background-size: 26px 26px !important;
+            background-position: center !important;
+            background-repeat: no-repeat !important;
+            box-shadow: 0 6px 20px rgba(26, 111, 196, 0.55) !important;
+            transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+            animation: layer-bounce-idle 3s ease-in-out 1.5s infinite !important;
+            transform-origin: center bottom;
+        }
+
+        .leaflet-control-layers-toggle:hover {
+            background-color: #1459a0 !important;
+            transform: scale(1.1) !important;
+            box-shadow: 0 8px 28px rgba(26, 111, 196, 0.7) !important;
+        }
+
+        .leaflet-control-layers-toggle:active {
+            transform: scale(0.93) !important;
+            transition: transform 0.1s ease !important;
+        }
+
+        @keyframes layer-bounce-idle {
+            0%   { transform: translateY(0) scale(1); }
+            10%  { transform: translateY(-8px) scale(1.05); }
+            20%  { transform: translateY(0px) scale(1); }
+            30%  { transform: translateY(-4px) scale(1.02); }
+            40%  { transform: translateY(0px) scale(1); }
+            100% { transform: translateY(0) scale(1); }
+        }
+        
+        .leaflet-control-layers-base label,
+        .leaflet-control-layers-overlays label {
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 4px 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .leaflet-control-layers-separator {
+            border-top: 1px dashed #ccc !important;
+            margin: 10px 0 !important;
+        }
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -1621,6 +1713,9 @@
                 map.removeLayer(window._currentProjectBoundaryPolygon);
                 window._currentProjectBoundaryPolygon = null;
             }
+            if (window.layerControl && window.layerControl.forceCollapse) {
+                window.layerControl.forceCollapse();
+            }
         });
 
         // Ngăn chặn sự kiện cuộn/nhấp chuột truyền từ legend xuống bản đồ
@@ -1873,7 +1968,60 @@
             applyFiltersWithBounds();
         }
 
-        L.control.layers(baseLayers, overlayLayers).addTo(map);
+        // Sửa Prototype của Leaflet để ngăn sự kiện di chuột tự động mở bằng JS
+        if (!window._patchedLeafletLayers) {
+            const proto = L.Control.Layers.prototype;
+            const originalEx = proto._expand;
+            const originalCol = proto._collapse;
+            
+            proto._expand = function() {
+                if (this._clickToOpen) originalEx.call(this);
+            };
+            proto._collapse = function() {
+                if (this._clickToClose) originalCol.call(this);
+            };
+            window._patchedLeafletLayers = true;
+        }
+
+        // Khởi tạo bình thường (không dùng collapsed: false để tránh phá DOM Leaflet)
+        window.layerControl = L.control.layers(baseLayers, overlayLayers).addTo(map);
+        
+        // Reset trạng thái flag an toàn
+        window.layerControl._clickToOpen = false;
+        window.layerControl._clickToClose = false;
+        
+        // Public method an toàn để map onClick bên ngoài có thể gọi force form collapse
+        window.layerControl.forceCollapse = function() {
+            window.layerControl._clickToClose = true;
+            window.layerControl._collapse();
+            window.layerControl._clickToClose = false;
+        };
+        
+        // Lắng nghe sự kiện click thay vì hover
+        (function setupLayerControlClick() {
+            const lcContainer = window.layerControl.getContainer();
+            const toggleBtn = lcContainer.querySelector('.leaflet-control-layers-toggle');
+            
+            if(toggleBtn) {
+                L.DomEvent.on(toggleBtn, 'click', function(e) {
+                    L.DomEvent.stopPropagation(e);
+                    L.DomEvent.preventDefault(e);
+                    
+                    if (L.DomUtil.hasClass(lcContainer, 'leaflet-control-layers-expanded')) {
+                        window.layerControl.forceCollapse();
+                    } else {
+                        window.layerControl._clickToOpen = true;
+                        window.layerControl._expand();
+                        window.layerControl._clickToOpen = false;
+                    }
+                });
+            }
+            
+            L.DomEvent.on(lcContainer, 'click', function(e){
+                L.DomEvent.stopPropagation(e);
+            });
+        })();
+        
         // railwayOverlayGroup.addTo(map); 
         // stationOverlayGroup.addTo(map); // Optional: if you want stations to persist toggle separately
         map.on('overlayadd', function(e) {
