@@ -8,66 +8,93 @@ DashBoard
 <li class="breadcrumb-item active">Dashboard</li>
 @endsection
 
+@section('style')
+<style>
+    .visit-card {
+        border-radius: 12px;
+        transition: transform 0.2s;
+    }
+    .visit-card:hover {
+        transform: translateY(-5px);
+    }
+    .text-xs { font-size: 0.75rem; }
+</style>
+@endsection
+
 @section('content')
 <div class="container-fluid">
     <!-- Small boxes (Stat box) -->
-    <div class="row">
-        <div class="col-lg-3 col-6">
-            <!-- small box -->
-            <div class="small-box bg-primary">
-                <div class="inner">
-                    <h3>{{ $quantityProjects }}</h3>
-                    <p>Dự án</p>
+        <!-- ./col -->
+    </div>
+
+    <!-- Website Visitor Stats -->
+    <div class="card card-outline card-success shadow-none bg-transparent">
+        <div class="card-header border-0 pl-0">
+            <h3 class="card-title text-bold">
+                <i class="fas fa-eye mr-2 text-success"></i>
+                THỐNG KÊ TRUY CẬP WEBSITE
+            </h3>
+        </div>
+        <div class="card-body p-0">
+            <div class="row mb-4">
+                <div class="col-lg-4 col-12">
+                    <div class="small-box bg-white border shadow-sm visit-card">
+                        <div class="inner">
+                            <h3>{{ number_format($visitStats['unique_ips_today']) }}</h3>
+                            <p class="text-muted text-sm mb-0">Địa chỉ IP truy cập (Hôm nay)</p>
+                            <span class="text-xs text-success"><i class="fas fa-fingerprint mr-1"></i>Mỗi IP chỉ được tính 1 lần/ngày</span>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-network-wired text-light" style="opacity: 0.3;"></i>
+                        </div>
+                    </div>
                 </div>
-                <div class="icon">
-                    <i class="fas fa-industry"></i>
+                <div class="col-lg-4 col-12">
+                    <div class="small-box bg-white border shadow-sm visit-card" style="border-left: 4px solid #f39c12 !important;">
+                        <div class="inner">
+                            <h3>{{ number_format($visitStats['bots_today']) }}</h3>
+                            <p class="text-muted text-sm mb-0">Lượt Bot/Crawl (Hôm nay)</p>
+                            <span class="text-xs text-warning"><i class="fas fa-robot mr-1"></i>Dự đoán dựa trên User-Agent</span>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-user-secret text-light" style="opacity: 0.3;"></i>
+                        </div>
+                    </div>
                 </div>
-                <a href="{{ route('backend_project') }}" class="small-box-footer">Xem chi tiết <i class="fas fa-arrow-circle-right"></i></a>
+                <div class="col-lg-4 col-12">
+                    <div class="small-box bg-white border shadow-sm visit-card">
+                        <div class="inner">
+                            <h3>{{ $visitStats['unique_ips_today'] > 0 ? round(($visitStats['bots_today'] / $visitStats['unique_ips_today']) * 100, 1) : 0 }}%</h3>
+                            <p class="text-muted text-sm mb-0">Tỷ lệ Bot trong ngày</p>
+                            <div class="progress progress-xxs mt-2">
+                                <div class="progress-bar bg-warning" style="width: {{ $visitStats['unique_ips_today'] > 0 ? ($visitStats['bots_today'] / $visitStats['unique_ips_today']) * 100 : 0 }}%"></div>
+                            </div>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-percentage text-light" style="opacity: 0.3;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card card-outline card-success shadow-sm">
+                        <div class="card-header border-0">
+                            <h3 class="card-title text-bold text-sm">
+                                <i class="fas fa-history mr-1 text-success"></i>
+                                Biểu đồ truy cập (7 ngày gần nhất)
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <div style="height: 250px; position: relative;">
+                                <canvas id="visitor-activity-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        <!-- ./col -->
-        <div class="col-lg-3 col-6">
-            <!-- small box -->
-            <div class="small-box bg-success">
-                <div class="inner">
-                    <h3>{{ $quantityUser }}</h3>
-                    <p>Người dùng hệ thống</p>
-                </div>
-                <div class="icon">
-                    <i class="fas fa-users"></i>
-                </div>
-                <a href="{{ route('backend_guest') }}" class="small-box-footer">Xem chi tiết <i class="fas fa-arrow-circle-right"></i></a>
-            </div>
-        </div>
-        <!-- ./col -->
-        <div class="col-lg-3 col-6">
-            <!-- small box -->
-            <div class="small-box bg-info">
-                <div class="inner">
-                    <h3>{{ $quantityPost }}</h3>
-                    <p>Tin tức & Bài viết</p>
-                </div>
-                <div class="icon">
-                    <i class="far fa-newspaper"></i>
-                </div>
-                <a href="{{ route('backend_post') }}" class="small-box-footer">Xem chi tiết <i class="fas fa-arrow-circle-right"></i></a>
-            </div>
-        </div>
-        <!-- ./col -->
-        <div class="col-lg-3 col-6">
-            <!-- small box -->
-            <div class="small-box bg-warning">
-                <div class="inner">
-                    <h3>{{ $quantityInvestmentGuide }}</h3>
-                    <p>Cẩm nang đầu tư</p>
-                </div>
-                <div class="icon">
-                    <i class="fas fa-book"></i>
-                </div>
-                <a href="{{ route('backend_investment_guide') }}" class="small-box-footer">Xem chi tiết <i class="fas fa-arrow-circle-right"></i></a>
-            </div>
-        </div>
-        <!-- ./col -->
     </div>
 
 
@@ -605,6 +632,36 @@ DashBoard
         }
 
         updateAdvancedAiStats();
+
+        // Website Visitor Activity Chart
+        var visitorChartCanvas = $('#visitor-activity-chart').get(0).getContext('2d');
+        new Chart(visitorChartCanvas, {
+            type: 'bar',
+            data: {
+                labels: @json($visitChartLabels),
+                datasets: [
+                    {
+                        label: 'Địa chỉ IP thực',
+                        backgroundColor: '#28a745',
+                        data: @json($visitChartData).map((v, i) => v - @json($botChartData)[i])
+                    },
+                    {
+                        label: 'Địa chỉ IP Bot',
+                        backgroundColor: '#f39c12',
+                        data: @json($botChartData)
+                    }
+                ]
+            },
+            options: {
+                maintainAspectRatio: false,
+                responsive: true,
+                scales: {
+                    xAxes: [{ stacked: true, gridLines: { display: false } }],
+                    yAxes: [{ stacked: true, gridLines: { color: 'rgba(0,0,0,0.05)' } }]
+                },
+                legend: { position: 'top' }
+            }
+        });
     })
 </script>
 @endsection
