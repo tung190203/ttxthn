@@ -999,14 +999,20 @@
         });
 
         // Tile layers
+        // Vẫn sử dụng MapTiler làm mặc định nhưng được tối ưu hóa quá trình tải tile
         const defaults = L.tileLayer('https://api.maptiler.com/maps/outdoor-v2/{z}/{x}/{y}.png?key=9TGwJ4mWrJMxq4JisiIz', {
             maxNativeZoom: 19,
-            maxZoom: 21
+            maxZoom: 21,
+            updateWhenIdle: true,       // Chỉ fetch tiles sau khi người dùng ngừng kéo bản đồ
+            updateWhenZooming: false,   // Không fetch liên tục trong quá trình đang zoom
+            keepBuffer: 3               // Cache nhẹ thêm các tile xung quanh để khi quay lại không cần fetch lại
         });
+        
         const streets = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxNativeZoom: 19,
             maxZoom: 21
         });
+        
         const satellite = L.tileLayer(
             'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
                 maxNativeZoom: 18,
@@ -2648,7 +2654,8 @@
         map.on('moveend zoomend', function() {
             isMapTriggered = true;
             clearTimeout(mapMoveTimeout);
-            mapMoveTimeout = setTimeout(applyFiltersWithBounds, 500);
+            // Tăng thời gian chờ (debounce) lên 800ms để giảm tải số lần render/fetch marker khi vuốt thả bản đồ
+            mapMoveTimeout = setTimeout(applyFiltersWithBounds, 800);
         });
 
         map.whenReady(function() {

@@ -10,6 +10,7 @@ use App\Models\Post;
 use App\Models\Project;
 use App\Models\ProjectIndustries;
 use App\Models\User;
+use App\Models\VisitLog;
 use Spatie\Activitylog\Models\Activity;
 
 class DashboardController extends Controller
@@ -34,6 +35,24 @@ class DashboardController extends Controller
             $quantityUser = Guest::count() ?? 0;
             $quantityPost = Post::count() ?? 0;
             $quantityInvestmentGuide = InvestmentGuide::count() ?? 0;
+
+            // Visitor Stats
+            $todayDate = now()->toDateString();
+            $visitStats = [
+                'unique_ips_today' => VisitLog::whereDate('created_at', $todayDate)->count(),
+                'bots_today' => VisitLog::whereDate('created_at', $todayDate)->where('is_bot', true)->count(),
+            ];
+
+            // Historical Visit stats for the last 7 days
+            $visitChartLabels = [];
+            $visitChartData = [];
+            $botChartData = [];
+            for ($i = 6; $i >= 0; $i--) {
+                $d = now()->subDays($i)->format('Y-m-d');
+                $visitChartLabels[] = now()->subDays($i)->format('d/m');
+                $visitChartData[] = VisitLog::whereDate('created_at', $d)->count();
+                $botChartData[] = VisitLog::whereDate('created_at', $d)->where('is_bot', true)->count();
+            }
 
             // Monthly Activity Chart Data
             $range = (int) $request->get('range', 6);
@@ -114,7 +133,11 @@ class DashboardController extends Controller
                 'industryLabels',
                 'industryData',
                 'range',
-                'activities'
+                'activities',
+                'visitStats',
+                'visitChartLabels',
+                'visitChartData',
+                'botChartData'
             ));
         }
         $permissions = $user->getAllPermissionsFromGroup();

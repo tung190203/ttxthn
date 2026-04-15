@@ -14,7 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
 //        $middleware->redirectGuestsTo('/backend/login');
-//        $middleware->append(MemberAuth::class);
+        $middleware->append(\App\Http\Middleware\TrackVisits::class);
         $middleware->alias([
             'member_auth' => MemberAuth::class,
             'base_auth' => BasePasswordMiddleware::class,
