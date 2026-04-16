@@ -1000,7 +1000,7 @@
 
         // Tile layers
         // Vẫn sử dụng MapTiler làm mặc định nhưng được tối ưu hóa quá trình tải tile
-        const defaults = L.tileLayer('https://api.maptiler.com/maps/outdoor-v2/{z}/{x}/{y}.png?key=9TGwJ4mWrJMxq4JisiIz', {
+        const defaults = L.tileLayer('https://api.maptiler.com/maps/outdoor-v2/{z}/{x}/{y}.png?key={{ config('services.maptiler.key') }}', {
             maxNativeZoom: 19,
             maxZoom: 21,
             updateWhenIdle: true,       // Chỉ fetch tiles sau khi người dùng ngừng kéo bản đồ
@@ -1025,7 +1025,7 @@
 
         // MapLibre GL 3D Layer
         const map3d = L.maplibreGL({
-            style: 'https://api.maptiler.com/maps/streets-v2/style.json?key=9TGwJ4mWrJMxq4JisiIz',
+            style: 'https://api.maptiler.com/maps/streets-v2/style.json?key={{ config('services.maptiler.key') }}',
             updateInterval: 0 // Eliminate 30fps throttle to fix 3D panning jitter
         });
 

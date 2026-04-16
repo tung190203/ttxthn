@@ -44,4 +44,8 @@ return [
         'api_admin_key' => env('AI_CHAT_ADMIN_KEY'),
         'api_url' => env('AI_CHAT_API_URL'),
     ],
+    'maptiler' => [
+        'key' => env('MAPTILER_KEY'),
+    ],
 ];
+
