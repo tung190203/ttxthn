@@ -21,7 +21,7 @@ Route::localized(function () {
     Route::post('/base-login', [BaseLoginController::class, 'checkLogin'])->name('base_login_post');
     Route::get('/show-password', [BaseLoginController::class, 'generatePassword'])->name('show_password');
 
-    Route::middleware(['base_auth'])->group(function () {
+    // Route::middleware(['base_auth'])->group(function () {
         Route::group(['prefix' => 'guest'], function () {
             Route::post('/register', [AuthController::class, 'register'])->name('guest_register');
             Route::post('/login', [AuthController::class, 'login'])->name('guest_login');
@@ -68,5 +68,5 @@ Route::localized(function () {
         Route::get('{slug}-p{id}.html',[InvestMentGuideController::class, 'detail'])->where(['slug' => '[a-z0-9\-]+', 'id' => '[0-9]+'])->name('investment_guide_detail');
 
         Route::get('{slug}', [SlugController::class, 'index'])->where(['slug' => '[a-zA-Z0-9\-]+'])->name('category');
-    });
+    // });
 });
