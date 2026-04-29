@@ -36,6 +36,31 @@ class DashboardController extends Controller
             $quantityPost = Post::count() ?? 0;
             $quantityInvestmentGuide = InvestmentGuide::count() ?? 0;
 
+            // Project completion stats
+            $totalInvestment = Project::sum('price') ?? 0;
+            $projectStats = [
+                'total' => $quantityProjects,
+                'has_general_info' => Project::whereNotNull('name')->count(),
+                'has_location' => Project::whereNotNull('lat')->whereNotNull('lng')->count(),
+                'has_vrtour' => Project::where(function($q) {
+                    $q->whereNotNull('link_vrtour')
+                      ->orWhereNotNull('vrtour_code');
+                })->count(),
+                'has_legal' => Project::where(function($q) {
+                    $q->whereNotNull('legal_file')
+                      ->orWhereNotNull('legal_description');
+                })->count(),
+            ];
+
+            $missingProjects = [
+                'general_info' => Project::whereNull('name')->select('id', 'name')->get(),
+                'location' => Project::where(function($q) {
+                    $q->whereNull('lat')->orWhereNull('lng');
+                })->select('id', 'name')->get(),
+                'vrtour' => Project::whereNull('link_vrtour')->whereNull('vrtour_code')->select('id', 'name')->get(),
+                'legal' => Project::whereNull('legal_file')->whereNull('legal_description')->select('id', 'name')->get(),
+            ];
+
             // Visitor Stats
             $todayDate = now()->toDateString();
             $visitStats = [
@@ -137,7 +162,10 @@ class DashboardController extends Controller
                 'visitStats',
                 'visitChartLabels',
                 'visitChartData',
-                'botChartData'
+                'botChartData',
+                'totalInvestment',
+                'projectStats',
+                'missingProjects'
             ));
         }
         $permissions = $user->getAllPermissionsFromGroup();

@@ -23,8 +23,34 @@ DashBoard
 
 @section('content')
 <div class="container-fluid">
-    <!-- Small boxes (Stat box) -->
-        <!-- ./col -->
+    <!-- Project General Stats -->
+    <div class="row mb-4">
+        <div class="col-lg-6 col-12">
+            <div class="small-box bg-info border shadow-sm visit-card">
+                <div class="inner">
+                    <h3>{{ number_format($projectStats['total'] ?? 0) }}</h3>
+                    <p class="mb-0 text-bold">Tổng số dự án</p>
+                    <a href="javascript:void(0)" class="text-white text-xs mt-2 d-inline-block" data-toggle="modal" data-target="#projectDataDetailsModal" style="text-decoration: underline;">
+                        <i class="fas fa-info-circle mr-1"></i>Xem chi tiết thống kê dữ liệu
+                    </a>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-project-diagram text-light" style="opacity: 0.3;"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 col-12">
+            <div class="small-box bg-success border shadow-sm visit-card">
+                <div class="inner">
+                    <h3>{{ number_format($totalInvestment ?? 0) }} <sup style="font-size: 20px">Tỷ VNĐ</sup></h3>
+                    <p class="mb-0 text-bold">Tổng mức đầu tư</p>
+                    <span class="text-xs text-white mt-2 d-inline-block"><i class="fas fa-coins mr-1"></i>Giá trị ước tính từ hệ thống</span>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-money-bill-wave text-light" style="opacity: 0.3;"></i>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Website Visitor Stats -->
@@ -282,6 +308,90 @@ DashBoard
                 <div id="activity-log-container">
                     @include('backend.dashboard.partials._activity_log_table')
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Project Data Details Modal -->
+<div class="modal fade" id="projectDataDetailsModal" tabindex="-1" role="dialog" aria-labelledby="projectDataDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="projectDataDetailsModalLabel"><i class="fas fa-chart-pie mr-2"></i>Chi tiết tiến độ cập nhật dữ liệu dự án</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-0">
+                <table class="table table-striped table-hover mb-0">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Loại dữ liệu</th>
+                            <th class="text-center">Đã có dữ liệu</th>
+                            <th class="text-center">Chưa có (Cần bổ sung)</th>
+                            <th class="text-center">Tỷ lệ hoàn thành</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @php
+                            $total = $projectStats['total'] ?? 0;
+                            $fields = [
+                                ['id' => 'general_info', 'label' => 'Thông tin chung', 'count' => $projectStats['has_general_info'] ?? 0],
+                                ['id' => 'location', 'label' => 'Tọa độ', 'count' => $projectStats['has_location'] ?? 0],
+                                ['id' => 'vrtour', 'label' => 'VR Tour 360', 'count' => $projectStats['has_vrtour'] ?? 0],
+                                ['id' => 'legal', 'label' => 'Văn bản pháp quy', 'count' => $projectStats['has_legal'] ?? 0],
+                            ];
+                        @endphp
+                        @foreach($fields as $field)
+                            @php
+                                $hasCount = $field['count'];
+                                $missingCount = max(0, $total - $hasCount);
+                                $percent = $total > 0 ? round(($hasCount / $total) * 100, 1) : 0;
+                                $progressClass = $percent >= 80 ? 'bg-success' : ($percent >= 50 ? 'bg-warning' : 'bg-danger');
+                                $missingList = $missingProjects[$field['id']] ?? collect();
+                            @endphp
+                            <tr>
+                                <td class="font-weight-bold">{{ $field['label'] }}</td>
+                                <td class="text-center text-success font-weight-bold">{{ $hasCount }}</td>
+                                <td class="text-center text-danger font-weight-bold">
+                                    {{ $missingCount }}
+                                    @if($missingCount > 0)
+                                        <br>
+                                        <button class="btn btn-xs btn-outline-danger mt-1" type="button" data-toggle="collapse" data-target="#missing-{{ $field['id'] }}" aria-expanded="false" aria-controls="missing-{{ $field['id'] }}">
+                                            Xem danh sách
+                                        </button>
+                                    @endif
+                                </td>
+                                <td class="align-middle">
+                                    <div class="progress progress-sm">
+                                        <div class="progress-bar {{ $progressClass }}" role="progressbar" style="width: {{ $percent }}%" aria-valuenow="{{ $percent }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <small class="text-muted d-block text-center mt-1">{{ $percent }}%</small>
+                                </td>
+                            </tr>
+                            @if($missingCount > 0)
+                            <tr>
+                                <td colspan="4" class="p-0 border-0">
+                                    <div class="collapse" id="missing-{{ $field['id'] }}">
+                                        <div class="p-3 bg-light" style="max-height: 200px; overflow-y: auto;">
+                                            <ul class="list-unstyled mb-0" style="font-size: 13px;">
+                                                @foreach($missingList as $proj)
+                                                    <li class="mb-1"><a href="{{ route('backend_project_edit', $proj->id) }}" target="_blank" class="text-dark"><i class="fas fa-caret-right mr-1 text-muted"></i>{{ $proj->name ?? 'Dự án chưa có tên' }} <i class="fas fa-external-link-alt text-muted ml-1" style="font-size: 10px;"></i></a></li>
+                                                @endforeach
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endif
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <a href="{{ route('backend_project') }}" class="btn btn-primary"><i class="fas fa-edit mr-1"></i>Đi đến Quản lý dự án</a>
             </div>
         </div>
     </div>
