@@ -38,27 +38,83 @@ class DashboardController extends Controller
 
             // Project completion stats
             $totalInvestment = Project::sum('price') ?? 0;
+            
+            $allProjects = Project::select('id', 'name', 'lat', 'lng', 'link_vrtour', 'vrtour_code', 'legal_file', 'legal_description')->get();
+
+            $has_general_info_count = 0;
+            $missing_general_info = collect();
+            $has_location_count = 0;
+            $missing_location = collect();
+            $has_vrtour_count = 0;
+            $missing_vrtour = collect();
+            $has_legal_count = 0;
+            $missing_legal = collect();
+
+            foreach ($allProjects as $p) {
+                // General info
+                if (!empty($p->name)) {
+                    $has_general_info_count++;
+                } else {
+                    $missing_general_info->push($p);
+                }
+
+                // Location
+                if (!empty($p->lat) && !empty($p->lng)) {
+                    $has_location_count++;
+                } else {
+                    $missing_location->push($p);
+                }
+
+                // VR Tour
+                if (!empty($p->link_vrtour) || !empty($p->vrtour_code)) {
+                    $has_vrtour_count++;
+                } else {
+                    $missing_vrtour->push($p);
+                }
+
+                // Legal
+                $has_legal = false;
+                if (!empty($p->legal_file) && $p->legal_file !== 'null') {
+                    $has_legal = true;
+                }
+                
+                if (!$has_legal && !empty($p->legal_description)) {
+                    $vi = $p->getTranslation('legal_description', 'vi', false);
+                    $en = $p->getTranslation('legal_description', 'en', false);
+                    
+                    // Decode if it's a JSON string like "[]" or "["..."]"
+                    $vi_decoded = is_string($vi) ? json_decode($vi, true) : $vi;
+                    $en_decoded = is_string($en) ? json_decode($en, true) : $en;
+                    
+                    // Check if decoded is an array and not empty, or if it's a non-empty string
+                    $vi_has_content = (!empty($vi) && $vi !== '[]' && $vi !== 'null' && (!is_array($vi_decoded) || count($vi_decoded) > 0));
+                    $en_has_content = (!empty($en) && $en !== '[]' && $en !== 'null' && (!is_array($en_decoded) || count($en_decoded) > 0));
+                    
+                    if ($vi_has_content || $en_has_content) {
+                        $has_legal = true;
+                    }
+                }
+
+                if ($has_legal) {
+                    $has_legal_count++;
+                } else {
+                    $missing_legal->push($p);
+                }
+            }
+
             $projectStats = [
                 'total' => $quantityProjects,
-                'has_general_info' => Project::whereNotNull('name')->count(),
-                'has_location' => Project::whereNotNull('lat')->whereNotNull('lng')->count(),
-                'has_vrtour' => Project::where(function($q) {
-                    $q->whereNotNull('link_vrtour')
-                      ->orWhereNotNull('vrtour_code');
-                })->count(),
-                'has_legal' => Project::where(function($q) {
-                    $q->whereNotNull('legal_file')
-                      ->orWhereNotNull('legal_description');
-                })->count(),
+                'has_general_info' => $has_general_info_count,
+                'has_location' => $has_location_count,
+                'has_vrtour' => $has_vrtour_count,
+                'has_legal' => $has_legal_count,
             ];
 
             $missingProjects = [
-                'general_info' => Project::whereNull('name')->select('id', 'name')->get(),
-                'location' => Project::where(function($q) {
-                    $q->whereNull('lat')->orWhereNull('lng');
-                })->select('id', 'name')->get(),
-                'vrtour' => Project::whereNull('link_vrtour')->whereNull('vrtour_code')->select('id', 'name')->get(),
-                'legal' => Project::whereNull('legal_file')->whereNull('legal_description')->select('id', 'name')->get(),
+                'general_info' => $missing_general_info,
+                'location' => $missing_location,
+                'vrtour' => $missing_vrtour,
+                'legal' => $missing_legal,
             ];
 
             // Visitor Stats
