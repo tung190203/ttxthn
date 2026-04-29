@@ -66,7 +66,7 @@ class DashboardController extends Controller
                 }
 
                 // VR Tour
-                if (!empty($p->link_vrtour) || !empty($p->vrtour_code)) {
+                if (!empty($p->link_vrtour)) {
                     $has_vrtour_count++;
                 } else {
                     $missing_vrtour->push($p);
