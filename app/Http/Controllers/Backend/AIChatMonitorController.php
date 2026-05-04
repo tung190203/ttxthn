@@ -19,6 +19,13 @@ class AIChatMonitorController extends Controller
         parent::__construct();
     }
 
+    public function overview()
+    {
+        $this->data['selectedMainMenu'] = 'chatbot_management';
+        $this->data['selectedSubMenu'] = 'overview';
+        return view('backend.ai-monitor.overview', $this->data);
+    }
+
     /**
      * Get combined status and metrics for the AI Bot.
      *
@@ -128,5 +135,69 @@ class AIChatMonitorController extends Controller
         }
 
         return $data;
+    }
+
+    /**
+     * Get extra admin stats for the dashboard (latency, fallback, feedback, knowledge, etc).
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function getExtraStats(Request $request): JsonResponse
+    {
+        try {
+            $startDate = $request->get('start_date', now()->subDays(6)->format('Y-m-d'));
+            $endDate = $request->get('end_date', now()->format('Y-m-d'));
+
+            $baseUrl = config('services.ai_chat.api_url');
+            $apiKey = config('services.ai_chat.api_key');
+            $adminKey = config('services.ai_chat.api_admin_key');
+
+            $headers = [
+                'X-API-Key' => $apiKey,
+                'X-Admin-API-Key' => $adminKey,
+                'Content-Type' => 'application/json'
+            ];
+
+            $responses = Http::pool(fn ($pool) => [
+                $pool->as('latency')->withHeaders($headers)->timeout(10)->get($baseUrl . '/api/v1/admin/stats/latency', [
+                    'date_from' => $startDate,
+                    'date_to' => $endDate
+                ]),
+                $pool->as('fallback')->withHeaders($headers)->timeout(10)->get($baseUrl . '/api/v1/admin/stats/fallback', [
+                    'date_from' => $startDate,
+                    'date_to' => $endDate
+                ]),
+                $pool->as('top_questions')->withHeaders($headers)->timeout(10)->get($baseUrl . '/api/v1/admin/stats/top-questions', [
+                    'date_from' => $startDate,
+                    'date_to' => $endDate,
+                    'limit' => 10
+                ]),
+                $pool->as('feedback')->withHeaders($headers)->timeout(10)->get($baseUrl . '/api/v1/admin/stats/feedback', [
+                    'date_from' => $startDate,
+                    'date_to' => $endDate
+                ]),
+                $pool->as('health')->withHeaders($headers)->timeout(10)->get($baseUrl . '/api/v1/admin/stats/health'),
+                $pool->as('knowledge')->withHeaders($headers)->timeout(10)->get($baseUrl . '/api/v1/admin/stats/knowledge')
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'latency' => $responses['latency']?->json(),
+                    'fallback' => $responses['fallback']?->json(),
+                    'top_questions' => $responses['top_questions']?->json(),
+                    'feedback' => $responses['feedback']?->json(),
+                    'health' => $responses['health']?->json(),
+                    'knowledge' => $responses['knowledge']?->json()
+                ]
+            ]);
+        } catch (\Exception $e) {
+            Log::error('AI Extra Stats Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching AI extra statistics'
+            ], 500);
+        }
     }
 }

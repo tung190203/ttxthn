@@ -8,7 +8,7 @@ DashBoard
 <li class="breadcrumb-item active">Dashboard</li>
 @endsection
 
-@section('style')
+@section('css')
 <style>
     .visit-card {
         border-radius: 12px;
@@ -18,6 +18,92 @@ DashBoard
         transform: translateY(-5px);
     }
     .text-xs { font-size: 0.75rem; }
+
+    /* AI Upgrade Styles */
+    .ai-stat-card {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+    .ai-stat-card:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+    }
+    .card-health { border-top: 3px solid #28a745; }
+    .card-performance { border-top: 3px solid #007bff; }
+    .card-questions { border-top: 3px solid #6f42c1; }
+
+    .status-pulse {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 8px;
+        position: relative;
+    }
+    .pulse-success { background-color: #28a745; }
+    .pulse-warning { background-color: #ffc107; }
+    .pulse-danger { background-color: #dc3545; }
+
+    .status-pulse::after {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+    }
+    .pulse-success::after { box-shadow: 0 0 0 rgba(40, 167, 69, 0.7); }
+    .pulse-warning::after { box-shadow: 0 0 0 rgba(255, 193, 7, 0.7); }
+    .pulse-danger::after { box-shadow: 0 0 0 rgba(220, 53, 69, 0.7); }
+
+    @keyframes pulse {
+        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
+        70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
+        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+    }
+
+    .latency-bar-container {
+        height: 4px;
+        background: #f1f1f1;
+        border-radius: 2px;
+        width: 100%;
+        margin-top: 4px;
+    }
+    .latency-bar-fill {
+        height: 100%;
+        border-radius: 2px;
+        background: #28a745;
+        transition: width 0.5s ease;
+    }
+
+    .metric-hero {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #333;
+        line-height: 1.2;
+    }
+    .metric-label {
+        font-size: 0.75rem;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .question-item {
+        padding: 10px;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        background: #f8f9fa;
+        border-left: 3px solid transparent;
+        transition: all 0.2s;
+    }
+    .question-item:hover {
+        background: #f1f3f5;
+        border-left-color: #6f42c1;
+        transform: translateX(3px);
+    }
+    .text-purple { color: #6f42c1; }
 </style>
 @endsection
 
@@ -127,8 +213,10 @@ DashBoard
     <div class="card card-outline card-info shadow-none bg-transparent">
         <div class="card-header border-0 pl-0">
             <h3 class="card-title text-bold">
-                <i class="fas fa-robot mr-2 text-info"></i>
-                BÁO CÁO & THỐNG KÊ AI CHATBOT
+                <a href="{{ route('backend_chatbot_overview') }}" class="text-dark">
+                    <i class="fas fa-robot mr-2 text-info"></i>
+                    BÁO CÁO & THỐNG KÊ AI CHATBOT <i class="fas fa-external-link-alt ml-1 text-xs text-muted"></i>
+                </a>
             </h3>
         </div>
         <div class="card-body p-0">
@@ -175,6 +263,51 @@ DashBoard
                         </div>
                         <div class="icon">
                             <i class="fas fa-dollar-sign text-light" style="opacity: 0.3;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Extra AI Stats Row -->
+            <div class="row mb-4" id="ai-extra-stats-container" style="display: none;">
+                <!-- Health & Knowledge -->
+                <div class="col-md-4">
+                    <div class="card ai-stat-card card-health h-100">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h3 class="card-title text-sm text-bold text-dark">
+                                <a href="{{ route('backend_chatbot_overview') }}" class="text-dark"><i class="fas fa-server mr-1 text-success"></i> Trạng thái Hệ thống</a>
+                            </h3>
+                        </div>
+                        <div class="card-body p-3">
+                            <div id="ai-health-status"></div>
+                            <div id="ai-knowledge-status" class="mt-3 pt-3 border-top border-light"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Performance -->
+                <div class="col-md-4">
+                    <div class="card ai-stat-card card-performance h-100">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h3 class="card-title text-sm text-bold text-dark">
+                                <a href="{{ route('backend_chatbot_overview') }}" class="text-dark"><i class="fas fa-bolt mr-1 text-primary"></i> Hiệu suất & Fallback</a>
+                            </h3>
+                        </div>
+                        <div class="card-body p-3">
+                            <div id="ai-performance-stats"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Top Questions -->
+                <div class="col-md-4">
+                    <div class="card ai-stat-card card-questions h-100">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h3 class="card-title text-sm text-bold text-dark">
+                                <a href="{{ route('backend_chatbot_overview') }}" class="text-dark"><i class="fas fa-comment-alt mr-1 text-purple"></i> Câu hỏi phổ biến</a>
+                            </h3>
+                        </div>
+                        <div class="card-body p-3" style="max-height: 280px; overflow-y: auto;">
+                            <div id="ai-top-questions"></div>
                         </div>
                     </div>
                 </div>
@@ -742,6 +875,132 @@ DashBoard
         }
 
         updateAdvancedAiStats();
+
+        // Extra AI Stats
+        function updateExtraAiStats() {
+            $.ajax({
+                url: "{{ route('backend_ai_monitor_extra_stats') }}",
+                type: 'GET',
+                success: function(response) {
+                    if (response.success && response.data) {
+                        $('#ai-extra-stats-container').show();
+                        var data = response.data;
+                        
+                        // Render Health
+                        if(data.health) {
+                            var statusType = data.health.status === 'healthy' ? 'success' : (data.health.status === 'degraded' ? 'warning' : 'danger');
+                            var healthHtml = `
+                                <div class="d-flex align-items-center mb-3">
+                                    <span class="status-pulse pulse-${statusType}"></span>
+                                    <span class="text-bold text-dark text-uppercase" style="font-size: 13px;">${data.health.status}</span>
+                                </div>`;
+                            
+                            if(data.health.services) {
+                                healthHtml += '<div class="services-list">';
+                                Object.keys(data.health.services).forEach(key => {
+                                    var svc = data.health.services[key];
+                                    if(svc.status !== 'not_used') {
+                                        var isUp = svc.status === 'up' || svc.status === 'ok';
+                                        var latency = svc.latency_ms || 0;
+                                        // Simple heuristic for bar width: max 500ms
+                                        var barWidth = Math.min((latency / 500) * 100, 100);
+                                        var barColor = latency > 300 ? '#dc3545' : (latency > 150 ? '#ffc107' : '#28a745');
+                                        
+                                        healthHtml += `
+                                            <div class="mb-2">
+                                                <div class="d-flex justify-content-between text-xs mb-1">
+                                                    <span class="text-muted">${key}</span>
+                                                    <span class="text-bold ${isUp ? 'text-success' : 'text-danger'}">${isUp ? (latency ? latency + 'ms' : 'UP') : 'DOWN'}</span>
+                                                </div>
+                                                <div class="latency-bar-container">
+                                                    <div class="latency-bar-fill" style="width: ${isUp ? (latency ? barWidth : 100) : 0}%; background: ${barColor}"></div>
+                                                </div>
+                                            </div>`;
+                                    }
+                                });
+                                healthHtml += '</div>';
+                            }
+                            $('#ai-health-status').html(healthHtml);
+                        }
+
+                        // Render Knowledge
+                        if(data.knowledge && data.knowledge.qdrant) {
+                            $('#ai-knowledge-status').html(`
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="metric-label">Điểm dữ liệu (Points)</div>
+                                        <div class="metric-hero" style="font-size: 1.2rem;">${(data.knowledge.qdrant.total_points || 0).toLocaleString()}</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="metric-label">Collection</div>
+                                        <span class="badge badge-light border text-primary" style="font-size: 10px;">${data.knowledge.qdrant.active_collection || 'N/A'}</span>
+                                    </div>
+                                </div>
+                            `);
+                        }
+
+                        // Render Performance & Fallback
+                        var perfHtml = '';
+                        if(data.latency && data.latency.response_time) {
+                            perfHtml += `
+                                <div class="row mb-3">
+                                    <div class="col-6">
+                                        <div class="metric-label">P50 Latency</div>
+                                        <div class="metric-hero">${data.latency.response_time.p50_ms}<span class="text-xs text-muted ml-1">ms</span></div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="metric-label">P95 Latency</div>
+                                        <div class="metric-hero text-primary">${data.latency.response_time.p95_ms}<span class="text-xs text-muted ml-1">ms</span></div>
+                                    </div>
+                                </div>
+                                <div class="mb-3 pt-2 border-top border-light">
+                                    <div class="metric-label mb-1">TTFT (Avg)</div>
+                                    <div class="text-bold text-dark">${data.latency.ttft ? data.latency.ttft.avg_ms + 'ms' : 'N/A'}</div>
+                                </div>`;
+                        }
+                        
+                        if(data.fallback && data.fallback.totals) {
+                            var fbRate = data.fallback.totals.fallback_rate_pct || 0;
+                            var fbColor = fbRate > 20 ? 'danger' : (fbRate > 10 ? 'warning' : 'success');
+                            perfHtml += `
+                                <div class="pt-3 border-top border-light">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <div class="metric-label">Tỷ lệ Fallback</div>
+                                        <div class="text-bold text-${fbColor}">${fbRate.toFixed(1)}%</div>
+                                    </div>
+                                    <div class="progress progress-xxs mb-1">
+                                        <div class="progress-bar bg-${fbColor}" style="width: ${fbRate}%"></div>
+                                    </div>
+                                    <div class="text-xs text-muted text-right">
+                                        ${data.fallback.totals.fallback_count || 0} tin nhắn không xác định
+                                    </div>
+                                </div>`;
+                        }
+                        $('#ai-performance-stats').html(perfHtml);
+
+                        // Render Top Questions
+                        if(data.top_questions && data.top_questions.topics) {
+                            var tqHtml = '';
+                            data.top_questions.topics.slice(0, 6).forEach(topic => {
+                                tqHtml += `
+                                    <div class="question-item">
+                                        <div class="d-flex justify-content-between align-items-start mb-1">
+                                            <div class="text-bold text-dark" style="font-size: 12px; line-height: 1.2;">${topic.topic_name || topic.intent}</div>
+                                            <span class="badge badge-primary ml-2" style="font-size: 10px; opacity: 0.8;">${topic.count}</span>
+                                        </div>
+                                        ${topic.sample_questions && topic.sample_questions.length > 0 ? 
+                                            `<div class="text-muted text-truncate" style="font-size: 11px; font-style: italic;" title="${topic.sample_questions[0]}">
+                                                "${topic.sample_questions[0]}"
+                                            </div>` : ''}
+                                    </div>`;
+                            });
+                            $('#ai-top-questions').html(tqHtml || '<div class="text-center text-muted p-4">Chưa có dữ liệu câu hỏi</div>');
+                        }
+                    }
+                }
+            });
+        }
+        updateExtraAiStats();
 
         // Website Visitor Activity Chart
         var visitorChartCanvas = $('#visitor-activity-chart').get(0).getContext('2d');
