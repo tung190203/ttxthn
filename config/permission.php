@@ -128,7 +128,17 @@ return [
             'general' => 'Cài đặt chung',
             'seo' => 'Cài đặt SEO',
             'social' => 'Cài đặt mạng xã hội',
-            'chatbot' => 'Cài đặt chatbot',
+        ],
+        'super_admin_only' => true,
+    ],
+    'chatbot_management' => [
+        'label' => 'Cấu hình Chatbot',
+        'items' => [
+            'basic' => 'Cài đặt Cơ bản',
+            'sync' => 'Đồng bộ Trí thức',
+            'prompts' => 'Kịch bản',
+            'blacklist' => 'Rào chắn',
+            'sessions' => 'Lịch sử & Insight',
         ],
         'super_admin_only' => true,
     ]

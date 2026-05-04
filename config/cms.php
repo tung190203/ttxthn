@@ -119,10 +119,36 @@ return [
                         'social' => [
                             'title' => 'Mạng xã hội',
                             'route' => 'backend_setting_social'
+                        ]
+                    ]
+                ],
+                'chatbot_management' => [
+                    'icon' => 'fas fa-robot',
+                    'title' => 'Cấu hình Chatbot',
+                    'items' => [
+                        'overview' => [
+                            'title' => 'Tổng quan',
+                            'route' => 'backend_chatbot_overview'
                         ],
-                        'chatbot' => [
-                            'title' => 'Chatbot',
-                            'route' => 'backend_setting_chatbot'
+                        'basic' => [
+                            'title' => 'Cài đặt cơ bản',
+                            'route' => 'backend_chatbot_basic'
+                        ],
+                        'sync' => [
+                            'title' => 'Đồng bộ trí thức',
+                            'route' => 'backend_chatbot_sync'
+                        ],
+                        'prompts' => [
+                            'title' => 'Kịch bản (Prompts)',
+                            'route' => 'backend_chatbot_prompts'
+                        ],
+                        'blacklist' => [
+                            'title' => 'Rào chắn (Blacklist)',
+                            'route' => 'backend_chatbot_blacklist'
+                        ],
+                        'sessions' => [
+                            'title' => 'Lịch sử & Insight',
+                            'route' => 'backend_chatbot_sessions'
                         ]
                     ]
                 ],

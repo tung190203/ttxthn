@@ -26,7 +26,7 @@ class SettingController extends Controller
 
         parent::__construct();
 
-        if (!Gate::allows('setting')) {
+        if (!Gate::allows('setting') && !Gate::allows('chatbot_management')) {
             abort(403, self::MESSAGE_UNAUTHORIZED);
         }
     }
@@ -69,14 +69,27 @@ class SettingController extends Controller
 
     public function chatbot()
     {
-        if (!Gate::allows('setting/chatbot')) {
+        return redirect()->route('backend_chatbot_basic');
+    }
+
+    private function renderChatbotTab($tab)
+    {
+        if (!Gate::allows("chatbot_management/{$tab}")) {
             abort(403, self::MESSAGE_UNAUTHORIZED);
         }
 
-        $this->selectedSubMenu('chatbot');
+        $this->selectedMainMenu = 'chatbot_management';
+        \Illuminate\Support\Facades\View::share('selectedMainMenu', $this->selectedMainMenu);
+        $this->selectedSubMenu($tab);
         $settings = Setting::getAllSetting();
-        return view('backend.setting.chatbot', compact('settings'));
+        return view('backend.setting.chatbot', compact('settings', 'tab'));
     }
+
+    public function chatbotBasic() { return $this->renderChatbotTab('basic'); }
+    public function chatbotSync() { return $this->renderChatbotTab('sync'); }
+    public function chatbotPrompts() { return $this->renderChatbotTab('prompts'); }
+    public function chatbotBlacklist() { return $this->renderChatbotTab('blacklist'); }
+    public function chatbotSessions() { return $this->renderChatbotTab('sessions'); }
 
 
     public function author()
