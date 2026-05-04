@@ -33,6 +33,7 @@ Route::localized(function () {
 
     Route::prefix('backend')->middleware(['auth', 'can:backend_access'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('backend_dashboard');
+        Route::get('/dashboard/export-logs', [DashboardController::class, 'exportLogs'])->name('backend_dashboard_export_logs');
         Route::post('/profile/update', [ProfileController::class, 'update'])->name('backend.profile.update');
 
         Route::prefix('category')->group(function () {
