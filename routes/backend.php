@@ -12,6 +12,7 @@ use App\Http\Controllers\Backend\FileManagerController;
 use App\Http\Controllers\Backend\LandingPageController;
 use App\Http\Controllers\Backend\ProjectController;
 use App\Http\Controllers\Backend\SettingController;
+use App\Http\Controllers\Backend\ChatbotAdminController;
 use App\Http\Controllers\Backend\WidgetController;
 use App\Http\Controllers\Backend\UserController;
 use App\Http\Controllers\Backend\GroupController;
@@ -149,7 +150,38 @@ Route::localized(function () {
             Route::get('/social', [SettingController::class, 'social'])->name('backend_setting_social');
             Route::get('/seo', [SettingController::class, 'seo'])->name('backend_setting_seo');
             Route::get('/chatbot', [SettingController::class, 'chatbot'])->name('backend_setting_chatbot');
+            Route::get('/chatbot/basic', [SettingController::class, 'chatbotBasic'])->name('backend_chatbot_basic');
+            Route::get('/chatbot/sync', [SettingController::class, 'chatbotSync'])->name('backend_chatbot_sync');
+            Route::get('/chatbot/prompts', [SettingController::class, 'chatbotPrompts'])->name('backend_chatbot_prompts');
+            Route::get('/chatbot/blacklist', [SettingController::class, 'chatbotBlacklist'])->name('backend_chatbot_blacklist');
+            Route::get('/chatbot/sessions', [SettingController::class, 'chatbotSessions'])->name('backend_chatbot_sessions');
             Route::post('/save', [SettingController::class, 'save'])->name('backend_setting_save');
+        });
+
+        Route::prefix('chatbot-admin')->group(function () {
+            Route::get('/sync/settings', [ChatbotAdminController::class, 'getSyncSettings']);
+            Route::post('/sync/settings', [ChatbotAdminController::class, 'updateSyncSettings']);
+            Route::post('/sync/trigger', [ChatbotAdminController::class, 'triggerSync']);
+            Route::post('/sync/swap', [ChatbotAdminController::class, 'swapSlots']);
+
+            Route::get('/prompts', [ChatbotAdminController::class, 'getPrompts']);
+            Route::put('/prompts/{key}/{language}', [ChatbotAdminController::class, 'updatePrompt']);
+            Route::post('/prompts/{key}/{language}/reset', [ChatbotAdminController::class, 'resetPrompt']);
+
+            Route::get('/blacklist', [ChatbotAdminController::class, 'getBlacklist']);
+            Route::post('/blacklist', [ChatbotAdminController::class, 'addBlacklistKeyword']);
+            Route::put('/blacklist/{keywordId}', [ChatbotAdminController::class, 'updateBlacklistKeyword']);
+            Route::delete('/blacklist/{keywordId}', [ChatbotAdminController::class, 'deleteBlacklistKeyword']);
+            Route::put('/blacklist/refusal/{group}/{language}', [ChatbotAdminController::class, 'updateBlacklistRefusal']);
+            Route::post('/blacklist/refusal/{group}/{language}/reset', [ChatbotAdminController::class, 'resetBlacklistRefusal']);
+            Route::get('/blacklist/log', [ChatbotAdminController::class, 'getBlacklistLog']);
+
+            Route::get('/sessions', [ChatbotAdminController::class, 'getSessions']);
+            Route::get('/sessions/export', [ChatbotAdminController::class, 'exportSessions']);
+            Route::get('/sessions/{sessionId}/export', [ChatbotAdminController::class, 'exportSingleSession']);
+            Route::get('/sessions/{sessionId}', [ChatbotAdminController::class, 'getSessionDetail']);
+
+            Route::get('/feedback', [ChatbotAdminController::class, 'getFeedbackList']);
         });
 
         Route::prefix('user')->group(function () {
@@ -215,8 +247,10 @@ Route::localized(function () {
         });
 
         Route::prefix('ai-monitor')->group(function () {
+            Route::get('/overview', [AIChatMonitorController::class, 'overview'])->name('backend_chatbot_overview');
             Route::get('/status', [AIChatMonitorController::class, 'getApiStatus'])->name('backend_ai_monitor_status');
             Route::get('/advanced-stats', [AIChatMonitorController::class, 'getAdvancedStats'])->name('backend_ai_monitor_advanced_stats');
+            Route::get('/extra-stats', [AIChatMonitorController::class, 'getExtraStats'])->name('backend_ai_monitor_extra_stats');
         });
     });
 });
