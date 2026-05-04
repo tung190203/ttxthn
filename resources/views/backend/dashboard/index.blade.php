@@ -427,7 +427,7 @@ DashBoard
                                 <option value="logged in" {{ request('event_log') == 'logged in' ? 'selected' : '' }}>Đăng nhập</option>
                                 <option value="logged out" {{ request('event_log') == 'logged out' ? 'selected' : '' }}>Đăng xuất</option>
                             </select>
-                            <div class="input-group input-group-sm" style="width: 200px;">
+                            <div class="input-group input-group-sm mr-2" style="width: 200px;">
                                 <input type="text" name="search_log" class="form-control" placeholder="Tìm kiếm..." value="{{ request('search_log') }}">
                                 <div class="input-group-append">
                                     <button type="submit" class="btn btn-default">
@@ -435,6 +435,9 @@ DashBoard
                                     </button>
                                 </div>
                             </div>
+                            <button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#exportLogsModal">
+                                <i class="fas fa-file-export mr-1"></i> Xuất dữ liệu
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -526,6 +529,43 @@ DashBoard
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
                 <a href="{{ route('backend_project') }}" class="btn btn-primary"><i class="fas fa-edit mr-1"></i>Đi đến Quản lý dự án</a>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Export Logs Modal -->
+<div class="modal fade" id="exportLogsModal" tabindex="-1" role="dialog" aria-labelledby="exportLogsModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="exportLogsModalLabel"><i class="fas fa-file-export mr-2"></i>Xuất dữ liệu nhật ký hoạt động</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="{{ route('backend_dashboard_export_logs') }}" method="GET">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Chọn khoảng thời gian (theo tháng gần đây):</label>
+                        <select name="months" class="form-control">
+                            <option value="1">1 tháng gần đây</option>
+                            <option value="3" selected>3 tháng gần đây</option>
+                            <option value="6">6 tháng gần đây</option>
+                            <option value="12">1 năm gần đây</option>
+                            <option value="24">2 năm gần đây</option>
+                            <option value="0">Toàn bộ dữ liệu</option>
+                        </select>
+                        <small class="text-muted mt-2 d-block">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Dữ liệu sẽ được xuất ra file ZIP có mật khẩu bảo vệ tương tự như file gửi qua email định kỳ. Việc xuất dữ liệu ở đây <strong>không xóa</strong> dữ liệu trong hệ thống.
+                        </small>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-success"><i class="fas fa-download mr-1"></i>Bắt đầu xuất dữ liệu</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

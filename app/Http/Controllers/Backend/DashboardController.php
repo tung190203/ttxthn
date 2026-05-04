@@ -12,13 +12,17 @@ use App\Models\ProjectIndustries;
 use App\Models\User;
 use App\Models\VisitLog;
 use Spatie\Activitylog\Models\Activity;
+use App\Services\LogExportService;
 
 class DashboardController extends Controller
 {
 
-    public function __construct()
+    protected $logExportService;
+
+    public function __construct(LogExportService $logExportService)
     {
         $this->selectedMainMenu = 'dashboard';
+        $this->logExportService = $logExportService;
         parent::__construct();
     }
 
@@ -245,5 +249,17 @@ class DashboardController extends Controller
             'message' => 'Không tìm thấy trang phù hợp với quyền của bạn.',
             'hideSidebar' => true
         ]);
+    }
+
+    public function exportLogs(Request $request)
+    {
+        $months = $request->get('months', 3);
+        $result = $this->logExportService->exportToZip($months, false); // false = recent logs
+
+        if (!$result) {
+            return back()->with('error', 'Không có dữ liệu để xuất.');
+        }
+
+        return response()->download($result['path'], $result['name'])->deleteFileAfterSend(true);
     }
 }
