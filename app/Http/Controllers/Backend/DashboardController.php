@@ -188,6 +188,7 @@ class DashboardController extends Controller
             $activityEvent = $request->get('event_log');
 
             $activities = Activity::with('causer')
+                ->whereNotNull('causer_id')
                 ->latest()
                 ->when($activitySearch, function ($query) use ($activitySearch) {
                     return $query->where('description', 'like', "%{$activitySearch}%")

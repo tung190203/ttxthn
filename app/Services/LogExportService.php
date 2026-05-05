@@ -19,7 +19,7 @@ class LogExportService
      */
     public function exportToZip($months = 3, $olderThan = true, $password = null)
     {
-        $query = Activity::with('causer');
+        $query = Activity::with('causer')->whereNotNull('causer_id');
         
         if ($months != 0 && $months !== null) {
             $cutoffDate = now()->subMonths($months);
