@@ -30,6 +30,13 @@ class AppServiceProvider extends ServiceProvider
     {
         Paginator::useBootstrapFour();
 
+        // Chỉ log hành động của người dùng, bỏ qua system (không có causer)
+        \Spatie\Activitylog\Models\Activity::creating(function (\Spatie\Activitylog\Models\Activity $activity) {
+            if (!$activity->causer_id) {
+                return false;
+            }
+        });
+
         //Set route local
         $firstSegment = $request->segment(1);
         $availableLocales = config('app.available_locales');
