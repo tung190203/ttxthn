@@ -20,10 +20,9 @@ class Project extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logFillable()
+            ->logAllExcept(['view_num', 'views_month', 'views_month_code'])
             ->logOnlyDirty()
-            ->dontSubmitEmptyLogs()
-            ->dontLogIfAttributesChangedOnly(['view_num', 'views_month', 'views_month_code']);
+            ->dontSubmitEmptyLogs();
     }
     protected $table = 'projects';
 
