@@ -22,7 +22,8 @@ class Post extends Model
         return LogOptions::defaults()
             ->logFillable()
             ->logOnlyDirty()
-            ->dontSubmitEmptyLogs();
+            ->dontSubmitEmptyLogs()
+            ->dontLogIfAttributesChangedOnly(['view_num']);
     }
 
 

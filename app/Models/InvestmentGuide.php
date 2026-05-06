@@ -22,7 +22,8 @@ class InvestmentGuide extends Model
         return LogOptions::defaults()
             ->logFillable()
             ->logOnlyDirty()
-            ->dontSubmitEmptyLogs();
+            ->dontSubmitEmptyLogs()
+            ->dontLogIfAttributesChangedOnly(['view_num']);
     }
 
     protected $table = 'investment_guides';
