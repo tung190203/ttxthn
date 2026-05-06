@@ -15,7 +15,7 @@ class RotateLogs extends Command
      *
      * @var string
      */
-    protected $signature = 'logs:rotate {--password= : Password for the zip file} {--now : Rotate all logs instead of just 3 months old}';
+    protected $signature = 'logs:rotate {--password= : Password for the zip file} {--now : Rotate all logs instead of just 3 months old} {--test : Send email with data but do NOT delete any records}';
 
     /**
      * The console command description.
@@ -30,6 +30,7 @@ class RotateLogs extends Command
     public function handle(LogExportService $logExportService)
     {
         $isNow = $this->option('now');
+        $isTest = $this->option('test');
         $months = $isNow ? null : 3;
         
         $password = $this->option('password') ?: env('LOG_ROTATE_PASSWORD');
@@ -43,7 +44,7 @@ class RotateLogs extends Command
         $targetEmails = array_map('trim', explode(',', $targetEmailString));
         $targetEmails = array_filter($targetEmails);
 
-        $this->info("Starting log rotation for " . ($isNow ? "ALL logs" : "logs older than 3 months"));
+        $this->info("Starting log rotation for " . ($isNow ? "ALL logs" : "logs older than 3 months") . ($isTest ? " [TEST MODE - no data will be deleted]" : ""));
 
         $result = $logExportService->exportToZip($months, true, $password);
 
@@ -73,8 +74,12 @@ class RotateLogs extends Command
         }
 
         // 4. Cleanup DB
-        $cutoffDate = $isNow ? now()->addDay() : now()->subMonths(3);
-        Activity::where('created_at', '<', $cutoffDate)->delete();
+        if ($isTest) {
+            $this->warn("[TEST MODE] Skipping database cleanup. No records were deleted.");
+        } else {
+            $cutoffDate = $isNow ? now()->addDay() : now()->subMonths(3);
+            Activity::where('created_at', '<', $cutoffDate)->delete();
+        }
 
         $this->info("Rotation completed successfully. $count records processed.");
     }

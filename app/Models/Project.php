@@ -22,7 +22,8 @@ class Project extends Model
         return LogOptions::defaults()
             ->logFillable()
             ->logOnlyDirty()
-            ->dontSubmitEmptyLogs();
+            ->dontSubmitEmptyLogs()
+            ->dontLogIfAttributesChangedOnly(['view_num', 'views_month', 'views_month_code']);
     }
     protected $table = 'projects';
 
