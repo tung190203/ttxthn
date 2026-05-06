@@ -150,7 +150,7 @@
                             $features = $settings['features'] ?? [];
                             if (!is_array($features)) $features = [];
                             // Khởi tạo fields đa ngôn ngữ bên trong
-                            if (empty($features)) $features = [['icon' => '', 'title' => ['vi' => '', 'en' => ''], 'content' => ['vi' => '', 'en' => '']]];
+                            if (empty($features)) $features = [['icon' => '', 'title' => ['vi' => '', 'en' => ''], 'content' => ['vi' => '', 'en' => ''], 'description' => ['vi' => '', 'en' => '']]];
                         @endphp
 
                         <div class="form-group row mt-4">
@@ -173,6 +173,11 @@
                                                 value="{{ $item['content']['vi'] ?? '' }}" label="Nội dung (VI)" />
                                             <x-forms.textarea name="settings[features][{{ $i }}][content][en]"
                                                 value="{{ $item['content']['en'] ?? '' }}" label="Nội dung (EN)" />
+
+                                            <x-forms.textarea name="settings[features][{{ $i }}][description][vi]"
+                                                value="{{ $item['description']['vi'] ?? '' }}" label="Mô tả (VI)" />
+                                            <x-forms.textarea name="settings[features][{{ $i }}][description][en]"
+                                                value="{{ $item['description']['en'] ?? '' }}" label="Mô tả (EN)" />
 
                                             <div class="form-group row">
                                                 <div class="col-sm-9 offset-sm-3">
@@ -322,6 +327,20 @@
                         <label class="col-sm-3 col-form-label">Nội dung (EN)</label>
                         <div class="col-sm-9">
                             <textarea name="settings[features][${index}][content][en]" class="form-control" placeholder="Nội dung (EN)"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Mô tả (VI)</label>
+                        <div class="col-sm-9">
+                            <textarea name="settings[features][${index}][description][vi]" class="form-control" placeholder="Mô tả (VI)"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Mô tả (EN)</label>
+                        <div class="col-sm-9">
+                            <textarea name="settings[features][${index}][description][en]" class="form-control" placeholder="Mô tả (EN)"></textarea>
                         </div>
                     </div>
 

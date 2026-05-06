@@ -209,18 +209,10 @@ $(function () {
   const $headerWrapper = $('.header__wrapper');
 
   $window.on('scroll', function () {
-    if ($window.width() < 1200) return;
-
-    if ($(window).scrollTop() > 80) {
-      if (!$header.hasClass('is-sticky')) {
-        $header.css('min-height', $headerWrapper.outerHeight() + 'px');
-        $header.addClass('is-sticky');
-      }
+    if ($(window).scrollTop() > 10) { // Trigger slightly after scroll starts
+      $header.addClass('is-sticky');
     } else {
-      if ($header.hasClass('is-sticky')) {
-        $header.removeClass('is-sticky');
-        $header.css('min-height', '');
-      }
+      $header.removeClass('is-sticky');
     }
   });
 });

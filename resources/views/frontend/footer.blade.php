@@ -1,6 +1,6 @@
 <section class="section section--bg-pattern">
     <div class="container">
-        <h2 class="section__title text-white mb-4 text-uppercase">{{ __('app.subscribe_project_info') }}</h2>
+        <h2 class="section__title text-white mb-4 text-uppercase font-baijam">{{ __('app.subscribe_project_info') }}</h2>
         @php
             $locale = app()->getLocale() === 'vi' ? 'vn' : app()->getLocale();
         @endphp
@@ -13,38 +13,53 @@
     </div>
 </section>
 <footer class="footer">
-    <div class="footer__inner"><img class="footer__bg-1" src="{{asset('./images/texture-4.png')}}" alt="" /><img
-            class="footer__bg-2" src="{{asset('./images/texture-5.png')}}" alt="" />
-            {{-- <img class="footer__bg-3" src="{{asset('./images/texture-6.png')}}" alt="" /> --}}
+    <div class="footer__inner">
         <div class="container">
-            <div class="d-flex justify-content-start align-items-center mb-4">
-                <div>
-                    <a class="footer__logo" href="/"><img src="{{$setting['logo_footer'] ?? ''}}" alt="" /></a>
-                </div>
-                <div class="ms-3">
-                    <div class="footer__title custom-text-footer">
+            <div class="row">
+                <div class="col-lg-5 mb-40 mb-lg-0 pe-lg-4">
+                    <a class="footer__logo mb-3 d-inline-block" href="/">
+                        <img src="{{$setting['logo_footer'] ?? ''}}" alt="" />
+                    </a>
+                    <div class="footer__content custom-text-footer mt-2" style="font-size: 13px; color: #244F9E; font-weight: 700;">
                         {!! \App\Models\Setting::getSettingByKey('footer_info') !!}
                     </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-7 mb-40 mb-lg-0">
-                    <ul class="f-contact">
-                        <li><i class="fal fa-fw fa-map-marker-alt me-2"></i><span>{{ __('app.address') }}: {!! \App\Models\Setting::getSettingByKey('address') !!}</span>
-                        </li>
-                        <li><i class="fal fa-fw fa-globe me-2"></i>{{ __('app.website') }}: <a
-                                href="{{$setting['website'] ?? ''}}"
-                                target="_blank">{{$setting['website'] ?? ''}}</a></li>
-                        <li><i class="fal fa-fw fa-phone me-2" style="transform: rotate(-270deg);"></i>{{ __('app.phone') }}: <a
-                                href="tel:{{ preg_replace('/\D+/', '', $setting['phone'] ?? '') }}">{{ $setting['phone'] ?? '' }}</a></li>
-                    </ul>
-                    <div class="footer__content mt-4">
-                       {!! \App\Models\Setting::getSettingByKey('copyright_notice') !!}
+                    <div class="footer__content custom-text-footer text-white mt-3" style="font-size: 12px; opacity: 0.7;">
+                        {!! \App\Models\Setting::getSettingByKey('copyright_notice') !!}
                     </div>
                 </div>
-                <div class="col-lg-5">
-                    <div class="footer__title">{!! \App\Models\Setting::getSettingByKey('social_title') !!}</div>
-                    <ul class="f-social">
+                
+                <div class="col-lg-3 col-md-6 mb-40 mb-md-0">
+                    <div class="footer__title mb-4" style="font-size: 14px; letter-spacing: 1px; color: #8e9aab;">{{ __('app.quick_links') }}</div>
+                    <ul class="f-links">
+                        <li><a href="{{ url($locale ?? 'vn' . '/') }}">{{ __('app.home') }}</a></li>
+                        <li><a href="{{ url($locale ?? 'vn' . '/' . __('app.investment_guide_link')) }}">{{ __('app.investment_guide') }}</a></li>
+                        <li><a href="{{ url($locale ?? 'vn' . '/' . __('app.project_link')) }}">{{ __('app.investment_projects') }}</a></li>
+                        <li><a href="{{ url($locale ?? 'vn' . '/' . __('app.news_link')) }}">{{ __('app.news') }}</a></li>
+                        <li><a href="{{ url($locale ?? 'vn' . '/' . __('app.contact_link')) }}">{{ __('app.contact') }}</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="footer__title mb-4" style="font-size: 14px; letter-spacing: 1px; color: #8e9aab;">{{ __('app.contact') }}</div>
+                    <ul class="f-contact-custom mb-4">
+                        <li class="d-flex align-items-start">
+                            <strong style="min-width: 58px;">{{ __('app.address') }}:</strong>
+                            <span>{!! strip_tags(\App\Models\Setting::getSettingByKey('address')) !!}</span>
+                        </li>
+                        <li class="d-flex align-items-start">
+                            <strong style="min-width: 50px;">Email:</strong>
+                            <a href="mailto:{{ $setting['email'] ?? 'invest@hanoi.gov.vn' }}">{{ $setting['email'] ?? 'invest@hanoi.gov.vn' }}</a>
+                        </li>
+                        <li class="d-flex align-items-start">
+                            <strong style="min-width: 68px;">Website:</strong>
+                            <a href="{{$setting['website'] ?? ''}}" target="_blank">{{$setting['website'] ?? ''}}</a>
+                        </li>
+                        <li class="d-flex align-items-start">
+                            <strong style="min-width: 83px;">Điện thoại:</strong>
+                            <a href="tel:{{ preg_replace('/\D+/', '', $setting['phone'] ?? '') }}">{{ $setting['phone'] ?? '' }}</a>
+                        </li>
+                    </ul>
+                    <ul class="f-social-custom">
                         <li><a href="{{ $setting['facebook'] ?? '' }}"><img src="{{asset('./images/icon-facebook.svg')}}" alt="" /></a></li>
                         <li><a href="#!"><img src="{{asset('./images/icon-youtube.svg')}}" alt="" /></a></li>
                         <li><a href="#!"><img src="{{asset('./images/icon-tik-tok.svg')}}" alt="" /></a></li>

@@ -8,14 +8,42 @@
         <!-- main content-->
         <section class="banner-home" style="position: relative;">
             @if(file_exists(public_path('videos/intro.mp4')))
-                <div id="video-loader-container" style="display: none;">
-                    <video id="loader-video" autoplay muted playsinline preload="auto">
+                <div id="video-loader-container">
+                    <img id="loader-image" src="/images/kv.jpg" alt="Intro" style="width: 100%; height: 100%; object-fit: cover; filter: brightness(0.6);">
+                    <video id="loader-video" muted playsinline preload="auto" style="display: none;">
                         <source src="/videos/intro.mp4" type="video/mp4">
                         Trình duyệt của bạn không hỗ trợ video.
                     </video>
-                    <button id="skip-video-btn" class="btn-skip-video">
-                        Bỏ qua video <i class="fas fa-forward ms-2"></i>
+                    <button id="btn-skip-video" style="display: none;">
+                        {{ __('app.skip') }} <i class="fas fa-forward"></i>
                     </button>
+                    
+                    <!-- Hero Content Overlay -->
+                    <div class="video-hero-content container font-baijam">
+                        <div class="row align-items-center h-100">
+                            <div class="col-lg-12">
+                                <div class="hero-badge mb-4">
+                                    <span>• IN HANOI - INVEST - INSIDE - INNOVATE</span>
+                                </div>
+                                <div class="hero-title-wrapper">
+                                    <div class="hero-title-line white-text">{{ __('app.hero_title_1') }}</div>
+                                    <div class="hero-title-line outline-text">{{ __('app.hero_title_2') }}</div>
+                                    <div class="hero-title-line yellow-text">{{ __('app.hero_title_3') }}</div>
+                                </div>
+                                <p class="hero-description mt-4">
+                                    {{ __('app.hero_desc') }}
+                                </p>
+                                <div class="hero-actions mt-3">
+                                    <button class="btn-hero-explore" id="btn-explore">
+                                        {{ __('app.explore_project') }}
+                                    </button>
+                                    <button class="btn-hero-ai" id="btn-hero-ai">
+                                        {{ __('app.introductory_video') }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             @endif
             <div class="w-full">
@@ -44,7 +72,7 @@
                 </div>
             </div>
         </section>
-        <div class="pj-search" id="pjSearchFull">
+        <div class="pj-search" id="pjSearchFull" style="display: none;">
             <div class="container py-3" style="position: absolute; top:50%;left:50%;transform: translate(-50%,-100%);">
                 <!-- FORM: TÌM KIẾM DỰ ÁN -->
                 <div class="pj-search__body custom_body tab-content active" id="projectTabContent">
@@ -205,31 +233,77 @@
                 </div>
             </div>
         </div>
-        <section class="section" id="investment-section">
+        <section class="section section--stats">
             <div class="container">
-                <h2 class="section__title mb-3 text-uppercase">{{ __('app.investment_portfolio') }}</h2>
+                <div class="row g-0 stats-row">
+                    @php
+                        $locale = app()->getLocale();
+                    @endphp
 
-                <div class="project-nav-wrapper mb-60">
-                    <!-- "Tất cả" cố định -->
-                    <div class="project-nav-fixed">
-                        <a class="{{ request('industry') ? '' : 'active' }}"
-                            href="{{ route('home_page') }}#investment-section">
-                            {{ __('app.all') }}
-                        </a>
+                    @foreach ($setting['features'] as $item)
+                        <div class="col-lg-3 col-md-6 stats-col font-baijam">
+                            <div class="stats-item">
+                                <div class="stats-item__number">
+                                    {{ $item['title'][$locale] ?? ($item['title']['vi'] ?? '0') }}
+                                </div>
+                                <div class="stats-item__content">
+                                    @php
+                                        $content = $item['content'][$locale] ?? ($item['content']['vi'] ?? '');
+                                        $parts = preg_split('/\r\n|\r|\n|\|/', $content);
+                                    @endphp
+                                    <div class="stats-item__title">{{ trim($parts[0] ?? '') }}</div>
+                                    @if(isset($parts[1]))
+                                        <div class="stats-item__sub">{{ trim($parts[1]) }}</div>
+                                    @endif
+                                </div>
+                                @if(!empty($item['description'][$locale]) || !empty($item['description']['vi']))
+                                    <div class="stats-item__desc">
+                                        {{ $item['description'][$locale] ?? ($item['description']['vi'] ?? '') }}
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </section>
+        <section class="section-investment font-baijam" id="investment-section">
+            <div class="container">
+                <div class="section-header-custom mb-20">
+                    <div class="subtitle-custom">
+                        <span class="line"></span>
+                        {{ __('app.key_projects') }}
                     </div>
+                    <h2 class="title-custom">
+                        {{ __('app.outstanding_investment_opportunities') }} 
+                        <span class="text-highlight">{{ __('app.outstanding') }}</span>
+                    </h2>
+                </div>
 
-                    <!-- Các ngành scroll ngang -->
-                    <div class="project-nav-scroll swiper-container">
-                        <ul class="project-nav__list_custom swiper-wrapper">
-                            @foreach ($industries as $industry)
-                                <li class="swiper-slide" data-tippy-content="{{ $industry['name'] }}">
-                                    <a class="{{ request('industry') == $industry['id'] ? 'active' : '' }}"
-                                        href="{{ route('home_page', ['industry' => $industry['id']]) }}#investment-section">
-                                        {{ $industry['name'] }}
-                                    </a>
-                                </li>
-                            @endforeach
-                        </ul>
+                <div class="project-nav-wrapper-custom mb-30">
+                    <div class="project-nav-container">
+                        <div class="project-nav-fixed-custom">
+                            <a class="js-industry-filter {{ request('industry') ? '' : 'active' }}"
+                                href="{{ route('home_page') }}#investment-section">
+                                {{ __('app.all') }}
+                            </a>
+                        </div>
+                        <div class="project-nav-scroll swiper-container-filters">
+                            <ul class="project-nav__list_pill swiper-wrapper">
+                                @foreach ($industries as $industry)
+                                    <li class="swiper-slide" data-tippy-content="{{ $industry['name'] }}">
+                                        <a class="js-industry-filter {{ request('industry') == $industry['id'] ? 'active' : '' }}"
+                                            href="{{ route('home_page', ['industry' => $industry['id']]) }}#investment-section">
+                                            {{ $industry['name'] }}
+                                        </a>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="swiper-nav-custom">
+                        <div class="swiper-nav-prev"><i class="fal fa-arrow-left"></i></div>
+                        <div class="swiper-nav-next"><i class="fal fa-arrow-right"></i></div>
                     </div>
                 </div>
 
@@ -238,75 +312,124 @@
                 </div>
             </div>
         </section>
-        <section class="section section--bg-pattern" style="padding: 23px 0">
+        <section class="section section--ai-assistant">
             <div class="container">
-                <div class="features-slider">
-                    <div class="features-slider__container swiper-container">
-                        <div class="swiper-wrapper">
-                            @php
-                                $locale = app()->getLocale();
-                            @endphp
-
-                            @foreach ($setting['features'] as $item)
-                                <div class="swiper-slide">
-                                    <div class="counter">
-                                        <div class="counter__item">
-                                            <div class="counter__icon">
-                                                <img src="{{ $item['icon'] ?? '' }}" alt="" />
-                                            </div>
-                                            <div class="counter__number">
-                                                {{ $item['title'][$locale] ?? ($item['title']['vi'] ?? '0') }}
-                                            </div>
-                                            <div class="counter__title">
-                                                {{ $item['content'][$locale] ?? ($item['content']['vi'] ?? '') }}
-                                            </div>
-                                        </div>
-                                    </div>
+                <div class="row align-items-center">
+                    <div class="col-lg-6 mb-4 mb-lg-0">
+                        <div class="ai-intro">
+                            <div class="ai-subtitle font-baijam">
+                                <span class="line-cyan"></span>
+                                <span class="line-yellow"></span>
+                                <span>{{ __('app.ai_assistant_subtitle') }}</span>
+                            </div>
+                            <h2 class="ai-title font-baijam">{!! __('app.ai_assistant_title') !!}</h2>
+                            <p class="ai-description font-baijam">
+                                {{ __('app.ai_assistant_desc') }}
+                            </p>
+                            <div class="mt-40">
+                                <a href="javascript:void(0)" onclick="toggleChatbot()" class="button button--ai-consult">
+                                    {{ __('app.start_consult_now') }}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 font-baijam">
+                        <div class="ai-chat-mockup">
+                            <div class="chat-header">
+                                <div class="chat-avatar">
+                                    <img src="{{ asset('images/ai-avatar.png') }}" alt="AI">
                                 </div>
-                            @endforeach
+                                <div class="chat-info">
+                                    <div class="chat-name">{{ __('app.mockup_chat_name') }}</div>
+                                    <div class="chat-status">{{ __('app.mockup_chat_status') }}</div>
+                                </div>
+                            </div>
+                            <div class="chat-body">
+                                <div class="chat-message ai">
+                                    <div class="message-content">
+                                        {{ __('app.mockup_chat_msg_1') }}
+                                    </div>
+                                    <div class="message-time">09:00</div>
+                                </div>
+                                <div class="chat-message user">
+                                    <div class="message-content">
+                                        {{ __('app.mockup_chat_msg_2') }}
+                                    </div>
+                                    <div class="message-time">09:00</div>
+                                </div>
+                                <div class="chat-message ai">
+                                    <div class="message-content">
+                                        {{ __('app.mockup_chat_msg_3') }}
+                                    </div>
+                                    <div class="message-time">09:00</div>
+                                </div>
+                            </div>
+                            <div class="chat-footer">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="{{ __('app.mockup_chat_input_placeholder') }}">
+                                    <button class="btn-send">
+                                        <i class="fas fa-arrow-up"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
-        <section class="section">
-            {{-- <img class="texture-1" src="./images/texture-1.png" alt="" />
-            <img class="texture-2" src="./images/texture-2.png" alt="" /> --}}
+        <section class="section section-news font-baijam" id="news-section">
             <div class="container">
-                <h2 class="section__title text-uppercase">{{ __('app.news') }}</h2>
-                <div class="news-slider">
-                    <div class="news-slider__nav">
-                        <div class="news-slider__prev"><i class="fal fa-fw fa-lg fa-angle-left"></i></div>
-                        <div class="news-slider__next"><i class="fal fa-fw fa-lg fa-angle-right"></i></div>
+                <div class="d-flex justify-content-between align-items-end mb-40">
+                    <div class="section-header-custom font-baijam mb-0">
+                        <div class="subtitle-custom">
+                            <span class="line"></span>
+                            {{ __('app.news_and_policies') }}
+                        </div>
+                        <h2 class="title-custom">
+                            {{ __('app.update') }} <span class="text-highlight">{{ __('app.latest') }}</span>
+                        </h2>
                     </div>
+                    <div class="swiper-nav-custom">
+                        <div class="swiper-nav-prev"><i class="fal fa-arrow-left"></i></div>
+                        <div class="swiper-nav-next"><i class="fal fa-arrow-right"></i></div>
+                    </div>
+                </div>
+
+                <div class="news-slider mt-0">
                     <div class="news-slider__container swiper-container">
                         <div class="swiper-wrapper">
                             @foreach ($posts as $item)
                                 <div class="swiper-slide">
-                                    <div class="news">
-                                        <a class="news__frame"
+                                    <div class="project-card-custom">
+                                        <a class="project-card__image"
                                             href="{{ route('post_detail', ['id' => $item['id'], 'slug' => $item['slug'], 'ref' => 'app.news']) }}">
-                                            <img src="{{ $item['image'] }}" alt="" />
+                                            <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}" />
                                         </a>
-                                        <div class="news__body">
-                                            <div class="news__info">
-                                                <div class="news__time">
-                                                    <i class="fal fa-clock me-2"></i>
-                                                    <span>{{ \Carbon\Carbon::parse($item['published_at'])->format('d/m/Y') }}</span>
+                                        <a class="project__like project-card__like-btn" href="javascript:void(0)"
+                                            data-id="{{ $item['id'] }}" data-type="App\Models\Post">
+                                            <i
+                                                class="fas fa-fw fa-heart {{ $item['is_interested'] ? 'text-danger' : '' }}"></i>
+                                        </a>
+                                        <div class="project-card__content">
+                                            <div class="d-flex align-items-center mb-3">
+                                                <div class="project-card__category mb-0 me-3">
+                                                    {{ $item['category']['name'] ?? __('app.news') }}
                                                 </div>
-                                                <a class="news__like" href="javascript:void(0)"
-                                                    data-id="{{ $item['id'] }}" data-type="App\Models\Post">
-                                                    <i
-                                                        class="fas fa-fw fa-heart {{ $item['is_interested'] ? 'text-danger' : '' }}"></i>
-                                                </a>
+                                                <div style="color: #939393; font-size: 12px; font-weight: 500;">
+                                                    {{ \Carbon\Carbon::parse($item['published_at'])->format('d/m/Y') }}
+                                                </div>
                                             </div>
-                                            <h3 class="news__title custom-desc">
+                                            <h3 class="project-card__title">
                                                 <a href="{{ route('post_detail', ['id' => $item['id'], 'slug' => $item['slug'], 'ref' => 'app.news']) }}"
                                                     data-tippy-content="{{ $item['name'] }}">
                                                     {{ $item['name'] }}
                                                 </a>
                                             </h3>
-                                            <div class="news__desc">{{ $item['description'] }}</div>
+                                            <div style="margin-top: auto; padding-top: 20px;">
+                                                <a href="{{ route('post_detail', ['id' => $item['id'], 'slug' => $item['slug'], 'ref' => 'app.news']) }}" class="project-card__read-more" style="color: #00DBFF; font-size: 12px; font-weight: 700; text-transform: uppercase; text-decoration: none; display: flex; align-items: center; gap: 8px;">
+                                                    {{ __('app.read_more') }} <i class="fal fa-arrow-right"></i>
+                                                </a>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -325,7 +448,6 @@
         </section>
         <section class="section section--medium-blue">
             <div class="container">
-                <h2 class="section__title text-white text-uppercase">{{ __('app.link') }}</h2>
                 @if (!empty($setting['banners']))
                     <div class="partners-slider">
                         <div class="partners-slider__container swiper-container">
@@ -541,7 +663,7 @@
             }
         }
 
-        /* Video Loader Styles */
+        /* Video Loader & Hero Styles */
         #video-loader-container {
             position: absolute;
             top: 0;
@@ -559,39 +681,157 @@
         #loader-video {
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            object-fit: cover;
+            filter: brightness(0.6);
         }
-        .btn-skip-video {
+        #btn-skip-video {
             position: absolute;
-            bottom: 30px;
-            right: 30px;
-            padding: 12px 24px;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(5px);
+            bottom: 40px;
+            right: 40px;
+            z-index: 20002;
+            background: rgba(0, 0, 0, 0.4);
             color: #fff;
             border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50px;
-            font-size: 14px;
-            font-weight: 500;
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
             cursor: pointer;
-            z-index: 2001;
-            transition: all 0.3s ease;
+            backdrop-filter: blur(8px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            gap: 10px;
         }
-        @media (max-width: 768px) {
-            .btn-skip-video {
-                bottom: 20px;
-                right: 20px;
-                padding: 10px 20px;
-                font-size: 12px;
-            }
+        #btn-skip-video:hover {
+            background: #3E6AFD;
+            border-color: #3E6AFD;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(62, 106, 253, 0.4);
         }
-        .btn-skip-video:hover {
-            background: rgba(0, 0, 0, 0.8);
+        #btn-skip-video i {
+            font-size: 12px;
+        }
+        .video-hero-content {
+            position: absolute;
+            z-index: 20001;
+            color: #fff;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            animation: heroFadeIn 1.2s ease-out forwards;
+        }
+        @keyframes heroFadeIn {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .hero-badge {
+            display: inline-block;
+            background: #00CEFC33;
+            backdrop-filter: blur(10px);
+            padding: 6px 18px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 25%;
+            text-transform: uppercase;
+            color: #00CEFC;
+        }
+        .hero-title-wrapper {
+            line-height: 1.2;
+        }
+        .hero-title-line {
+            font-size: clamp(45px, 9vw, 110px);
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 0;
+            letter-spacing: -2px;
+        }
+        .white-text {
+            color: #fff;
+            font-size: 96px;
+        }
+        .outline-text {
+            color: transparent;
+            -webkit-text-stroke: 2px #00CEFC;
+            letter-spacing: 2px;
+            font-size: 96px;
+        }
+        .yellow-text {
+            color: #FFD700;
+            font-size: 64px;
+            font-weight: bold;
+        }
+        .hero-description {
+            font-size: 12px;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.9);
+            max-width: 500px;
+            font-weight: 400;
+            text-align: left;
+        }
+        .hero-actions {
+            display: flex;
+            gap: 15px;
+        }
+        .btn-hero-explore, .btn-hero-ai {
+            padding: 14px 40px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 200px;
+        }
+        .btn-hero-explore {
+            background: #3E6AFD;
+            color: #fff;
+            border: none;
+        }
+        .btn-hero-ai {
+            background: #00CEFC33;
+            color: #fff;
+            border: 1px solid #00CEFC66;
+            backdrop-filter: blur(10px);
+        }
+        .btn-hero-explore:hover {
+            background: #2250A0;
+            transform: translateY(-2px);
+        }
+        .btn-hero-ai:hover {
+            background: #00A8CC;
             border-color: #fff;
             transform: translateY(-2px);
+        }
+        @media (max-width: 991px) {
+            .hero-title-line { font-size: clamp(40px, 12vw, 80px); }
+            .hero-description { max-width: 100%; }
+            .hero-logo-right { display: none !important; }
+        }
+        @media (max-width: 575px) {
+            .hero-actions {
+                flex-direction: column;
+            }
+            .btn-hero-explore, .btn-hero-ai {
+                width: 100%;
+            }
+        }
+        .hero-logo-right {
+            max-width: 80%;
+            filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.4));
+            animation: logoGlow 4s infinite alternate;
+        }
+        @keyframes logoGlow {
+            from { filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3)); transform: scale(1); }
+            to { filter: drop-shadow(0 0 40px rgba(255, 255, 255, 0.6)); transform: scale(1.02); }
         }
         .video-fade-out {
             opacity: 0;
@@ -938,75 +1178,79 @@
         $(document).ready(function() {
             const videoContainer = $('#video-loader-container');
             const loaderVideo = document.getElementById('loader-video');
-            const skipBtn = $('#skip-video-btn');
+            const loaderImage = $('#loader-image');
+            const btnExplore = $('#btn-explore');
+            const btnIntro = $('#btn-hero-ai');
+            const btnSkip = $('#btn-skip-video');
             
-            if (!loaderVideo) return;
+            if (!videoContainer.length) return;
 
-            // Lấy ngày hiện tại YYYY-MM-DD
-            const today = new Date().toISOString().split('T')[0];
-            const hiddenDate = localStorage.getItem('hide_video_date');
-
-            if (hiddenDate === today) {
-                videoContainer.remove();
-            } else {
-                videoContainer.show();
-                
-                // Ngăn chặn bản đồ tranh chấp sự kiện click/tua của video
-                if (typeof L !== 'undefined' && L.DomEvent) {
-                    L.DomEvent.disableClickPropagation(videoContainer[0]);
-                    L.DomEvent.disableScrollPropagation(videoContainer[0]);
-                }
-
-                // Tự động đóng khi video kết thúc
-                loaderVideo.onended = function() {
-                    closeVideoLoader();
-                };
-                
-                // Đảm bảo video chạy nếu autoplay bị chặn
-                loaderVideo.play().catch(error => {
-                    console.log("Autoplay was prevented:", error);
-                });
+            // Đảm bảo container hiển thị (đã bỏ display: none trong HTML)
+            if (videoContainer.length) {
+                videoContainer.css('display', 'flex');
+            }
+            
+            // Ngăn chặn bản đồ tranh chấp sự kiện click/tua của video
+            if (typeof L !== 'undefined' && L.DomEvent) {
+                L.DomEvent.disableClickPropagation(videoContainer[0]);
+                L.DomEvent.disableScrollPropagation(videoContainer[0]);
             }
 
-            skipBtn.on('click', function() {
-                loaderVideo.pause(); // Tạm dừng để hiện popup
-                
-                Swal.fire({
-                    title: 'Bỏ qua video?',
-                    text: "Bạn có muốn ẩn video này trong ngày hôm nay không?",
-                    showCancelButton: true,
-                    confirmButtonColor: '#1a6fc4',
-                    cancelButtonColor: '#aaa',
-                    confirmButtonText: 'Xác nhận',
-                    cancelButtonText: 'Hủy',
-                    reverseButtons: true,
-                    backdrop: `rgba(0,0,0,0.4)`
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        localStorage.setItem('hide_video_date', today);
-                        closeVideoLoader();
-                    } else {
-                        closeVideoLoader();
-                    }
-                });
+            // Nút Tìm hiểu dự án -> Tắt video/ảnh và hiện bản đồ
+            btnExplore.on('click', function() {
+                closeVideoLoader();
             });
+
+            // Nút Video giới thiệu -> Hiện video và ẩn ảnh
+            btnIntro.on('click', function() {
+                if (loaderVideo) {
+                    loaderImage.hide();
+                    $(loaderVideo).show();
+                    btnSkip.show();
+                    loaderVideo.play().catch(error => {
+                        console.log("Play was prevented:", error);
+                    });
+                }
+            });
+
+            // Nút Bỏ qua -> Quay lại ảnh và reset video
+            btnSkip.on('click', function() {
+                resetToInitial();
+            });
+
+            // Khi video kết thúc -> Quay lại ảnh và reset video
+            if (loaderVideo) {
+                loaderVideo.onended = function() {
+                    resetToInitial();
+                };
+            }
+
+            function resetToInitial() {
+                if (loaderVideo) {
+                    loaderVideo.pause();
+                    loaderVideo.currentTime = 0;
+                    $(loaderVideo).hide();
+                }
+                btnSkip.hide();
+                loaderImage.show();
+            }
 
             function closeVideoLoader() {
                 videoContainer.addClass('video-fade-out');
                 setTimeout(() => {
-                    videoContainer.remove();
+                    videoContainer.hide();
                 }, 800);
             }
         });
 
         // Tile layers
-        // Vẫn sử dụng MapTiler làm mặc định nhưng được tối ưu hóa quá trình tải tile
-        const defaults = L.tileLayer('https://api.maptiler.com/maps/outdoor-v2/{z}/{x}/{y}.png?key={{ config('services.maptiler.key') }}', {
+        const defaults = L.tileLayer('https://api.maptiler.com/maps/outdoor-v4/256/{z}/{x}/{y}{r}.png?key={{ config('services.maptiler.key') }}', {
+            r: L.Browser.retina ? '@2x' : '', // Tự động lấy ảnh nét gấp đôi trên màn hình Retina (như Macbook)
             maxNativeZoom: 19,
             maxZoom: 21,
-            updateWhenIdle: true,       // Chỉ fetch tiles sau khi người dùng ngừng kéo bản đồ
-            updateWhenZooming: false,   // Không fetch liên tục trong quá trình đang zoom
-            keepBuffer: 3               // Cache nhẹ thêm các tile xung quanh để khi quay lại không cần fetch lại
+            updateWhenIdle: true,
+            updateWhenZooming: false,
+            keepBuffer: 1
         });
         
         const streets = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -2678,6 +2922,36 @@
                 $('#projectTabContentMini').css('maxWidth', '70%');
             }
 
+            // Initialize filter swiper
+            if ($('.swiper-container-filters').length > 0) {
+                new Swiper('.swiper-container-filters', {
+                    slidesPerView: 'auto',
+                    spaceBetween: 10,
+                    freeMode: true,
+                    watchSlidesProgress: true,
+                    watchSlidesVisibility: true,
+                });
+            }
+
+            // Initialize initial project slider
+            var $sliderContainer = $('#project-slider-wrapper .news-slider');
+            if ($sliderContainer.length > 0 && typeof Swiper !== 'undefined') {
+                new Swiper($sliderContainer.find('.news-slider__container')[0], {
+                    loop: false,
+                    navigation: {
+                        prevEl: '.swiper-nav-prev',
+                        nextEl: '.swiper-nav-next'
+                    },
+                    spaceBetween: 24,
+                    speed: 500,
+                    slidesPerView: 1,
+                    breakpoints: {
+                        768: { slidesPerView: 2 },
+                        1200: { slidesPerView: 3 }
+                    }
+                });
+            }
+
             // Khi focus vào input bé → hiện cụm to
             $inputMini.on("focus", function() {
                 $miniBox.hide();
@@ -2763,7 +3037,7 @@
             }
             
             // Handle AJAX click for project categories
-            $(document).on('click', '.project-nav-fixed a, .project-nav-scroll a', function (e) {
+            $(document).on('click', '.js-industry-filter', function (e) {
                 var href = $(this).attr('href');
                 if (href && href.indexOf('#investment-section') !== -1) {
                     e.preventDefault();
@@ -2774,7 +3048,7 @@
                     $wrapper.css('opacity', '0.5');
 
                     // Update active classes
-                    $('.project-nav-fixed a, .project-nav-scroll a').removeClass('active');
+                    $('.js-industry-filter').removeClass('active');
                     $(this).addClass('active');
 
                     $.ajax({
@@ -2788,18 +3062,18 @@
                             // Re-initialize Swiper specifically for the project section
                             var $sliderContainer = $('#project-slider-wrapper .news-slider');
                             if ($sliderContainer.length > 0 && typeof Swiper !== 'undefined') {
-                                $sliderContainer.addClass('has-nav');
                                 new Swiper($sliderContainer.find('.news-slider__container')[0], {
                                     loop: false,
                                     navigation: {
-                                        prevEl: $sliderContainer.find('.news-slider__prev')[0],
-                                        nextEl: $sliderContainer.find('.news-slider__next')[0]
+                                        prevEl: '.swiper-nav-prev',
+                                        nextEl: '.swiper-nav-next'
                                     },
                                     spaceBetween: 0,
                                     speed: 500,
-                                    slidesPerView: 2,
+                                    slidesPerView: 1,
                                     breakpoints: {
-                                        992: { slidesPerView: 3 }
+                                        768: { slidesPerView: 2 },
+                                        1200: { slidesPerView: 3 }
                                     }
                                 });
                             }
@@ -2816,6 +3090,57 @@
                     });
                 }
             });
+        });
+    </script>
+    <script>
+        $(window).on('load', function() {
+            // Wait for app.js to initialize first, then re-initialize with correct navigation
+            setTimeout(function() {
+                // News Section Slider
+                var $newsSection = $('#news-section');
+                if ($newsSection.length > 0) {
+                    var newsSwiperEl = $newsSection.find('.news-slider__container')[0];
+                    if (newsSwiperEl && newsSwiperEl.swiper) {
+                        newsSwiperEl.swiper.destroy(true, true);
+                        new Swiper(newsSwiperEl, {
+                            loop: false,
+                            navigation: {
+                                prevEl: $newsSection.find('.swiper-nav-prev')[0],
+                                nextEl: $newsSection.find('.swiper-nav-next')[0]
+                            },
+                            spaceBetween: 0,
+                            speed: 500,
+                            slidesPerView: 2,
+                            breakpoints: {
+                                992: { slidesPerView: 3 }
+                            }
+                        });
+                    }
+                }
+
+                // Project Section Slider
+                var $projectSection = $('#investment-section');
+                if ($projectSection.length > 0) {
+                    var projectSwiperEl = $projectSection.find('.news-slider__container')[0];
+                    if (projectSwiperEl && projectSwiperEl.swiper) {
+                        projectSwiperEl.swiper.destroy(true, true);
+                        new Swiper(projectSwiperEl, {
+                            loop: false,
+                            navigation: {
+                                prevEl: $projectSection.find('.swiper-nav-prev')[0],
+                                nextEl: $projectSection.find('.swiper-nav-next')[0]
+                            },
+                            spaceBetween: 0,
+                            speed: 500,
+                            slidesPerView: 1,
+                            breakpoints: {
+                                768: { slidesPerView: 2 },
+                                1200: { slidesPerView: 3 }
+                            }
+                        });
+                    }
+                }
+            }, 100);
         });
     </script>
     <script>

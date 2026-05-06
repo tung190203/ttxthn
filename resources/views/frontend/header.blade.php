@@ -4,20 +4,12 @@
 @endphp
 <header class="header">
     <div class="header__wrapper">
-        <div class="container">
-            <div class="header__inner">
-                <a class="header__logo" href="{{ route('home_page') }}">
-                    <img src="{{ \App\Models\Setting::getSettingByKey('logo') }}" alt="" />
-                </a>
-                <div class="header__elements">
-                    <div class="header__text">{{ \App\Models\Setting::getSettingByKey('site_name') }}</div>
-                </div>
-                <button class="btn-toggle text-white d-xl-none js-navbar-toggle ms-1"></button>
-            </div>
-        </div>
         <nav class="navigation">
             <div class="container">
                 <div class="navigation__inner">
+                    <a class="header__logo" href="{{ route('home_page') }}">
+                        <img src="{{ \App\Models\Setting::getSettingByKey('logo') }}" alt="" />
+                    </a>
                     <section class="navbar js-navbar">
                         <div class="navbar__backdrop js-navbar-toggle"></div>
                         <div class="navbar__wrapper">
@@ -40,7 +32,7 @@
 
                                                 {{-- Hiển thị badge cho menu nhóm --}}
                                                 @if($item['name'] == __('app.investment_projects'))
-                                                    <span class="badge bg-danger ms-2">{{ $countAllProject ?? 0 }}</span>
+                                                    <span class="custom-badge ms-2">{{ $countAllProject ?? 0 }}</span>
                                                 @endif
                                             </a>
 
@@ -142,6 +134,7 @@
                             </a>
                         </div>
                     </div>
+                    <button class="btn-toggle text-white d-xl-none js-navbar-toggle ms-2"></button>
                 </div>
             </div>
         </nav>

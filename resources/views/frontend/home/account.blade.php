@@ -135,9 +135,9 @@
                     <p class="text-center">{{ __('app.no_interested_projects') }}</p>
                 @else                 
                     <div class="news-slider">
-                        <div class="news-slider__nav">
-                            <div class="news-slider__prev"><i class="fal fa-fw fa-lg fa-angle-left"></i></div>
-                            <div class="news-slider__next"><i class="fal fa-fw fa-lg fa-angle-right"></i></div>
+                        <div class="news-slider__nav swiper-nav-custom">
+                            <div class="news-slider__prev"><i class="fal fa-arrow-left"></i></div>
+                            <div class="news-slider__next"><i class="fal fa-arrow-right"></i></div>
                         </div>
                         <div class="news-slider__container swiper-container">
                             <div class="swiper-wrapper">
@@ -193,7 +193,7 @@
                     @endif
                 </div>
             </section>
-            <section class="section section--bg-pattern">
+            <!-- <section class="section section--bg-pattern">
                 <div class="container">
                     <div class="features-slider">
                         <div class="features-slider__container swiper-container">
@@ -223,7 +223,7 @@
                         </div>
                       </div>
                 </div>
-            </section>
+            </section> -->
             <section class="section" id="post-interest">
                 <div class="container">
                     <h2 class="section__title">{{ __('app.interested_news') }}</h2>
@@ -232,9 +232,9 @@
                         <p class="text-center">{{ __('app.no_interested_news') }}</p>
                     @else
                         <div class="news-slider">
-                            <div class="news-slider__nav">
-                                <div class="news-slider__prev"><i class="fal fa-fw fa-lg fa-angle-left"></i></div>
-                                <div class="news-slider__next"><i class="fal fa-fw fa-lg fa-angle-right"></i></div>
+                            <div class="news-slider__nav swiper-nav-custom">
+                                <div class="news-slider__prev"><i class="fal fa-arrow-left"></i></div>
+                                <div class="news-slider__next"><i class="fal fa-arrow-right"></i></div>
                             </div>
                             <div class="news-slider__container swiper-container">
                                 <div class="swiper-wrapper">
@@ -284,5 +284,35 @@
 @endsection
 
 @push('bottom')
-
+<style>
+/* Style navigators to match the home screen but adjusted for light background */
+.news-slider__nav.swiper-nav-custom {
+    background: transparent !important;
+    box-shadow: none !important;
+    gap: 12px;
+}
+.news-slider__nav.swiper-nav-custom .news-slider__prev,
+.news-slider__nav.swiper-nav-custom .news-slider__next {
+    background-color: transparent !important;
+    border: 1px solid rgba(62, 106, 253, 0.3) !important; 
+    color: #3E6AFD !important;
+    width: 50px !important;
+    height: 30px !important;
+    border-radius: 20px !important; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.news-slider__nav.swiper-nav-custom .news-slider__prev:hover,
+.news-slider__nav.swiper-nav-custom .news-slider__next:hover {
+    background-color: rgba(62, 106, 253, 0.1) !important;
+    border-color: #3E6AFD !important;
+    color: #3E6AFD !important;
+}
+.news-slider__nav.swiper-nav-custom .news-slider__prev i,
+.news-slider__nav.swiper-nav-custom .news-slider__next i {
+    color: inherit !important;
+    font-size: 18px !important;
+}
+</style>
 @endpush

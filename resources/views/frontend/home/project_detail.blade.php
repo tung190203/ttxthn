@@ -139,8 +139,7 @@
     </nav>
 
     @if($hasGeneralInfo)
-    <section class="section" id="thong-tin-chung">
-        <img class="section__bg" src="{{ asset('./images/achitect-bg.png') }}" alt="">
+    <section class="section" id="thong-tin-chung" style="border-bottom:1px solid rgba(255, 255, 255, 0.08)">
         <div class="container">
             <h2 class="section__title">{{ __('app.general_info') }}</h2>
             <div class="mx-auto" style="max-width: 800px;">
@@ -204,7 +203,7 @@
             <h2 class="section__title text-white">{{ __('app.virtual_map') }}</h2>
             @if($project->link_vrtour)
             <div class="mt-3">
-                <a href="{{ $project->link_vrtour }}" class="btn btn-warning text-white custom-btn-vrtour"
+                <a href="{{ $project->link_vrtour }}" class="btn text-white custom-btn-vrtour"
                     target="_blank" rel="noopener noreferrer">
                     {{ __('app.view_vr_tour') }}
                 </a>

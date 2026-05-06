@@ -110,6 +110,7 @@ class HomeController extends Controller
                 'slug' => $project->slug,
                 'type_number' => $project->type_number,
                 'industry_number' => $project->industry_number,
+                'industry_name' => $project->industry->name ?? '',
                 'area' => $project->area,
                 'unit' => $project->unit_type_text,
                 'price' => $project->price,
