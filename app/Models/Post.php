@@ -20,10 +20,9 @@ class Post extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logFillable()
+            ->logAllExcept(['view_num'])
             ->logOnlyDirty()
-            ->dontSubmitEmptyLogs()
-            ->dontLogIfAttributesChangedOnly(['view_num']);
+            ->dontSubmitEmptyLogs();
     }
 
 

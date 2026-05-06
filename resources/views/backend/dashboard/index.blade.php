@@ -424,8 +424,6 @@ DashBoard
                                 <option value="created" {{ request('event_log') == 'created' ? 'selected' : '' }}>Thêm mới</option>
                                 <option value="updated" {{ request('event_log') == 'updated' ? 'selected' : '' }}>Cập nhật</option>
                                 <option value="deleted" {{ request('event_log') == 'deleted' ? 'selected' : '' }}>Xóa</option>
-                                <option value="logged in" {{ request('event_log') == 'logged in' ? 'selected' : '' }}>Đăng nhập</option>
-                                <option value="logged out" {{ request('event_log') == 'logged out' ? 'selected' : '' }}>Đăng xuất</option>
                             </select>
                             <div class="input-group input-group-sm mr-2" style="width: 200px;">
                                 <input type="text" name="search_log" class="form-control" placeholder="Tìm kiếm..." value="{{ request('search_log') }}">
