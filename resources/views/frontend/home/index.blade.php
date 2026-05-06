@@ -442,7 +442,7 @@
                 @endphp
                 <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button"
                         href="{{ url($locale . '/' . __('app.news_link')) }}"
-                        style="text-transform: capitalize;">{{ __('app.view_more') }}</a>
+                        style="text-transform: capitalize;font-size:14px">{{ __('app.view_more') }}</a>
                 </nav>
             </div>
         </section>

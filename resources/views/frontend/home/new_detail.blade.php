@@ -53,7 +53,7 @@
                         <div class="row g-3">
                             @foreach ($files as $index => $file)
                                 <div class="col-md-6">
-                                    <div class="card shadow-sm h-100 hover-shadow-custom border-0 file-item" 
+                                    <div class="card shadow-sm h-100 hover-shadow-custom border-0 file-item"style="background-color:#092450;color:white;box-shadow:#092450" 
                                         data-file="{{ asset($file) }}">
                                         <div class="card-body d-flex align-items-center" style="cursor:pointer;">
                                             <i class="fas fa-file-alt fa-2x text-primary me-3"></i>
