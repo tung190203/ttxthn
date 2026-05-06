@@ -103,7 +103,8 @@
                         
                         <x-forms.select-multiple name="projects" label="Thuộc các dự án" :options="$option_projects" 
                             :selected="old('projects', $investment_guide->projects->pluck('id')->toArray())"
-                            :messages="$errors->get('projects')" help="Chọn các dự án trực thuộc" />
+                            :messages="$errors->get('projects')" help="Chọn các dự án trực thuộc"
+                            selectAll="true" selectLabel="dự án" />
 
                         <x-forms.upload name="image" value="{{ old('image') ?: $investment_guide->image }}" label="Image"
                                         type="image" :messages="$errors->get('image')"/>
@@ -118,8 +119,7 @@
                         
                         <x-forms.input name="published_at" label="Ngày xuất bản" type="date"
                             :value="$investment_guide->published_at ? \Carbon\Carbon::parse($investment_guide->published_at)->format('Y-m-d') : null"
-                            :messages="$errors->get('published_at')"
-                            required />
+                            :messages="$errors->get('published_at')" />
                         
                         <hr class="my-4">
 
@@ -162,14 +162,12 @@
                                             
                                         <x-forms.textarea 
                                             name="description[{{ $locale }}]" 
-                                            :required="$loop->first"
                                             value="{{ old('description.'.$locale) ?: $investment_guide->getTranslation('description', $locale, false) }}" 
                                             label="Mô tả ({{ $label }})"
                                             :messages="$errors->get('description.'.$locale)" />
                                             
                                         <x-forms.textarea 
                                             name="content[{{ $locale }}]" 
-                                            :required="$loop->first" 
                                             value="{{ old('content.'.$locale) ?: $investment_guide->getTranslation('content', $locale, false) }}"
                                             label="Nội dung chi tiết ({{ $label }})" 
                                             editor="true" 

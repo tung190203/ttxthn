@@ -119,8 +119,7 @@
                         
                         <x-forms.input name="published_at" label="Ngày xuất bản" type="date"
                             :value="$post->published_at ? \Carbon\Carbon::parse($post->published_at)->format('Y-m-d') : null"
-                            :messages="$errors->get('published_at')"
-                            required />
+                            :messages="$errors->get('published_at')" />
 
                         {{-- Tabs ngôn ngữ --}}
                         <div class="form-group">
@@ -162,14 +161,12 @@
                                             
                                         <x-forms.textarea 
                                             name="description[{{ $locale }}]" 
-                                            :required="$loop->first"
                                             value="{{ old('description.'.$locale) ?: $post->getTranslation('description', $locale, false) }}" 
                                             label="Mô tả ({{ $label }})"
                                             :messages="$errors->get('description.'.$locale)" />
                                             
                                         <x-forms.textarea 
                                             name="content[{{ $locale }}]" 
-                                            :required="$loop->first" 
                                             value="{{ old('content.'.$locale) ?: $post->getTranslation('content', $locale, false) }}"
                                             label="Nội dung chi tiết ({{ $label }})" 
                                             editor="true" 

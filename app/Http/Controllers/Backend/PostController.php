@@ -157,7 +157,8 @@ class PostController extends Controller
         }
     
         $validated = $request->validate([
-            'name' => 'nullable|array', // Thay đổi thành array
+            'name' => 'required|array',
+            'name.vi' => 'required|string',
             'name.*' => 'nullable|string',
             'slug' => 'nullable|array',
             'slug.*' => 'nullable|alpha_dash',
