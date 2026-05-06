@@ -12,6 +12,7 @@ use Spatie\Translatable\HasTranslations;
 
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Models\Activity;
 
 class InvestmentGuide extends Model
 {
@@ -20,9 +21,21 @@ class InvestmentGuide extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logAllExcept(['view_num'])
+            ->logFillable()
             ->logOnlyDirty()
-            ->dontSubmitEmptyLogs();
+            ->dontSubmitEmptyLogs()
+            ->dontLogIfAttributesChangedOnly(['view_num']);
+    }
+
+    public function tapActivity(Activity $activity, string $eventName)
+    {
+        $properties = $activity->properties;
+        $attributes = $properties->get('attributes', []);
+        $old = $properties->get('old', []);
+        unset($attributes['view_num'], $old['view_num']);
+        $activity->properties = $properties
+            ->put('attributes', $attributes)
+            ->put('old', $old);
     }
 
     protected $table = 'investment_guides';
