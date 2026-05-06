@@ -553,11 +553,32 @@ DashBoard
                             <option value="24">2 năm gần đây</option>
                             <option value="0">Toàn bộ dữ liệu</option>
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Chọn định dạng tệp (trước khi nén ZIP):</label>
+                        <div class="mt-2">
+                            <div class="custom-control custom-radio custom-control-inline">
+                                <input type="radio" id="format_excel" name="format" value="excel" class="custom-control-input" checked>
+                                <label class="custom-control-label font-weight-normal" for="format_excel">
+                                    <i class="fas fa-file-excel text-success mr-1"></i> Excel (.xlsx)
+                                </label>
+                            </div>
+                            <div class="custom-control custom-radio custom-control-inline">
+                                <input type="radio" id="format_csv" name="format" value="csv" class="custom-control-input">
+                                <label class="custom-control-label font-weight-normal" for="format_csv">
+                                    <i class="fas fa-file-csv text-info mr-1"></i> CSV (.csv)
+                                </label>
+                            </div>
+                        </div>
                         <small class="text-muted mt-2 d-block">
                             <i class="fas fa-info-circle mr-1"></i>
-                            Dữ liệu sẽ được xuất ra file ZIP có mật khẩu bảo vệ tương tự như file gửi qua email định kỳ. Việc xuất dữ liệu ở đây <strong>không xóa</strong> dữ liệu trong hệ thống.
+                            <strong>Khuyên dùng:</strong> Sử dụng định dạng <b>Excel</b> nếu bạn gặp lỗi hiển thị phông chữ tiếng Việt khi mở bằng CSV.
                         </small>
                     </div>
+                    <small class="text-muted mt-2 d-block">
+                        <i class="fas fa-lock mr-1"></i>
+                        Dữ liệu sẽ được xuất ra file ZIP có mật khẩu bảo vệ. Việc xuất dữ liệu ở đây <strong>không xóa</strong> dữ liệu trong hệ thống.
+                    </small>
                 </div>
                 <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>

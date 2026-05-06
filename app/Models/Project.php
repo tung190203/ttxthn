@@ -12,6 +12,7 @@ use Spatie\Translatable\HasTranslations;
 
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Models\Activity;
 
 class Project extends Model
 {
@@ -20,9 +21,24 @@ class Project extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logAllExcept(['view_num', 'views_month', 'views_month_code'])
+            ->logFillable()
             ->logOnlyDirty()
-            ->dontSubmitEmptyLogs();
+            ->dontSubmitEmptyLogs()
+            ->dontLogIfAttributesChangedOnly(['view_num', 'views_month', 'views_month_code']);
+    }
+
+    public function tapActivity(Activity $activity, string $eventName)
+    {
+        $exclude = ['view_num', 'views_month', 'views_month_code'];
+        $properties = $activity->properties;
+        $attributes = $properties->get('attributes', []);
+        $old = $properties->get('old', []);
+        foreach ($exclude as $field) {
+            unset($attributes[$field], $old[$field]);
+        }
+        $activity->properties = $properties
+            ->put('attributes', $attributes)
+            ->put('old', $old);
     }
     protected $table = 'projects';
 

@@ -255,7 +255,8 @@ class DashboardController extends Controller
     public function exportLogs(Request $request)
     {
         $months = $request->get('months', 3);
-        $result = $this->logExportService->exportToZip($months, false); // false = recent logs
+        $format = $request->get('format', 'csv'); // Default to csv
+        $result = $this->logExportService->exportToZip($months, false, null, $format); // false = recent logs
 
         if (!$result) {
             return back()->with('error', 'Không có dữ liệu để xuất.');
