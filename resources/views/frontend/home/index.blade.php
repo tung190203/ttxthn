@@ -448,6 +448,7 @@
         </section>
         <section class="section section--medium-blue">
             <div class="container">
+                <h2 class="section__title text-white mb-4 text-uppercase font-baijam">{{ __('app.multilingual_links') }}</h2>
                 @if (!empty($setting['banners']))
                     <div class="partners-slider">
                         <div class="partners-slider__container swiper-container">

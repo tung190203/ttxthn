@@ -212,5 +212,6 @@ return [
     'mockup_chat_msg_3' => 'With 500 billion, I suggest 3 projects in Thach That, Phu Nghia, and Soc Son Industrial Parks. Tax incentives up to 10 years.',
     'quick_links' => 'Quick links',
     'mockup_chat_input_placeholder' => 'Enter your investment question...',
-    'skip' => 'Skip'
+    'skip' => 'Skip',
+    'multilingual_links' => 'Links'
 ];

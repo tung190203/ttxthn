@@ -215,4 +215,5 @@ return [
     'quick_links' => 'Liên kết nhanh',
     'mockup_chat_input_placeholder' => 'Nhập câu hỏi về đầu tư...',
     'skip' => 'Bỏ qua',
+    'multilingual_links' => 'Liên kết'
 ];
