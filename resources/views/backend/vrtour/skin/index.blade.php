@@ -38,7 +38,7 @@
                                         <option value="0">Toàn bộ</option>
                                         <option value="1">Màn hình chào mừng</option>
                                         <option value="3">Sơ đồ liên kết vùng</option>
-                                        <option value="4">Văn bản pháp quy</option>
+                                        <option value="4">Văn bản pháp lý</option>
                                         <option value="5">Kế hoạch triển khai</option>
                                         <option value="6">Thông tin chủ đầu tư</option>
                                         <option value="7">Vị trí dự án</option>
@@ -105,7 +105,7 @@
                             <div class="card-body table-responsive p-4">
                                 <div class="row">
                                     <div class="col-6">
-                                        <h3>Văn bản pháp quy</h3>
+                                        <h3>Văn bản pháp lý</h3>
                                     </div>
                                     <div class="col-6 text-right">
                                         <button type="button" class="btn btn-sm fw-bold btn-primary btn-info" id="add_detail" role="button">

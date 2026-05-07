@@ -82,7 +82,7 @@ return [
     'key_advantages' => 'Lợi thế nổi bật',
     'virtual_map' => 'Sa bàn ảo',
     'design_and_layout' => 'Thiết kế & mặt bằng',
-    'legal_documents' => 'Văn bản pháp quy',
+    'legal_documents' => 'Văn bản pháp lý',
     'investment_procedure' => 'Thủ tục đầu tư',
     'implementation_plan' => 'Kế hoạch triển khai',
     'view_vr_tour' => 'Xem VR Tour',

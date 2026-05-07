@@ -248,10 +248,10 @@
                                         <hr class="my-4">
 
                                         {{-- 5. Văn bản pháp quy (Legal) --}}
-                                        <h6 class="text-info">Văn bản pháp quy ({{ $label }})</h6>
+                                        <h6 class="text-info">Văn bản pháp lý ({{ $label }})</h6>
                                         <x-forms.input name="legal_short_desc[{{ $locale }}]"
                                             value="{{ old('legal_short_desc.'.$locale) ?: $project->getTranslation('legal_short_desc', $locale, false) }}"
-                                            label="Mô tả văn bản pháp quy ({{ $label }})" :messages="$errors->get('legal_short_desc.'.$locale)" />
+                                            label="Mô tả văn bản pháp lý ({{ $label }})" :messages="$errors->get('legal_short_desc.'.$locale)" />
                                         @php
                                             $rawFilesDescs = old('files_descs.'.$locale) ?: $project->getTranslation('legal_description', $locale, false);
                                             $filesDescs = is_string($rawFilesDescs) ? json_decode($rawFilesDescs, true) : (is_array($rawFilesDescs) ? $rawFilesDescs : []);
@@ -260,7 +260,7 @@
                                             :value="[
                                                 'images' => explode(';', $project->legal_file ?? ''), 
                                                 'descs' => $filesDescs, 
-                                            ]" label="Tệp đính kèm văn bản pháp quy"
+                                            ]" label="Tệp đính kèm văn bản pháp lý"
                                             :messages="$errors->get('files_descs.'.$locale)" />
 
                                     </div>

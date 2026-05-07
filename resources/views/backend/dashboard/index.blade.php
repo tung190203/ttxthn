@@ -474,7 +474,7 @@ DashBoard
                                 ['id' => 'general_info', 'label' => 'Thông tin chung', 'count' => $projectStats['has_general_info'] ?? 0],
                                 ['id' => 'location', 'label' => 'Tọa độ', 'count' => $projectStats['has_location'] ?? 0],
                                 ['id' => 'vrtour', 'label' => 'VR Tour 360', 'count' => $projectStats['has_vrtour'] ?? 0],
-                                ['id' => 'legal', 'label' => 'Văn bản pháp quy', 'count' => $projectStats['has_legal'] ?? 0],
+                                ['id' => 'legal', 'label' => 'Văn bản pháp lý', 'count' => $projectStats['has_legal'] ?? 0],
                             ];
                         @endphp
                         @foreach($fields as $field)
