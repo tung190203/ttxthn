@@ -49,7 +49,12 @@
 
                 @if (count($files) > 0)
                     <div class="container mb-4">
-                        <h3 class="mb-3">{{ __('app.attached_documents') }}</h3>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h3 class="mb-0">{{ __('app.attached_documents') }}</h3>
+                            <button id="btnFullscreen" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-expand me-1"></i> {{ __('app.fullscreen') }}
+                            </button>
+                        </div>
                         <div class="row g-3">
                             @foreach ($files as $index => $file)
                                 <div class="col-md-6">
@@ -68,7 +73,7 @@
                             @endforeach
                         </div>
                         <div class="mt-3">
-                            <iframe id="fileViewer" src="{{ asset($files[0]) }}" width="100%" height="700px" frameborder="0"></iframe>
+                            <iframe id="fileViewer" src="{{ asset($files[0]) }}" width="100%" height="700px" frameborder="0" allowfullscreen allow="fullscreen"></iframe>
                         </div>
                     </div>
                 @endif
@@ -126,13 +131,31 @@
     document.addEventListener('DOMContentLoaded', function() {
         const fileItems = document.querySelectorAll('.file-item');
         const iframe = document.getElementById('fileViewer');
+        const btnFullscreen = document.getElementById('btnFullscreen');
 
         fileItems.forEach(item => {
             item.addEventListener('click', function() {
                 const fileUrl = this.getAttribute('data-file');
                 iframe.src = fileUrl;
+                
+                // Scroll to viewer when a file is selected
+                iframe.scrollIntoView({ behavior: 'smooth', block: 'center' });
             });
         });
+
+        if (btnFullscreen) {
+            btnFullscreen.addEventListener('click', function() {
+                if (iframe.requestFullscreen) {
+                    iframe.requestFullscreen();
+                } else if (iframe.mozRequestFullScreen) { /* Firefox */
+                    iframe.mozRequestFullScreen();
+                } else if (iframe.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+                    iframe.webkitRequestFullscreen();
+                } else if (iframe.msRequestFullscreen) { /* IE/Edge */
+                    iframe.msRequestFullscreen();
+                }
+            });
+        }
     });
 </script>
 @endpush

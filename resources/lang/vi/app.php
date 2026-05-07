@@ -139,6 +139,8 @@ return [
     'checking_status' => 'Kiểm tra trạng thái...',
     'online' => 'Đang trực tuyến',
     'default' => 'Mặc định',
+    'fullscreen' => 'Toàn màn hình',
+    'exit_fullscreen' => 'Thoát toàn màn hình',
 
     // Chatbot actions
     'chatbot_delete_title' => 'Xóa cuộc trò chuyện',

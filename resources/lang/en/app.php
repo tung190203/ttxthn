@@ -139,6 +139,8 @@ return [
     'checking_status' => 'Checking status...',
     'online' => 'Online',
     'default' => 'Default',
+    'fullscreen' => 'Full screen',
+    'exit_fullscreen' => 'Exit full screen',
 
     // Chatbot actions
     'chatbot_delete_title' => 'Delete conversation',
