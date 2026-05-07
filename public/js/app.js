@@ -156,7 +156,17 @@ $(function () {
     e.stopPropagation();
     e.preventDefault();
 
-    $('.search').fadeToggle('fast').find('input').focus();
+    if ($(window).width() < 1200) {
+      $('.header').addClass('is-search-active');
+      $('.search').find('input').focus();
+    } else {
+      $('.search').fadeToggle('fast').find('input').focus();
+    }
+  });
+
+  $('.js-search-close').on('click', function (e) {
+    e.stopPropagation();
+    $('.header').removeClass('is-search-active');
   });
 
   $('.h-dropdown__toggle').on('click', function (e) {

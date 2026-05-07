@@ -6554,7 +6554,7 @@ fieldset:disabled .btn {
     border-radius: .25rem
 }
 
-.custom-badge {
+/* .custom-badge {
     display: inline-block;
     padding: .35em .65em;
     font-size: .75em;
@@ -6567,6 +6567,21 @@ fieldset:disabled .btn {
     border-radius: 25px;
     border: 2px solid #00D4FF33;
     background-color: #0b2a55;
+} */
+
+.custom-badge {
+    display: inline-block;
+    padding: .35em .65em;
+    font-size: .75em;
+    font-weight: 700;
+    line-height: 1;
+    color: #FF4D4F;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 25px;
+    border: 2px solid #FF4D4F33;
+    background-color: #551111;
 }
 
 .badge:empty {
@@ -23212,6 +23227,72 @@ a.ratio {
     .acc-info .form-label {
         font-size: 13px;
         margin-bottom: 0
+    }
+}
+
+/* Custom Header Mobile Search */
+@media (max-width: 1199px) {
+    .header .header__wrapper {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0;
+        width: 100%;
+        z-index: 1030;
+        background-color: #2a84d0;
+        background: url("/images/header-bg.png") no-repeat center center;
+        background-size: cover;
+        box-shadow: 0 1px 8px rgba(0, 0, 0, .16);
+        transition: none !important; /* Loại bỏ hiệu ứng chuyển cảnh gây giật */
+    }
+
+    /* Đảm bảo trạng thái sticky không thay đổi thuộc tính trên mobile */
+    .header.is-sticky .header__wrapper {
+        top: 0 !important;
+        transition: none !important;
+    }
+
+    .header .header__logo {
+        display: block !important; /* Ép hiển thị logo */
+        margin-right: auto; /* Đẩy các icon khác sang bên phải */
+    }
+
+    .header .header__logo img {
+        height: 40px !important; /* Đảm bảo logo có chiều cao trên mobile */
+        width: auto;
+    }
+
+    .header .navigation__inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 5px 0;
+    }
+
+    /* Đảm bảo nội dung không bị header che mất */
+    body {
+        padding-top: 60px; /* Điều chỉnh tùy theo chiều cao header mobile */
+    }
+
+    .header .search {
+        display: none;
+        max-width: none;
+        width: 100%;
+        margin: 0 10px;
+    }
+
+    .header.is-search-active .header__logo {
+        display: none !important;
+    }
+
+    .header.is-search-active .search {
+        display: block !important;
+        flex: 1;
+    }
+
+    .header.is-search-active .js-search-btn,
+    .header.is-search-active .btn-toggle,
+    .header.is-search-active .h-dropdown {
+        display: none !important;
     }
 }
 

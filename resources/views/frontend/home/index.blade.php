@@ -364,10 +364,10 @@
                                     <div class="message-time">09:00</div>
                                 </div>
                             </div>
-                            <div class="chat-footer">
+                            <div class="chat-footer" style="pointer-events: none;">
                                 <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="{{ __('app.mockup_chat_input_placeholder') }}">
-                                    <button class="btn-send">
+                                    <input type="text" class="form-control" placeholder="{{ __('app.mockup_chat_input_placeholder') }}" readonly>
+                                    <button class="btn-send" disabled>
                                         <i class="fas fa-arrow-up"></i>
                                     </button>
                                 </div>

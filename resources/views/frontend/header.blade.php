@@ -69,9 +69,10 @@
                             <input class="form-control" name="keyword" type="text" placeholder="{{ __('app.search') }}"
                                 size="1" />
                             <button class="input-group-text"><i class="far fa-search"></i></button>
+                            <button class="input-group-text d-xl-none js-search-close" type="button"><i class="fal fa-times"></i></button>
                         </div>
                     </form>
-                    <button class="h-btn d-none d-xl-flex ms-1 js-search-btn" type="button"><i
+                    <button class="h-btn d-flex ms-1 js-search-btn" type="button"><i
                             class="fal fa-fw fa-lg fa-search"></i></button>
                     <div class="h-dropdown">
                         <div class="h-dropdown__toggle">
