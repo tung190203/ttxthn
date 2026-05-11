@@ -29,46 +29,71 @@ class ContentController extends Controller
         return view('backend.vrtour.content.index', compact('vrtour'));
     }
 
-    public function getDataAll(Request $request,$vrtour_id)
+    public function getDataAll(Request $request, $vrtour_id)
     {
-        $vrtour         = Project::find($vrtour_id);
-        $link_vrtour    = $vrtour->link_vrtour;
-        $panorama       = Panorama::where('vrtour_id', $vrtour_id)->get();
-        
-         if ($request->reset == 'true') {
-            Panorama::where('vrtour_id', $vrtour_id)->delete();
-        }
-        if (count($panorama) == 0) {
-            $pano            = getDataVrtour($link_vrtour.'vista3d/pano.json');
+        $vrtour      = Project::find($vrtour_id);
+        $link_vrtour = $vrtour->link_vrtour;
+        $panorama    = Panorama::where('vrtour_id', $vrtour_id)->get();
 
+        if ($request->reset == 'true' || $panorama->isEmpty()) {
+            $pano = getDataVrtour($link_vrtour . 'vista3d/pano.json');
             if (empty($pano)) {
-                return response()->json(['data' => "Hiện tại data pano không tồn tại"]);
+                return response()->json([
+                    'data' => 'Hiện tại data pano không tồn tại'
+                ]);
             }
-            foreach ($pano as $key => $pn) {
-                $new_pano                = new Panorama();
-                $new_pano->vrtour_id     = $vrtour_id;
-                $new_pano->ids           = json_encode($pn['ids']);
-                $new_pano->title         = $pn['title'];
-                $new_pano->user_id       = Auth::id();
-                $new_pano->save();
+            $dbPanoramas = $panorama->keyBy('title');
+            $jsonTitles  = [];
+            foreach ($pano as $pn) {
+                $title = $pn['title'];
+                $jsonTitles[] = $title;
+
+                if (isset($dbPanoramas[$title])) {
+                    $dbPanoramas[$title]->update([
+                        'ids' => json_encode($pn['ids'])
+                    ]);
+                } else {
+                    Panorama::create([
+                        'vrtour_id' => $vrtour_id,
+                        'ids'       => json_encode($pn['ids']),
+                        'title'     => $title,
+                        'user_id'   => Auth::id()
+                    ]);
+                }
             }
-            $panorama       = Panorama::where('vrtour_id', $vrtour_id)->get();
-            createFile('vrtour/'.$vrtour->vrtour_code, 'pano.js');
-            file_put_contents('vrtour/'.$vrtour->vrtour_code.'/pano.js', $panorama);
+
+            if ($request->reset == 'true') {
+                Panorama::where('vrtour_id', $vrtour_id)->whereNotIn('title', $jsonTitles)->delete();
+            }
+
+            $panorama = Panorama::where('vrtour_id', $vrtour_id)->get();
         }
+        createFile('vrtour/' . $vrtour->vrtour_code, 'pano.js');
+        file_put_contents(
+            'vrtour/' . $vrtour->vrtour_code . '/pano.js', $panorama
+        );
         $html = '';
         foreach ($panorama as $key => $pn) {
             $content = preg_replace('/<!--.*?-->/s', '', $pn->content);
-            $html .= '<tr>';
-            $html .= '<td>'.(++$key).'</td>';
-            $html .= '<td>'.$pn->title.'</td>';
-            $html .= '<td>'.mb_substr($content, 0, 100, "UTF-8").'...</td>';
-            $html .= '<td class="grid_row1">';
-            $html .=    '<a class="btn btn-info btn-sm mr-1" href="'.route('backend_vrtour_content_edit', $pn->id).'" title="Chỉnh sửa"><i class="fas fa-pencil-alt"></i></a>';
-            $html .= '</td>';
-            $html .= '</tr>';
+            $html .= '
+            <tr>
+                <td>' . (++$key) . '</td>
+                <td>' . $pn->title . '</td>
+                <td>' . mb_substr($content, 0, 100, "UTF-8") . '...</td>
+                <td class="grid_row1">
+                    <a class="btn btn-info btn-sm mr-1"
+                        href="' . route('backend_vrtour_content_edit', $pn->id) . '"
+                        title="Chỉnh sửa">
+                        <i class="fas fa-pencil-alt"></i>
+                    </a>
+                </td>
+            </tr>
+        ';
         }
-        return response()->json(['data' => $html]);
+
+        return response()->json([
+            'data' => $html
+        ]);
     }
 
     public function edit($id)
