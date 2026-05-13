@@ -13,6 +13,7 @@ DashBoard
     .visit-card {
         border-radius: 12px;
         transition: transform 0.2s;
+        height: calc(100% - 20px);
     }
     .visit-card:hover {
         transform: translateY(-5px);
