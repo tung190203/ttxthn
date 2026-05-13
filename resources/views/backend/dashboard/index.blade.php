@@ -685,8 +685,16 @@ DashBoard
                     </table>
                 </div>
             </div>
-            <div class="modal-footer bg-light">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+            <div class="modal-footer bg-light justify-content-between">
+                <div>
+                    <button type="button" class="btn btn-primary btn-sm" onclick="copyIpsToClipboard()">
+                        <i class="fas fa-copy mr-1"></i>Copy IP
+                    </button>
+                    <button type="button" class="btn btn-success btn-sm" onclick="exportTableToCSV('Danh_sach_IP_truy_cap.csv')">
+                        <i class="fas fa-file-excel mr-1"></i>Xuất Excel
+                    </button>
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Đóng</button>
             </div>
         </div>
     </div>
@@ -696,6 +704,56 @@ DashBoard
 @section('script')
 <script src="{{ asset('backend_assets/vendor/chart/Chart.min.js') }}"></script>
 <script>
+    function copyIpsToClipboard() {
+        var rows = document.querySelectorAll("#todayIpsModal table tbody tr");
+        var ips = [];
+        for (var i = 0; i < rows.length; i++) {
+            var cols = rows[i].querySelectorAll("td");
+            if (cols.length >= 2) {
+                var ipText = cols[1].innerText.trim();
+                if (ipText && ipText !== 'Chưa có dữ liệu truy cập hôm nay.') {
+                    ips.push(ipText);
+                }
+            }
+        }
+        if (ips.length === 0) {
+            if (typeof toastr !== 'undefined') toastr.info("Không có dữ liệu IP");
+            else alert("Không có dữ liệu IP");
+            return;
+        }
+        var text = ips.join('\n');
+        navigator.clipboard.writeText(text).then(function() {
+            if (typeof toastr !== 'undefined') toastr.success("Đã copy " + ips.length + " IP!");
+            else alert("Đã copy " + ips.length + " IP!");
+        }, function() {
+            alert("Copy thất bại");
+        });
+    }
+
+    function exportTableToCSV(filename) {
+        var csv = [];
+        var rows = document.querySelectorAll("#todayIpsModal table tr");
+        
+        for (var i = 0; i < rows.length; i++) {
+            var row = [], cols = rows[i].querySelectorAll("td, th");
+            // Bỏ qua cột STT nếu không muốn, nhưng để nguyên cũng ok.
+            for (var j = 0; j < cols.length; j++) {
+                var text = cols[j].innerText.replace(/"/g, '""').trim();
+                row.push('"' + text + '"');
+            }
+            csv.push(row.join(","));        
+        }
+
+        var csvFile = new Blob(["\uFEFF" + csv.join("\n")], {type: "text/csv;charset=utf-8;"});
+        var downloadLink = document.createElement("a");
+        downloadLink.download = filename;
+        downloadLink.href = window.URL.createObjectURL(csvFile);
+        downloadLink.style.display = "none";
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+    }
+
     $(function() {
         'use strict'
 
