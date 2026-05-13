@@ -139,12 +139,64 @@ DashBoard
         </div>
     </div>
 
-    <!-- Website Visitor Stats -->
+    <!-- NEW Website Visitor Stats -->
+    <div class="card card-outline card-primary shadow-none bg-transparent">
+        <div class="card-header border-0 pl-0">
+            <h3 class="card-title text-bold">
+                <i class="fas fa-users mr-2 text-primary"></i>
+                THỐNG KÊ LƯỢT TRUY CẬP QUAY LẠI
+            </h3>
+        </div>
+        <div class="card-body p-0">
+            <div class="row mb-4">
+                <div class="col-lg-4 col-12">
+                    <div class="small-box bg-white border shadow-sm visit-card">
+                        <div class="inner">
+                            <h3>{{ number_format($siteVisitorStats['total_visitors']) }}</h3>
+                            <p class="text-muted text-sm mb-0">Tổng số người truy cập (Unique IP)</p>
+                            <span class="text-xs text-primary"><i class="fas fa-user mr-1"></i>Số lượng IP riêng biệt</span>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-users text-light" style="opacity: 0.3;"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-12">
+                    <div class="small-box bg-white border shadow-sm visit-card" style="border-left: 4px solid #17a2b8 !important;">
+                        <div class="inner">
+                            <h3>{{ number_format($siteVisitorStats['visitors_today']) }}</h3>
+                            <p class="text-muted text-sm mb-0">Người truy cập hôm nay</p>
+                            <a href="javascript:void(0)" class="text-xs text-info mt-2 d-inline-block" data-toggle="modal" data-target="#todayIpsModal" style="text-decoration: underline;">
+                                <i class="fas fa-list mr-1"></i>Xem danh sách IP truy cập hôm nay
+                            </a>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-user-clock text-light" style="opacity: 0.3;"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-12">
+                    <div class="small-box bg-white border shadow-sm visit-card" style="border-left: 4px solid #28a745 !important;">
+                        <div class="inner">
+                            <h3>{{ number_format($siteVisitorStats['returning_visitors']) }}</h3>
+                            <p class="text-muted text-sm mb-0">Người dùng quay trở lại (Returning)</p>
+                            <span class="text-xs text-success"><i class="fas fa-undo mr-1"></i>IP truy cập từ 2 ngày trở lên</span>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-user-check text-light" style="opacity: 0.3;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Website Visitor Stats (Old) -->
     <div class="card card-outline card-success shadow-none bg-transparent">
         <div class="card-header border-0 pl-0">
             <h3 class="card-title text-bold">
                 <i class="fas fa-eye mr-2 text-success"></i>
-                THỐNG KÊ TRUY CẬP WEBSITE
+                THỐNG KÊ TỈ LỆ TRUY CẬP WEBSITE
             </h3>
         </div>
         <div class="card-body p-0">
@@ -585,6 +637,56 @@ DashBoard
                     <button type="submit" class="btn btn-success"><i class="fas fa-download mr-1"></i>Bắt đầu xuất dữ liệu</button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+<!-- Today IPs Modal -->
+<div class="modal fade" id="todayIpsModal" tabindex="-1" role="dialog" aria-labelledby="todayIpsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="todayIpsModalLabel"><i class="fas fa-list mr-2"></i>Danh sách IP truy cập hôm nay</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                    <table class="table table-striped table-hover mb-0">
+                        <thead class="thead-light" style="position: sticky; top: 0; z-index: 1;">
+                            <tr>
+                                <th>STT</th>
+                                <th>Địa chỉ IP</th>
+                                <th class="text-center">Số lượt truy cập</th>
+                                <th class="text-right">Truy cập lần đầu (trong ngày)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if(isset($todayIps) && count($todayIps) > 0)
+                                @foreach($todayIps as $index => $ipRecord)
+                                    <tr>
+                                        <td>{{ $index + 1 }}</td>
+                                        <td class="font-weight-bold">{{ $ipRecord->ip_address }}</td>
+                                        <td class="text-center">
+                                            <span class="badge badge-{{ $ipRecord->hits > 1 ? 'warning' : 'success' }}">
+                                                {{ $ipRecord->hits }} lượt
+                                            </span>
+                                        </td>
+                                        <td class="text-right text-muted">{{ $ipRecord->created_at->format('H:i:s') }}</td>
+                                    </tr>
+                                @endforeach
+                            @else
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-3">Chưa có dữ liệu truy cập hôm nay.</td>
+                                </tr>
+                            @endif
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+            </div>
         </div>
     </div>
 </div>
