@@ -128,6 +128,22 @@ class DashboardController extends Controller
                 'bots_today' => VisitLog::whereDate('created_at', $todayDate)->where('is_bot', true)->count(),
             ];
 
+            // New Site Visitor Stats (Not mixed with old logs)
+            $totalSiteVisitors = \App\Models\SiteVisitor::distinct('ip_address')->count('ip_address');
+            $returningVisitors = \App\Models\SiteVisitor::select('ip_address')
+                ->groupBy('ip_address')
+                ->havingRaw('COUNT(DISTINCT visit_date) >= 2')
+                ->get()
+                ->count();
+
+            $siteVisitorStats = [
+                'total_visitors' => $totalSiteVisitors,
+                'returning_visitors' => $returningVisitors,
+                'visitors_today' => \App\Models\SiteVisitor::whereDate('visit_date', $todayDate)->count(),
+            ];
+            
+            $todayIps = \App\Models\SiteVisitor::whereDate('visit_date', $todayDate)->orderBy('hits', 'desc')->get();
+
             // Historical Visit stats for the last 7 days
             $visitChartLabels = [];
             $visitChartData = [];
@@ -226,7 +242,9 @@ class DashboardController extends Controller
                 'botChartData',
                 'totalInvestment',
                 'projectStats',
-                'missingProjects'
+                'missingProjects',
+                'siteVisitorStats',
+                'todayIps'
             ));
         }
         $permissions = $user->getAllPermissionsFromGroup();
