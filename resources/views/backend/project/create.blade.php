@@ -138,6 +138,8 @@
                             :messages="$errors->get('is_pinned')" />
                         <x-forms.input name="pin_order" value="{{ old('pin_order') ?: $project->pin_order }}"
                             label="Thứ tự ghim dự án" :messages="$errors->get('pin_order')" />
+                        <x-forms.switch name="is_hidden" label="Ẩn dự án" value="{{ $project->is_hidden ?? 0 }}"
+                            :messages="$errors->get('is_hidden')" help="Nếu bật, dự án sẽ không hiển thị trên bản đồ và danh sách ngoài trang chủ" />
                         <x-forms.input name="link_vrtour" value="{{ old('link_vrtour') ?: $project->link_vrtour }}"
                             label="Link vrtour dự án" :messages="$errors->get('link_vrtour')" />
                             <div class="row mb-4">

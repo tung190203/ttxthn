@@ -82,7 +82,8 @@ class Project extends Model
         'view_num',
         'views_month',
         'views_month_code',
-        'boundary'
+        'boundary',
+        'is_hidden'
     ];
 
     public $translatable = [
@@ -240,6 +241,13 @@ class Project extends Model
                 $project->slug = Str::slug($project->name);
             }
         });
+
+        // Tự động ẩn dự án ở trang chủ/bản đồ nếu is_hidden = 1
+        if (!request()->is('backend*')) {
+            static::addGlobalScope('active', function ($builder) {
+                $builder->where('is_hidden', 0);
+            });
+        }
     }
 
     public static function makeOptionColumnButton(): array

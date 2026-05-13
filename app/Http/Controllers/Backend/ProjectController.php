@@ -119,6 +119,11 @@ class ProjectController extends Controller
         $clsDataGrid->addColumnLabel("districts", "Khu vực", "width='15%' nowrap", 1, '', function ($col, $val, $id, $row) {
             return collect($row->districts)->pluck('name')->implode(', ');
         });
+        $clsDataGrid->addColumnLabel("is_hidden", "Trạng thái", "width='5%' nowrap", 1, '', function ($col, $val, $id, $row) {
+            return $row->is_hidden 
+                ? "<span class='badge bg-danger'>Đang ẩn</span>" 
+                : "<span class='badge bg-success'>Đang hiện</span>";
+        });
         $clsDataGrid->addColumnDate("created_at", "Ngày tạo", "width='10%' nowrap", 'd-m-Y');
         $clsDataGrid->addColumnButton('id', '&nbsp', $option_column_button, "width='5%' nowrap ");
 
@@ -260,6 +265,7 @@ class ProjectController extends Controller
             'is_invest' => 'nullable|boolean',
             'is_pinned' => 'nullable|boolean',
             'pin_order' => 'nullable|integer|min:1',
+            'is_hidden' => 'nullable|boolean',
         ]);
 
         $validated = $request->validate($validationRules);
