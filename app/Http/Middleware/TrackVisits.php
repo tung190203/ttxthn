@@ -8,6 +8,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class TrackVisits
 {
+    use \App\Traits\DetectsBots;
+
     /**
      * Handle an incoming request.
      *
@@ -41,30 +43,6 @@ class TrackVisits
         return $next($request);
     }
 
-    /**
-     * Determine if the user agent belongs to a bot.
-     */
-    protected function isBot(string $userAgent): bool
-    {
-        if (empty($userAgent)) {
-            return true; // No user agent is often a bot
-        }
-
-        $bots = [
-            'bot', 'crawl', 'spider', 'slurp', 'google', 'bing', 'yandex', 'duckduck', 'baidu',
-            'ahrefs', 'semrush', 'dotbot', 'rogerbot', 'exabot', 'mj12bot', 'archive', 'pinger',
-            'screaming', 'headless', 'inspect', 'lighthouse', 'python', 'curl', 'wget', 'php',
-            'java', 'perl', 'ruby', 'go-http', 'urllib', 'httpclient', 'scrapy'
-        ];
-
-        $userAgent = strtolower($userAgent);
-
-        foreach ($bots as $bot) {
-            if (str_contains($userAgent, $bot)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
+    // Removed local isBot method as it's now in DetectsBots trait
 }
+
