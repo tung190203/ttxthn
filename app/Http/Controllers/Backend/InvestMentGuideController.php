@@ -196,6 +196,10 @@ public function save(InvestmentGuide $investment_guide, Request $request)
         'files_descs.*.*' => 'nullable|string',
 
         'published_at' => 'nullable|date',
+        'extracted_text' => 'nullable|string',
+        'extracted_summary' => 'nullable|string',
+        'extracted_language' => 'nullable|string|max:10',
+        'extracted_at' => 'nullable|date',
     ]);
 
     try {

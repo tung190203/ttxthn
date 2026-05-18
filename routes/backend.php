@@ -156,6 +156,8 @@ Route::localized(function () {
             Route::get('/chatbot/prompts', [SettingController::class, 'chatbotPrompts'])->name('backend_chatbot_prompts');
             Route::get('/chatbot/blacklist', [SettingController::class, 'chatbotBlacklist'])->name('backend_chatbot_blacklist');
             Route::get('/chatbot/sessions', [SettingController::class, 'chatbotSessions'])->name('backend_chatbot_sessions');
+            Route::get('/chatbot/knowledge', [SettingController::class, 'chatbotKnowledge'])->name('backend_chatbot_knowledge');
+            Route::get('/chatbot/usage', [SettingController::class, 'chatbotUsage'])->name('backend_chatbot_usage');
             Route::post('/save', [SettingController::class, 'save'])->name('backend_setting_save');
         });
 
@@ -164,6 +166,18 @@ Route::localized(function () {
             Route::post('/sync/settings', [ChatbotAdminController::class, 'updateSyncSettings']);
             Route::post('/sync/trigger', [ChatbotAdminController::class, 'triggerSync']);
             Route::post('/sync/swap', [ChatbotAdminController::class, 'swapSlots']);
+            Route::get('/sync/history', [ChatbotAdminController::class, 'getSyncHistory']);
+            Route::get('/extract/config', [ChatbotAdminController::class, 'getExtractConfig']);
+            Route::post('/extract', [ChatbotAdminController::class, 'extract']);
+            Route::get('/knowledge/config', [ChatbotAdminController::class, 'getKnowledgeConfig']);
+            Route::post('/knowledge', [ChatbotAdminController::class, 'createKnowledge']);
+            Route::get('/knowledge/jobs', [ChatbotAdminController::class, 'getKnowledgeJobs']);
+            Route::get('/knowledge/jobs/{jobId}', [ChatbotAdminController::class, 'getKnowledgeJob']);
+            Route::get('/knowledge', [ChatbotAdminController::class, 'getKnowledgeDocs']);
+            Route::get('/knowledge/{docId}', [ChatbotAdminController::class, 'getKnowledgeDoc']);
+            Route::delete('/knowledge/{docId}', [ChatbotAdminController::class, 'deleteKnowledgeDoc']);
+            Route::get('/usage', [ChatbotAdminController::class, 'getUsage']);
+            Route::get('/usage/summary', [ChatbotAdminController::class, 'getUsageSummary']);
 
             Route::get('/prompts', [ChatbotAdminController::class, 'getPrompts']);
             Route::put('/prompts/{key}/{language}', [ChatbotAdminController::class, 'updatePrompt']);

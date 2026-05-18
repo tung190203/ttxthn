@@ -7,6 +7,8 @@
         @case('prompts') Kịch bản (Prompts) @break
         @case('blacklist') Rào chắn (Blacklist) @break
         @case('sessions') Lịch sử & Insight @break
+        @case('knowledge') Tài liệu nội bộ @break
+        @case('usage') Token & chi phí @break
         @default Cấu hình Chatbot
     @endswitch
 @endsection
@@ -20,6 +22,8 @@
             @case('prompts') Kịch bản (Prompts) @break
             @case('blacklist') Rào chắn (Blacklist) @break
             @case('sessions') Lịch sử & Insight @break
+            @case('knowledge') Tài liệu nội bộ @break
+            @case('usage') Token & chi phí @break
         @endswitch
     </li>
 @endsection
@@ -267,6 +271,169 @@
                                             </div>
                                         </div>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+
+                        {{-- PHẦN KNOWLEDGE --}}
+                        @if($tab == 'knowledge')
+                        <div class="tab-pane fade show active" id="tab-knowledge" role="tabpanel">
+                            <div class="card premium-card">
+                                <div class="card-header glass-header">
+                                    <div class="d-flex justify-content-between align-items-center w-100">
+                                        <h4 class="font-weight-bold text-dark mb-0"><i class="fas fa-folder-open mr-2 text-primary"></i>Tài liệu nội bộ đưa thẳng vào AI</h4>
+                                        <button class="btn btn-sm btn-outline-secondary" id="btn-refresh-knowledge"><i class="fas fa-sync-alt"></i> Tải lại</button>
+                                    </div>
+                                </div>
+                                <div class="card-body p-4">
+                                    <div class="config-panel bg-light p-4 rounded-lg border mb-4">
+                                        <h6 class="font-weight-bold text-dark mb-3">Thêm tài liệu</h6>
+                                        <div class="row">
+                                            <div class="col-lg-4">
+                                                <div class="form-group">
+                                                    <label class="text-sm font-weight-bold text-muted">Tiêu đề/citation</label>
+                                                    <input type="text" class="form-control rounded-md" id="knowledge-title" placeholder="VD: Cẩm nang đầu tư FDI 2026">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-4">
+                                                <div class="form-group">
+                                                    <label class="text-sm font-weight-bold text-muted">File đã lưu trong CKFinder</label>
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control" id="knowledge-file-url" readonly placeholder="/storage/.../files/tai-lieu.pdf">
+                                                        <div class="input-group-append">
+                                                            <button class="btn btn-outline-primary" id="btn-knowledge-browse" type="button"><i class="fas fa-folder-open mr-1"></i> Chọn</button>
+                                                        </div>
+                                                    </div>
+                                                    <small class="text-muted">Chọn file hoặc nhập text bên dưới. Không dùng cả hai.</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-2 col-md-6">
+                                                <div class="form-group">
+                                                    <label class="text-sm font-weight-bold text-muted">Ngôn ngữ</label>
+                                                    <select class="form-control" id="knowledge-language">
+                                                        <option value="auto">Tự nhận diện</option>
+                                                        <option value="vi">Tiếng Việt</option>
+                                                        <option value="en">Tiếng Anh</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-2 col-md-6">
+                                                <div class="form-group">
+                                                    <label class="text-sm font-weight-bold text-muted">Tóm tắt</label>
+                                                    <select class="form-control" id="knowledge-summary-mode">
+                                                        <option value="none">Không tóm tắt</option>
+                                                        <option value="auto">Tự động</option>
+                                                        <option value="short">Ngắn</option>
+                                                        <option value="normal">Bình thường</option>
+                                                        <option value="detailed">Chi tiết</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group mb-3">
+                                            <label class="text-sm font-weight-bold text-muted">Hoặc paste text trực tiếp</label>
+                                            <textarea class="form-control" id="knowledge-text" rows="5" placeholder="Nội dung tài liệu nội bộ..."></textarea>
+                                        </div>
+                                        <button class="btn btn-primary rounded-md px-4" id="btn-create-knowledge"><i class="fas fa-upload mr-2"></i>Đưa vào AI</button>
+                                        <span class="text-xs text-muted ml-2">API trả job_id ngay, worker xử lý nền. Bảng jobs sẽ tự cập nhật.</span>
+                                    </div>
+
+                                    <ul class="nav nav-tabs modern-tabs mb-3" role="tablist">
+                                        <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#knowledge-jobs-pane">Jobs</a></li>
+                                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#knowledge-docs-pane">Đã indexed</a></li>
+                                    </ul>
+                                    <div class="tab-content">
+                                        <div class="tab-pane fade show active" id="knowledge-jobs-pane">
+                                            <div id="knowledge-jobs-container" class="text-center py-5"><div class="spinner-grow text-primary"></div></div>
+                                        </div>
+                                        <div class="tab-pane fade" id="knowledge-docs-pane">
+                                            <div id="knowledge-docs-container" class="text-center py-5"><div class="spinner-grow text-primary"></div></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+
+                        {{-- PHẦN USAGE --}}
+                        @if($tab == 'usage')
+                        <div class="tab-pane fade show active" id="tab-usage" role="tabpanel">
+                            <div class="card premium-card">
+                                <div class="card-header glass-header">
+                                    <div class="d-flex justify-content-between align-items-center w-100">
+                                        <h4 class="font-weight-bold text-dark mb-0"><i class="fas fa-coins mr-2 text-primary"></i>Token & chi phí AI</h4>
+                                        <div>
+                                            <button type="submit" form="usageAlertSettingsForm" class="btn btn-sm btn-primary mr-2"><i class="fas fa-save mr-1"></i>Lưu alert</button>
+                                            <button class="btn btn-sm btn-outline-secondary" id="btn-refresh-usage"><i class="fas fa-sync-alt"></i> Tải lại</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body p-4">
+                                    <form action="{{ route('backend_setting_save') }}" method="post" id="usageAlertSettingsForm" class="mb-4">
+                                        @csrf
+                                        <div class="border rounded-lg p-3 bg-light">
+                                            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+                                                <div>
+                                                    <h6 class="font-weight-bold mb-1"><i class="fas fa-bell mr-2 text-warning"></i>Cảnh báo vượt ngưỡng cost</h6>
+                                                    <div class="text-muted small">Hệ thống kiểm tra mỗi giờ, gửi mail khi cost 24h vượt ngưỡng. Mỗi ngày gửi tối đa 1 lần cho cảnh báo cost.</div>
+                                                </div>
+                                                <div class="custom-control custom-switch mt-2 mt-md-0">
+                                                    <input type="hidden" name="settings[ai_usage_alert_enabled]" value="0">
+                                                    <input type="checkbox" class="custom-control-input" id="ai_usage_alert_enabled" name="settings[ai_usage_alert_enabled]" value="1" {{ !empty($settings['ai_usage_alert_enabled']) && (string) $settings['ai_usage_alert_enabled'] === '1' ? 'checked' : '' }}>
+                                                    <label class="custom-control-label font-weight-bold" for="ai_usage_alert_enabled">Bật alert</label>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-4 mb-3 mb-md-0">
+                                                    <label class="font-weight-bold small text-muted">Ngưỡng cost 24h (USD)</label>
+                                                    <input type="number" min="0" step="0.000001" class="form-control" name="settings[ai_usage_alert_threshold_24h]" value="{{ $settings['ai_usage_alert_threshold_24h'] ?? '1.000000' }}" placeholder="1.000000">
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <label class="font-weight-bold small text-muted">Email nhận cảnh báo</label>
+                                                    <input type="text" class="form-control" name="settings[ai_usage_alert_emails]" value="{{ $settings['ai_usage_alert_emails'] ?? ($settings['email'] ?? '') }}" placeholder="admin@example.com, tech@example.com">
+                                                    <small class="text-muted">Có thể nhập nhiều email, cách nhau bằng dấu phẩy.</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                    <div class="row mb-4" id="usage-summary-cards">
+                                        <div class="col-md-3 mb-3"><div class="p-3 bg-light rounded border"><div class="text-muted text-xs">24h</div><div class="h4 mb-0" id="usage-cost-24h">$0.000000</div></div></div>
+                                        <div class="col-md-3 mb-3"><div class="p-3 bg-light rounded border"><div class="text-muted text-xs">7 ngày</div><div class="h4 mb-0" id="usage-cost-7d">$0.000000</div></div></div>
+                                        <div class="col-md-3 mb-3"><div class="p-3 bg-light rounded border"><div class="text-muted text-xs">30 ngày</div><div class="h4 mb-0" id="usage-cost-30d">$0.000000</div></div></div>
+                                        <div class="col-md-3 mb-3"><div class="p-3 bg-light rounded border"><div class="text-muted text-xs">Tổng tokens</div><div class="h4 mb-0" id="usage-total-tokens">0</div></div></div>
+                                    </div>
+                                    <div class="filter-bar bg-light p-3 rounded-lg mb-4 border d-flex flex-wrap align-items-center">
+                                        <select class="form-control form-control-sm mr-2 mb-2" id="usage-feature" style="width: 150px;">
+                                            <option value="">Tất cả feature</option>
+                                            <option value="chat">Chat</option>
+                                            <option value="extract">Extract</option>
+                                            <option value="knowledge">Knowledge</option>
+                                            <option value="sync">Sync</option>
+                                        </select>
+                                        <select class="form-control form-control-sm mr-2 mb-2" id="usage-phase" style="width: 150px;">
+                                            <option value="">Tất cả phase</option>
+                                            <option value="llm">LLM</option>
+                                            <option value="ocr">OCR</option>
+                                            <option value="summary">Summary</option>
+                                            <option value="embedding">Embedding</option>
+                                        </select>
+                                        <input type="date" class="form-control form-control-sm mr-2 mb-2" id="usage-date-from" style="width: 160px;">
+                                        <input type="date" class="form-control form-control-sm mr-2 mb-2" id="usage-date-to" style="width: 160px;">
+                                        <button class="btn btn-sm btn-primary mb-2" id="btn-apply-usage-filter"><i class="fas fa-filter mr-1"></i>Lọc</button>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-6 mb-4">
+                                            <h6 class="font-weight-bold">Breakdown theo feature</h6>
+                                            <div id="usage-feature-breakdown" class="table-responsive"></div>
+                                        </div>
+                                        <div class="col-lg-6 mb-4">
+                                            <h6 class="font-weight-bold">Breakdown theo model</h6>
+                                            <div id="usage-model-breakdown" class="table-responsive"></div>
+                                        </div>
+                                    </div>
+                                    <h6 class="font-weight-bold">Chi tiết usage</h6>
+                                    <div id="usage-items-container" class="text-center py-5"><div class="spinner-grow text-primary"></div></div>
                                 </div>
                             </div>
                         </div>

@@ -26,6 +26,14 @@ class AiChatService
         ]);
     }
 
+    protected function multipartClient()
+    {
+        return Http::withHeaders([
+            'X-API-Key' => $this->apiKey,
+            'X-Admin-API-Key' => $this->apiAdminKey,
+        ]);
+    }
+
     public function sendFeedback($data)
     {
         return $this->client()->post($this->baseUrl . '/api/v1/chat/feedback', [
@@ -40,6 +48,97 @@ class AiChatService
     public function chat(array $payload)
     {
         return $this->client()->post($this->baseUrl . '/api/v1/chat', $payload);
+    }
+
+    public function extractContent($file, string $summaryMode = 'auto', string $language = 'auto')
+    {
+        return $this->multipartClient()
+            ->attach('file', fopen($file->getRealPath(), 'r'), $file->getClientOriginalName())
+            ->post($this->baseUrl . '/api/v1/admin/extract', [
+                'summary_mode' => $summaryMode,
+                'language' => $language,
+            ]);
+    }
+
+    public function extractContentFromPath(string $path, ?string $filename = null, string $summaryMode = 'auto', string $language = 'auto')
+    {
+        return $this->multipartClient()
+            ->attach('file', fopen($path, 'r'), $filename ?: basename($path))
+            ->post($this->baseUrl . '/api/v1/admin/extract', [
+                'summary_mode' => $summaryMode,
+                'language' => $language,
+            ]);
+    }
+
+    public function getExtractConfig()
+    {
+        return $this->client()->get($this->baseUrl . '/api/v1/admin/extract/config');
+    }
+
+    public function createKnowledgeFromPath(string $path, ?string $filename = null, array $data = [])
+    {
+        return $this->multipartClient()
+            ->attach('file', fopen($path, 'r'), $filename ?: basename($path))
+            ->post($this->baseUrl . '/api/v1/admin/knowledge', array_filter([
+                'title' => $data['title'] ?? null,
+                'language' => $data['language'] ?? 'auto',
+                'summary_mode' => $data['summary_mode'] ?? 'none',
+            ], fn ($value) => $value !== null && $value !== ''));
+    }
+
+    public function createKnowledgeFromText(array $data)
+    {
+        return $this->multipartClient()->asMultipart()->post($this->baseUrl . '/api/v1/admin/knowledge', array_filter([
+            'text' => $data['text'] ?? '',
+            'title' => $data['title'] ?? null,
+            'language' => $data['language'] ?? 'auto',
+            'summary_mode' => $data['summary_mode'] ?? 'none',
+        ], fn ($value) => $value !== null && $value !== ''));
+    }
+
+    public function getKnowledgeConfig()
+    {
+        return $this->client()->get($this->baseUrl . '/api/v1/admin/knowledge-config');
+    }
+
+    public function getKnowledgeJobs(array $params = [])
+    {
+        return $this->client()->get($this->baseUrl . '/api/v1/admin/knowledge/jobs', $params);
+    }
+
+    public function getKnowledgeJob(string $jobId)
+    {
+        return $this->client()->get($this->baseUrl . "/api/v1/admin/knowledge/jobs/{$jobId}");
+    }
+
+    public function getKnowledgeDocs(array $params = [])
+    {
+        return $this->client()->get($this->baseUrl . '/api/v1/admin/knowledge', $params);
+    }
+
+    public function getKnowledgeDoc(string $docId)
+    {
+        return $this->client()->get($this->baseUrl . "/api/v1/admin/knowledge/{$docId}");
+    }
+
+    public function deleteKnowledgeDoc(string $docId)
+    {
+        return $this->client()->delete($this->baseUrl . "/api/v1/admin/knowledge/{$docId}");
+    }
+
+    public function getAdminUsage(array $params = [])
+    {
+        return $this->client()->get($this->baseUrl . '/api/v1/admin/usage', $params);
+    }
+
+    public function getAdminUsageSummary(array $params = [])
+    {
+        return $this->client()->get($this->baseUrl . '/api/v1/admin/usage/summary', $params);
+    }
+
+    public function getAdminSyncHistory(array $params = [])
+    {
+        return $this->client()->get($this->baseUrl . '/api/v1/admin/sync/history', $params);
     }
 
     public function getSessionHistory($sessionId)

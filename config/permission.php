@@ -136,6 +136,8 @@ return [
         'items' => [
             'basic' => 'Cài đặt Cơ bản',
             'sync' => 'Đồng bộ Trí thức',
+            'knowledge' => 'Tài liệu nội bộ',
+            'usage' => 'Token & chi phí',
             'prompts' => 'Kịch bản',
             'blacklist' => 'Rào chắn',
             'sessions' => 'Lịch sử & Insight',
