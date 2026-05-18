@@ -193,6 +193,10 @@ class PostController extends Controller
             'files_descs' => 'nullable|array',
             'files_descs.*' => 'nullable|array', // Mảng mô tả cho từng locale
             'files_descs.*.*' => 'nullable|string',
+            'extracted_text' => 'nullable|string',
+            'extracted_summary' => 'nullable|string',
+            'extracted_language' => 'nullable|string|max:10',
+            'extracted_at' => 'nullable|date',
         ]);
     
         try {

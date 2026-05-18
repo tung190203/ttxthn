@@ -43,6 +43,7 @@ return [
         'api_key' => env('AI_CHAT_API_KEY'),
         'api_admin_key' => env('AI_CHAT_ADMIN_KEY'),
         'api_url' => env('AI_CHAT_API_URL'),
+        'webhook_secret' => env('TTXT_WEBHOOK_SECRET'),
     ],
     'maptiler' => [
         'key' => env('MAPTILER_KEY'),

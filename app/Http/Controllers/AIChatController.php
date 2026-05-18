@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AiUsageLog;
 use App\Services\AiChatService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 
 class AIChatController extends Controller
 {
@@ -26,8 +28,24 @@ class AIChatController extends Controller
         }
 
         $response = $this->aiChatService->chat($payload);
+        $body = $response->json() ?? [];
 
-        return response()->json($response->json());
+        if ($response->successful()) {
+            $tokens = (array) Arr::get($body, 'tokens', []);
+
+            AiUsageLog::create([
+                'endpoint' => '/chat',
+                'user_id' => optional(auth('web')->user())->id ?: optional(auth('guest')->user())->id,
+                'model_used' => Arr::get($body, 'model_used') ?: Arr::get($tokens, 'model'),
+                'input_tokens' => (int) (Arr::get($tokens, 'input') ?? Arr::get($tokens, 'input_tokens') ?? 0),
+                'output_tokens' => (int) (Arr::get($tokens, 'output') ?? Arr::get($tokens, 'output_tokens') ?? 0),
+                'cost_usd' => (float) (Arr::get($tokens, 'cost_usd') ?? Arr::get($body, 'cost_usd') ?? 0),
+                'payload_json' => $body,
+                'called_at' => now(),
+            ]);
+        }
+
+        return response()->json($body, $response->status());
     }
 
     public function sessionHistory($sessionId)
