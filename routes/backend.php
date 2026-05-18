@@ -158,6 +158,7 @@ Route::localized(function () {
             Route::get('/chatbot/sessions', [SettingController::class, 'chatbotSessions'])->name('backend_chatbot_sessions');
             Route::get('/chatbot/knowledge', [SettingController::class, 'chatbotKnowledge'])->name('backend_chatbot_knowledge');
             Route::get('/chatbot/usage', [SettingController::class, 'chatbotUsage'])->name('backend_chatbot_usage');
+            Route::get('/chatbot/webhooks', [AIChatMonitorController::class, 'webhookHistory'])->name('backend_chatbot_webhooks');
             Route::post('/save', [SettingController::class, 'save'])->name('backend_setting_save');
         });
 
