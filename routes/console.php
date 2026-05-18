@@ -12,3 +12,4 @@ Artisan::command('inspire', function () {
 use Illuminate\Support\Facades\Schedule;
 
 Schedule::command('logs:rotate')->quarterly();
+Schedule::command('ai:usage-cost-alert')->hourly();

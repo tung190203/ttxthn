@@ -66,6 +66,10 @@ class Post extends Model
         'is_draft',
         'parent_id',
         'status_approve',
+        'extracted_text',
+        'extracted_summary',
+        'extracted_language',
+        'extracted_at',
     ];
 
     public $translatable = [

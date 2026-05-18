@@ -15,6 +15,8 @@ $(function() {
             case 'prompts': loadPrompts(); break;
             case 'blacklist': loadBlacklistGroups(); break;
             case 'sessions': loadSessions(); break;
+            case 'knowledge': loadKnowledgeDashboard(); break;
+            case 'usage': loadUsageDashboard(); break;
         }
     };
 
@@ -26,6 +28,8 @@ $(function() {
         else if (target === '#bl-logs') loadBlacklistLogs();
         else if (target === '#sess-list') loadSessions();
         else if (target === '#sess-feedback') loadFeedbacks();
+        else if (target === '#knowledge-jobs-pane') loadKnowledgeJobs();
+        else if (target === '#knowledge-docs-pane') loadKnowledgeDocs();
     });
 
     // --- SYNC ---
@@ -651,6 +655,379 @@ $(function() {
         }).fail(function() {
             $('#feedback-container').html('<div class="text-center text-danger py-4">Lỗi tải dữ liệu Feedbacks.</div>');
         });
+    }
+
+    // --- KNOWLEDGE ---
+    var knowledgePollTimer = null;
+    var knowledgeJobsPage = 1;
+    var knowledgeDocsPage = 1;
+    var knowledgePageSize = 10;
+    var usagePage = 1;
+    var usagePageSize = 10;
+
+    function selectKnowledgeFile() {
+        if (typeof CKFinder === 'undefined') {
+            toastr.error('CKFinder chưa được tải.');
+            return;
+        }
+        CKFinder.popup({
+            chooseFiles: true,
+            width: 900,
+            height: 650,
+            onInit: function(finder) {
+                finder.on('files:choose', function(evt) {
+                    var file = evt.data.files.first();
+                    $('#knowledge-file-url').val(file.getUrl());
+                    $('#knowledge-text').val('');
+                });
+                finder.on('file:choose:resizedImage', function(evt) {
+                    $('#knowledge-file-url').val(evt.data.resizedUrl);
+                    $('#knowledge-text').val('');
+                });
+            }
+        });
+    }
+
+    window.loadKnowledgeDashboard = function() {
+        loadKnowledgeJobs(true, 1);
+        loadKnowledgeDocs(1);
+    };
+
+    $('#btn-knowledge-browse').on('click', selectKnowledgeFile);
+    $('#btn-refresh-knowledge').on('click', loadKnowledgeDashboard);
+    $('#knowledge-text').on('input', function() {
+        if ($(this).val().trim()) $('#knowledge-file-url').val('');
+    });
+
+    $('#btn-create-knowledge').on('click', function() {
+        var fileUrl = $('#knowledge-file-url').val().trim();
+        var text = $('#knowledge-text').val().trim();
+        if (!fileUrl && !text) {
+            toastr.warning('Vui lòng chọn file CKFinder hoặc nhập text.');
+            return;
+        }
+        if (fileUrl && text) {
+            toastr.warning('Chỉ dùng file hoặc text, không dùng cả hai.');
+            return;
+        }
+
+        var btn = $(this);
+        btn.html('<i class="fas fa-spinner fa-spin mr-2"></i>Đang gửi...').prop('disabled', true);
+        $.post('/backend/chatbot-admin/knowledge', {
+            file_url: fileUrl || undefined,
+            text: text || undefined,
+            title: $('#knowledge-title').val(),
+            language: $('#knowledge-language').val(),
+            summary_mode: $('#knowledge-summary-mode').val(),
+            _token: CSRF_TOKEN
+        }, function(res) {
+            toastr.success('Đã enqueue job: ' + (res.job_id || ''));
+            $('#knowledge-title').val('');
+            $('#knowledge-file-url').val('');
+            $('#knowledge-text').val('');
+            loadKnowledgeJobs(true, 1);
+            startKnowledgePolling();
+        }).fail(function(xhr) {
+            toastr.error(extractErrorMessage(xhr, 'Không thể enqueue tài liệu.'));
+        }).always(function() {
+            btn.html('<i class="fas fa-upload mr-2"></i>Đưa vào AI').prop('disabled', false);
+        });
+    });
+
+    function startKnowledgePolling() {
+        if (knowledgePollTimer) clearInterval(knowledgePollTimer);
+        knowledgePollTimer = setInterval(function() {
+            if (!document.getElementById('tab-knowledge')) {
+                clearInterval(knowledgePollTimer);
+                knowledgePollTimer = null;
+                return;
+            }
+            loadKnowledgeJobs(false, knowledgeJobsPage);
+        }, 5000);
+    }
+
+    function loadKnowledgeJobs(showSpinner, page) {
+        knowledgeJobsPage = page || knowledgeJobsPage || 1;
+        if (showSpinner !== false) {
+            $('#knowledge-jobs-container').html('<div class="text-center py-5"><div class="spinner-grow text-primary"></div></div>');
+        }
+        $.get('/backend/chatbot-admin/knowledge/jobs', { limit: knowledgePageSize, offset: (knowledgeJobsPage - 1) * knowledgePageSize }, function(res) {
+            var items = res.items || res.jobs || [];
+            var html = '<div class="table-responsive"><table class="table table-modern table-sm"><thead><tr><th>Job</th><th>Tiêu đề</th><th>Status</th><th>Doc</th><th>Thời gian</th></tr></thead><tbody>';
+            if (!items.length) {
+                html += '<tr><td colspan="5" class="text-center text-muted py-4">Chưa có job nào.</td></tr>';
+            }
+            items.forEach(function(job) {
+                var status = job.status || job.job_status || 'queued';
+                var badgeClass = status === 'completed' ? 'badge-success' : (status === 'failed' ? 'badge-danger' : 'badge-warning');
+                html += `<tr>
+                    <td><code>${job.job_id || job.id || '-'}</code></td>
+                    <td>${escapeHtml(job.title || job.source_filename || '-')}</td>
+                    <td><span class="badge ${badgeClass}">${status}</span></td>
+                    <td>${job.doc_id ? `<code>${job.doc_id}</code>` : '-'}</td>
+                    <td class="text-muted">${formatDateTime(job.finished_at || job.started_at || job.queued_at || job.created_at)}</td>
+                </tr>`;
+            });
+            html += '</tbody></table></div>';
+            html += renderPagination('knowledge-jobs', knowledgeJobsPage, knowledgePageSize, res.total, items.length);
+            $('#knowledge-jobs-container').html(html);
+        }).fail(function(xhr) {
+            $('#knowledge-jobs-container').html('<div class="text-danger py-4">' + extractErrorMessage(xhr, 'Không thể tải jobs.') + '</div>');
+        });
+    }
+
+    function loadKnowledgeDocs(page) {
+        knowledgeDocsPage = page || knowledgeDocsPage || 1;
+        $('#knowledge-docs-container').html('<div class="text-center py-5"><div class="spinner-grow text-primary"></div></div>');
+        $.get('/backend/chatbot-admin/knowledge', { limit: knowledgePageSize, offset: (knowledgeDocsPage - 1) * knowledgePageSize }, function(res) {
+            var items = res.items || res.docs || res.documents || [];
+            var html = '<div class="table-responsive"><table class="table table-modern table-sm"><thead><tr><th>Doc</th><th>Tiêu đề</th><th>Chunks</th><th>Ngôn ngữ</th><th></th></tr></thead><tbody>';
+            if (!items.length) {
+                html += '<tr><td colspan="5" class="text-center text-muted py-4">Chưa có tài liệu indexed.</td></tr>';
+            }
+            items.forEach(function(doc) {
+                html += `<tr>
+                    <td><code>${doc.doc_id || doc.id || '-'}</code></td>
+                    <td>${escapeHtml(doc.title || doc.source_filename || '-')}</td>
+                    <td>${doc.chunk_count || 0}</td>
+                    <td>${doc.language_detected || doc.language || '-'}</td>
+                    <td class="text-right">
+                        <button class="btn btn-sm btn-light text-danger btn-delete-knowledge-doc" data-id="${doc.doc_id || doc.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>`;
+            });
+            html += '</tbody></table></div>';
+            html += renderPagination('knowledge-docs', knowledgeDocsPage, knowledgePageSize, res.total, items.length);
+            $('#knowledge-docs-container').html(html);
+        }).fail(function(xhr) {
+            $('#knowledge-docs-container').html('<div class="text-danger py-4">' + extractErrorMessage(xhr, 'Không thể tải tài liệu.') + '</div>');
+        });
+    }
+
+    $(document).on('click', '.js-page-btn', function() {
+        var target = $(this).data('target');
+        var page = parseInt($(this).data('page'));
+        if (!page || page < 1) return;
+
+        if (target === 'knowledge-jobs') loadKnowledgeJobs(true, page);
+        if (target === 'knowledge-docs') loadKnowledgeDocs(page);
+        if (target === 'usage-items') loadUsageItems(page);
+    });
+
+    $(document).on('click', '.btn-delete-knowledge-doc', function() {
+        var docId = $(this).data('id');
+        if (!docId) return;
+
+        showConfirmDialog({
+            title: 'Xóa tài liệu khỏi AI?',
+            message: 'Tài liệu sẽ bị xóa khỏi index AI và chatbot sẽ không còn dùng nội dung này để trả lời.',
+            confirmText: 'Xóa khỏi AI',
+            confirmClass: 'btn-danger',
+            iconClass: 'fas fa-trash-alt text-danger'
+        }).then(function(confirmed) {
+            if (!confirmed) return;
+            $.ajax({
+                url: '/backend/chatbot-admin/knowledge/' + encodeURIComponent(docId),
+                type: 'DELETE',
+                data: { _token: CSRF_TOKEN },
+                success: function() {
+                    toastr.success('Đã xóa tài liệu khỏi AI.');
+                    loadKnowledgeDocs(knowledgeDocsPage);
+                },
+                error: function(xhr) {
+                    toastr.error(extractErrorMessage(xhr, 'Không thể xóa tài liệu.'));
+                }
+            });
+        });
+    });
+
+    // --- USAGE ---
+    window.loadUsageDashboard = function() {
+        loadUsageSummary();
+        loadUsageItems(1);
+    };
+
+    $('#btn-refresh-usage').on('click', function() {
+        loadUsageSummary();
+        loadUsageItems(usagePage);
+    });
+    $('#btn-apply-usage-filter').on('click', loadUsageDashboard);
+
+    function usageFilters(includePagination) {
+        var params = {};
+        if (includePagination) {
+            params.limit = usagePageSize;
+            params.offset = (usagePage - 1) * usagePageSize;
+        }
+        if ($('#usage-feature').val()) params.feature = $('#usage-feature').val();
+        if ($('#usage-phase').val()) params.phase = $('#usage-phase').val();
+        if ($('#usage-date-from').val()) params.date_from = $('#usage-date-from').val() + 'T00:00:00Z';
+        if ($('#usage-date-to').val()) params.date_to = $('#usage-date-to').val() + 'T23:59:59Z';
+        return params;
+    }
+
+    function loadUsageSummary() {
+        $.get('/backend/chatbot-admin/usage/summary', usageFilters(false), function(res) {
+            var byWindow = res.by_window || {};
+            $('#usage-cost-24h').text(formatUsd(byWindow['24h'] ? byWindow['24h'].cost_usd : 0));
+            $('#usage-cost-7d').text(formatUsd(byWindow['7d'] ? byWindow['7d'].cost_usd : 0));
+            $('#usage-cost-30d').text(formatUsd(byWindow['30d'] ? byWindow['30d'].cost_usd : res.total_cost_usd || 0));
+            $('#usage-total-tokens').text(Number(res.total_tokens || 0).toLocaleString('vi-VN'));
+            renderUsageBreakdown('#usage-feature-breakdown', res.by_feature || []);
+            renderUsageBreakdown('#usage-model-breakdown', res.by_model || []);
+        }).fail(function(xhr) {
+            toastr.error(extractErrorMessage(xhr, 'Không thể tải usage summary.'));
+        });
+    }
+
+    function loadUsageItems(page) {
+        usagePage = page || usagePage || 1;
+        $('#usage-items-container').html('<div class="text-center py-5"><div class="spinner-grow text-primary"></div></div>');
+        $.get('/backend/chatbot-admin/usage', usageFilters(true), function(res) {
+            var items = res.items || [];
+            var html = '<div class="table-responsive"><table class="table table-modern table-sm"><thead><tr><th>Thời gian</th><th>Feature</th><th>Phase</th><th>Model</th><th>Tokens</th><th>Cost</th></tr></thead><tbody>';
+            if (!items.length) {
+                html += '<tr><td colspan="6" class="text-center text-muted py-4">Không có dữ liệu usage.</td></tr>';
+            }
+            items.forEach(function(item) {
+                var tokens = (item.total_tokens !== undefined) ? item.total_tokens : ((item.input_tokens || 0) + (item.output_tokens || 0));
+                html += `<tr>
+                    <td class="text-muted">${formatDateTime(item.created_at)}</td>
+                    <td><span class="badge badge-light border">${item.feature || item.endpoint || '-'}</span></td>
+                    <td>${item.phase || '-'}</td>
+                    <td><code>${item.model || item.model_used || '-'}</code></td>
+                    <td>${Number(tokens || 0).toLocaleString('vi-VN')}</td>
+                    <td class="font-weight-bold">${formatUsd(item.cost_usd || 0)}</td>
+                </tr>`;
+            });
+            html += '</tbody></table></div>';
+            html += renderPagination('usage-items', usagePage, usagePageSize, res.total, items.length);
+            $('#usage-items-container').html(html);
+        }).fail(function(xhr) {
+            $('#usage-items-container').html('<div class="text-danger py-4">' + extractErrorMessage(xhr, 'Không thể tải usage.') + '</div>');
+        });
+    }
+
+    function renderUsageBreakdown(target, items) {
+        var html = '<table class="table table-sm table-modern"><thead><tr><th>Key</th><th>Rows</th><th>Tokens</th><th>Cost</th></tr></thead><tbody>';
+        if (!items.length) html += '<tr><td colspan="4" class="text-muted text-center">Không có dữ liệu.</td></tr>';
+        items.forEach(function(item) {
+            html += `<tr>
+                <td><code>${item.key || '-'}</code></td>
+                <td>${Number(item.rows || 0).toLocaleString('vi-VN')}</td>
+                <td>${Number(item.total_tokens || 0).toLocaleString('vi-VN')}</td>
+                <td class="font-weight-bold">${formatUsd(item.cost_usd || 0)}</td>
+            </tr>`;
+        });
+        html += '</tbody></table>';
+        $(target).html(html);
+    }
+
+    function renderPagination(target, currentPage, pageSize, total, currentCount) {
+        var knownTotal = Number(total || 0);
+        var hasKnownTotal = knownTotal > 0;
+        var totalPages = hasKnownTotal ? Math.max(1, Math.ceil(knownTotal / pageSize)) : currentPage + (currentCount >= pageSize ? 1 : 0);
+        var prevDisabled = currentPage <= 1 ? 'disabled' : '';
+        var nextDisabled = hasKnownTotal ? (currentPage >= totalPages ? 'disabled' : '') : (currentCount < pageSize ? 'disabled' : '');
+        var from = currentCount ? ((currentPage - 1) * pageSize + 1) : 0;
+        var to = (currentPage - 1) * pageSize + currentCount;
+        var totalText = hasKnownTotal ? ` / ${knownTotal.toLocaleString('vi-VN')}` : '';
+
+        return `
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <div class="text-muted text-sm">Hiển thị ${from}-${to}${totalText}</div>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-sm btn-outline-secondary js-page-btn" data-target="${target}" data-page="${currentPage - 1}" ${prevDisabled}>
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-light border" disabled>Trang ${currentPage}${hasKnownTotal ? ' / ' + totalPages : ''}</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary js-page-btn" data-target="${target}" data-page="${currentPage + 1}" ${nextDisabled}>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    function showConfirmDialog(options) {
+        var modalId = 'aiConfirmModal';
+        var modal = $('#' + modalId);
+        if (!modal.length) {
+            $('body').append(`
+                <div class="modal fade" id="${modalId}" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content border-0 shadow">
+                            <div class="modal-body p-4">
+                                <div class="d-flex align-items-start">
+                                    <div class="ai-confirm-icon mr-3">
+                                        <i class="fas fa-exclamation-triangle text-warning"></i>
+                                    </div>
+                                    <div class="flex-fill">
+                                        <h5 class="modal-title mb-2 js-confirm-title">Xác nhận thao tác</h5>
+                                        <p class="text-muted mb-0 js-confirm-message">Bạn có chắc chắn muốn tiếp tục?</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer bg-light border-0">
+                                <button type="button" class="btn btn-light border" data-dismiss="modal">Hủy</button>
+                                <button type="button" class="btn btn-danger js-confirm-submit">Xác nhận</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `);
+            modal = $('#' + modalId);
+        }
+
+        modal.find('.js-confirm-title').text(options.title || 'Xác nhận thao tác');
+        modal.find('.js-confirm-message').text(options.message || 'Bạn có chắc chắn muốn tiếp tục?');
+        modal.find('.ai-confirm-icon i').attr('class', options.iconClass || 'fas fa-exclamation-triangle text-warning');
+        modal.find('.js-confirm-submit')
+            .attr('class', 'btn js-confirm-submit ' + (options.confirmClass || 'btn-danger'))
+            .text(options.confirmText || 'Xác nhận');
+
+        return new Promise(function(resolve) {
+            var resolved = false;
+            modal.off('click.ai-confirm hidden.bs.modal');
+            modal.on('click.ai-confirm', '.js-confirm-submit', function() {
+                resolved = true;
+                modal.modal('hide');
+                resolve(true);
+            });
+            modal.on('hidden.bs.modal', function() {
+                if (!resolved) resolve(false);
+            });
+            modal.modal('show');
+        });
+    }
+
+    function formatUsd(value) {
+        return '$' + Number(value || 0).toFixed(6);
+    }
+
+    function formatDateTime(value) {
+        if (!value) return '-';
+        var date = new Date(value);
+        if (isNaN(date.getTime())) return value;
+        return date.toLocaleString('vi-VN');
+    }
+
+    function escapeHtml(value) {
+        return $('<div>').text(value || '').html();
+    }
+
+    function extractErrorMessage(xhr, fallback) {
+        var json = xhr.responseJSON || {};
+        if (json.message) return json.message;
+        if (json.detail && typeof json.detail === 'string') return json.detail;
+        if (json.detail && json.detail.message) return json.detail.message;
+        if (json.errors) {
+            var firstKey = Object.keys(json.errors)[0];
+            if (firstKey && json.errors[firstKey] && json.errors[firstKey][0]) return json.errors[firstKey][0];
+        }
+        return fallback;
     }
 
 });

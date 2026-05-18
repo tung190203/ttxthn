@@ -138,6 +138,14 @@ return [
                             'title' => 'Đồng bộ trí thức',
                             'route' => 'backend_chatbot_sync'
                         ],
+                        'knowledge' => [
+                            'title' => 'Tài liệu nội bộ',
+                            'route' => 'backend_chatbot_knowledge'
+                        ],
+                        'usage' => [
+                            'title' => 'Token & chi phí',
+                            'route' => 'backend_chatbot_usage'
+                        ],
                         'prompts' => [
                             'title' => 'Kịch bản (Prompts)',
                             'route' => 'backend_chatbot_prompts'

@@ -90,6 +90,8 @@ class SettingController extends Controller
     public function chatbotPrompts() { return $this->renderChatbotTab('prompts'); }
     public function chatbotBlacklist() { return $this->renderChatbotTab('blacklist'); }
     public function chatbotSessions() { return $this->renderChatbotTab('sessions'); }
+    public function chatbotKnowledge() { return $this->renderChatbotTab('knowledge'); }
+    public function chatbotUsage() { return $this->renderChatbotTab('usage'); }
 
 
     public function author()

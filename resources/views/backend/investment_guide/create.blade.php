@@ -225,6 +225,10 @@
                                         <button type="button" class="btn btn-sm btn-success add-file mt-2" data-locale="{{ $locale }}">
                                             <i class="fa fa-plus"></i> Thêm tệp
                                         </button>
+
+                                        @if($loop->first)
+                                            @include('backend.partials.ai-extract-upload', ['extractId' => 'investment-guide-ai-extract', 'extractModel' => $investment_guide])
+                                        @endif
                                             
                                         <hr class="my-3">
                                         <h6 class="text-muted">SEO Meta Tags ({{ $label }})</h6>
