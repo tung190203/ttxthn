@@ -146,6 +146,10 @@ return [
                             'title' => 'Token & chi phí',
                             'route' => 'backend_chatbot_usage'
                         ],
+                        'webhooks' => [
+                            'title' => 'Webhook nhận vào',
+                            'route' => 'backend_chatbot_webhooks'
+                        ],
                         'prompts' => [
                             'title' => 'Kịch bản (Prompts)',
                             'route' => 'backend_chatbot_prompts'

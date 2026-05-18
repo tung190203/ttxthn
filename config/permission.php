@@ -138,6 +138,7 @@ return [
             'sync' => 'Đồng bộ Trí thức',
             'knowledge' => 'Tài liệu nội bộ',
             'usage' => 'Token & chi phí',
+            'webhooks' => 'Webhook nhận vào',
             'prompts' => 'Kịch bản',
             'blacklist' => 'Rào chắn',
             'sessions' => 'Lịch sử & Insight',

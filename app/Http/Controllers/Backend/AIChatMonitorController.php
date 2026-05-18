@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
+use App\Models\AiEvent;
 use App\Services\AiChatService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -24,6 +25,67 @@ class AIChatMonitorController extends Controller
         $this->data['selectedMainMenu'] = 'chatbot_management';
         $this->data['selectedSubMenu'] = 'overview';
         return view('backend.ai-monitor.overview', $this->data);
+    }
+
+    public function webhookHistory(Request $request)
+    {
+        $this->data['selectedMainMenu'] = 'chatbot_management';
+        $this->data['selectedSubMenu'] = 'webhooks';
+
+        $filters = [
+            'event_type' => (string) $request->get('event_type', ''),
+            'status' => (string) $request->get('status', ''),
+            'keyword' => trim((string) $request->get('keyword', '')),
+            'date_from' => (string) $request->get('date_from', ''),
+            'date_to' => (string) $request->get('date_to', ''),
+        ];
+
+        $query = AiEvent::query()->latest('received_at');
+
+        if ($filters['event_type'] !== '') {
+            $query->where('event_type', $filters['event_type']);
+        }
+
+        if ($filters['status'] !== '') {
+            $query->where('status', $filters['status']);
+        }
+
+        if ($filters['keyword'] !== '') {
+            $keyword = '%' . $filters['keyword'] . '%';
+            $query->where(function ($subQuery) use ($keyword) {
+                $subQuery->where('event_id', 'like', $keyword)
+                    ->orWhere('job_id', 'like', $keyword)
+                    ->orWhere('doc_id', 'like', $keyword)
+                    ->orWhere('source_filename', 'like', $keyword);
+            });
+        }
+
+        if ($filters['date_from'] !== '') {
+            $query->whereDate('received_at', '>=', $filters['date_from']);
+        }
+
+        if ($filters['date_to'] !== '') {
+            $query->whereDate('received_at', '<=', $filters['date_to']);
+        }
+
+        $events = $query->paginate(20)->withQueryString();
+        $eventTypes = AiEvent::query()
+            ->whereNotNull('event_type')
+            ->distinct()
+            ->orderBy('event_type')
+            ->pluck('event_type');
+        $statuses = AiEvent::query()
+            ->whereNotNull('status')
+            ->distinct()
+            ->orderBy('status')
+            ->pluck('status');
+
+        return view('backend.ai-monitor.webhook-history', array_merge($this->data, compact(
+            'events',
+            'eventTypes',
+            'statuses',
+            'filters'
+        )));
     }
 
     /**
