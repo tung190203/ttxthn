@@ -49,7 +49,7 @@ class TtxtWebhookController extends Controller
             'chunk_count' => Arr::get($payload, 'chunk_count'),
             'duration_s' => Arr::get($payload, 'duration_s'),
             'embedding_tokens' => Arr::get($payload, 'tokens.embedding_input') ?? Arr::get($payload, 'tokens.input'),
-            'cost_usd_total' => Arr::get($payload, 'cost_usd_total'),
+            'cost_usd_total' => Arr::get($payload, 'cost_usd_total', 0) ?? 0,
             'payload_json' => $payload,
             'received_at' => now(),
         ]);
