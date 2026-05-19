@@ -11,6 +11,7 @@ use App\Models\Project;
 use App\Models\ProjectIndustries;
 use App\Models\User;
 use App\Models\VisitLog;
+use App\Models\SiteVisitor;
 use Spatie\Activitylog\Models\Activity;
 use App\Services\LogExportService;
 
@@ -128,21 +129,81 @@ class DashboardController extends Controller
                 'bots_today' => VisitLog::whereDate('created_at', $todayDate)->where('is_bot', true)->count(),
             ];
 
-            // New Site Visitor Stats (Not mixed with old logs)
-            $totalSiteVisitors = \App\Models\SiteVisitor::distinct('ip_address')->count('ip_address');
-            $returningVisitors = \App\Models\SiteVisitor::select('ip_address')
+            $visitorMonthInput = $request->get('visitor_month', now()->format('Y-m'));
+            try {
+                $visitorMonth = \Carbon\Carbon::createFromFormat('Y-m', $visitorMonthInput)->startOfMonth();
+            } catch (\Exception $e) {
+                $visitorMonth = now()->startOfMonth();
+            }
+            $visitorMonthStart = $visitorMonth->copy()->startOfMonth();
+            $visitorMonthEnd = $visitorMonth->copy()->endOfMonth();
+
+            $totalSiteVisitors = SiteVisitor::whereBetween('visit_date', [
+                    $visitorMonthStart->toDateString(),
+                    $visitorMonthEnd->toDateString(),
+                ])
+                ->distinct('ip_address')
+                ->count('ip_address');
+
+            $returningVisitors = SiteVisitor::select('ip_address')
+                ->whereBetween('visit_date', [
+                    $visitorMonthStart->toDateString(),
+                    $visitorMonthEnd->toDateString(),
+                ])
                 ->groupBy('ip_address')
                 ->havingRaw('COUNT(DISTINCT visit_date) >= 2')
                 ->get()
                 ->count();
 
+            $totalHitsInMonth = SiteVisitor::whereBetween('visit_date', [
+                    $visitorMonthStart->toDateString(),
+                    $visitorMonthEnd->toDateString(),
+                ])
+                ->sum('hits');
+
             $siteVisitorStats = [
                 'total_visitors' => $totalSiteVisitors,
                 'returning_visitors' => $returningVisitors,
-                'visitors_today' => \App\Models\SiteVisitor::whereDate('visit_date', $todayDate)->count(),
+                'visitors_in_month' => $totalSiteVisitors,
+                'total_hits_in_month' => $totalHitsInMonth,
+                'month_label' => $visitorMonth->format('m/Y'),
+                'month_value' => $visitorMonth->format('Y-m'),
             ];
             
-            $todayIps = \App\Models\SiteVisitor::whereDate('visit_date', $todayDate)->orderBy('hits', 'desc')->get();
+            $monthIps = SiteVisitor::select(
+                    'ip_address',
+                    \DB::raw('SUM(hits) as hits'),
+                    \DB::raw('COUNT(DISTINCT visit_date) as visit_days'),
+                    \DB::raw('MIN(visit_date) as first_visit_date'),
+                    \DB::raw('MAX(visit_date) as last_visit_date')
+                )
+                ->whereBetween('visit_date', [
+                    $visitorMonthStart->toDateString(),
+                    $visitorMonthEnd->toDateString(),
+                ])
+                ->groupBy('ip_address')
+                ->orderByDesc('hits')
+                ->get();
+
+            $visitorMonthlyLabels = [];
+            $visitorMonthlyData = [];
+            $returningVisitorMonthlyData = [];
+            for ($i = 11; $i >= 0; $i--) {
+                $month = now()->startOfMonth()->subMonths($i);
+                $start = $month->copy()->startOfMonth()->toDateString();
+                $end = $month->copy()->endOfMonth()->toDateString();
+
+                $visitorMonthlyLabels[] = $month->format('m/Y');
+                $visitorMonthlyData[] = SiteVisitor::whereBetween('visit_date', [$start, $end])
+                    ->distinct('ip_address')
+                    ->count('ip_address');
+                $returningVisitorMonthlyData[] = SiteVisitor::select('ip_address')
+                    ->whereBetween('visit_date', [$start, $end])
+                    ->groupBy('ip_address')
+                    ->havingRaw('COUNT(DISTINCT visit_date) >= 2')
+                    ->get()
+                    ->count();
+            }
 
             // Historical Visit stats for the last 7 days
             $visitChartLabels = [];
@@ -244,7 +305,10 @@ class DashboardController extends Controller
                 'projectStats',
                 'missingProjects',
                 'siteVisitorStats',
-                'todayIps'
+                'monthIps',
+                'visitorMonthlyLabels',
+                'visitorMonthlyData',
+                'returningVisitorMonthlyData'
             ));
         }
         $permissions = $user->getAllPermissionsFromGroup();
