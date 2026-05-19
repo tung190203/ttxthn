@@ -3,9 +3,8 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\File;
-use Spatie\Activitylog\Models\Activity;
+use Illuminate\Support\Facades\Log;
 use ZipArchive;
-use Carbon\Carbon;
 
 class LogExportService
 {
@@ -52,7 +51,7 @@ class LogExportService
                 \Maatwebsite\Excel\Facades\Excel::store($export, 'logs_archive/' . $dataFileName, 'local', \Maatwebsite\Excel\Excel::CSV);
             }
         } catch (\Exception $e) {
-            \Log::error('Export failed: ' . $e->getMessage());
+            Log::error('Export failed: ' . $e->getMessage());
             return null;
         }
 

@@ -129,21 +129,10 @@
                         {{-- Các trường đơn ngữ --}}
                         <x-forms.select name="parent_id" label="Menu cha" :options="new HtmlString($option_menu)"
                                         :messages="$errors->get('parent_id')"/>
-                        {{-- <x-forms.upload name="image" value="{{ old('image') ?: $menu->image }}" label="Image"
-                                        type="image" :messages="$errors->get('image')"/> --}}
                         <x-forms.input name="priority" value="{{ (old('priority') ?: $menu->priority) ?: 9999 }}"
                                        label="Sắp xếp" type="number" :messages="$errors->get('priority')"/>
                         <x-forms.switch name="status" value="{{ $menu->status ?? 1 }}" label="Hiển thị"
                                         :messages="$errors->get('status')"/>
-                        {{-- <x-forms.select name="page_id" label="[1]. Trang" :options="new HtmlString($option_pages)"
-                                        :messages="$errors->get('page_id')"/>
-                        <x-forms.select name="cat_id" label="[2]. menu"
-                                        :options="new HtmlString($option_categories)"
-                                        :messages="$errors->get('cat_id')"/>
-                        <x-forms.input name="custom_link" value="{{ old('custom_link') ?: $menu->custom_link }}"
-                                       label="[3]. URL"
-                                       :messages="$errors->get('custom_link')"/> --}}
-
                     </div>
                 </form>
             </div>

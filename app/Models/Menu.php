@@ -58,11 +58,6 @@ class Menu extends Model
         return $this->belongsTo(Category::class, 'cat_id', 'id');
     }
 
-    public function page()
-    {
-        return $this->belongsTo(Page::class);
-    }
-
     public static function boot()
     {
         parent::boot();
@@ -116,7 +111,7 @@ class Menu extends Model
         if (isset($cached[$cache_key])) {
             $menus = $cached[$cache_key];
         } else {
-            $menus = Menu::with(['category', 'page'])
+            $menus = Menu::with(['category'])
                 ->where('is_draft', false)
                 ->where('status_approve', 'approved')
                 ->where('status', 1)

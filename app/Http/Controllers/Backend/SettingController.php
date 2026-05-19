@@ -40,9 +40,7 @@ class SettingController extends Controller
         $this->selectedSubMenu('general');
         $settings = Setting::getAllSetting();
 
-        $option_pages = Page::makeListPage($settings['page_rule'] ?? 0);
-
-        return view('backend.setting.general', compact('settings', 'option_pages'));
+        return view('backend.setting.general', compact('settings'));
     }
 
     public function social()
