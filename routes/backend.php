@@ -3,17 +3,12 @@
 use App\Http\Controllers\Backend\CategoryController;
 use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\MenuController;
-use App\Http\Controllers\Backend\PageController;
-use App\Http\Controllers\Backend\MemberController;
 use App\Http\Controllers\Backend\PopupController;
 use App\Http\Controllers\Backend\PostController;
-use App\Http\Controllers\Backend\FeedbackController;
 use App\Http\Controllers\Backend\FileManagerController;
-use App\Http\Controllers\Backend\LandingPageController;
 use App\Http\Controllers\Backend\ProjectController;
 use App\Http\Controllers\Backend\SettingController;
 use App\Http\Controllers\Backend\ChatbotAdminController;
-use App\Http\Controllers\Backend\WidgetController;
 use App\Http\Controllers\Backend\UserController;
 use App\Http\Controllers\Backend\GroupController;
 use App\Http\Controllers\Backend\GuestController;
@@ -21,7 +16,6 @@ use App\Http\Controllers\Backend\InvestMentGuideController;
 use App\Http\Controllers\Backend\VrTour\SkinController;
 use App\Http\Controllers\Backend\VrTour\HotspotController;
 use App\Http\Controllers\Backend\VrTour\ContentController;
-use App\Models\InvestmentGuide;
 use App\Http\Controllers\Backend\ProfileController;
 use App\Http\Controllers\Backend\AIChatMonitorController;
 use Illuminate\Support\Facades\Route;
@@ -59,17 +53,6 @@ Route::localized(function () {
             Route::post('approve/{menu}', [MenuController::class, 'approve'])->name('backend_menu_approve');
             Route::post('/reject/{menu}', [MenuController::class, 'reject'])->name('backend_menu_reject');
         });
-
-        Route::prefix('page')->group(function () {
-            Route::get('/', [PageController::class, 'index'])->name('backend_page');
-            Route::post('/', [PageController::class, 'saveDataIndex'])->name('backend_page_save_data_index');
-            Route::get('/create', [PageController::class, 'edit'])->name('backend_page_create');
-            Route::get('/edit/{page}', [PageController::class, 'edit'])->name('backend_page_edit');
-            Route::post('/save/{page?}', [PageController::class, 'save'])->name('backend_page_save');
-            Route::get('/delete/{id}', [PageController::class, 'delete'])->name('backend_page_delete');
-            Route::post('/bulk_delete', [PageController::class, 'bulkDelete'])->name('backend_page_bulk_delete');
-        });
-
         Route::prefix('popup')->group(function () {
             Route::get('/', [PopupController::class, 'index'])->name('backend_popup');
             Route::post('/', [PopupController::class, 'saveDataIndex'])->name('backend_popup_save_data_index');
@@ -90,16 +73,6 @@ Route::localized(function () {
             Route::post('/save/{guest?}', [GuestController::class, 'save'])->name('backend_guest_save');
             Route::get('/delete/{id}', [GuestController::class, 'delete'])->name('backend_guest_delete');
             Route::post('/bulk_delete', [GuestController::class, 'bulkDelete'])->name('backend_guest_bulk_delete');
-        });
-
-        Route::prefix('member')->group(function () {
-            Route::get('/', [MemberController::class, 'index'])->name('backend_member');
-            Route::post('/', [MemberController::class, 'saveDataIndex'])->name('backend_member_save_data_index');
-            Route::get('/create', [MemberController::class, 'edit'])->name('backend_member_create');
-            Route::get('/edit/{member}', [MemberController::class, 'edit'])->name('backend_member_edit');
-            Route::post('/save/{member?}', [MemberController::class, 'save'])->name('backend_member_save');
-            Route::get('/delete/{id}', [MemberController::class, 'delete'])->name('backend_member_delete');
-            Route::post('/bulk_delete', [MemberController::class, 'bulkDelete'])->name('backend_member_bulk_delete');
         });
 
         Route::prefix('post')->group(function () {
@@ -137,12 +110,6 @@ Route::localized(function () {
         });
 
         Route::get('file-manager', [FileManagerController::class, 'index'])->name('backend_file_manager');
-
-        Route::prefix('lading-page')->group(function () {
-            Route::get('/home', [LandingPageController::class, 'home'])->name('backend_landing_page_home');
-            Route::get('/job', [LandingPageController::class, 'job'])->name('backend_landing_page_job');
-            Route::post('/save/{key}', [LandingPageController::class, 'save'])->name('backend_landing_page_save');
-        });
 
         Route::prefix('setting')->group(function () {
             Route::get('/general', [SettingController::class, 'general'])->name('backend_setting_general');
@@ -218,17 +185,6 @@ Route::localized(function () {
             Route::get('delete/{group}', [GroupController::class, 'delete'])->name('backend_group_delete');
         });
 
-        Route::prefix('widget')->group(function () {
-            Route::get('/', [WidgetController::class, 'index'])->name('backend_widget');
-            Route::post('/', [WidgetController::class, 'saveDataIndex'])->name('backend_widget_save_data_index');
-            Route::get('create', [WidgetController::class, 'edit'])->name('backend_widget_create');
-            Route::get('edit/{widget}', [WidgetController::class, 'edit'])->name('backend_widget_edit');
-            Route::post('save/{widget?}', [WidgetController::class, 'save'])->name('backend_widget_save');
-            Route::get('clone/{widget}', [WidgetController::class, 'clone'])->name('backend_widget_clone');
-            Route::get('delete/{id}', [WidgetController::class, 'delete'])->name('backend_widget_delete');
-            Route::get('clone/{widget}', [WidgetController::class, 'clone'])->name('backend_widget_clone');
-            Route::post('bulk_delete', [WidgetController::class, 'bulkDelete'])->name('backend_widget_bulk_delete');
-        });
         Route::prefix('project')->group(function () {
             Route::get('/', [ProjectController::class, 'index'])->name('backend_project');
             Route::post('/', [ProjectController::class, 'saveDataIndex'])->name('backend_project_save_data_index');

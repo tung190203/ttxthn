@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Libs\Util;
-use App\Libs\Validate;
 use App\Mail\ContactMail;
 use App\Models\Category;
 use App\Models\Contact;
@@ -11,18 +9,15 @@ use App\Models\District;
 use App\Models\IndustrialProject;
 use App\Models\Post;
 use App\Models\InvestmentGuide;
-use App\Models\Page;
 use App\Models\Popup;
 use App\Models\ProductType;
 use App\Models\Project;
 use App\Models\ProjectIndustries;
 use App\Models\ProjectType;
-use App\Models\Widget;
 use App\Transformers\ProjectTransformer;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\Setting;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 
@@ -32,8 +27,6 @@ class HomeController extends Controller
     {
         $setting = Setting::getAllSetting();
         $setting['meta_title'] = __('app.home');
-
-        $banners = Widget::getByPosition('HOME_BANNER');
         $list_post_popular = Post::where('published_at', '<=', Carbon::now())->popular(4)->whereNull('parent_id')->where('status_approve','approved')->get();
         $rawProjects = Project::withRelations()->whereNull('parent_id')->where('status','approved')->get();
         $projects = $rawProjects->map([ProjectTransformer::class, 'transform']);
@@ -131,7 +124,6 @@ class HomeController extends Controller
             compact(
                 'project_category',
                 'setting',
-                'banners',
                 'list_post_popular',
                 'projects',
                 'types',
@@ -152,8 +144,7 @@ class HomeController extends Controller
         $setting = Setting::getAllSetting();
         $setting['menu_active'] = __('app.project_link');
         $setting['meta_title'] = __('app.investment_projects');
-
-        $banners = Widget::getByPosition('HOME_BANNER');
+        
         $list_post_popular = Post::popular(Post::POSTS_TAKE)->whereNull('parent_id')->where('status_approve','approved')->where('published_at', '<=', Carbon::now())->get();
 
         $list_types = ProjectType::all()->map(function ($type) {
@@ -228,7 +219,6 @@ class HomeController extends Controller
         return view('frontend.home.project', compact(
             'projects',
             'setting',
-            'banners',
             'list_post_popular',
             'list_districts',
             'list_types',
@@ -270,7 +260,6 @@ class HomeController extends Controller
         ));
     }
 
-
     public function projectDetail(Request $request, $slug = null)
     {
         $setting = Setting::getAllSetting();
@@ -279,8 +268,6 @@ class HomeController extends Controller
         if($locate == 'vn'){
             $locate = 'vi';
         }
-
-        $banners = Widget::getByPosition('HOME_BANNER');
         $list_post_popular = Post::popular(Post::POSTS_TAKE)->whereNull('parent_id')->where('status_approve','approved')->where('published_at', '<=', Carbon::now())
             ->orderBy('published_at', 'desc')
             ->get();
@@ -361,7 +348,6 @@ class HomeController extends Controller
 
         return view('frontend.home.project_detail', compact(
             'setting',
-            'banners',
             'list_post_popular',
             'preferential',
             'posts',
@@ -381,8 +367,6 @@ class HomeController extends Controller
     {
         $setting = Setting::getAllSetting();
         $user = Auth::guard('guest')->user();
-
-        $banners = Widget::getByPosition('HOME_BANNER');
         $industries = ProjectIndustries::all()->map(fn($industry) => [
             'id' => $industry->id,
             'name' => $industry->name,
@@ -449,7 +433,6 @@ class HomeController extends Controller
 
         return view('frontend.home.account', compact(
             'setting',
-            'banners',
             'user',
             'list_project_interest',
             'list_post_interest',
@@ -459,7 +442,6 @@ class HomeController extends Controller
     public function introducePotential(Request $request)
     {
         $setting = Setting::getAllSetting();
-        $banners = Widget::getByPosition('HOME_BANNER');
         $setting['menu_active'] = __('app.investment_guide_link');
         $setting['meta_title'] = __('app.investment_guide');
         $locale = app()->getLocale();
@@ -511,57 +493,12 @@ class HomeController extends Controller
         return view(
             'frontend.home.introduce_potential',
             compact(
-                'banners',
                 'setting',
                 'list_investment',
                 'childCategories',
                 'selectedCatId'
             )
         );
-    }
-
-    public function jobs(Request $request)
-    {
-        $setting = Setting::getAllSetting();
-        $job_data = $setting['job_data'] ?? [];
-        $job_data = !empty($job_data) ? unserialize($job_data) : [];
-
-        $setting['menu_active'] = '事業内容';
-
-        return view(
-            'frontend.home.jobs',
-            compact(
-                'setting',
-                'job_data',
-            )
-        );
-    }
-
-
-    public function page(Request $request, $slug)
-    {
-        $language = App::getLocale();
-        $page = Page::where('slug', $slug)->where('language', $language)->firstOrFail();
-
-        //SEO MOZ Cấu hình SEO
-        $setting = Setting::getAllSetting();
-        $setting['meta_title'] = $page->meta_title ?: $page->name;
-        $setting['meta_description'] = $page->meta_description ?: $setting['meta_description'];
-        $setting['hide_menu_pc'] = true;
-        $setting['no_footer'] = true;
-        $setting['menu_active'] = 'Thể lệ';
-
-        return view('frontend.home.page', compact('page', 'setting'));
-
-    }
-
-    protected function validateCustomAttributes(Request $request, $validator): void
-    {
-        $validator->after(function ($validator) use ($request) {
-            if (!Validate::validatePhoneNumber($request->get('phone'))) {
-                $validator->errors()->add('phone', 'Số điện thoại không đúng');
-            }
-        });
     }
 
     public function contact(Request $request, Contact $contact)
@@ -602,81 +539,6 @@ class HomeController extends Controller
 
         return view('frontend.home.contact', compact('setting'));
     }
-
-    public function siteMap(Request $request)
-    {
-        $lang_code = App::getLocale();
-        $data = [];
-        $time_cache = 24 * 60 * 60;
-
-        //System
-        $data['job']['loc'] = route('job_page');
-        $data['job']['lastmod'] = Carbon::now();
-
-        $data['contact']['loc'] = route('contact');
-        $data['contact']['lastmod'] = Carbon::now();
-        //
-        //        //Category
-        //        $key_categories = 'site_map_categories_' . $lang_code;
-        //        $categories = Cache::remember($key_categories, $time_cache, function () use ($lang_code) {
-        //            return Category::where('state', 1)
-        //                ->where('lang_code', $lang_code)
-        //                ->select(['id', 'name', 'slug', 'updated_at'])->get();
-        //        });
-        //        foreach ($categories as $key_c => $category) {
-        //            $data['category' . $key_c]['loc'] = Util::url_category($category);
-        //            $data['category' . $key_c]['lastmod'] = $category->updated_at;
-        //        }
-        //
-        //        //Product
-        //        $key_products = 'site_map_products_' . $lang_code;
-        //        $products = Cache::remember($key_products, $time_cache, function () use ($lang_code) {
-        //            return Product::where('state', 1)
-        //                ->where('lang_code', $lang_code)
-        //                ->select(['id', 'name', 'slug', 'updated_at'])->get();
-        //        });
-        //        foreach ($products as $key_pr => $product) {
-        //            $data['product' . $key_pr]['loc'] = Util::url_product($product);
-        //            $data['product' . $key_pr]['lastmod'] = $product->updated_at;
-        //        }
-        //
-        //        //Post
-        //        $key_posts = 'site_map_posts_' . $lang_code;
-        //        $posts = Cache::remember($key_posts, $time_cache, function () use ($lang_code) {
-        //            return Post::where('state', 1)
-        //                ->where('lang_code', $lang_code)
-        //                ->select(['id', 'name', 'slug', 'updated_at'])->get();
-        //        });
-        //        foreach ($posts as $key_po => $post) {
-        //            $data['post' . $key_po]['loc'] = Util::url_post($post);
-        //            $data['post' . $key_po]['lastmod'] = $post->updated_at;
-        //        }
-        //
-        //        //Page
-        //        $key_pages = 'site_map_pages_' . $lang_code;
-        //        $pages = Cache::remember($key_pages, $time_cache, function () use ($lang_code) {
-        //            return Page::where('state', 1)
-        //                ->where('lang_code', $lang_code)
-        //                ->select(['id', 'name', 'slug', 'updated_at'])->get();
-        //        });
-        //        foreach ($pages as $key_pa => $page) {
-        //            $data['page' . $key_pa]['loc'] = Util::url_page($page);
-        //            $data['page' . $key_pa]['lastmod'] = $page->updated_at;
-        //        }
-        $last_mod = data_get($data, 'category0.lastmod', Carbon::now());
-        //        dd($data);
-
-        return response()->view('frontend.home.sitemap', compact('data', 'last_mod'))
-            ->header('Content-Type', 'text/xml');
-    }
-
-    public function testSendMail()
-    {
-        $template = 'email.test';
-        $data = ['name' => 'Nguyễn Đức'];
-        Util::sendEmail($template, $data, 'Nguyễn Đức Test', 'huuductin1k12@gmail.com');
-    }
-
 
     public function search(Request $request)
     {

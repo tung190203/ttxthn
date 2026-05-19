@@ -65,43 +65,6 @@ class PostController extends Controller
         );
     }
 
-    public function search(Request $request)
-    {
-        $category = new Category();
-        $clsPost = new Post();
-
-        $key = $request->get('key');
-
-        $query_post = Post::with('category')
-            ->whereNull('parent_id')
-            ->where('status_approve','approved')
-            ->where('published_at' , '<=', Carbon::now())
-            ->where('status', Post::STATUS_ACTIVE)
-            ->where('name', 'like', '%' . $key . '%')
-            ->orderBy('priority')
-            ->orderBy('id', 'desc');
-        $posts = $query_post->paginate(Post::POSTS_PER_PAGE);
-
-        $category->name = 'Kết quả tìm kiếm cho từ khóa "' . $key . '"';
-        $children_category = $category->getChildrenCategories();
-
-        $list_post_popular = $clsPost->getListPopular(4);
-
-        $setting = Setting::getAllSetting();
-        $setting['meta_title'] = 'Search';
-
-        return view('frontend.post.index',
-            compact(
-                'posts',
-                'key',
-                'category',
-                'children_category',
-                'list_post_popular',
-                'setting'
-            )
-        );
-    }
-
     public function detail(Request $request, $slug, $id)
     {
         /* @var $post Post */

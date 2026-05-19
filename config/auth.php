@@ -40,12 +40,6 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
-        'member' => [
-            'driver' => 'session',
-            'provider' => 'members',
-            'login' => 'member_login',
-            'username_field' => 'user_name'
-        ],
         'guest' => [
             'driver' => 'session',
             'provider' => 'guests',
@@ -73,11 +67,6 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', App\Models\User::class),
-        ],
-
-        'members' => [
-            'driver' => 'eloquent',
-            'model' => App\Models\Member::class,
         ],
         'guests' => [
             'driver' => 'eloquent',

@@ -58,15 +58,6 @@ return [
         ],
         'super_admin_only' => false,
     ],
-    // 'widget' => [
-    //     'label' => 'Widget',
-    //     'items' => [
-    //         'add' => 'Thêm',
-    //         'edit' => 'Sửa',
-    //         'delete' => 'Xóa',
-    //         'clone' => 'Nhân bản',
-    //     ]
-    // ],
     'menu' => [
         'label' => 'Menu',
         'items' => [
@@ -86,21 +77,6 @@ return [
         ],
         'super_admin_only' => false,
     ],
-    //    'member' => [
-    //        'label' => 'Đại lý/cửa hàng',
-    //        'items' => [
-    //            'add' => 'Thêm',
-    //            'edit' => 'Sửa',
-    //            'delete' => 'Xóa',
-    //        ]
-    //    ],
-    //    'lading_page' => [
-    //        'label' => 'Lading page',
-    //        'items' => [
-    //            'home' => 'Trang chủ',
-    //            'job' => 'Trang công việc',
-    //        ]
-    //    ],
     'file_manager' => [
         'label' => 'Quản lý file'
     ],

@@ -4,13 +4,11 @@ namespace App\Http\Controllers\Backend;
 
 use App\Libs\DataGrid;
 use App\Libs\Util;
-use App\Models\Page;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Menu;
 use App\Models\Category;
 use App\Models\Group;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Gate;
 
@@ -57,8 +55,6 @@ class MenuController extends Controller
         }
         $menus = $this->menu->showMenus($menu_raw);
         $option_positions = Util::makeHTMLOptions($this->types, $menu_type, 0, 0, 0);
-        $arr_categories = Arr::prepend(Category::makeArrayListCategory(), '', 0);
-        $arr_pages = Arr::prepend(Page::makeArrayListPage(), '', 0);
 
         $route_name = 'backend_menu_edit';
 
@@ -123,9 +119,8 @@ class MenuController extends Controller
         $menu_type = session('menu_type', 'main');
         $option_categories = Category::makeListCategory(0, -1, $menu->cat_id, true);
         $option_menu = Menu::makeListMenu(0, $menu_type, $menu->parent_id, true);
-        $option_pages = Page::makeListPage($menu->page_id, true);
         return view('backend.menu.create',
-            compact('menu', 'option_menu', 'option_categories', 'option_pages', 'parent_id'));
+            compact('menu', 'option_menu', 'option_categories', 'parent_id'));
     }
 
     public function save(Menu $menu, Request $request)

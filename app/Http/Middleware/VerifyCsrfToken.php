@@ -10,7 +10,6 @@ class VerifyCsrfToken
 {
     protected $except = [
         'ckfinder/*',
-        'base-login',
         // ...
     ];
 
