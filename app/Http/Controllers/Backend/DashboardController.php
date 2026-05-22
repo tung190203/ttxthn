@@ -44,7 +44,7 @@ class DashboardController extends Controller
             // Project completion stats
             $totalInvestment = Project::sum('price') ?? 0;
             
-            $allProjects = Project::select('id', 'name', 'lat', 'lng', 'link_vrtour', 'vrtour_code', 'legal_file', 'legal_description')->get();
+            $allProjects = Project::select('id', 'name', 'lat', 'lng', 'link_vrtour', 'vrtour_code', 'legal_file', 'legal_description', 'is_invest')->get();
 
             $has_general_info_count = 0;
             $missing_general_info = collect();
@@ -54,6 +54,8 @@ class DashboardController extends Controller
             $missing_vrtour = collect();
             $has_legal_count = 0;
             $missing_legal = collect();
+            $has_investor_count = 0;
+            $missing_investor = collect();
 
             foreach ($allProjects as $p) {
                 // General info
@@ -105,6 +107,13 @@ class DashboardController extends Controller
                 } else {
                     $missing_legal->push($p);
                 }
+
+                // Investor status
+                if ((int) $p->is_invest === 1) {
+                    $has_investor_count++;
+                } else {
+                    $missing_investor->push($p);
+                }
             }
 
             $projectStats = [
@@ -113,6 +122,7 @@ class DashboardController extends Controller
                 'has_location' => $has_location_count,
                 'has_vrtour' => $has_vrtour_count,
                 'has_legal' => $has_legal_count,
+                'has_investor' => $has_investor_count,
             ];
 
             $missingProjects = [
@@ -120,6 +130,7 @@ class DashboardController extends Controller
                 'location' => $missing_location,
                 'vrtour' => $missing_vrtour,
                 'legal' => $missing_legal,
+                'investor' => $missing_investor,
             ];
 
             // Visitor Stats
