@@ -143,10 +143,19 @@ DashBoard
     <!-- NEW Website Visitor Stats -->
     <div class="card card-outline card-primary shadow-none bg-transparent">
         <div class="card-header border-0 pl-0">
-            <h3 class="card-title text-bold">
-                <i class="fas fa-users mr-2 text-primary"></i>
-                THỐNG KÊ LƯỢT TRUY CẬP QUAY LẠI
-            </h3>
+            <div class="d-flex flex-wrap align-items-center justify-content-between">
+                <h3 class="card-title text-bold mb-2 mb-md-0">
+                    <i class="fas fa-users mr-2 text-primary"></i>
+                    THỐNG KÊ LƯỢT TRUY CẬP QUAY LẠI THEO THÁNG
+                </h3>
+                <form method="GET" action="{{ url()->current() }}" class="form-inline">
+                    <label for="visitor_month" class="text-sm text-muted mr-2 mb-0">Tháng</label>
+                    <input type="month" id="visitor_month" name="visitor_month" class="form-control form-control-sm mr-2" value="{{ $siteVisitorStats['month_value'] }}">
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="fas fa-filter mr-1"></i>Lọc
+                    </button>
+                </form>
+            </div>
         </div>
         <div class="card-body p-0">
             <div class="row mb-4">
@@ -154,8 +163,8 @@ DashBoard
                     <div class="small-box bg-white border shadow-sm visit-card">
                         <div class="inner">
                             <h3>{{ number_format($siteVisitorStats['total_visitors']) }}</h3>
-                            <p class="text-muted text-sm mb-0">Tổng số người truy cập (Unique IP)</p>
-                            <span class="text-xs text-primary"><i class="fas fa-user mr-1"></i>Số lượng IP riêng biệt</span>
+                            <p class="text-muted text-sm mb-0">Người truy cập trong tháng {{ $siteVisitorStats['month_label'] }}</p>
+                            <span class="text-xs text-primary"><i class="fas fa-user mr-1"></i>Số lượng IP riêng biệt trong tháng</span>
                         </div>
                         <div class="icon">
                             <i class="fas fa-users text-light" style="opacity: 0.3;"></i>
@@ -165,10 +174,10 @@ DashBoard
                 <div class="col-lg-4 col-12">
                     <div class="small-box bg-white border shadow-sm visit-card" style="border-left: 4px solid #17a2b8 !important;">
                         <div class="inner">
-                            <h3>{{ number_format($siteVisitorStats['visitors_today']) }}</h3>
-                            <p class="text-muted text-sm mb-0">Người truy cập hôm nay</p>
-                            <a href="javascript:void(0)" class="text-xs text-info mt-2 d-inline-block" data-toggle="modal" data-target="#todayIpsModal" style="text-decoration: underline;">
-                                <i class="fas fa-list mr-1"></i>Xem danh sách IP truy cập hôm nay
+                            <h3>{{ number_format($siteVisitorStats['total_hits_in_month']) }}</h3>
+                            <p class="text-muted text-sm mb-0">Tổng lượt truy cập trong tháng</p>
+                            <a href="javascript:void(0)" class="text-xs text-info mt-2 d-inline-block" data-toggle="modal" data-target="#monthIpsModal" style="text-decoration: underline;">
+                                <i class="fas fa-list mr-1"></i>Xem danh sách IP trong tháng
                             </a>
                         </div>
                         <div class="icon">
@@ -180,11 +189,28 @@ DashBoard
                     <div class="small-box bg-white border shadow-sm visit-card" style="border-left: 4px solid #28a745 !important;">
                         <div class="inner">
                             <h3>{{ number_format($siteVisitorStats['returning_visitors']) }}</h3>
-                            <p class="text-muted text-sm mb-0">Người dùng quay trở lại (Returning)</p>
-                            <span class="text-xs text-success"><i class="fas fa-undo mr-1"></i>IP truy cập từ 2 ngày trở lên</span>
+                            <p class="text-muted text-sm mb-0">Người dùng quay trở lại trong tháng</p>
+                            <span class="text-xs text-success"><i class="fas fa-undo mr-1"></i>IP truy cập từ 2 ngày trở lên trong tháng</span>
                         </div>
                         <div class="icon">
                             <i class="fas fa-user-check text-light" style="opacity: 0.3;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card card-outline card-primary shadow-sm">
+                        <div class="card-header border-0">
+                            <h3 class="card-title text-bold text-sm">
+                                <i class="fas fa-chart-bar mr-1 text-primary"></i>
+                                Biểu đồ truy cập quay lại theo tháng
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <div style="height: 250px; position: relative;">
+                                <canvas id="returning-visitor-monthly-chart"></canvas>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -641,12 +667,12 @@ DashBoard
         </div>
     </div>
 </div>
-<!-- Today IPs Modal -->
-<div class="modal fade" id="todayIpsModal" tabindex="-1" role="dialog" aria-labelledby="todayIpsModalLabel" aria-hidden="true">
+<!-- Monthly IPs Modal -->
+<div class="modal fade" id="monthIpsModal" tabindex="-1" role="dialog" aria-labelledby="monthIpsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content border-0 shadow">
             <div class="modal-header bg-info text-white">
-                <h5 class="modal-title" id="todayIpsModalLabel"><i class="fas fa-list mr-2"></i>Danh sách IP truy cập hôm nay</h5>
+                <h5 class="modal-title" id="monthIpsModalLabel"><i class="fas fa-list mr-2"></i>Danh sách IP truy cập tháng {{ $siteVisitorStats['month_label'] }}</h5>
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -659,12 +685,14 @@ DashBoard
                                 <th>STT</th>
                                 <th>Địa chỉ IP</th>
                                 <th class="text-center">Số lượt truy cập</th>
-                                <th class="text-right">Truy cập lần đầu (trong ngày)</th>
+                                <th class="text-center">Số ngày truy cập</th>
+                                <th class="text-right">Lần đầu trong tháng</th>
+                                <th class="text-right">Gần nhất trong tháng</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @if(isset($todayIps) && count($todayIps) > 0)
-                                @foreach($todayIps as $index => $ipRecord)
+                            @if(isset($monthIps) && count($monthIps) > 0)
+                                @foreach($monthIps as $index => $ipRecord)
                                     <tr>
                                         <td>{{ $index + 1 }}</td>
                                         <td class="font-weight-bold">{{ $ipRecord->ip_address }}</td>
@@ -673,12 +701,18 @@ DashBoard
                                                 {{ $ipRecord->hits }} lượt
                                             </span>
                                         </td>
-                                        <td class="text-right text-muted">{{ $ipRecord->created_at->format('H:i:s') }}</td>
+                                        <td class="text-center">
+                                            <span class="badge badge-{{ $ipRecord->visit_days >= 2 ? 'success' : 'secondary' }}">
+                                                {{ $ipRecord->visit_days }} ngày
+                                            </span>
+                                        </td>
+                                        <td class="text-right text-muted">{{ \Carbon\Carbon::parse($ipRecord->first_visit_date)->format('d/m/Y') }}</td>
+                                        <td class="text-right text-muted">{{ \Carbon\Carbon::parse($ipRecord->last_visit_date)->format('d/m/Y') }}</td>
                                     </tr>
                                 @endforeach
                             @else
                                 <tr>
-                                    <td colspan="4" class="text-center text-muted py-3">Chưa có dữ liệu truy cập hôm nay.</td>
+                                    <td colspan="6" class="text-center text-muted py-3">Chưa có dữ liệu truy cập trong tháng này.</td>
                                 </tr>
                             @endif
                         </tbody>
@@ -690,7 +724,7 @@ DashBoard
                     <button type="button" class="btn btn-primary btn-sm" onclick="copyIpsToClipboard()">
                         <i class="fas fa-copy mr-1"></i>Copy IP
                     </button>
-                    <button type="button" class="btn btn-success btn-sm" onclick="exportTableToCSV('Danh_sach_IP_truy_cap.csv')">
+                    <button type="button" class="btn btn-success btn-sm" onclick="exportTableToCSV('Danh_sach_IP_truy_cap_thang_{{ $siteVisitorStats['month_value'] }}.csv')">
                         <i class="fas fa-file-excel mr-1"></i>Xuất Excel
                     </button>
                 </div>
@@ -705,13 +739,13 @@ DashBoard
 <script src="{{ asset('backend_assets/vendor/chart/Chart.min.js') }}"></script>
 <script>
     function copyIpsToClipboard() {
-        var rows = document.querySelectorAll("#todayIpsModal table tbody tr");
+        var rows = document.querySelectorAll("#monthIpsModal table tbody tr");
         var ips = [];
         for (var i = 0; i < rows.length; i++) {
             var cols = rows[i].querySelectorAll("td");
             if (cols.length >= 2) {
                 var ipText = cols[1].innerText.trim();
-                if (ipText && ipText !== 'Chưa có dữ liệu truy cập hôm nay.') {
+                if (ipText && ipText !== 'Chưa có dữ liệu truy cập trong tháng này.') {
                     ips.push(ipText);
                 }
             }
@@ -732,7 +766,7 @@ DashBoard
 
     function exportTableToCSV(filename) {
         var csv = [];
-        var rows = document.querySelectorAll("#todayIpsModal table tr");
+        var rows = document.querySelectorAll("#monthIpsModal table tr");
         
         for (var i = 0; i < rows.length; i++) {
             var row = [], cols = rows[i].querySelectorAll("td, th");
@@ -1221,6 +1255,36 @@ DashBoard
             });
         }
         updateExtraAiStats();
+
+        // Returning Visitor Monthly Chart
+        var returningVisitorMonthlyCanvas = $('#returning-visitor-monthly-chart').get(0).getContext('2d');
+        new Chart(returningVisitorMonthlyCanvas, {
+            type: 'bar',
+            data: {
+                labels: @json($visitorMonthlyLabels),
+                datasets: [
+                    {
+                        label: 'Unique IP trong tháng',
+                        backgroundColor: '#17a2b8',
+                        data: @json($visitorMonthlyData)
+                    },
+                    {
+                        label: 'IP quay lại',
+                        backgroundColor: '#28a745',
+                        data: @json($returningVisitorMonthlyData)
+                    }
+                ]
+            },
+            options: {
+                maintainAspectRatio: false,
+                responsive: true,
+                scales: {
+                    xAxes: [{ gridLines: { display: false } }],
+                    yAxes: [{ ticks: { beginAtZero: true }, gridLines: { color: 'rgba(0,0,0,0.05)' } }]
+                },
+                legend: { position: 'top' }
+            }
+        });
 
         // Website Visitor Activity Chart
         var visitorChartCanvas = $('#visitor-activity-chart').get(0).getContext('2d');

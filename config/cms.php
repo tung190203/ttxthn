@@ -32,11 +32,6 @@ return [
                     'route' => 'backend_investment_guide',
                     'title' => 'Cẩm nang đầu tư',
                 ],
-                // 'widget' => [
-                //     'icon' => 'fas fa-puzzle-piece',
-                //     'route' => 'backend_widget',
-                //     'title' => 'Widgets',
-                // ],
                 'menu' => [
                     'icon' => 'fas fa-bars',
                     'route' => 'backend_menu',
@@ -47,11 +42,6 @@ return [
                     'route' => 'backend_project',
                     'title' => 'Dự án',
                 ],
-//                'member' => [
-//                    'icon' => 'fas fa-motorcycle',
-//                    'route' => 'backend_member',
-//                    'title' => 'Đại lý/cửa hàng',
-//                ],
                 'popup' => [
                     'icon' => 'fas fa-window-restore',
                     'route' => 'backend_popup',
@@ -137,6 +127,18 @@ return [
                         'sync' => [
                             'title' => 'Đồng bộ trí thức',
                             'route' => 'backend_chatbot_sync'
+                        ],
+                        'knowledge' => [
+                            'title' => 'Tài liệu nội bộ',
+                            'route' => 'backend_chatbot_knowledge'
+                        ],
+                        'usage' => [
+                            'title' => 'Token & chi phí',
+                            'route' => 'backend_chatbot_usage'
+                        ],
+                        'webhooks' => [
+                            'title' => 'Webhook nhận vào',
+                            'route' => 'backend_chatbot_webhooks'
                         ],
                         'prompts' => [
                             'title' => 'Kịch bản (Prompts)',

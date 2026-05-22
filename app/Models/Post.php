@@ -66,6 +66,10 @@ class Post extends Model
         'is_draft',
         'parent_id',
         'status_approve',
+        'extracted_text',
+        'extracted_summary',
+        'extracted_language',
+        'extracted_at',
     ];
 
     public $translatable = [
@@ -102,14 +106,6 @@ class Post extends Model
     protected static function boot()
     {
         parent::boot();
-
-        static::deleting(function ($post) {
-            //            Slug::deleteSlug(Slug::MODULE['POST'], $post->id);
-        });
-
-        static::saved(function ($post) {
-            //            Slug::insertOrUpdateSlug($post->slug, Slug::MODULE['POST'], $post->id);
-        });
     }
 
     public function draft()

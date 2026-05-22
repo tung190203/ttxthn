@@ -50,14 +50,6 @@ class Category extends Model
     protected static function boot()
     {
         parent::boot();
-
-        static::deleting(function ($category) {
-            //Slug::deleteSlug(Slug::MODULE['CATEGORY'], $category->id);
-        });
-
-        static::saved(function ($category) {
-            //Slug::insertOrUpdateSlug($category->slug, Slug::MODULE['CATEGORY'], $category->id);
-        });
     }
 
     public function getSimpleField()

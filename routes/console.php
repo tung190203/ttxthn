@@ -12,3 +12,5 @@ Artisan::command('inspire', function () {
 use Illuminate\Support\Facades\Schedule;
 
 Schedule::command('logs:rotate')->quarterly();
+Schedule::command('ai:usage-cost-alert')->hourly();
+Schedule::command('site-visitors:monthly-export')->lastDayOfMonth('23:55');

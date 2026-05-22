@@ -124,6 +124,10 @@ class SkinController extends Controller
                         $_document->name        = $doc['document_name'];
                         $_document->name_en     = $doc['document_name_en'];
                         $_document->download    = $doc['download'];
+                        $_document->extracted_text = $doc['extracted_text'] ?? $_document->extracted_text;
+                        $_document->extracted_summary = $doc['extracted_summary'] ?? $_document->extracted_summary;
+                        $_document->extracted_language = $doc['extracted_language'] ?? $_document->extracted_language;
+                        $_document->extracted_at = !empty($doc['extracted_at']) ? $doc['extracted_at'] : $_document->extracted_at;
                         $_document->user_id     = Auth::id();
                         $_document->save();
                     }

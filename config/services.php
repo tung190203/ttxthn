@@ -24,16 +24,6 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
-    'resend' => [
-        'key' => env('RESEND_KEY'),
-    ],
-
-    'slack' => [
-        'notifications' => [
-            'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),
-            'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
-        ],
-    ],
     'google' => [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
@@ -43,6 +33,7 @@ return [
         'api_key' => env('AI_CHAT_API_KEY'),
         'api_admin_key' => env('AI_CHAT_ADMIN_KEY'),
         'api_url' => env('AI_CHAT_API_URL'),
+        'webhook_secret' => env('TTXT_WEBHOOK_SECRET'),
     ],
     'maptiler' => [
         'key' => env('MAPTILER_KEY'),

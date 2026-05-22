@@ -40,9 +40,7 @@ class SettingController extends Controller
         $this->selectedSubMenu('general');
         $settings = Setting::getAllSetting();
 
-        $option_pages = Page::makeListPage($settings['page_rule'] ?? 0);
-
-        return view('backend.setting.general', compact('settings', 'option_pages'));
+        return view('backend.setting.general', compact('settings'));
     }
 
     public function social()
@@ -90,6 +88,8 @@ class SettingController extends Controller
     public function chatbotPrompts() { return $this->renderChatbotTab('prompts'); }
     public function chatbotBlacklist() { return $this->renderChatbotTab('blacklist'); }
     public function chatbotSessions() { return $this->renderChatbotTab('sessions'); }
+    public function chatbotKnowledge() { return $this->renderChatbotTab('knowledge'); }
+    public function chatbotUsage() { return $this->renderChatbotTab('usage'); }
 
 
     public function author()
