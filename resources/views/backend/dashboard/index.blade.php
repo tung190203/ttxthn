@@ -565,8 +565,8 @@ DashBoard
                                 $progressClass = $percent >= 80 ? 'bg-success' : ($percent >= 50 ? 'bg-warning' : 'bg-danger');
                                 $hasList = $hasProjects[$field['id']] ?? collect();
                                 $missingList = $missingProjects[$field['id']] ?? collect();
-                                $showHasList = $field['id'] === 'investor' && $hasCount > 0;
-                                $showMissingList = $field['id'] !== 'investor' && $missingCount > 0;
+                                $showHasList = $hasCount > 0;
+                                $showMissingList = $missingCount > 0;
                             @endphp
                             <tr>
                                 <td class="font-weight-bold">{{ $field['label'] }}</td>

@@ -47,12 +47,16 @@ class DashboardController extends Controller
             $allProjects = Project::select('id', 'name', 'lat', 'lng', 'link_vrtour', 'vrtour_code', 'legal_file', 'legal_description', 'is_invest')->get();
 
             $has_general_info_count = 0;
+            $has_general_info = collect();
             $missing_general_info = collect();
             $has_location_count = 0;
+            $has_location = collect();
             $missing_location = collect();
             $has_vrtour_count = 0;
+            $has_vrtour = collect();
             $missing_vrtour = collect();
             $has_legal_count = 0;
+            $has_legal_projects = collect();
             $missing_legal = collect();
             $has_investor_count = 0;
             $has_investor = collect();
@@ -62,6 +66,7 @@ class DashboardController extends Controller
                 // General info
                 if (!empty($p->name)) {
                     $has_general_info_count++;
+                    $has_general_info->push($p);
                 } else {
                     $missing_general_info->push($p);
                 }
@@ -69,6 +74,7 @@ class DashboardController extends Controller
                 // Location
                 if (!empty($p->lat) && !empty($p->lng)) {
                     $has_location_count++;
+                    $has_location->push($p);
                 } else {
                     $missing_location->push($p);
                 }
@@ -76,6 +82,7 @@ class DashboardController extends Controller
                 // VR Tour
                 if (!empty($p->link_vrtour)) {
                     $has_vrtour_count++;
+                    $has_vrtour->push($p);
                 } else {
                     $missing_vrtour->push($p);
                 }
@@ -105,6 +112,7 @@ class DashboardController extends Controller
 
                 if ($has_legal) {
                     $has_legal_count++;
+                    $has_legal_projects->push($p);
                 } else {
                     $missing_legal->push($p);
                 }
@@ -136,6 +144,10 @@ class DashboardController extends Controller
             ];
 
             $hasProjects = [
+                'general_info' => $has_general_info,
+                'location' => $has_location,
+                'vrtour' => $has_vrtour,
+                'legal' => $has_legal_projects,
                 'investor' => $has_investor,
             ];
 
