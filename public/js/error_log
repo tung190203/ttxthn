@@ -161,3 +161,10 @@ Stack trace:
 Stack trace:
 #0 {main}
   thrown in /home/arplus/trungtamxttmhn/public/js/image_resize.php on line 41
+[22-May-2026 09:07:06 UTC] PHP Warning:  readfile(../storage/0ade7c2cf97f75d009975f4d720d1fa6c19f4897/files/Khu hỗn hợp CNC Hòa Lạc/welcome screen khu hon hop.mp3): Failed to open stream: No such file or directory in /home/arplus/trungtamxttmhn/public/js/audio.php on line 14
+[22-May-2026 09:07:18 UTC] PHP Warning:  readfile(../storage/0ade7c2cf97f75d009975f4d720d1fa6c19f4897/files/Khu hỗn hợp CNC Hòa Lạc/welcome screen khu hon hop.mp3): Failed to open stream: No such file or directory in /home/arplus/trungtamxttmhn/public/js/audio.php on line 14
+[22-May-2026 09:08:11 UTC] PHP Warning:  readfile(../storage/0ade7c2cf97f75d009975f4d720d1fa6c19f4897/files/Khu hỗn hợp CNC Hòa Lạc/welcome screen khu hon hop.mp3): Failed to open stream: No such file or directory in /home/arplus/trungtamxttmhn/public/js/audio.php on line 14
+[22-May-2026 09:08:27 UTC] PHP Warning:  readfile(../storage/0ade7c2cf97f75d009975f4d720d1fa6c19f4897/files/Khu hỗn hợp CNC Hòa Lạc/welcome screen khu hon hop.mp3): Failed to open stream: No such file or directory in /home/arplus/trungtamxttmhn/public/js/audio.php on line 14
+[22-May-2026 09:09:36 UTC] PHP Warning:  readfile(../storage/0ade7c2cf97f75d009975f4d720d1fa6c19f4897/files/Khu hỗn hợp CNC Hòa Lạc/welcome screen khu hon hop.mp3): Failed to open stream: No such file or directory in /home/arplus/trungtamxttmhn/public/js/audio.php on line 14
+[22-May-2026 09:09:47 UTC] PHP Warning:  readfile(../storage/0ade7c2cf97f75d009975f4d720d1fa6c19f4897/files/Khu hỗn hợp CNC Hòa Lạc/welcome screen khu hon hop.mp3): Failed to open stream: No such file or directory in /home/arplus/trungtamxttmhn/public/js/audio.php on line 14
+[22-May-2026 09:10:20 UTC] PHP Warning:  readfile(../storage/0ade7c2cf97f75d009975f4d720d1fa6c19f4897/files/Khu hỗn hợp CNC Hòa Lạc/welcome screen khu hon hop.mp3): Failed to open stream: No such file or directory in /home/arplus/trungtamxttmhn/public/js/audio.php on line 14
