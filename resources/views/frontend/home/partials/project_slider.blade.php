@@ -56,22 +56,28 @@
                                         <li>
                                             <img class="me-2" src="{{ asset('/images/icon-dimension.svg') }}" alt="" />
                                             @php
-                                                $formattedArea = formatDecimalByLocale($item['area'] ?? 0);
+                                                $hasArea = isset($item['area']) && $item['area'] !== '';
+                                                $formattedArea = $hasArea ? formatDecimalByLocale($item['area']) . ' ' . ($item['unit'] ?? '') : __('app.updating');
                                             @endphp
-                                            <span>{{ $formattedArea }} {{ $item['unit'] ?? '' }}</span>
+                                            <span>{{ $formattedArea }}</span>
                                         </li>                                                                 
                                         </li>
                                         @php
                                             $locale = app()->getLocale();
+                                            $hasPrice = isset($item['price']) && $item['price'] !== '';
                                         @endphp
 
                                         <li>
                                             <img class="me-2" src="{{ asset('/images/icon-save-money.svg') }}" alt="" />
                                             <span>
-                                                {{ $locale == 'vn'
-                                                    ? number_format($item['price'], 0, ',', '.')
-                                                    : number_format($item['price'], 0, '.', ',') }}
-                                                {{ __('app.billion_vnd') }}
+                                                @if($hasPrice)
+                                                    {{ $locale !== 'en'
+                                                        ? number_format($item['price'], 0, ',', '.')
+                                                        : number_format($item['price'], 0, '.', ',') }}
+                                                    {{ __('app.billion_vnd') }}
+                                                @else
+                                                    {{ __('app.updating') }}
+                                                @endif
                                             </span>
                                         </li>
                                     </ul>

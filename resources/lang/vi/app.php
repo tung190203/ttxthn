@@ -41,6 +41,7 @@ return [
     'off_budget_capital' => 'Vốn ngoài ngân sách (NNS)',
     'public_investment' => 'Đầu tư công',
     'unknown' => 'Không rõ',
+    'updating' => 'Đang cập nhật',
     'no_price' => 'Chưa có giá',
     'area' => 'Diện tích',
     'length' => 'Chiều dài',
