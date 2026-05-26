@@ -139,21 +139,27 @@
                                                 <li>
                                                     <img class="me-2" src="{{ asset('/images/icon-dimension.svg') }}" alt="" />
                                                     @php
-                                                        $formattedArea = formatDecimalByLocale($item->area ?? 0);
+                                                        $hasArea = $item->area !== null && $item->area !== '';
+                                                        $formattedArea = $hasArea ? formatDecimalByLocale($item->area) . ' ' . ($item->unit_type_text ?? '') : __('app.updating');
                                                     @endphp
-                                                    <span>{{ $formattedArea }} {{ $item->unit_type_text ?? '' }}</span>
+                                                    <span>{{ $formattedArea }}</span>
                                                 </li>
                                                  @php
                                                     $locale = app()->getLocale();
                                                     $thousandSeparator = $locale !== 'en' ? '.' : ',';
                                                     $decimalSeparator = $locale !== 'en' ? ',' : '.';
+                                                    $hasPrice = $item->price !== null && $item->price !== '';
                                                 @endphp
 
                                                 <li>
                                                     <img class="me-2" src="{{ asset('/images/icon-save-money.svg') }}" alt=""/>
                                                     <span>
-                                                        {{ number_format($item->price, 0, $decimalSeparator, $thousandSeparator) }}
-                                                        {{ __('app.billion_vnd') }}
+                                                        @if($hasPrice)
+                                                            {{ number_format($item->price, 0, $decimalSeparator, $thousandSeparator) }}
+                                                            {{ __('app.billion_vnd') }}
+                                                        @else
+                                                            {{ __('app.updating') }}
+                                                        @endif
                                                     </span>
                                                 </li>
                                                 </li>

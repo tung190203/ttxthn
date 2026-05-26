@@ -55,6 +55,7 @@ class DashboardController extends Controller
             $has_legal_count = 0;
             $missing_legal = collect();
             $has_investor_count = 0;
+            $has_investor = collect();
             $missing_investor = collect();
 
             foreach ($allProjects as $p) {
@@ -111,6 +112,7 @@ class DashboardController extends Controller
                 // Investor status
                 if ((int) $p->is_invest === 1) {
                     $has_investor_count++;
+                    $has_investor->push($p);
                 } else {
                     $missing_investor->push($p);
                 }
@@ -131,6 +133,10 @@ class DashboardController extends Controller
                 'vrtour' => $missing_vrtour,
                 'legal' => $missing_legal,
                 'investor' => $missing_investor,
+            ];
+
+            $hasProjects = [
+                'investor' => $has_investor,
             ];
 
             // Visitor Stats
@@ -314,6 +320,7 @@ class DashboardController extends Controller
                 'botChartData',
                 'totalInvestment',
                 'projectStats',
+                'hasProjects',
                 'missingProjects',
                 'siteVisitorStats',
                 'monthIps',

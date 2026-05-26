@@ -41,6 +41,7 @@ return [
     'off_budget_capital' => 'Non-governmental budget (NGB)',
     'public_investment' => 'Governmental budget',
     'unknown' => 'Unknown',
+    'updating' => 'updating',
     'no_price' => 'No Price',
     'area' => 'Area',
     'length' => 'Length',
