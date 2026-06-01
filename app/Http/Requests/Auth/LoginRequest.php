@@ -11,6 +11,8 @@ use Illuminate\Validation\ValidationException;
 
 class LoginRequest extends FormRequest
 {
+    private const MAX_ATTEMPTS = 5;
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -45,7 +47,9 @@ class LoginRequest extends FormRequest
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'email' => 'Tài khoản hoặc mật khẩu không chính xác',
+                'email' => __('auth.failed_with_attempts', [
+                    'attempts' => max(0, self::MAX_ATTEMPTS - RateLimiter::attempts($this->throttleKey())),
+                ]),
             ]);
         }
 
@@ -59,7 +63,7 @@ class LoginRequest extends FormRequest
      */
     public function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        if (! RateLimiter::tooManyAttempts($this->throttleKey(), self::MAX_ATTEMPTS)) {
             return;
         }
 
