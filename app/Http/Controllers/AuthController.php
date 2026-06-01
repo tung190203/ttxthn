@@ -16,16 +16,14 @@ class AuthController extends Controller
 {
     public function login(LoginRequest $request)
     {
-        $credentials = $request->only('email', 'password');
-    
-        if(Auth::guard('guest')->attempt($credentials, $request->filled('remember'))) {
-            return response()->json([
-                'success' => true,
-                'redirect' => url()->previous() ?: url('/'),
-            ]);
-        }
+        $request->authenticate();
 
-        return response()->json(['message' => 'Thông tin đăng nhập không chính xác'], 401);
+        $request->session()->regenerate();
+
+        return response()->json([
+            'success' => true,
+            'redirect' => url()->previous() ?: url('/'),
+        ]);
     }    
 
     public function register(RegisterRequest $request)
