@@ -114,6 +114,13 @@
 
                         <x-forms.textarea name="boundary" value="{{ old('boundary') ?: $project->boundary }}" label="Tọa độ boundary dự án (khoanh vùng, tuỳ chọn) JSON: [[lat,lng], [lat,lng],...]"
                             :messages="$errors->get('boundary')" />
+                        <x-forms.select-multiple name="railway_lines" label="Các tuyến ĐSĐT liên kết"
+                            :options="$option_railway_lines"
+                            :selected="old('railway_lines', $project->railway_lines ?? [])"
+                            :messages="$errors->get('railway_lines')"
+                            :selectAll="true"
+                            selectLabel="tuyến"
+                            help="Danh sách này được đồng bộ từ public/js/railways.js. Có thể chọn nhiều tuyến hoặc chọn tất cả." />
                         
                         <x-forms.input name="area" value="{{ old('area') ?: $project->area }}" label="Giá trị"
                             :messages="$errors->get('area')" />

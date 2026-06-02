@@ -1402,6 +1402,122 @@
         let activeRailwayName = null;
         const railwayPolylines = {}; // Phụ trợ để tìm polyline nhanh từ legend
 
+        function getRailwayLineParts(text) {
+            const normalized = removeDiacritics(String(text || '')).replace(/,/g, '.');
+            const match = normalized.match(/(?:so|tuyen)?\s*(\d+)\s*([a-z]?)(?:\.(\d+))?/i);
+            if (!match) return null;
+
+            return {
+                main: `${match[1]}${match[2] || ''}`.toUpperCase(),
+                sub: match[3] || '',
+            };
+        }
+
+        function getRailwayExactLineKey(text) {
+            const parts = getRailwayLineParts(text);
+            if (!parts) return null;
+            return parts.sub ? `${parts.main}.${parts.sub}` : parts.main;
+        }
+
+        function getRailwayLineKey(text) {
+            const parts = getRailwayLineParts(text);
+            if (!parts) return null;
+            return parts.main === '3' && ['1', '2', '3'].includes(parts.sub) ? '3' : parts.main;
+        }
+
+        function isRailwayProject(project) {
+            const name = removeDiacritics(project?.name || '');
+            return project?.industry_number === 7 ||
+                name.includes('duong sat') ||
+                name.includes('dsdt') ||
+                name.includes('metro');
+        }
+
+        function findRailwayProjectByName(railwayName) {
+            const lineKey = getRailwayLineKey(railwayName);
+            const projects = window.projectResults || [];
+            if (!lineKey || projects.length === 0) return null;
+
+            return projects.find(project => {
+                if (Array.isArray(project.railway_lines) && project.railway_lines.length > 0) {
+                    const exactLineKey = getRailwayExactLineKey(railwayName);
+                    return project.railway_lines.some(line => {
+                        const selectedParts = getRailwayLineParts(line);
+                        return getRailwayExactLineKey(line) === exactLineKey ||
+                            (!selectedParts?.sub && getRailwayLineKey(line) === lineKey);
+                    });
+                }
+
+                if (!isRailwayProject(project)) return false;
+                return getRailwayLineKey(project.name) === lineKey;
+            }) || null;
+        }
+
+        function rememberProjectResults(projects) {
+            const merged = new Map((window.projectResults || []).map(project => [project.id, project]));
+            (projects || []).forEach(project => merged.set(project.id, project));
+            window.projectResults = Array.from(merged.values());
+        }
+
+        function openRailwayFallbackPopup(railwayName, latlng) {
+            L.popup({ maxWidth: 260 })
+                .setLatLng(latlng)
+                .setContent(`
+                    <div class="info-box" style="max-width:250px;">
+                        <strong>${railwayName}</strong><br>
+                        Chưa tìm thấy dự án tương ứng trong dữ liệu đang hiển thị.
+                    </div>
+                `)
+                .openOn(map);
+        }
+
+        function openRailwayProjectPopup(project, latlng) {
+            showProjectBoundary(project);
+            L.popup({ maxWidth: 260 })
+                .setLatLng(latlng)
+                .setContent(createProjectPopupContent(project))
+                .openOn(map);
+        }
+
+        function fetchRailwayProjects(callback) {
+            let lang = document.documentElement.lang || 'vn';
+            if (lang === 'vi') lang = 'vn';
+
+            $.ajax({
+                url: `/${lang}/api/railway-projects`,
+                method: 'GET',
+                success: function(data) {
+                    rememberProjectResults(data);
+                    callback();
+                },
+                error: function() {
+                    callback();
+                }
+            });
+        }
+
+        function showRailwayProjectPopup(railwayName, latlng, boundsForSearch = null) {
+            const project = findRailwayProjectByName(railwayName);
+            if (project) {
+                openRailwayProjectPopup(project, latlng);
+                return;
+            }
+
+            if (boundsForSearch) {
+                fetchRailwayProjects(function() {
+                    const fetchedProject = findRailwayProjectByName(railwayName);
+                    if (fetchedProject) {
+                        openRailwayProjectPopup(fetchedProject, latlng);
+                    } else {
+                        openRailwayFallbackPopup(railwayName, latlng);
+                    }
+                });
+                return;
+            }
+
+            openRailwayFallbackPopup(railwayName, latlng);
+        }
+
         function updateRailwayStyles() {
             railwayOverlayGroup.eachLayer(layer => {
                 if (!(layer instanceof L.Polyline)) return;
@@ -1452,6 +1568,7 @@
                     const targetPoly = railwayPolylines[name];
                     if (targetPoly) {
                         map.fitBounds(targetPoly.getBounds(), { padding: [50, 50] });
+                        showRailwayProjectPopup(name, targetPoly.getBounds().getCenter(), targetPoly.getBounds());
                     }
                 };
 
@@ -1521,6 +1638,8 @@
                     if (map.getZoom() < 13) {
                         map.fitBounds(this.getBounds(), { padding: [50, 50] });
                     }
+
+                    showRailwayProjectPopup(name, e.latlng || this.getBounds().getCenter(), this.getBounds());
                 });
 
                 railwayOverlayGroup.addLayer(poly);
@@ -2107,22 +2226,7 @@
             });
         }
 
-        function createMarker(loc) {
-            const style = industryStyles[loc.industry_number];
-
-            let marker;
-            if (style) {
-                // Nếu is_invest = 0 → đổi sang màu đỏ
-                const markerColor = (loc.is_invest === 1) ? "#d9534f" : style.color;
-
-                marker = L.marker([loc.lat, loc.lng], {
-                    icon: createDropIcon(markerColor, style.icon)
-                });
-            } else {
-                // fallback mặc định
-                marker = L.marker([loc.lat, loc.lng]);
-            }
-
+        function createProjectPopupContent(loc) {
             const detailUrl = loc.link;
             const tourUrl = loc.link_vrtour;
             let tourButtonHtml = '';
@@ -2152,52 +2256,76 @@
                 }
             }
 
-            const popupContent = `
-        <div class='info-box' style="max-width:250px;">
-            <img src="${imageUrl}" alt="${loc.name}" style="width:100%; height:120px; object-fit:cover; border-radius:6px; margin-bottom:8px;">
-            <strong>${loc.name}</strong><br>
-            {{ __('app.investment_form') }}: ${getTypeName(loc.type_number)}<br>
-            {{ __('app.zone') }}: ${districtText}<br>
-            {{ __('app.investment_scale') }}: ${priceText} {{ __('app.billion_vnd') }}<br>
-            ${areaHtml}
-            <div style="margin-top:10px; display:flex; gap:8px; justify-content:flex-end;">
-                ${tourButtonHtml}
-                <a href="${detailUrl}" target="_blank" class="btn btn-sm btn-primary text-white">{{ __('app.information') }}</a>
-            </div>
-        </div>
-    `;
+            return `
+                <div class='info-box' style="max-width:250px;">
+                    <img src="${imageUrl}" alt="${loc.name}" style="width:100%; height:120px; object-fit:cover; border-radius:6px; margin-bottom:8px;">
+                    <strong>${loc.name}</strong><br>
+                    {{ __('app.investment_form') }}: ${getTypeName(loc.type_number)}<br>
+                    {{ __('app.zone') }}: ${districtText}<br>
+                    {{ __('app.investment_scale') }}: ${priceText} {{ __('app.billion_vnd') }}<br>
+                    ${areaHtml}
+                    <div style="margin-top:10px; display:flex; gap:8px; justify-content:flex-end;">
+                        ${tourButtonHtml}
+                        <a href="${detailUrl}" target="_blank" class="btn btn-sm btn-primary text-white">{{ __('app.information') }}</a>
+                    </div>
+                </div>
+            `;
+        }
 
-            marker.bindPopup(popupContent);
+        function showProjectBoundary(loc) {
+            if (!loc.boundary) return;
+
+            if (window._currentProjectBoundaryPolygon) {
+                map.removeLayer(window._currentProjectBoundaryPolygon);
+                window._currentProjectBoundaryPolygon = null;
+            }
+
+            try {
+                const coords = JSON.parse(loc.boundary);
+                if (coords && coords.length > 0) {
+                    window._currentProjectBoundaryPolygon = L.polygon(coords, {
+                        color: '#e65100',
+                        weight: 2,
+                        dashArray: '5, 5',
+                        fillColor: '#ffa726',
+                        fillOpacity: 0.2,
+                        interactive: true
+                    }).addTo(map);
+                    
+                    if (window._currentProjectBoundaryPolygon) {
+                        window._currentProjectBoundaryPolygon.bindTooltip(loc.name, {
+                            sticky: true,
+                            direction: 'top',
+                            className: 'boundary-tooltip'
+                        });
+                    }
+                }
+            } catch (e) {
+                console.error("Lỗi vẽ toạ độ boundary dự án:", e);
+            }
+        }
+
+        function createMarker(loc) {
+            const style = industryStyles[loc.industry_number];
+
+            let marker;
+            if (style) {
+                // Nếu is_invest = 0 → đổi sang màu đỏ
+                const markerColor = (loc.is_invest === 1) ? "#d9534f" : style.color;
+
+                marker = L.marker([loc.lat, loc.lng], {
+                    icon: createDropIcon(markerColor, style.icon)
+                });
+            } else {
+                // fallback mặc định
+                marker = L.marker([loc.lat, loc.lng]);
+            }
+
+            marker.bindPopup(createProjectPopupContent(loc));
 
             if (loc.boundary) {
                 marker.on('click', function() {
-                    if (window._currentProjectBoundaryPolygon) {
-                        map.removeLayer(window._currentProjectBoundaryPolygon);
-                        window._currentProjectBoundaryPolygon = null;
-                    }
-                    try {
-                        const coords = JSON.parse(loc.boundary);
-                        if (coords && coords.length > 0) {
-                            window._currentProjectBoundaryPolygon = L.polygon(coords, {
-                                color: '#e65100',
-                                weight: 2,
-                                dashArray: '5, 5',
-                                fillColor: '#ffa726',
-                                fillOpacity: 0.2,
-                                interactive: true
-                            }).addTo(map);
-                            
-                            if (window._currentProjectBoundaryPolygon) {
-                                window._currentProjectBoundaryPolygon.bindTooltip(loc.name, {
-                                    sticky: true,
-                                    direction: 'top',
-                                    className: 'boundary-tooltip'
-                                });
-                            }
-                        }
-                    } catch (e) {
-                        console.error("Lỗi vẽ toạ độ boundary dự án:", e);
-                    }
+                    showProjectBoundary(loc);
                 });
             }
 
@@ -2328,6 +2456,7 @@
                 method: 'GET',
                 data: params,
                 success: function(data) {
+                    rememberProjectResults(data);
                     loadMarkers(data, !triggeredByMap);
                     const allIndustrial = [];
                     data.forEach(project => {

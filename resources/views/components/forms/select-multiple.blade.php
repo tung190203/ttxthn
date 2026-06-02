@@ -69,13 +69,14 @@
                         </div>
                     @endif
                     @foreach ($options as $key => $value)
+                        @php $optionId = $name . '_' . md5((string) $key); @endphp
                         <div class="form-check">
                             <input type="checkbox" class="form-check-input custom-large" name="{{ $name }}[]"
-                                value="{{ $key }}" id="{{ $name }}_{{ $key }}"
+                                value="{{ $key }}" id="{{ $optionId }}"
                                 {{ in_array($key, $selected) ? 'checked' : '' }}
                                 onchange="updateTags_{{ $name }}()">
                             <label class="form-check-label"
-                                for="{{ $name }}_{{ $key }}">{{ $value }}</label>
+                                for="{{ $optionId }}">{{ $value }}</label>
                         </div>
                     @endforeach
                 </div>
@@ -127,7 +128,7 @@
     }
 
     function updateTags_{{ $name }}() {
-        const checkboxes = document.querySelectorAll('#dropdown_{{ $name }} input[type="checkbox"]');
+        const checkboxes = document.querySelectorAll('#dropdown-options-{{ $name }} .form-check:not(.border-bottom) input[type="checkbox"]');
         const container = document.getElementById('selected-tags-{{ $name }}');
         container.innerHTML = '';
 
@@ -184,7 +185,8 @@
 
     function removeTag_{{ $name }}(value, event) {
         event.stopPropagation();
-        const checkbox = document.getElementById('{{ $name }}_' + value);
+        const checkbox = Array.from(document.querySelectorAll('#dropdown-options-{{ $name }} .form-check:not(.border-bottom) input[type="checkbox"]'))
+            .find(cb => cb.value === value);
         if (checkbox) {
             checkbox.checked = false;
             updateTags_{{ $name }}();
