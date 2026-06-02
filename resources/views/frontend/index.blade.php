@@ -126,11 +126,53 @@
                                 </label>
                             </div>
                             <div class="mt-2 text-center">
+                                <a class="d-inline-block text-primary fw-700 js-switch-modal" href="#md-forgot-password">
+                                    {{ __('app.forgot_password') }}
+                                </a>
+                            </div>
+                            <div class="mt-2 text-center">
                                 {{ __('app.no_account') }}
                                 <a class="d-inline-block text-primary fw-700 js-switch-modal" href="#md-sign-up">
                                     {{ __('app.sign_up') }}
                                 </a>
                             </div>                            
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================== FORGOT PASSWORD POPUP ================== -->
+    <div class="md-form modal fade" id="md-forgot-password" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form class="modal-body md-form__body" action="{{ route('guest_password_email') }}" method="post">
+                    @csrf
+                    <button class="md-form__close" type="button" data-bs-dismiss="modal"><i
+                            class="far fa-lg fa-times"></i></button>
+                    <div class="md-form__banner"><img src="{{ asset('/images/banner-login.jpg') }}" alt="" /></div>
+                    <div class="md-form__content">
+                        <a class="md-form__logo" href="#!"><img src="{{ asset('/images/logo_sce.png') }}" alt="" /></a>
+                        <div class="md-form__title">{{ __('app.forgot_password') }}</div>
+                        <div class="md-form__desc">{{ __('app.forgot_password_desc') }}</div>
+
+                        <div class="md-form__group">
+                            <label class="form-label mb-0">{{ __('app.email_address') }}</label>
+                            <input class="form-control" type="email" name="email" />
+                            <div class="text-danger mt-1 error-email"></div>
+                        </div>
+
+                        <div class="md-form__btns">
+                            <button class="md-form__btn" type="submit">{{ __('app.send_reset_link') }}</button>
+                        </div>
+
+                        <div class="md-form__footer">
+                            <div class="mt-2 text-center">
+                                <a class="d-inline-block text-primary fw-700 js-switch-modal" href="#md-sign-in">
+                                    {{ __('app.back_to_login') }}
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </form>
@@ -324,6 +366,35 @@
                         form.find('.error-password').text('Thông tin đăng nhập không chính xác');
                     } else {
                         alert('Có lỗi xảy ra, vui lòng thử lại!');
+                    }
+                }
+            });
+        });
+
+        // FORGOT PASSWORD AJAX
+        $('form[action="{{route('guest_password_email')}}"]').on('submit', function (e) {
+            e.preventDefault();
+            const form = $(this);
+            form.find('.text-danger').text('');
+
+            $.ajax({
+                url: form.attr('action'),
+                method: 'POST',
+                data: form.serialize(),
+                success: function (res) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '{{ __('app.reset_link_sent') }}',
+                        text: res.message || '{{ __('app.check_email_reset_link') }}',
+                        showConfirmButton: true
+                    });
+                },
+                error: function (xhr) {
+                    if (xhr.status === 422) {
+                        let errors = xhr.responseJSON.errors;
+                        if (errors.email) form.find('.error-email').text(errors.email[0]);
+                    } else {
+                        alert('{{ __('app.generic_error') }}');
                     }
                 }
             });

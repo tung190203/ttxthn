@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Notifications\GuestResetPasswordNotification;
 use Illuminate\Foundation\Auth\User as Auththenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
@@ -58,5 +59,10 @@ class Guest extends Auththenticatable
     public function interests()
     {
         return $this->hasMany(Interest::class, 'guest_id', 'id');
+    }
+
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new GuestResetPasswordNotification($token));
     }
 }

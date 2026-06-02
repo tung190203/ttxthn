@@ -20,6 +20,9 @@ Route::localized(function () {
     Route::group(['prefix' => 'guest'], function () {
         Route::post('/register', [AuthController::class, 'register'])->name('guest_register');
         Route::post('/login', [AuthController::class, 'login'])->name('guest_login');
+        Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->name('guest_password_email');
+        Route::get('/reset-password/{token}', [AuthController::class, 'showResetPasswordForm'])->name('guest_password_reset');
+        Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('guest_password_update');
         Route::get('/logout', [AuthController::class, 'logout'])->name('guest_logout');
         Route::post('/update-info', [AuthController::class, 'updateAccount'])->name('guest_update_account');
         Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('google_login');

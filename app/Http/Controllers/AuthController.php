@@ -9,7 +9,9 @@ use App\Models\Guest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
@@ -42,6 +44,77 @@ class AuthController extends Controller
             'redirect' => url()->previous() ?: url('/'),
         ]);
     }
+
+    public function forgotPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+        ], [
+            'email.required' => __('validation.fields.email.required'),
+            'email.email' => __('validation.fields.email.email'),
+        ]);
+
+        $status = Password::broker('guests')->sendResetLink($request->only('email'));
+
+        if ($status === Password::RESET_LINK_SENT) {
+            return response()->json([
+                'success' => true,
+                'message' => __($status),
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'errors' => [
+                'email' => [__($status)],
+            ],
+        ], 422);
+    }
+
+    public function showResetPasswordForm(Request $request, string $token)
+    {
+        return view('frontend.auth.reset-password', [
+            'token' => $token,
+            'email' => $request->query('email'),
+        ]);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'token' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|string|min:6|confirmed',
+        ], [
+            'email.required' => __('validation.fields.email.required'),
+            'email.email' => __('validation.fields.email.email'),
+            'password.required' => __('validation.fields.password.required'),
+            'password.string' => __('validation.fields.password.string'),
+            'password.min' => __('validation.fields.password.min', ['min' => 6]),
+            'password.confirmed' => __('validation.fields.password.confirmed'),
+        ]);
+
+        $status = Password::broker('guests')->reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function (Guest $guest, string $password) {
+                $guest->forceFill([
+                    'password' => Hash::make($password),
+                    'remember_token' => Str::random(60),
+                ])->save();
+            }
+        );
+
+        if ($status === Password::PASSWORD_RESET) {
+            return redirect()
+                ->route('home_page')
+                ->with('success', __($status));
+        }
+
+        return back()
+            ->withInput($request->only('email'))
+            ->withErrors(['email' => __($status)]);
+    }
+
     public function logout(Request $request)
     {
         Auth::guard('guest')->logout();
