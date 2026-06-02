@@ -110,6 +110,7 @@ class Project extends Model
 
     const KILOMETERS = 1;
     const HECTARES = 2;
+    const RAILWAY_INDUSTRY_NUMBER = 7;
 
     const UNIT_OPTIONS = [
         self::KILOMETERS => 'km',

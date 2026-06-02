@@ -114,13 +114,6 @@
 
                         <x-forms.textarea name="boundary" value="{{ old('boundary') ?: $project->boundary }}" label="Tọa độ boundary dự án (khoanh vùng, tuỳ chọn) JSON: [[lat,lng], [lat,lng],...]"
                             :messages="$errors->get('boundary')" />
-                        <x-forms.select-multiple name="railway_lines" label="Các tuyến ĐSĐT liên kết"
-                            :options="$option_railway_lines"
-                            :selected="old('railway_lines', $project->railway_lines ?? [])"
-                            :messages="$errors->get('railway_lines')"
-                            :selectAll="true"
-                            selectLabel="tuyến"
-                            help="Danh sách này được đồng bộ từ public/js/railways.js. Có thể chọn nhiều tuyến hoặc chọn tất cả." />
                         
                         <x-forms.input name="area" value="{{ old('area') ?: $project->area }}" label="Giá trị"
                             :messages="$errors->get('area')" />
@@ -130,6 +123,15 @@
                             :messages="$errors->get('type_number')" />
                         <x-forms.select name="industry_number" label="Ngành/Lĩnh vực" :required="true" :options="new HtmlString($option_industries)"
                             :messages="$errors->get('industry_number')" />
+                        <div id="railway-lines-field">
+                            <x-forms.select-multiple name="railway_lines" label="Các tuyến ĐSĐT liên kết"
+                                :options="$option_railway_lines"
+                                :selected="old('railway_lines', $selected_railway_lines)"
+                                :messages="$errors->get('railway_lines')"
+                                :selectAll="true"
+                                selectLabel="tuyến"
+                                help="Danh sách này được đồng bộ từ public/js/railways.js. Có thể chọn nhiều tuyến hoặc chọn tất cả." />
+                        </div>
                         <x-forms.input name="price" value="{{ old('price') ?: $project->price }}" label="Vốn đầu tư"
                             :messages="$errors->get('price')" />
                         <x-forms.input name="link" value="{{ old('link') ?: $project->link }}" label="Link dự án"
@@ -345,6 +347,33 @@
     </div>
     
     <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const railwayIndustryNumber = @json((string) $railway_industry_number);
+        const industrySelect = document.getElementById('industry_number');
+        const railwayField = document.getElementById('railway-lines-field');
+
+        function toggleRailwayLinesField() {
+            if (!industrySelect || !railwayField) return;
+
+            const isRailwayIndustry = industrySelect.value === railwayIndustryNumber;
+            railwayField.style.display = isRailwayIndustry ? '' : 'none';
+
+            if (!isRailwayIndustry) {
+                railwayField.querySelectorAll('input[type="checkbox"]').forEach(input => {
+                    input.checked = false;
+                });
+                if (typeof updateTags_railway_lines === 'function') {
+                    updateTags_railway_lines();
+                }
+            }
+        }
+
+        toggleRailwayLinesField();
+        if (industrySelect) {
+            industrySelect.addEventListener('change', toggleRailwayLinesField);
+        }
+    });
+
     let qr;
     $('#qrVRTourModal').on('shown.bs.modal', function () {
         const box = document.getElementById('qrCodeContainer');
