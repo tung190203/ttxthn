@@ -175,6 +175,8 @@ class ProjectController extends Controller
         $option_layouts = Project::makeListLayout($project->layout_id, true);
         $option_units = Project::makeListUnit($project->unit, true);
         $option_railway_lines = RailwayLine::orderBy('sort_order')->pluck('name', 'name')->toArray();
+        $selected_railway_lines = $this->normalizeRailwayLineSelection($project->railway_lines ?? [], $option_railway_lines);
+        $railway_industry_number = Project::RAILWAY_INDUSTRY_NUMBER;
 
         return view('backend.project.create', compact(
             'project',
@@ -183,8 +185,23 @@ class ProjectController extends Controller
             'option_districts',
             'option_layouts',
             'option_units',
-            'option_railway_lines'
+            'option_railway_lines',
+            'selected_railway_lines',
+            'railway_industry_number'
         ));
+    }
+
+    private function normalizeRailwayLineSelection(array $selectedLines, array $options): array
+    {
+        $optionLookup = collect(array_keys($options))
+            ->mapWithKeys(fn($line) => [mb_strtolower($line) => $line]);
+
+        return collect($selectedLines)
+            ->map(fn($line) => $optionLookup->get(mb_strtolower(trim($line)), trim($line)))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
     }
 
     public function save(Project $project, Request $request)
@@ -276,11 +293,15 @@ class ProjectController extends Controller
         $railwayLines = $request->input('railway_lines', []);
         $railwayLines = is_array($railwayLines) ? $railwayLines : preg_split('/[,;\n]+/', (string) $railwayLines, -1, PREG_SPLIT_NO_EMPTY);
         $validated['railway_lines'] = collect($railwayLines)
-            ->map(fn($line) => strtoupper(trim($line)))
+            ->map(fn($line) => trim($line))
             ->filter()
             ->unique()
             ->values()
             ->all();
+
+        if ((int) ($validated['industry_number'] ?? 0) !== Project::RAILWAY_INDUSTRY_NUMBER) {
+            $validated['railway_lines'] = [];
+        }
 
         if ($request->has('advantage_images')) {
             if (is_array($request->advantage_images) && count($request->advantage_images) > 0) {

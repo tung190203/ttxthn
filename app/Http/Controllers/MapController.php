@@ -86,6 +86,7 @@ class MapController extends Controller
         $projects = Project::with(['type', 'industry', 'districts'])
             ->whereNull('parent_id')
             ->where('status', 'approved')
+            ->where('industry_number', Project::RAILWAY_INDUSTRY_NUMBER)
             ->whereNotNull('railway_lines')
             ->get()
             ->filter(fn($project) => !empty($project->railway_lines));
