@@ -81,6 +81,18 @@ class MapController extends Controller
         return response()->json($districts);
     }
 
+    public function getRailwayProjects()
+    {
+        $projects = Project::with(['type', 'industry', 'districts'])
+            ->whereNull('parent_id')
+            ->where('status', 'approved')
+            ->whereNotNull('railway_lines')
+            ->get()
+            ->filter(fn($project) => !empty($project->railway_lines));
+
+        return response()->json($this->returnData($projects));
+    }
+
     private function returnData($projects)
     {
         return $projects->map(function ($project) {
@@ -102,6 +114,7 @@ class MapController extends Controller
                 'banner_image' => $project->banner_image,
                 'detail_image' => $project->detail_image,
                 'boundary' => $project->boundary,
+                'railway_lines' => $project->railway_lines ?? [],
                 'districts' => $project->districts->pluck('name')->toArray(),
                 'industrial' => $project->industrialProjects->map(function ($industrialProject) {
                     return [

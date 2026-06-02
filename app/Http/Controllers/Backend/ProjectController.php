@@ -12,6 +12,7 @@ use App\Models\District;
 use App\Models\Group;
 use App\Models\ProjectIndustries;
 use App\Models\ProjectType;
+use App\Models\RailwayLine;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Excel as ExcelType;
@@ -173,6 +174,7 @@ class ProjectController extends Controller
         $option_districts = Project::makeListDistricts();
         $option_layouts = Project::makeListLayout($project->layout_id, true);
         $option_units = Project::makeListUnit($project->unit, true);
+        $option_railway_lines = RailwayLine::orderBy('sort_order')->pluck('name', 'name')->toArray();
 
         return view('backend.project.create', compact(
             'project',
@@ -180,7 +182,8 @@ class ProjectController extends Controller
             'option_industries',
             'option_districts',
             'option_layouts',
-            'option_units'
+            'option_units',
+            'option_railway_lines'
         ));
     }
 
@@ -244,6 +247,7 @@ class ProjectController extends Controller
             'lat' => 'nullable|numeric',
             'lng' => 'nullable|numeric',
             'boundary' => 'nullable|string',
+            'railway_lines' => 'nullable',
             'area' => 'nullable|numeric|min:0',
             'unit' => 'nullable|integer',
             'type_number' => 'nullable|integer|min:0|exists:project_types,id',
@@ -269,6 +273,15 @@ class ProjectController extends Controller
         ]);
 
         $validated = $request->validate($validationRules);
+        $railwayLines = $request->input('railway_lines', []);
+        $railwayLines = is_array($railwayLines) ? $railwayLines : preg_split('/[,;\n]+/', (string) $railwayLines, -1, PREG_SPLIT_NO_EMPTY);
+        $validated['railway_lines'] = collect($railwayLines)
+            ->map(fn($line) => strtoupper(trim($line)))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
         if ($request->has('advantage_images')) {
             if (is_array($request->advantage_images) && count($request->advantage_images) > 0) {
                 // Có ảnh mới -> lọc và nối chuỗi

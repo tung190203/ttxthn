@@ -83,6 +83,7 @@ class Project extends Model
         'views_month',
         'views_month_code',
         'boundary',
+        'railway_lines',
         'is_hidden'
     ];
 
@@ -116,6 +117,10 @@ class Project extends Model
     ];
 
     protected $appends = ['unit_type_text'];
+
+    protected $casts = [
+        'railway_lines' => 'array',
+    ];
 
     public function getUnitTypeTextAttribute()
     {

@@ -31,6 +31,7 @@ Route::localized(function () {
     Route::get('/map/filter', [MapController::class, 'filter']);
     Route::get('/map/bounds', [MapController::class, 'getProjectsInBounds']);
     Route::get('/api/districts', [MapController::class, 'getDistricts'])->name('api_districts');
+    Route::get('/api/railway-projects', [MapController::class, 'getRailwayProjects'])->name('api_railway_projects');
     Route::get('/projects', [HomeController::class, 'projects'])->name('projects');
     Route::get('/industrial-projects', [HomeController::class, 'industrialProjects'])->name('industrial_projects');
     Route::get('/project-detail/{slug}', [HomeController::class, 'projectDetail'])->name('project_detail');
