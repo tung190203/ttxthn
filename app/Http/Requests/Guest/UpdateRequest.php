@@ -36,34 +36,34 @@ class UpdateRequest extends FormRequest
     public function messages()
     {
         return [
-            'name.required' => __('validation.name.required'),
-            'name.string' => __('validation.name.string'),
-            'name.max' => __('validation.name.max'),
+            'name.required' => __('validation.fields.name.required'),
+            'name.string' => __('validation.fields.name.string'),
+            'name.max' => __('validation.fields.name.max'),
     
-            'email.required' => __('validation.email.required'),
-            'email.email' => __('validation.email.email'),
-            'email.unique' => __('validation.email.unique'),
+            'email.required' => __('validation.fields.email.required'),
+            'email.email' => __('validation.fields.email.email'),
+            'email.unique' => __('validation.fields.email.unique'),
     
-            'password.required' => __('validation.password.required'),
-            'password.string' => __('validation.password.string'),
-            'password.min' => __('validation.password.min'),
-            'password.confirmed' => __('validation.password.confirmed'),
+            'password.required' => __('validation.fields.password.required'),
+            'password.string' => __('validation.fields.password.string'),
+            'password.min' => __('validation.fields.password.min'),
+            'password.confirmed' => __('validation.fields.password.confirmed'),
     
-            'identification_number.required' => __('validation.identification_number.required'),
-            'identification_number.string' => __('validation.identification_number.string'),
-            'identification_number.max' => __('validation.identification_number.max'),
-            'identification_number.unique' => __('validation.identification_number.unique'),
+            'identification_number.required' => __('validation.fields.identification_number.required'),
+            'identification_number.string' => __('validation.fields.identification_number.string'),
+            'identification_number.max' => __('validation.fields.identification_number.max'),
+            'identification_number.unique' => __('validation.fields.identification_number.unique'),
     
-            'nation_id.required' => __('validation.nation_id.required'),
-            'nation_id.exists' => __('validation.nation_id.exists'),
+            'nation_id.required' => __('validation.fields.nation_id.required'),
+            'nation_id.exists' => __('validation.fields.nation_id.exists'),
     
-            'phone.numeric' => __('validation.phone.numeric'),
-            'phone.max' => __('validation.phone.max'),
+            'phone.numeric' => __('validation.fields.phone.numeric'),
+            'phone.max' => __('validation.fields.phone.max'),
     
-            'address.string' => __('validation.address.string'),
-            'address.max' => __('validation.address.max'),
+            'address.string' => __('validation.fields.address.string'),
+            'address.max' => __('validation.fields.address.max'),
     
-            'avatar.string' => __('validation.avatar.string'),
+            'avatar.string' => __('validation.fields.avatar.string'),
         ];
     }    
 }

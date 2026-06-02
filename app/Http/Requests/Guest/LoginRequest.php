@@ -38,11 +38,11 @@ class LoginRequest extends FormRequest
     public function messages()
     {
         return [
-            'email.required' => __('validation.email.required'),
-            'email.email' => __('validation.email.email'),
-            'password.required' => __('validation.password.required'),
-            'password.string' => __('validation.password.string'),
-            'password.min' => __('validation.password.min', ['min' => 6]),
+            'email.required' => __('validation.fields.email.required'),
+            'email.email' => __('validation.fields.email.email'),
+            'password.required' => __('validation.fields.password.required'),
+            'password.string' => __('validation.fields.password.string'),
+            'password.min' => __('validation.fields.password.min', ['min' => 6]),
         ];
     }
 

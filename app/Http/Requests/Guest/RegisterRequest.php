@@ -33,21 +33,21 @@ class RegisterRequest extends FormRequest
     public function messages()
     {
         return [
-            'name.required' => __('validation.name.required'),
-            'name.string' => __('validation.name.string'),
-            'name.max' => __('validation.name.max'),
-            'identification_number.required' => __('validation.identification_number.required'),
-            'identification_number.string' => __('validation.identification_number.string'),
-            'identification_number.max' => __('validation.identification_number.max'),
-            'identification_number.unique' => __('validation.identification_number.unique'),
-            'email.required' => __('validation.email.required'),
-            'email.email' => __('validation.email.email'),
-            'email.unique' => __('validation.email.unique'),
-            'nation_id.required' => __('validation.nation_id.required'),
-            'nation_id.exists' => __('validation.nation_id.exists'),
-            'password.required' => __('validation.password.required'),
-            'password.string' => __('validation.password.string'),
-            'password.min' => __('validation.password.min'),
+            'name.required' => __('validation.fields.name.required'),
+            'name.string' => __('validation.fields.name.string'),
+            'name.max' => __('validation.fields.name.max'),
+            'identification_number.required' => __('validation.fields.identification_number.required'),
+            'identification_number.string' => __('validation.fields.identification_number.string'),
+            'identification_number.max' => __('validation.fields.identification_number.max'),
+            'identification_number.unique' => __('validation.fields.identification_number.unique'),
+            'email.required' => __('validation.fields.email.required'),
+            'email.email' => __('validation.fields.email.email'),
+            'email.unique' => __('validation.fields.email.unique'),
+            'nation_id.required' => __('validation.fields.nation_id.required'),
+            'nation_id.exists' => __('validation.fields.nation_id.exists'),
+            'password.required' => __('validation.fields.password.required'),
+            'password.string' => __('validation.fields.password.string'),
+            'password.min' => __('validation.fields.password.min'),
         ];
     }
 }
