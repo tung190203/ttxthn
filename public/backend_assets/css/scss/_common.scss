@@ -10,6 +10,145 @@ img {
     max-width: 100%;
 }
 
+.hmg-navbar-profile {
+    align-items: center;
+    display: flex;
+    gap: 8px;
+    height: 100%;
+    min-width: 0;
+    padding-bottom: 0.35rem;
+    padding-top: 0.35rem;
+
+    &__avatar {
+        border-radius: 50%;
+        flex: 0 0 auto;
+        height: 32px;
+        object-fit: cover;
+        width: 32px;
+    }
+
+    &__info {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.15;
+        min-width: 0;
+        text-align: left;
+    }
+
+    &__name {
+        color: #fff;
+        font-size: 14px;
+        font-weight: 700;
+        max-width: 170px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &__email {
+        color: rgba(255, 255, 255, 0.72);
+        font-size: 12px;
+        max-width: 170px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &__caret {
+        color: rgba(255, 255, 255, 0.72);
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .hmg-navbar-profile {
+        &__info,
+        &__caret {
+            display: none;
+        }
+    }
+}
+
+.hmg-brand-link {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    height: 82px;
+    min-height: 82px;
+    padding: 10px 18px;
+    overflow: hidden;
+    background: #14263f;
+
+    .hmg-brand-logo {
+        display: block;
+        width: 100%;
+        max-width: 214px;
+        max-height: 58px;
+        height: auto;
+        object-fit: contain;
+
+        &--mini {
+            display: none;
+        }
+    }
+}
+
+.sidebar-collapse {
+    .hmg-brand-link {
+        justify-content: center;
+        height: 57px;
+        min-height: 57px;
+        padding: 8px;
+
+        .hmg-brand-logo {
+            &--full {
+                display: none;
+            }
+
+            &--mini {
+                display: block;
+                width: 38px;
+                max-width: 38px;
+                max-height: 38px;
+                object-fit: contain;
+            }
+        }
+    }
+}
+
+.sidebar-mini.sidebar-collapse {
+    .main-sidebar:hover {
+        .hmg-brand-link {
+            justify-content: flex-start;
+            height: 82px;
+            min-height: 82px;
+            padding: 10px 18px;
+
+            .hmg-brand-logo {
+                &--full {
+                    display: block;
+                }
+
+                &--mini {
+                    display: none;
+                }
+            }
+        }
+    }
+}
+
+.hmg-brand-link + .sidebar {
+    padding-top: 14px;
+}
+
+.sidebar-collapse .hmg-brand-link + .sidebar {
+    padding-top: 0;
+}
+
+.sidebar-mini.sidebar-collapse .main-sidebar:hover .hmg-brand-link + .sidebar {
+    padding-top: 14px;
+}
+
 .table-grid-admin {
     td, th {
         vertical-align: middle;

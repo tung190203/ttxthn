@@ -16,29 +16,21 @@
             </a>
         </li>
         <li class="nav-item dropdown">
-            <a class="nav-link d-flex align-items-center" data-toggle="dropdown" href="#!" title="Profiles" style="height: 100%;">
-                <i class="fas fa-th-large"></i>
+            <a class="nav-link hmg-navbar-profile" data-toggle="dropdown" href="#!" title="Profiles">
+                <img src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : asset('backend_assets/images/logo.png') }}"
+                    alt="User Avatar"
+                    class="hmg-navbar-profile__avatar"
+                    id="header-avatar-preview">
+                <span class="hmg-navbar-profile__info">
+                    <span class="hmg-navbar-profile__name" id="header-user-name">{{ Auth::user()->name ?? '' }}</span>
+                    <span class="hmg-navbar-profile__email" id="header-user-email">{{ Auth::user()->email ?? '' }}</span>
+                </span>
+                <i class="fas fa-angle-down hmg-navbar-profile__caret"></i>
             </a>
-            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+            <div class="dropdown-menu dropdown-menu-right">
                 <a href="#!" class="dropdown-item" data-toggle="modal" data-target="#adminProfileModal">
-                    <div class="media align-items-center">
-                        <img src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : asset('backend_assets/images/logo.png') }}"
-                            alt="User Avatar"
-                            class="img-size-50 mr-3 img-circle"
-                            style="width: 50px; height: 50px; object-fit: cover;"
-                            id="header-avatar-preview">
-                        <div class="media-body">
-                            <h3 class="dropdown-item-title">
-                                <span id="header-user-name">{{ Auth::user()->name ?? '' }}</span>
-                                <span class="float-right text-sm text-danger"><i class="fas fa-star"></i></span>
-                            </h3>
-                            <p class="text-sm" id="header-user-email">{{ Auth::user()->email ?? '' }}</p>
-                            <p class="text-sm text-muted mb-0">
-                                <i class="far fa-clock mr-1"></i>
-                                {{ date('d/m/Y') }}
-                            </p>
-                        </div>
-                    </div>
+                    <i class="fas fa-info-circle mr-2 text-info"></i>
+                    Thông tin cá nhân
                 </a>
                 <div class="dropdown-divider"></div>
                 <a href="{{ route('logout') }}" class="dropdown-item dropdown-footer" onclick="event.preventDefault();
