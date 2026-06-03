@@ -64,7 +64,7 @@
                                 class="img-circle elevation-2"
                                 style="width: 100px; height: 100px; object-fit: cover; cursor: pointer"
                                 onclick="document.getElementById('profileAvatarInput').click()">
-                            <div class="position-absolute" style="bottom: 0; right: 0; background: rgba(0,0,0,0.5); border-radius: 50%; width: 32px; height: 32px; line-height: 32px; text-align: center; cursor: pointer" onclick="document.getElementById('profileAvatarInput').click()">
+                            <div class="profile-avatar-camera" onclick="document.getElementById('profileAvatarInput').click()">
                                 <i class="fas fa-camera text-white"></i>
                             </div>
                         </div>
