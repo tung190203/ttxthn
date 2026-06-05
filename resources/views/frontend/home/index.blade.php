@@ -1033,8 +1033,23 @@
         // Add 3D building extrusion when MapLibre map is ready
         map3d.on('styleload', function() {
             const glMap = map3d.getMaplibreMap();
-            if (glMap && !glMap.getLayer('3d-buildings')) {
-                const layers = glMap.getStyle().layers;
+            const style = glMap ? glMap.getStyle() : null;
+            const vectorSourceId = (() => {
+                if (!style || !style.sources) return null;
+
+                const layerSource = (style.layers || []).find(layer =>
+                    layer['source-layer'] === 'building' && layer.source
+                )?.source;
+
+                if (layerSource) return layerSource;
+
+                return Object.entries(style.sources).find(([, source]) =>
+                    source && source.type === 'vector'
+                )?.[0] || null;
+            })();
+
+            if (glMap && vectorSourceId && !glMap.getLayer('3d-buildings') && !glMap.getLayer('Building 3D')) {
+                const layers = style.layers || [];
                 let labelLayerId;
                 for (let i = 0; i < layers.length; i++) {
                     if (layers[i].type === 'symbol' && layers[i].layout['text-field']) {
@@ -1045,7 +1060,7 @@
 
                 glMap.addLayer({
                         'id': '3d-buildings',
-                        'source': 'openmaptiles',
+                        'source': vectorSourceId,
                         'source-layer': 'building',
                         'type': 'fill-extrusion',
                         'minzoom': 15,
@@ -1164,10 +1179,10 @@
                 function tryGetTileRoads() {
                     let feats = [];
                     try {
-                        // openmaptiles source, transportation source-layer
-                        feats = glMap.querySourceFeatures('openmaptiles', {
+                        // MapTiler/OpenMapTiles vector source, transportation source-layer
+                        feats = vectorSourceId ? glMap.querySourceFeatures(vectorSourceId, {
                             sourceLayer: 'transportation'
-                        });
+                        }) : [];
                     } catch (e) {
                         /* source chưa sẵn sàng */ }
 
@@ -1518,6 +1533,73 @@
             openRailwayFallbackPopup(railwayName, latlng);
         }
 
+        function collectRailwayLineParts(latlngs, parts = [], currentPart = []) {
+            if (!Array.isArray(latlngs)) return parts;
+
+            latlngs.forEach(item => {
+                if (Array.isArray(item)) {
+                    if (currentPart.length > 0) {
+                        parts.push(currentPart.splice(0));
+                    }
+                    collectRailwayLineParts(item, parts, currentPart);
+                    return;
+                }
+
+                if (item && typeof item.lat === 'number' && typeof item.lng === 'number') {
+                    currentPart.push(item);
+                }
+            });
+
+            if (currentPart.length > 0) {
+                parts.push(currentPart.splice(0));
+            }
+
+            return parts;
+        }
+
+        function getRailwayPopupLatLng(polyline) {
+            const parts = collectRailwayLineParts(polyline.getLatLngs()).filter(part => part.length > 0);
+            const firstPoint = parts[0]?.[0] || polyline.getBounds().getCenter();
+
+            let totalDistance = 0;
+            const segments = [];
+
+            parts.forEach(part => {
+                for (let i = 1; i < part.length; i++) {
+                    const from = part[i - 1];
+                    const to = part[i];
+                    const distance = from.distanceTo(to);
+
+                    if (distance > 0) {
+                        segments.push({ from, to, distance });
+                        totalDistance += distance;
+                    }
+                }
+            });
+
+            if (totalDistance === 0 || segments.length === 0) {
+                return firstPoint;
+            }
+
+            let walkedDistance = 0;
+            const midpointDistance = totalDistance / 2;
+
+            for (const segment of segments) {
+                if (walkedDistance + segment.distance >= midpointDistance) {
+                    const ratio = (midpointDistance - walkedDistance) / segment.distance;
+
+                    return L.latLng(
+                        segment.from.lat + (segment.to.lat - segment.from.lat) * ratio,
+                        segment.from.lng + (segment.to.lng - segment.from.lng) * ratio
+                    );
+                }
+
+                walkedDistance += segment.distance;
+            }
+
+            return segments[segments.length - 1].to;
+        }
+
         function updateRailwayStyles() {
             railwayOverlayGroup.eachLayer(layer => {
                 if (!(layer instanceof L.Polyline)) return;
@@ -1568,7 +1650,7 @@
                     const targetPoly = railwayPolylines[name];
                     if (targetPoly) {
                         map.fitBounds(targetPoly.getBounds(), { padding: [50, 50] });
-                        showRailwayProjectPopup(name, targetPoly.getBounds().getCenter(), targetPoly.getBounds());
+                        showRailwayProjectPopup(name, getRailwayPopupLatLng(targetPoly), targetPoly.getBounds());
                     }
                 };
 
