@@ -1033,8 +1033,23 @@
         // Add 3D building extrusion when MapLibre map is ready
         map3d.on('styleload', function() {
             const glMap = map3d.getMaplibreMap();
-            if (glMap && !glMap.getLayer('3d-buildings')) {
-                const layers = glMap.getStyle().layers;
+            const style = glMap ? glMap.getStyle() : null;
+            const vectorSourceId = (() => {
+                if (!style || !style.sources) return null;
+
+                const layerSource = (style.layers || []).find(layer =>
+                    layer['source-layer'] === 'building' && layer.source
+                )?.source;
+
+                if (layerSource) return layerSource;
+
+                return Object.entries(style.sources).find(([, source]) =>
+                    source && source.type === 'vector'
+                )?.[0] || null;
+            })();
+
+            if (glMap && vectorSourceId && !glMap.getLayer('3d-buildings') && !glMap.getLayer('Building 3D')) {
+                const layers = style.layers || [];
                 let labelLayerId;
                 for (let i = 0; i < layers.length; i++) {
                     if (layers[i].type === 'symbol' && layers[i].layout['text-field']) {
@@ -1045,7 +1060,7 @@
 
                 glMap.addLayer({
                         'id': '3d-buildings',
-                        'source': 'openmaptiles',
+                        'source': vectorSourceId,
                         'source-layer': 'building',
                         'type': 'fill-extrusion',
                         'minzoom': 15,
@@ -1164,10 +1179,10 @@
                 function tryGetTileRoads() {
                     let feats = [];
                     try {
-                        // openmaptiles source, transportation source-layer
-                        feats = glMap.querySourceFeatures('openmaptiles', {
+                        // MapTiler/OpenMapTiles vector source, transportation source-layer
+                        feats = vectorSourceId ? glMap.querySourceFeatures(vectorSourceId, {
                             sourceLayer: 'transportation'
-                        });
+                        }) : [];
                     } catch (e) {
                         /* source chưa sẵn sàng */ }
 

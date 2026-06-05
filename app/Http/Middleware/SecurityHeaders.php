@@ -43,6 +43,8 @@ class SecurityHeaders
             "img-src 'self' data: blob: https:",
             "font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com",
             "connect-src 'self' https:",
+            "worker-src 'self' blob:",
+            "child-src 'self' blob:",
             "frame-src 'self' https://www.facebook.com https://web.facebook.com https://momento360.com https://www.momento360.com",
             "object-src 'none'",
             "upgrade-insecure-requests",
