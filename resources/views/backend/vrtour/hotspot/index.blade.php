@@ -55,6 +55,7 @@
                                         <th style="width:5%" class="grid_header">STT</th>
                                         <th style="width:30%" class="grid_header">Ảnh</th>
                                         <th style="width:10%" class="grid_header">Vị trí</th>
+                                        <th style="width:10%" class="grid_header">Trạng thái</th>
                                         <th style="width:30%" class="grid_header">Mô tả</th>
                                         <th style="width:5%" class="grid_header1">Hiển thị</th>
                                         <th style="width:10%" class="grid_header1"></th>

@@ -209,6 +209,8 @@ Route::localized(function () {
                 Route::get('get-hotspot/{id}', [HotspotController::class, 'getHotspot'])->name('backend_vrtour_get_hotspot_index');
                 Route::get('edit/{id}', [HotspotController::class, 'edit'])->name('backend_vrtour_hotspot_edit');
                 Route::post('save/{id}', [HotspotController::class, 'store'])->name('backend_vrtour_hotspot_store');
+                Route::post('approve/{hotspot}', [HotspotController::class, 'approve'])->name('backend_vrtour_hotspot_approve');
+                Route::post('reject/{hotspot}', [HotspotController::class, 'reject'])->name('backend_vrtour_hotspot_reject');
             });
             Route::prefix('content')->group(function () {
                 Route::get('index', [ContentController::class, 'index'])->name('backend_vrtour_content_index');
