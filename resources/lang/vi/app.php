@@ -164,6 +164,7 @@ return [
     'chatbot_scroll_down' => 'Cuộn xuống cuối',
     'chatbot_input_placeholder' => 'Nhập tin nhắn...',
     'chatbot_welcome' => 'Xin chào! Tôi có thể giúp gì cho bạn trong việc tìm kiếm dự án và thông tin đầu tư?',
+    'chatbot_ai_disclaimer' => 'Tôi là AI và có thể mắc sai sót',
 
     // Chatbot feedback modal
     'chatbot_feedback_title' => 'Gửi phản hồi cho chúng tôi',

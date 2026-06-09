@@ -2,6 +2,12 @@
 <html class="{{ app()->getLocale() }}" lang="{{ app()->getLocale() }}">
 
 <head>
+    @php
+        $frontendSiteName = \App\Models\Setting::getSettingByKey('site_name') ?: (app()->getLocale() === 'en' ? 'Hanoi Investment Map' : 'Bản đồ đầu tư Hà Nội');
+        $frontendSiteAlternateNames = app()->getLocale() === 'en'
+            ? ['Hanoi Investment Map', 'Dau tu Ha Noi']
+            : ['Đầu tư Hà Nội', 'Dau tu Ha Noi'];
+    @endphp
     {!! $setting['tracking_code_head'] !!}
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -42,21 +48,25 @@
     <meta property="og:description" content="{{ $setting['meta_description'] }}" />
     <meta property="og:url" content="{{ url()->current() }}" />
     {{-- <meta property="og:site_name" content="{{ $setting['site_name'] }}" /> --}}
-    <meta property="og:site_name" content="{{ \App\Models\Setting::getSettingByKey('site_name') }}" />
+    <meta property="og:site_name" content="{{ $frontendSiteName }}" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="{{ $setting['meta_title'] }}" />
     <meta name="twitter:url" content="{{ url()->current() }}">
-    <meta name="twitter:site" content="{{ \App\Models\Setting::getSettingByKey('site_name') }}" >
+    <meta name="twitter:site" content="{{ $frontendSiteName }}" >
     @if(!empty($setting['og_image']))
         <meta name="twitter:image" content="{{ url($setting['og_image']) }}">
     @endif
     <meta name="twitter:description" content="{{ $setting['meta_description'] }}" />
-
-    <title>Title</title>
-    <meta charset="utf-8" />
-    <meta name="description" content="Description" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "name": @json($frontendSiteName),
+            "alternateName": @json($frontendSiteAlternateNames),
+            "url": @json(url('/'))
+        }
+    </script>
     <!-- Styles-->
     <link rel="stylesheet" type="text/css" href="{{ asset('css/libs.css') }}" />
     <link rel="stylesheet" type="text/css" href="{{ asset('vendor/fontawesome-pro/css/all.min.css') }}" />

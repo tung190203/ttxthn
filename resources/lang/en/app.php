@@ -164,6 +164,7 @@ return [
     'chatbot_scroll_down' => 'Scroll to bottom',
     'chatbot_input_placeholder' => 'Type a message...',
     'chatbot_welcome' => 'Hello! How can I help you with finding projects and investment information?',
+    'chatbot_ai_disclaimer' => 'I am AI and may make mistakes.',
 
     // Chatbot feedback modal
     'chatbot_feedback_title' => 'Send us your feedback',
