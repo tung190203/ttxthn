@@ -2,7 +2,10 @@
 
 namespace App\Services;
 
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class AiChatService
 {
@@ -23,7 +26,7 @@ class AiChatService
             'X-API-Key' => $this->apiKey,
             'X-Admin-API-Key' => $this->apiAdminKey,
             'Content-Type' => 'application/json'
-        ]);
+        ])->connectTimeout(5)->timeout(30);
     }
 
     protected function multipartClient()
@@ -31,23 +34,107 @@ class AiChatService
         return Http::withHeaders([
             'X-API-Key' => $this->apiKey,
             'X-Admin-API-Key' => $this->apiAdminKey,
-        ]);
+        ])->connectTimeout(5)->timeout(60);
+    }
+
+    protected function endpointUrl(string $path): string
+    {
+        return rtrim((string) $this->baseUrl, '/') . $path;
+    }
+
+    protected function request(string $method, string $path, array $data = [], array $context = []): Response
+    {
+        if (empty($this->baseUrl) || empty($this->apiKey)) {
+            Log::warning('AI chat service configuration is incomplete.', [
+                'endpoint' => $path,
+                'has_base_url' => !empty($this->baseUrl),
+                'has_api_key' => !empty($this->apiKey),
+                'has_admin_key' => !empty($this->apiAdminKey),
+            ]);
+        }
+
+        try {
+            $response = $method === 'get'
+                ? $this->client()->get($this->endpointUrl($path), $data)
+                : $this->client()->{$method}($this->endpointUrl($path), $data);
+        } catch (ConnectionException $e) {
+            Log::error('AI chat service connection failed.', $this->logContext($path, $context, [
+                'exception' => get_class($e),
+                'message' => $e->getMessage(),
+            ]));
+
+            throw $e;
+        }
+
+        $this->logFailedResponse($response, $path, $context);
+
+        return $response;
+    }
+
+    protected function logFailedResponse(Response $response, string $path, array $context = []): void
+    {
+        if ($response->successful()) {
+            return;
+        }
+
+        Log::warning('AI chat service returned an error response.', $this->logContext($path, $context, [
+            'status' => $response->status(),
+            'reason' => $response->reason(),
+            'response' => $this->summarizeResponse($response),
+        ]));
+    }
+
+    protected function logContext(string $path, array $context = [], array $extra = []): array
+    {
+        return array_merge([
+            'endpoint' => $path,
+            'base_url' => $this->baseUrl ? parse_url($this->baseUrl, PHP_URL_HOST) : null,
+        ], $context, $extra);
+    }
+
+    protected function summarizeResponse(Response $response): array
+    {
+        $body = $response->json();
+
+        if (is_array($body)) {
+            return array_intersect_key($body, array_flip([
+                'error',
+                'message',
+                'detail',
+                'status',
+                'code',
+                'request_id',
+            ]));
+        }
+
+        return [
+            'body' => str($response->body())->limit(500)->toString(),
+        ];
     }
 
     public function sendFeedback($data)
     {
-        return $this->client()->post($this->baseUrl . '/api/v1/chat/feedback', [
+        return $this->request('post', '/api/v1/chat/feedback', [
             'session_id' => $data['session_id'],
             'message_id' => $data['message_id'],
             'rating' => $data['rating'],
             'feedback_type' => $data['feedback_type'] ?? 'helpful',
             'comment' => $data['comment'] ?? null
+        ], [
+            'session_id' => $data['session_id'] ?? null,
+            'message_id' => $data['message_id'] ?? null,
+            'rating' => $data['rating'] ?? null,
         ]);
     }
 
     public function chat(array $payload)
     {
-        return $this->client()->post($this->baseUrl . '/api/v1/chat', $payload);
+        return $this->request('post', '/api/v1/chat', $payload, [
+            'session_id' => $payload['session_id'] ?? null,
+            'message_length' => isset($payload['message']) ? mb_strlen((string) $payload['message']) : null,
+            'language' => $payload['language'] ?? null,
+            'model_name' => $payload['model_name'] ?? null,
+        ]);
     }
 
     public function extractContent($file, string $summaryMode = 'auto', string $language = 'auto')
@@ -143,27 +230,31 @@ class AiChatService
 
     public function getSessionHistory($sessionId)
     {
-        return $this->client()->get($this->baseUrl . "/api/v1/session/{$sessionId}");
+        return $this->request('get', "/api/v1/session/{$sessionId}", [], [
+            'session_id' => $sessionId,
+        ]);
     }
 
     public function deleteSession($sessionId)
     {
-        return $this->client()->delete($this->baseUrl . "/api/v1/session/{$sessionId}");
+        return $this->request('delete', "/api/v1/session/{$sessionId}", [], [
+            'session_id' => $sessionId,
+        ]);
     }
 
     public function getHealthStatus()
     {
-        return $this->client()->get($this->baseUrl . '/api/v1/health');
+        return $this->request('get', '/api/v1/health');
     }
 
     public function getStatus()
     {
-        return $this->client()->get($this->baseUrl . '/api/v1/status');
+        return $this->request('get', '/api/v1/status');
     }
 
     public function getMetrics()
     {
-        return $this->client()->get($this->baseUrl . '/api/v1/metrics');
+        return $this->request('get', '/api/v1/metrics');
     }
 
     /**

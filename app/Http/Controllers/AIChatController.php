@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\AiUsageLog;
 use App\Services\AiChatService;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class AIChatController extends Controller
 {
@@ -27,7 +30,17 @@ class AIChatController extends Controller
             $payload['model_name'] = $request->model;
         }
 
-        $response = $this->aiChatService->chat($payload);
+        try {
+            $response = $this->aiChatService->chat($payload);
+        } catch (ConnectionException $e) {
+            return $this->aiConnectionErrorResponse($e, '/chat', [
+                'session_id' => $payload['session_id'] ?? null,
+                'message_length' => isset($payload['message']) ? mb_strlen((string) $payload['message']) : null,
+            ]);
+        } catch (Throwable $e) {
+            return $this->aiUnexpectedErrorResponse($e, '/chat');
+        }
+
         $body = $response->json() ?? [];
 
         if ($response->successful()) {
@@ -50,34 +63,96 @@ class AIChatController extends Controller
 
     public function sessionHistory($sessionId)
     {
-        $response = $this->aiChatService->getSessionHistory($sessionId);
+        try {
+            $response = $this->aiChatService->getSessionHistory($sessionId);
+        } catch (ConnectionException $e) {
+            return $this->aiConnectionErrorResponse($e, '/chat/session', [
+                'session_id' => $sessionId,
+            ]);
+        } catch (Throwable $e) {
+            return $this->aiUnexpectedErrorResponse($e, '/chat/session');
+        }
 
         return response()->json($response->json());
     }
 
     public function deleteSession($sessionId)
     {
-        $response = $this->aiChatService->deleteSession($sessionId);
+        try {
+            $response = $this->aiChatService->deleteSession($sessionId);
+        } catch (ConnectionException $e) {
+            return $this->aiConnectionErrorResponse($e, '/chat/session/delete', [
+                'session_id' => $sessionId,
+            ]);
+        } catch (Throwable $e) {
+            return $this->aiUnexpectedErrorResponse($e, '/chat/session/delete');
+        }
 
         return response()->json($response->json(), $response->status());
     }
 
     public function submitFeedback(Request $request)
     {
-        $response = $this->aiChatService->sendFeedback([
+        $payload = [
             'session_id' => $request->session_id,
             'message_id' => $request->message_id,
             'rating' => $request->rating,
             'feedback_type' => $request->feedback_type ?? 'helpful',
             'comment' => $request->comment
-        ]);
+        ];
+
+        try {
+            $response = $this->aiChatService->sendFeedback($payload);
+        } catch (ConnectionException $e) {
+            return $this->aiConnectionErrorResponse($e, '/chat/feedback', [
+                'session_id' => $payload['session_id'] ?? null,
+                'message_id' => $payload['message_id'] ?? null,
+            ]);
+        } catch (Throwable $e) {
+            return $this->aiUnexpectedErrorResponse($e, '/chat/feedback');
+        }
 
         return response()->json($response->json(), $response->status());
     }
 
     public function getHealthStatus()
     {
-        $response = $this->aiChatService->getHealthStatus();
+        try {
+            $response = $this->aiChatService->getHealthStatus();
+        } catch (ConnectionException $e) {
+            return $this->aiConnectionErrorResponse($e, '/chat/health');
+        } catch (Throwable $e) {
+            return $this->aiUnexpectedErrorResponse($e, '/chat/health');
+        }
+
         return response()->json($response->json());
+    }
+
+    private function aiConnectionErrorResponse(ConnectionException $e, string $endpoint, array $context = [])
+    {
+        Log::error('AI chat controller could not connect to AI service.', array_merge($context, [
+            'endpoint' => $endpoint,
+            'exception' => get_class($e),
+            'message' => $e->getMessage(),
+        ]));
+
+        return response()->json([
+            'success' => false,
+            'message' => __('app.chatbot_error_connection'),
+        ], 502);
+    }
+
+    private function aiUnexpectedErrorResponse(Throwable $e, string $endpoint)
+    {
+        Log::error('AI chat controller failed unexpectedly.', [
+            'endpoint' => $endpoint,
+            'exception' => get_class($e),
+            'message' => $e->getMessage(),
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => __('app.chatbot_error_connection'),
+        ], 500);
     }
 }
