@@ -3,10 +3,17 @@
 
 <head>
     @php
-        $frontendSiteName = \App\Models\Setting::getSettingByKey('site_name') ?: (app()->getLocale() === 'en' ? 'Hanoi Investment Map' : 'Bản đồ đầu tư Hà Nội');
-        $frontendSiteAlternateNames = app()->getLocale() === 'en'
-            ? ['Hanoi Investment Map', 'Dau tu Ha Noi']
-            : ['Đầu tư Hà Nội', 'Dau tu Ha Noi'];
+        $frontendSiteName = \App\Models\Setting::getSettingByKey('site_name');
+
+        if (empty($frontendSiteName)) {
+            $frontendSiteName = app()->getLocale() === 'en' ? 'Hanoi Investment Map' : 'Bản đồ đầu tư Hà Nội';
+        }
+
+        if (app()->getLocale() === 'en') {
+            $frontendSiteAlternateNames = ['Hanoi Investment Map', 'Dau tu Ha Noi'];
+        } else {
+            $frontendSiteAlternateNames = ['Đầu tư Hà Nội', 'Dau tu Ha Noi'];
+        }
     @endphp
     {!! $setting['tracking_code_head'] !!}
     <meta charset="UTF-8" />
@@ -47,7 +54,6 @@
     <meta property="og:title" content="{{ $setting['meta_title'] }}" />
     <meta property="og:description" content="{{ $setting['meta_description'] }}" />
     <meta property="og:url" content="{{ url()->current() }}" />
-    {{-- <meta property="og:site_name" content="{{ $setting['site_name'] }}" /> --}}
     <meta property="og:site_name" content="{{ $frontendSiteName }}" />
 
     <meta name="twitter:card" content="summary_large_image" />
@@ -60,7 +66,7 @@
     <meta name="twitter:description" content="{{ $setting['meta_description'] }}" />
     <script type="application/ld+json">
         {
-            "@context": "https://schema.org",
+            "@@context": "https://schema.org",
             "@type": "WebSite",
             "name": @json($frontendSiteName),
             "alternateName": @json($frontendSiteAlternateNames),
