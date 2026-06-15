@@ -36,11 +36,13 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-3 text-left">
+                            @if(auth()->user()->is_super_admin)
+                            <div class="col-md-4 text-left">
                                 <div class="form-group">
                                     <button type="button" class="btn btn-danger btn-sm" id="btn_reset" style="display:none; height: 38px;">Reset</button>
                                 </div>
                             </div>
+                            @endif
                         </div>
                     </form>
                 </div>

@@ -26,8 +26,6 @@
                             <x-forms.button-save />
                         @endcan
                         @if ($hotspot->is_draft && (auth()->user()->is_super_admin || auth()->user()->is_approve))
-                            {{-- <div class="float-right mb-3 mr-2"> --}}
-
                                 <form action="{{ route('backend_vrtour_hotspot_approve', $hotspot->id) }}" method="POST"
                                     style="display:inline-block">
                                     @csrf
@@ -44,8 +42,6 @@
                                         Từ chối
                                     </button>
                                 </form>
-
-                            {{-- </div> --}}
                         @endif
                     </div>
                 </div>

@@ -217,6 +217,8 @@ Route::localized(function () {
                 Route::get('get-data/{vrtour_id}', [ContentController::class, 'getDataAll'])->name('backend_vrtour_content_getdata');
                 Route::get('edit/{id}', [ContentController::class, 'edit'])->name('backend_vrtour_content_edit');
                 Route::post('save/{id}', [ContentController::class, 'store'])->name('backend_vrtour_content_store');
+                Route::post('approve/{content}', [ContentController::class, 'approve'])->name('backend_vrtour_content_approve');
+                Route::post('reject/{content}', [ContentController::class, 'reject'])->name('backend_vrtour_content_reject');
             });
         });
 

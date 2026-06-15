@@ -119,7 +119,7 @@ class HotspotController extends Controller
                     ->whereNotIn('code', $positionsFromJson)
                     ->delete();
                 createFile('vrtour/' . $vrtour->vrtour_code, 'hotspot.js');
-                file_put_contents('vrtour/' . $vrtour->vrtour_code . '/hotspot.js', Hotspot::where('vrtour_id', $vrtour_id)->get());
+                file_put_contents('vrtour/' . $vrtour->vrtour_code . '/hotspot.js', Hotspot::where('vrtour_id', $vrtour_id)->where('is_draft', 0)->get());
             }
           
             // --- KẾT THÚC KHỐI SỬA ĐỔI ---

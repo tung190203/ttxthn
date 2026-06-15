@@ -22,15 +22,52 @@
             <div class="row">
                 <div class="col-12">
                     <div class="float-right mb-3">
-                        @can('content/add')
+                        @can('vr_tour/content')
                             <x-forms.button-save/>
                         @endcan
+                        @if ($pano->is_draft && (auth()->user()->is_super_admin || auth()->user()->is_approve))
+                                <form action="{{ route('backend_vrtour_content_approve', $pano->id) }}" method="POST"
+                                    style="display:inline-block">
+                                    @csrf
+                                    <button type="submit" class="btn btn-success btn-sm">
+                                        Duyệt
+                                    </button>
+                                </form>
+
+                                <form action="{{ route('backend_vrtour_content_reject', $pano->id) }}" method="POST"
+                                    style="display:inline-block"
+                                    onsubmit="return confirm('Bạn có chắc muốn từ chối bản chỉnh sửa này?')">
+                                    @csrf
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        Từ chối
+                                    </button>
+                                </form>
+                        @endif
                     </div>
                 </div>
             </div>
             <div class="card card-primary">
                 <form action="{{ route('backend_vrtour_content_store', $pano->id) }}" method="post" enctype="multipart/form-data" class="form-horizontal" id="formDataGrid">
                     @csrf
+                    @if ($pano->is_draft)
+                        @if ($pano->approval_level == 0)
+                            <div class="alert alert-secondary">
+                                Chờ duyệt cấp 1
+                            </div>
+                        @elseif($pano->approval_level == 1)
+                            <div class="alert alert-primary">
+                                Chờ duyệt cấp 2
+                            </div>
+                        @endif
+                    @elseif($pano->status == 'approved')
+                        <div class="alert alert-success">
+                            Đã duyệt
+                        </div>
+                    @elseif($pano->status == 'rejected')
+                        <div class="alert alert-danger">
+                            Đã từ chối
+                        </div>
+                    @endif
                     <div class="card-body">
                         <x-forms.input name="ct_label_audio" value="{{ $pano->label_audio }}"
                                        label="Label Audio" type="text" readonly/>
