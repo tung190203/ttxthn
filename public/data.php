@@ -82,10 +82,10 @@ if (is_array($screen)) {
 
     $screen['description'] = $start_html1 . ($screen['description'] ?? '') . $end_html1;
 
-    $start_html_title        = '<div style="text-align:left; color:#000; "><DIV STYLE="line-height:125%;text-align:left;font-size:31px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:31px;font-family:Montserrat Medium">';
-    $end_html_title          = '</SPAN></SPAN></DIV></div>';
+    // $start_html_title        = '<div style="text-align:left; color:#000; "><DIV STYLE="line-height:125%;text-align:left;font-size:31px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:31px;font-family:Montserrat Medium">';
+    // $end_html_title          = '</SPAN></SPAN></DIV></div>';
 
-    $screen['title'] = $start_html_title . ($screen['title'] ?? '') . $end_html_title;
+    // $screen['title'] = $start_html_title . ($screen['title'] ?? '') . $end_html_title;
 }
 
 // ========== OUTPUT JSON ==========
