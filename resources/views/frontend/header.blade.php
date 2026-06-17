@@ -4,28 +4,22 @@
 @endphp
 <header class="header">
     <div class="header__wrapper">
-        <div class="container">
-            <div class="header__inner">
-                <a class="header__logo" href="{{ route('home_page') }}">
-                    <img src="{{ \App\Models\Setting::getSettingByKey('logo') }}" alt="" />
-                </a>
-                <div class="header__elements">
-                    <div class="header__text">{{ \App\Models\Setting::getSettingByKey('site_name') }}</div>
-                </div>
-                <button class="btn-toggle text-white d-xl-none js-navbar-toggle ms-1"></button>
-            </div>
-        </div>
         <nav class="navigation">
             <div class="container">
                 <div class="navigation__inner">
+                    <!-- Desktop Logo -->
+                    <a class="header__logo d-none d-xl-flex" href="{{ route('home_page') }}" style="position: absolute; left: 0; top: 0; height: 100%; align-items: center; z-index: 9999;">
+                        <img src="{{ \App\Models\Setting::getSettingByKey('logo') ?: asset('images/logo_sce.png') }}" alt="Logo" style="max-height: 80px; height: auto !important; margin: 0 !important;" />
+                    </a>
+
                     <section class="navbar js-navbar">
                         <div class="navbar__backdrop js-navbar-toggle"></div>
                         <div class="navbar__wrapper">
                             <div class="navbar__header">
-                                <a class="navbar__logo" href="{{ route('home_page') }}">
-                                    <img src="{{ \App\Models\Setting::getSettingByKey('logo') }}" alt="" />
+                                <a class="navbar__logo" href="{{ route('home_page') }}" style="display: flex; align-items: center; z-index: 9999;">
+                                    <img src="{{ \App\Models\Setting::getSettingByKey('logo') ?: asset('images/logo_sce.png') }}" alt="Logo" style="max-height: 60px; height: auto !important; margin: 0 !important;" />
                                 </a>
-                                <button class="btn-toggle js-navbar-toggle ms-auto text-white"></button>
+                                <button class="btn-toggle js-navbar-toggle ms-auto"></button>
                             </div>
                             <div class="navbar__body">
                                 <ul class="menu menu-root">
@@ -142,6 +136,7 @@
                             </a>
                         </div>
                     </div>
+                    <button class="btn-toggle js-navbar-toggle text-white d-xl-none ms-3"></button>
                 </div>
             </div>
         </nav>

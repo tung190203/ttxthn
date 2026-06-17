@@ -94,8 +94,11 @@ $(function () {
     navigation: true,
     spaceBetween: 0,
     speed: 500,
-    slidesPerView: 2,
+    slidesPerView: 1,
     breakpoints: {
+      768: {
+        slidesPerView: 2
+      },
       992: {
         slidesPerView: 3
       }

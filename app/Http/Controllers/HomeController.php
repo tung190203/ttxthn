@@ -64,7 +64,7 @@ class HomeController extends Controller
                 'name' => $productType->name,
             ];
         })->toArray();
-        $posts = Post::with('interests')->where('published_at', '<=', Carbon::now())
+        $posts = Post::with(['interests', 'category'])->where('published_at', '<=', Carbon::now())
             ->whereNull('parent_id')
             ->where('status_approve','approved')
             ->orderBy('published_at', 'desc')
@@ -78,6 +78,7 @@ class HomeController extends Controller
                     'image' => $post->image,
                     'published_at' => $post->published_at,
                     'description' => $post->description,
+                    'category_name' => $post->category ? $post->category->name : 'TIN TỨC',
                     'is_interested' => $post->interests()->where('guest_id', Auth::guard('guest')->id())->exists(),
                 ];
             })->toArray();
@@ -103,6 +104,7 @@ class HomeController extends Controller
                 'slug' => $project->slug,
                 'type_number' => $project->type_number,
                 'industry_number' => $project->industry_number,
+                'industry_name' => $project->industry ? $project->industry->name : '',
                 'area' => $project->area,
                 'unit' => $project->unit_type_text,
                 'price' => $project->price,
@@ -114,6 +116,44 @@ class HomeController extends Controller
         $maxPrice = $rawProjects->max('price');
         $maxPriceSp = Project::where('industry_number', 6)->where('status','approved')->max('price');
         $popups = Popup::where('status_approve', 'approved')->get();
+
+        $investment_guides = InvestmentGuide::whereNull('parent_id')
+            ->where('status_approve','approved')
+            ->where('published_at', '<=', Carbon::now())
+            ->where('status', InvestmentGuide::STATUS_ACTIVE)
+            ->orderBy('published_at', 'desc')
+            ->take(7)
+            ->get();
+
+        $guide_category_parent = Category::where('id', Category::CATEGORY_TYPE_INVESTMENT_HANDBOOK)->first();
+        if (!$guide_category_parent) {
+            $guide_category_parent = Category::where('type', Category::CATEGORY_TYPE_INVESTMENT_HANDBOOK)->whereNull('parent_id')->first();
+        }
+
+        $guide_categories = Category::where('parent_id', $guide_category_parent ? $guide_category_parent->id : Category::CATEGORY_TYPE_INVESTMENT_HANDBOOK)
+            ->where('status_approve', 'approved')
+            ->get();
+
+        if ($request->ajax() && $request->has('ajax_investment_guide')) {
+            $cat_id = $request->get('cat_id');
+            $query = InvestmentGuide::whereNull('parent_id')
+                ->where('status_approve', 'approved')
+                ->where('published_at', '<=', Carbon::now())
+                ->where('status', InvestmentGuide::STATUS_ACTIVE)
+                ->orderBy('published_at', 'desc');
+
+            if ($cat_id) {
+                $query->where('cat_id', $cat_id);
+            } else {
+                $categoryIds = Category::where('id', Category::CATEGORY_TYPE_INVESTMENT_HANDBOOK)
+                    ->orWhere('parent_id', Category::CATEGORY_TYPE_INVESTMENT_HANDBOOK)
+                    ->pluck('id');
+                $query->whereIn('cat_id', $categoryIds);
+            }
+
+            $investment_guides = $query->take(7)->get();
+            return view('frontend.home.partials.investment_guides', compact('investment_guides'))->render();
+        }
 
         if ($request->ajax() && $request->has('ajax_project_slider')) {
             return view('frontend.home.partials.project_slider', compact('project_category'))->render();
@@ -134,7 +174,10 @@ class HomeController extends Controller
                 'maxPrice',
                 'maxPriceSp',
                 'list_industries',
-                'popups'
+                'popups',
+                'investment_guides',
+                'guide_categories',
+                'guide_category_parent'
             )
         );
     }
@@ -359,7 +402,29 @@ class HomeController extends Controller
 
     public function showVrtour($slug)
     {
-        $link_vrtour = Project::where('slug', $slug)->value('link_vrtour');
+        $locate = app()->getLocale();
+        if ($locate == 'vn') {
+            $locate = 'vi';
+        }
+        $availableLocales = config('app.available_locales', ['vi', 'en']);
+        $project = Project::where(function ($query) use ($slug, $locate, $availableLocales) {
+            $query->where("slug->{$locate}", $slug);
+            foreach ($availableLocales as $loc) {
+                if ($loc !== $locate) {
+                    $query->orWhere("slug->{$loc}", $slug);
+                }
+            }
+        })->first();
+
+        if (!$project) {
+            $project = Project::where('slug', $slug)->firstOrFail();
+        }
+
+        if ($project->hide_vrtour || !$project->link_vrtour) {
+            abort(404);
+        }
+
+        $link_vrtour = $project->link_vrtour;
         return view('frontend.home.tour', compact('link_vrtour'));
     }
 

@@ -57,7 +57,7 @@
   border-bottom-left-radius: 0 !important;
 
   &.orange-theme {
-    background-color: #d15a2a;
+    background-color: #1169ff;
   }
 }
 
@@ -127,12 +127,12 @@
 }
 
 #industrialTab {
-  background-color: #d15a2a;
+  background-color: #1169ff;
   color: #fff;
 }
 
 .orange-btn {
-  color: #d15a2a !important;
+  color: #1169ff !important;
   background-color: white !important;
 }
 
@@ -187,7 +187,7 @@
   }
 
   .modal-header {
-    background-color: #d15a2a;
+    background-color: #1169ff;
     border-bottom: 1px solid #dee2e6;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
@@ -232,13 +232,13 @@
 
         .custom-btn {
           color: #fff;
-          background-color: #d15a2a;
-          border: 1px solid #d15a2a;
+          background-color: #1169ff;
+          border: 1px solid #1169ff;
 
           &:hover {
             background-color: #fff;
-            color: #d15a2a;
-            border: 1px solid #d15a2a;
+            color: #1169ff;
+            border: 1px solid #1169ff;
           }
         }
       }
@@ -253,20 +253,20 @@
         margin: 0 5px;
 
         .page-link {
-          color: #d15a2a;
-          border: 1px solid #d15a2a;
+          color: #1169ff;
+          border: 1px solid #1169ff;
           border-radius: 6px;
 
           &:hover {
-            background-color: #d15a2a;
+            background-color: #1169ff;
             color: #fff;
           }
         }
 
         &.active .page-link {
-          background-color: #d15a2a;
+          background-color: #1169ff;
           color: #fff;
-          border: 1px solid #d15a2a;
+          border: 1px solid #1169ff;
         }
       }
     }
@@ -424,7 +424,7 @@
 
 .project-nav {
   position: sticky;
-  top: 40px;
+  top: 60px;
   z-index: 9999;
 }
 
@@ -486,7 +486,7 @@
 }
 
 .project-nav-fixed a.active {
-  background-color: #d15a2a;
+  background-color: #1169ff;
   color: #fff;
 }
 
@@ -552,12 +552,12 @@
 }
 
 .project-nav__list_custom a:hover {
-  background-color: #2a84d0;
+  background-color: #2f71ff;
   color: #fff;
 }
 
 .project-nav__list_custom a.active {
-  background-color: #d15a2a;
+  background-color: #1169ff;
   font-weight: 700;
   color: #fff;
 }
@@ -739,4 +739,20 @@
   .note div {
       font-size: 12px;
   }
+}
+
+/* Sticky Header Black Blur Background */
+.header .header__wrapper {
+  transition: background-color 0.3s ease, backdrop-filter 0.3s ease, -webkit-backdrop-filter 0.3s ease, box-shadow 0.3s ease, top 0.3s ease !important;
+}
+.header.is-sticky .header__wrapper {
+  background-color: rgba(26, 109, 255, 0.9) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+
+@media (max-width: 767.98px) {
+    .navbar__wrapper {
+        width: 100% !important;
+    }
 }

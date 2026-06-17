@@ -198,9 +198,6 @@
                                 <div class="swiper-slide">
                                     <div class="counter">
                                         <div class="counter__item">
-                                            <div class="counter__icon">
-                                                <img src="{{ $item['icon'] ?? '' }}" alt="" />
-                                            </div>
                                             <div class="counter__number">
                                                 {{ $item['title'][$locale] ?? $item['title']['vi'] ?? '0' }}
                                             </div>

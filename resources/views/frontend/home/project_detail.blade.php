@@ -84,7 +84,9 @@
     $hasGeneralInfo = !empty(trim(strip_tags($project->description ?? '')));
     $hasLocation = !empty($project->location_image);
     $hasAdvantages = count(array_filter(explode(';', $project->advantage_images ?? ''))) > 0;
-    $hasVirtualMap = !empty($project->link_sand_table) || !empty($project->link_vrtour);
+    $effectiveVrtourLink = $project->hide_vrtour ? null : $project->link_vrtour;
+    $effectiveSandTableLink = $project->hide_saban ? null : $project->link_sand_table;
+    $hasVirtualMap = !empty($effectiveSandTableLink) || !empty($effectiveVrtourLink);
     $hasDesign = count(array_filter(explode(';', $project->design_images ?? ''))) > 0;
     $hasLegal = count(array_filter(explode(';', $project->legal_file ?? ''))) > 0;
     $hasInvestmentGuide = isset($preferential) && count($preferential) > 0;
@@ -202,9 +204,9 @@
     <div class="section section--overlay">
         <div class="container">
             <h2 class="section__title text-white">{{ __('app.virtual_map') }}</h2>
-            @if($project->link_vrtour)
+            @if($effectiveVrtourLink)
             <div class="mt-3">
-                <a href="{{ $project->link_vrtour }}" class="btn btn-warning text-white custom-btn-vrtour"
+                <a href="{{ $effectiveVrtourLink }}" class="btn btn-warning text-white custom-btn-vrtour"
                     target="_blank" rel="noopener noreferrer">
                     {{ __('app.view_vr_tour') }}
                 </a>
@@ -212,9 +214,9 @@
             @endif
         </div>
     </div>
-    @if($project->link_sand_table)
+    @if($effectiveSandTableLink)
     <div class="ratio ratio-2x1">
-        <iframe src="{{ $project->link_sand_table }}" frameborder="0" allowfullscreen allow="fullscreen"></iframe>
+        <iframe src="{{ $effectiveSandTableLink }}" frameborder="0" allowfullscreen allow="fullscreen"></iframe>
     </div>
     @endif
 </section>
