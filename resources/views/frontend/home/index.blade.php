@@ -928,8 +928,8 @@ html {
 }
 
 @keyframes floatBadge {
-    0%, 100% { margin-top: 0; }
-    50% { margin-top: -12px; }
+    0%, 100% { transform: translateY(0) rotate(var(--badge-rot, 0deg)); }
+    50% { transform: translateY(-12px) rotate(var(--badge-rot, 0deg)); }
 }
 
 .home-about-section__badge strong {
@@ -951,21 +951,24 @@ html {
 .home-about-section__badge--top {
     top: 30px;
     right: 12%;
-    transform: rotate(6deg);
+    --badge-rot: 6deg;
+    transform: rotate(var(--badge-rot));
     animation-delay: 0s;
 }
 
 .home-about-section__badge--left {
     left: 2%;
     bottom: 120px;
-    transform: rotate(-5deg);
+    --badge-rot: -5deg;
+    transform: rotate(var(--badge-rot));
     animation-delay: 1s;
 }
 
 .home-about-section__badge--right {
     right: 2%;
     bottom: 150px;
-    transform: rotate(5deg);
+    --badge-rot: 5deg;
+    transform: rotate(var(--badge-rot));
     background: linear-gradient(135deg, #1b7dff, #0753dc);
     color: #fff;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
