@@ -41,7 +41,7 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                         @php $locale = app()->getLocale(); @endphp
                         @foreach ($setting['features'] as $item)
                         <div class="home-map-intro__stat">
-                            <strong>{{ $item['title'][$locale] ?? ($item['title']['vi'] ?? '') }}</strong>
+                            <strong class="stat-number-animate" style="opacity: 0;">{{ $item['title'][$locale] ?? ($item['title']['vi'] ?? '') }}</strong>
                             <span>{{ $item['content'][$locale] ?? ($item['content']['vi'] ?? '') }}</span>
                         </div>
                         @endforeach
@@ -77,7 +77,7 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                             @php $locale = app()->getLocale(); @endphp
                             @foreach ($setting['features'] as $item)
                             <div class="home-map-intro__stat">
-                                <strong>{{ $item['title'][$locale] ?? ($item['title']['vi'] ?? '') }}</strong>
+                                <strong class="stat-number-animate" style="opacity: 0;">{{ $item['title'][$locale] ?? ($item['title']['vi'] ?? '') }}</strong>
                                 <span>{{ $item['content'][$locale] ?? ($item['content']['vi'] ?? '') }}</span>
                             </div>
                             @endforeach
@@ -2105,6 +2105,55 @@ html {
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Animation for stats
+    function animateStats() {
+        const statElements = document.querySelectorAll('.stat-number-animate');
+        statElements.forEach(el => {
+            const originalText = el.getAttribute('data-target') || el.innerText.trim();
+            if (!el.getAttribute('data-target')) {
+                el.setAttribute('data-target', originalText);
+            }
+
+            const match = originalText.match(/^([\d.,]+)(.*)$/);
+            if (match) {
+                const rawNum = match[1].replace(/,/g, '');
+                const target = parseFloat(rawNum);
+                if (isNaN(target)) {
+                    el.style.opacity = '1';
+                    return;
+                }
+                const suffix = match[2];
+                const hasDecimal = rawNum.includes('.');
+
+                let current = 0;
+                const duration = 4000; // Tăng thời gian lên 4 giây
+                const stepTime = 30; 
+                const steps = duration / stepTime;
+                const increment = target / steps;
+
+                // Hiển thị giá trị ban đầu là 0
+                el.innerText = '0' + suffix;
+                el.style.opacity = '1';
+
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        current = target;
+                        clearInterval(timer);
+                    }
+                    
+                    let displayNum = hasDecimal ? current.toFixed(1) : Math.floor(current);
+                    if (!hasDecimal && current >= 1000) {
+                        displayNum = Math.floor(current).toLocaleString('en-US');
+                    }
+
+                    el.innerText = displayNum + suffix;
+                }, stepTime);
+            }
+        });
+    }
+    animateStats();
+
     const introLayer = document.getElementById('mapIntroLayer');
     const startBtn = document.getElementById('startProjectIntro');
     const videoContainer = document.getElementById('video-loader-container');
