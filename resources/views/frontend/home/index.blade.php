@@ -331,10 +331,10 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                 </div>
             </div>
         </section>
-        <section class="section" id="investment-section">
+        <section class="section" id="investment-section" style="display: flex; flex-direction: column; justify-content: center;">
             <div class="container">
                 <div class="home-section-kicker text-uppercase">— {{ __('app.key_projects') }}</div>
-                <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-end mb-4 gap-3">
+                <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center mb-4 gap-3">
                     <h2 class="section__title m-0" style="text-transform: none; font-size: clamp(20px, 4vw, 32px); font-weight: 800; line-height: 1.3;">{!! __('app.outstanding_investment_opportunities') !!}</h2>
                             @php
                                 $localeLink = $locale === 'vi' ? 'vn' : $locale;
@@ -438,12 +438,12 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                 </div>
             </div>
         </section>
-        <section class="section" id="news-links-section">
+        <section class="section" id="news-links-section" style="display: flex; flex-direction: column; justify-content: center;">
             {{-- <img class="texture-1" src="./images/texture-1.png" alt="" />
             <img class="texture-2" src="./images/texture-2.png" alt="" /> --}}
             <div class="container">
                 <div class="home-section-kicker text-uppercase">— {{ __('app.news_and_events') }}</div>
-                <div class="d-flex justify-content-between align-items-end mb-4 position-relative">
+                <div class="d-flex justify-content-between align-items-center mb-4 position-relative">
                     <h2 class="section__title m-0" style="text-transform: none; font-size: clamp(24px, 4vw, 32px); font-weight: 800;">{!! __('app.latest_updates') !!}</h2>
                     <div class="d-flex align-items-center gap-4">
                         @php

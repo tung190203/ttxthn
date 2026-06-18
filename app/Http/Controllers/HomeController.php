@@ -545,6 +545,23 @@ class HomeController extends Controller
             $query->where('name', 'like', '%' . $request->keyword . '%');
         }
 
+        if ($request->filled('industry_id')) {
+            $query->where('industry_id', $request->industry_id);
+        }
+
+        if ($request->filled('issuing_authority')) {
+            $query->where('issuing_authority', $request->issuing_authority);
+        }
+
+        if ($request->filled('document_types')) {
+            $types = (array)$request->document_types;
+            $query->where(function($q) use ($types) {
+                foreach($types as $type) {
+                    $q->orWhereJsonContains('document_types', $type);
+                }
+            });
+        }
+
         $list_investment = $query->latest()->paginate(InvestmentGuide::INVESTMENT_PER_PAGE);
         $list_investment->getCollection()->transform(function ($item) {
             $item->is_interested = $item->interests()
@@ -554,6 +571,9 @@ class HomeController extends Controller
         });
 
         $childCategories = $subQuery->pluck('name', 'id');
+        $industries = \App\Models\ProjectIndustries::all();
+        $docTypes = \App\Models\InvestmentGuide::DOC_TYPES;
+        $authorities = \App\Models\InvestmentGuide::AUTHORITIES;
 
         return view(
             'frontend.home.introduce_potential',
@@ -561,7 +581,10 @@ class HomeController extends Controller
                 'setting',
                 'list_investment',
                 'childCategories',
-                'selectedCatId'
+                'selectedCatId',
+                'industries',
+                'docTypes',
+                'authorities'
             )
         );
     }

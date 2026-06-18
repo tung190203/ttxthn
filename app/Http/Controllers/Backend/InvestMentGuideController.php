@@ -140,7 +140,8 @@ class InvestMentGuideController extends Controller
 
         $option_categories = Category::makeListCategoryForInvestMent(0, '', $investment_guide->cat_id);
         $option_projects = Project::makeListProjectArray();
-        return view('backend.investment_guide.create', compact('investment_guide', 'option_categories', 'option_projects'));
+        $option_industries = \App\Models\ProjectIndustries::all();
+        return view('backend.investment_guide.create', compact('investment_guide', 'option_categories', 'option_projects', 'option_industries'));
     }
 
 public function save(InvestmentGuide $investment_guide, Request $request)
@@ -200,6 +201,11 @@ public function save(InvestmentGuide $investment_guide, Request $request)
         'extracted_summary' => 'nullable|string',
         'extracted_language' => 'nullable|string|max:10',
         'extracted_at' => 'nullable|date',
+        
+        'document_types' => 'nullable|array',
+        'document_types.*' => 'nullable|string',
+        'industry_id' => 'nullable|integer|exists:project_industries,id',
+        'issuing_authority' => 'nullable|string',
     ]);
 
     try {

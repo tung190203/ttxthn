@@ -62,6 +62,43 @@
                                     @endforeach
                                 </select>
                             </div>
+                            <div class="mb-4">
+                                <div class="fw-600 text-uppercase mb-2">Loại văn bản</div>
+                                @php
+                                    $reqDocs = (array)request('document_types', []);
+                                @endphp
+                                @foreach($docTypes as $val => $label)
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" name="document_types[]" value="{{ $val }}" id="doc_{{ $val }}"
+                                            {{ in_array($val, $reqDocs) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="doc_{{ $val }}">{{ $label }}</label>
+                                    </div>
+                                @endforeach
+                            </div>
+
+                            <div class="mb-4">
+                                <div class="fw-600 text-uppercase mb-2">Ngành/Lĩnh vực</div>
+                                <select class="form-select" name="industry_id">
+                                    <option value="">{{ __('app.all') }}</option>
+                                    @foreach($industries as $ind)
+                                        <option value="{{ $ind->id }}" {{ request('industry_id') == $ind->id ? 'selected' : '' }}>
+                                            {{ $ind->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="mb-4">
+                                <div class="fw-600 text-uppercase mb-2">Cơ quan ban hành</div>
+                                <select class="form-select" name="issuing_authority">
+                                    <option value="">{{ __('app.all') }}</option>
+                                    @foreach($authorities as $val => $label)
+                                        <option value="{{ $val }}" {{ request('issuing_authority') == $val ? 'selected' : '' }}>
+                                            {{ $label }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
                         
                             <button class="button button--block" type="submit">{{ __('app.search') }}</button>
                         </form>                        
@@ -201,7 +238,7 @@
 
         // Global change for auto-submitting select/checkboxes
         document.body.addEventListener('change', function (e) {
-            if (e.target.closest('.aside-form select[name="cat_id"]')) {
+            if (e.target.closest('.aside-form select') || e.target.closest('.aside-form input[type="checkbox"]')) {
                 const form = e.target.closest('.aside-form');
                 form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
             }
