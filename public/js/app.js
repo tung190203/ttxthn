@@ -290,8 +290,12 @@ $(function () {
 $(document).ready(function () {
   new Swiper('.project-nav-scroll', {
       slidesPerView: 'auto', 
-      spaceBetween: 10,
+      spaceBetween: 8,
       freeMode: true, 
       loop: true, 
+      breakpoints: {
+        768: { spaceBetween: 12 },
+        1200: { spaceBetween: 16 }
+      }
   });
 });

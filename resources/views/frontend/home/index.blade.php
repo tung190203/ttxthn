@@ -344,7 +344,7 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                 </div>
 
                 <div class="project-nav-wrapper mb-30" style="display: flex; align-items: center; justify-content: space-between;">
-                    <div style="display: flex; align-items: center; overflow: hidden; gap: 12px; flex: 1;">
+                    <div style="display: flex; align-items: center; min-width: 0; gap: 12px; flex: 1;">
                         <!-- "Tất cả" cố định -->
                         <div class="project-nav-fixed">
                             <a class="{{ request('industry') ? '' : 'active' }}"
@@ -418,14 +418,14 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                             @foreach($investment_guides as $index => $guide)
                             <!-- Item {{ $index + 1 }} -->
                             <div class="policy-item border-bottom py-3" style="border-color: rgba(255,255,255,0.2) !important;">
-                                <div class="policy-header d-flex justify-content-between align-items-center" style="cursor: pointer;" onclick="togglePolicy(this)">
+                                <div class="policy-header d-flex justify-content-between align-items-center {{ $index == 0 ? 'expanded' : '' }}" style="cursor: pointer;" onclick="togglePolicy(this)">
                                     <div class="d-flex align-items-center" style="width: calc(100% - 30px);">
                                         <span class="policy-num me-3" style="color: #F4C430; font-weight: bold; font-size: 16px; min-width: 25px;">{{ sprintf('%02d', $index + 1) }}</span>
                                         <h4 class="policy-item-title mb-0" style="font-size: 16px; font-weight: 600; text-transform: uppercase; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; flex: 1;">{{ $guide->name }}</h4>
                                     </div>
-                                    <span class="policy-icon flex-shrink-0" style="color: rgba(255,255,255,0.5); font-size: 20px; width: 20px; text-align: right;">+</span>
+                                    <span class="policy-icon flex-shrink-0" style="color: rgba(255,255,255,0.5); font-size: 20px; width: 20px; text-align: right;">{{ $index == 0 ? '-' : '+' }}</span>
                                 </div>
-                                <div class="policy-body mt-2" style="display: none; padding-left: 40px;">
+                                <div class="policy-body mt-2" style="display: {{ $index == 0 ? 'block' : 'none' }}; padding-left: 40px;">
                                     <a href="{{ $guide->getUrl() }}" style="color: rgba(255,255,255,0.8); text-decoration: none; display: block; font-size: 14px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis;">
                                         {{ $guide->description ? \Illuminate\Support\Str::limit(strip_tags($guide->description), 150) : 'Xem chi tiết thông tin về chính sách và ưu đãi đầu tư...' }}
                                     </a>

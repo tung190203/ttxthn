@@ -456,7 +456,6 @@
 .project-nav__list_custom {
   display: flex;
   flex-wrap: nowrap;
-  gap: 16px;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -472,7 +471,6 @@
 
 .project-nav__list_custom {
   display: inline-flex;
-  gap: 16px;
 }
 
 .project-nav-scroll::-webkit-scrollbar {
@@ -514,9 +512,6 @@
 }
 
 @media (max-width: 1199.98px) {
-  .project-nav__list_custom {
-    gap: 12px;
-  }
   .project-nav__list_custom li {
     flex: 0 0 120px;
     max-width: 100px;
@@ -548,9 +543,6 @@
 }
 
 @media (max-width: 767.98px) {
-  .project-nav__list_custom {
-    gap: 8px;
-  }
   .project-nav-fixed a {
     width: 100px;
   }
