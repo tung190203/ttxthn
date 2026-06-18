@@ -94,7 +94,7 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                     <!-- Railway Legend -->
                     <div id="railway-legend" style="display:none;">
                         <!-- Icon hiển thị khi thu gọn -->
-                        <button id="railway-legend-icon" class="railway-legend__icon-btn" title="Mở chú thích">
+                        <button id="railway-legend-icon" class="railway-legend__icon-btn" title="{{__('app.open_annotation')}}">
                             <i class="fas fa-train"></i>
                         </button>
 
@@ -102,7 +102,7 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                         <div id="railway-legend-panel">
                             <div class="railway-legend__header">
                                 <i class="fas fa-train me-2"></i>
-                                <span>Chú thích tuyến ĐSĐT</span>
+                                <span>{{__('app.rainway_line_annotation')}}</span>
                                 <button id="railway-legend-toggle" title="Thu gọn"><i class="fas fa-times"></i></button>
                             </div>
                             <div id="railway-legend__body">
@@ -2657,7 +2657,7 @@ function openRailwayFallbackPopup(railwayName, latlng) {
         .setLatLng(latlng)
         .setContent(`
                     <div class="info-box" style="max-width:250px;">
-                        <strong>${railwayName}</strong><br>
+                        <strong>${typeof getRailwayDisplayName === 'function' ? getRailwayDisplayName(railwayName) : railwayName}</strong><br>
                         Chưa tìm thấy dự án tương ứng trong dữ liệu đang hiển thị.
                     </div>
                 `)
@@ -2804,6 +2804,19 @@ function updateRailwayStyles() {
 }
 
 // ── RAILWAY LEGEND ────────────────────────────────────────────────
+const plannedLineSuffix = " {{ __('app.planned_line') }}";
+
+function getRailwayDisplayName(name) {
+    const match = name.match(/số (\d+)/i);
+    if (match) {
+        const num = parseInt(match[1], 10);
+        if (num >= 6) {
+            return name + plannedLineSuffix;
+        }
+    }
+    return name;
+}
+
 function buildRailwayLegend() {
     const container = document.getElementById('railway-legend-items');
     if (!container) return;
@@ -2814,7 +2827,7 @@ function buildRailwayLegend() {
         item.style.cursor = 'pointer';
         item.innerHTML = `
                     <span class="railway-legend__swatch" style="background:${data.color};"></span>
-                    <span>${name}</span>
+                    <span>${getRailwayDisplayName(name)}</span>
                 `;
 
         // Click vào tên trong legend để focus
@@ -2878,7 +2891,7 @@ function renderRailwayLayers() {
 
         railwayPolylines[name] = poly; // Lưu lại để legend có thể truy cập
 
-        poly.bindTooltip(name, {
+        poly.bindTooltip(getRailwayDisplayName(name), {
             sticky: true,
             direction: 'top',
             className: 'railway-tooltip'

@@ -226,5 +226,8 @@ return [
     'map' => 'Map',
     'investment' => 'Investment',
     'hanoi' => 'Hanoi',
-    'skip_video' => 'Skip Video'
+    'skip_video' => 'Skip Video',
+    'rainway_line_annotation' => 'Rainway line annotation',
+    'open_annotation' => 'Open annotation',
+    'planned_line' => '(planned)',
 ];

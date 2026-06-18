@@ -228,5 +228,8 @@ return [
     'map' => 'Bản đồ',
     'investment' => 'Đầu tư',
     'hanoi' => 'Hà Nội',
-    'skip_video' => 'Bỏ qua video'
+    'skip_video' => 'Bỏ qua video',
+    'rainway_line_annotation' => 'Chú thích tuyến ĐSĐT',
+    'open_annotation' => 'Mở chú thích',
+    'planned_line' => '(dự kiến)',
 ];
