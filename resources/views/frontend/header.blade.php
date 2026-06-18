@@ -26,9 +26,35 @@
                                     @foreach($share['main_menu'] as $item)
                                         <li
                                             class="menu-item @if($item['name'] == __('app.investment_projects')) menu-item-group @endif">
+                                            @php
+                                                $currentUrl = request()->url();
+                                                $menuHref = $item['href'] ?? '';
+                                                
+                                                // 1. Exact match for list pages
+                                                $isActive = (rtrim($currentUrl, '/') == rtrim($menuHref, '/'));
+                                                
+                                                // 2. Fallback to menu_active
+                                                if (!$isActive && isset($setting['menu_active'])) {
+                                                    if ($setting['menu_active'] == \Str::slug($item['name'])) {
+                                                        $isActive = true;
+                                                    }
+                                                }
+                                                
+                                                // 3. Smart match for detail pages based on Route
+                                                if (!$isActive) {
+                                                    $routeName = request()->route() ? request()->route()->getName() : '';
+                                                    if ($routeName == 'post_detail') {
+                                                        if (str_contains($menuHref, '/tin-tuc') || str_contains($menuHref, '/news')) $isActive = true;
+                                                    } elseif ($routeName == 'project_detail') {
+                                                        if (str_contains($menuHref, '/projects')) $isActive = true;
+                                                    } elseif ($routeName == 'investment_guide_detail') {
+                                                        if (str_contains($menuHref, '/cam-nang') || str_contains($menuHref, '/investment-guide')) $isActive = true;
+                                                    }
+                                                }
+                                            @endphp
                                             <a class="menu-link 
-                                                    @if(empty($setting['menu_active']) && $item['name'] == __('app.home')) active
-                                                    @elseif(($setting['menu_active'] ?? '') == \Str::slug($item['name'])) active
+                                                    @if(empty($setting['menu_active']) && request()->routeIs('home_page') && $item['name'] == __('app.home')) active
+                                                    @elseif($isActive) active
                                                     @endif" href="{{ $item['href'] }}">
                                                 {{ $item['name'] }}
 
