@@ -1302,6 +1302,12 @@ html {
     transition: opacity 0.35s ease, visibility 0.35s ease;
 }
 
+.home-video-intro.is-playing .home-video-intro__overlay {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
 .home-video-intro__inner {
     position: relative;
     min-height: 100%;
