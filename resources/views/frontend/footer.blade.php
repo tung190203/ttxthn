@@ -84,7 +84,7 @@
 
 <div class="newsletter-wrapper" style="background: linear-gradient(135deg, #073A73 0%, #1C5FA6 50%, #33AAFA 100%); padding: 60px 0; flex-grow: 1; display: flex; align-items: center;">
     <div class="container text-center w-100">
-        <h2 class="text-white mb-2" style="font-size: 32px; font-weight: 700;">{{ __('app.subscribe_project_updates') }}</h2>
+        <h2 class="text-white mb-2 font-heading" style="font-size: 32px; font-weight: 700;">{{ __('app.subscribe_project_updates') }}</h2>
         <p class="text-white mb-4" style="font-size: 15px; opacity: 0.9;">{{ __('app.subscribe_newsletter_desc') }}</p>
         <div class="d-flex justify-content-center">
             <form action="#" class="newsletter-form" style="display: flex; max-width: 500px; width: 100%;">

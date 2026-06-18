@@ -13,7 +13,7 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                 <div class="home-map-intro__bg"></div>
                 <div class="container home-map-intro__inner">
                     <div class="home-map-intro__content">
-                        <h1 class="home-map-intro__title">
+                        <h1 class="home-map-intro__title font-heading">
                             @php $locale = app()->getLocale(); @endphp
                             @if($locale == 'vi' || $locale == 'vn')
                                 <span>{{__('app.map')}}</span>
@@ -57,7 +57,7 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                 <div class="home-video-intro__overlay">
                     <div class="container home-video-intro__inner">
                         <div class="home-map-intro__content">
-                            <h1 class="home-map-intro__title">
+                            <h1 class="home-map-intro__title font-heading">
                             @php $locale = app()->getLocale(); @endphp
                             @if($locale == 'vi' || $locale == 'vn')
                                 <span>{{__('app.map')}}</span>
@@ -291,9 +291,9 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                             if (!empty(trim(strip_tags($sec2Title)))) {
                                 // If it starts with <p> and ends with </p>, replace it with <h2> and </h2> to keep the H2 styling
                                 if (preg_match('/^<p>(.*?)<\/p>$/s', trim($sec2Title), $matches)) {
-                                    $sec2Title = '<h2>' . $matches[1] . '</h2>';
+                                    $sec2Title = '<h2 class="font-heading">' . $matches[1] . '</h2>';
                                 } else {
-                                    $sec2Title = '<h2>' . $sec2Title . '</h2>';
+                                    $sec2Title = '<h2 class="font-heading">' . $sec2Title . '</h2>';
                                 }
                             }
                             
@@ -335,7 +335,7 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
             <div class="container">
                 <div class="home-section-kicker text-uppercase">— {{ __('app.key_projects') }}</div>
                 <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center mb-4 gap-3">
-                    <h2 class="section__title m-0" style="text-transform: none; font-size: clamp(20px, 4vw, 32px); font-weight: 800; line-height: 1.3;">{!! __('app.outstanding_investment_opportunities') !!}</h2>
+                    <h2 class="section__title m-0 font-heading" style="text-transform: none; font-size: clamp(20px, 4vw, 32px); font-weight: 800; line-height: 1.3;">{!! __('app.outstanding_investment_opportunities') !!}</h2>
                             @php
                                 $localeLink = $locale === 'vi' ? 'vn' : $locale;
                             @endphp
@@ -385,7 +385,7 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                 <div class="row">
                     <div class="col-lg-5 mb-4 mb-lg-0 pe-lg-5">
                         <div class="home-section-kicker text-uppercase" style="color: #60a5fa;">— {{ __('app.policies_and_incentives') }}</div>
-                        <h2 class="policy-title" style="font-size: clamp(28px, 5vw, 40px); font-weight: 800; margin-bottom: 20px;">{{ __('app.investment_incentives') }}</h2>
+                        <h2 class="policy-title font-heading" style="font-size: clamp(28px, 5vw, 40px); font-weight: 800; margin-bottom: 20px;">{{ __('app.investment_incentives') }}</h2>
                         
                         {{-- DESKTOP: Wrap normally --}}
                         <div class="policy-tags d-none d-lg-flex flex-wrap gap-2 mb-4" style="gap: 10px;">
@@ -444,7 +444,7 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
             <div class="container">
                 <div class="home-section-kicker text-uppercase">— {{ __('app.news_and_events') }}</div>
                 <div class="d-flex justify-content-between align-items-center mb-4 position-relative">
-                    <h2 class="section__title m-0" style="text-transform: none; font-size: clamp(24px, 4vw, 32px); font-weight: 800;">{!! __('app.latest_updates') !!}</h2>
+                    <h2 class="section__title m-0 font-heading" style="text-transform: none; font-size: clamp(24px, 4vw, 32px); font-weight: 800;">{!! __('app.latest_updates') !!}</h2>
                     <div class="d-flex align-items-center gap-4">
                         @php
                             $locale = app()->getLocale() === 'vi' ? 'vn' : app()->getLocale();
