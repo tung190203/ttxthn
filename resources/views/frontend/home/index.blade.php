@@ -422,7 +422,7 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                                 <div class="policy-header d-flex justify-content-between align-items-center {{ $index == 0 ? 'expanded' : '' }}" style="cursor: pointer;" onclick="togglePolicy(this)">
                                     <div class="d-flex align-items-center" style="width: calc(100% - 30px);">
                                         <span class="policy-num me-3" style="color: #F4C430; font-weight: bold; font-size: 16px; min-width: 25px;">{{ sprintf('%02d', $index + 1) }}</span>
-                                        <h4 class="policy-item-title mb-0" style="font-size: 16px; font-weight: 600; text-transform: uppercase; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; flex: 1;">{{ $guide->name }}</h4>
+                                        <h4 class="policy-item-title mb-0" style="font-size: 16px; font-weight: 600; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; line-height: 1.5; padding-bottom: 2px;">{{ $guide->name }}</h4>
                                     </div>
                                     <span class="policy-icon flex-shrink-0" style="color: rgba(255,255,255,0.5); font-size: 20px; width: 20px; text-align: right;">{{ $index == 0 ? '-' : '+' }}</span>
                                 </div>
