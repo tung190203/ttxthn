@@ -38,7 +38,7 @@
                 </ul>
             </div>
         </nav>            
-        <div class="pt-40">
+        <div class="pt-40 pb-100">
             <div class="container">
                 <div class="row g-20">
                     <div class="col-lg-3">
