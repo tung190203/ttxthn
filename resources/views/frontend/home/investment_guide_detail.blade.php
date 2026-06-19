@@ -3,7 +3,7 @@
 @section('content')
     <div class="page__content">
         <!-- main content-->
-        <div class="pt-20">
+        <div class="pt-100">
             <nav>
                 <div class="container">
                     <ol class="breadcrumb">

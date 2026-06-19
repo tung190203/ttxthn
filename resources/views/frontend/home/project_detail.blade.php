@@ -4,7 +4,7 @@
 <div class="page__content">
     <!-- main content-->
     @if ($project->layout_id == 1)
-    <section class="pj-banner">
+    <section class="pj-banner pt-100">
         <nav>
             <div class="container">
                 <ol class="breadcrumb">
@@ -32,7 +32,7 @@
         </div>
     </section>
     @elseif($project->layout_id == 2)
-    <section class="pj-banner">
+    <section class="pj-banner pt-100">
         <nav>
             <div class="container">
                 <ol class="breadcrumb">
@@ -54,7 +54,7 @@
         </div>
     </section>
     @elseif($project->layout_id == 3)
-    <section class="pj-banner">
+    <section class="pj-banner pt-100">
         <nav>
             <div class="container">
                 <ol class="breadcrumb">

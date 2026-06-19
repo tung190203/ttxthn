@@ -50,18 +50,6 @@
                                     <div class="input-group-text"><i class="fal fa-fw fa-search"></i></div>
                                 </div>
                             </div>
-                        
-                            <div class="mb-4">
-                                <div class="fw-600 text-uppercase mb-2">{{ __('app.category_filter') }}</div>
-                                <select class="form-select" name="cat_id">
-                                    <option value="">{{ __('app.all') }}</option>
-                                    @foreach($childCategories as $id => $name)
-                                        <option value="{{ $id }}" {{ (int)$selectedCatId === $id ? 'selected' : '' }}>
-                                            {{ $name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
                             <div class="mb-4">
                                 <div class="fw-600 text-uppercase mb-2">Loại văn bản</div>
                                 @php

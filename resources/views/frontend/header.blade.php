@@ -2,7 +2,7 @@
     $listProjectHeader = App\Models\Project::orderBy('is_pinned', 'desc')->orderByRaw('CASE WHEN pin_order IS NULL THEN 999999 ELSE pin_order END ASC')->orderBy('updated_at', 'desc')->whereNull('parent_id')->where('status', 'approved')->take(5)->get();
     $countAllProject = App\Models\Project::where('is_invest', 0)->where('status', 'approved')->count();
 @endphp
-<header class="header">
+<header class="header @if(request()->routeIs(['project_detail', 'investment_guide_detail', 'post_detail'])) header-solid @endif">
     <div class="header__wrapper">
         <nav class="navigation">
             <div class="container">

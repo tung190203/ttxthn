@@ -94,8 +94,8 @@ class InvestmentGuide extends Model
 
     protected $dates = ['created_at', 'updated_at', 'deleted_at', 'published_at'];
 
-    const INVESTMENT_PER_PAGE = 10;
-    const INVESTMENT_TAKE = 10;
+    const INVESTMENT_PER_PAGE = 9;
+    const INVESTMENT_TAKE = 9;
 
     const STATUS_ACTIVE = 1;
     const STATUS_INACTIVE = 0;
