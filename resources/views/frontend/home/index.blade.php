@@ -2121,7 +2121,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const hasDecimal = rawNum.includes('.');
 
                 let current = 0;
-                const duration = 4000; // Tăng thời gian lên 4 giây
+                const duration = 1000; // Tối đa 1 giây
                 const stepTime = 30; 
                 const steps = duration / stepTime;
                 const increment = target / steps;
