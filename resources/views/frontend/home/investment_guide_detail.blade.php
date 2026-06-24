@@ -68,7 +68,16 @@
                             @endforeach
                         </div>
                         <div class="mt-3">
-                            <iframe id="fileViewer" src="{{ asset($files[0]) }}" width="100%" height="700px" frameborder="0"></iframe>
+                            <div class="d-flex justify-content-end mb-2">
+                                <button type="button" class="btn btn-sm btn-outline-primary" id="btnFullscreen" style="display: none;">
+                                    <i class="fas fa-expand"></i> Xem toàn màn hình
+                                </button>
+                            </div>
+                            <div id="fileViewerPlaceholder" class="text-center p-5 border rounded bg-light">
+                                <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                                <h5>Chọn một tài liệu phía trên để xem</h5>
+                            </div>
+                            <iframe id="fileViewer" src="" width="100%" height="700px" frameborder="0" allowfullscreen style="display: none;"></iframe>
                         </div>
                     </div>
                 @endif
@@ -128,13 +137,43 @@
     document.addEventListener('DOMContentLoaded', function() {
         const fileItems = document.querySelectorAll('.file-item');
         const iframe = document.getElementById('fileViewer');
+        const btnFullscreen = document.getElementById('btnFullscreen');
 
-        fileItems.forEach(item => {
-            item.addEventListener('click', function() {
-                const fileUrl = this.getAttribute('data-file');
-                iframe.src = fileUrl;
+        if (fileItems.length > 0 && iframe) {
+            const placeholder = document.getElementById('fileViewerPlaceholder');
+            fileItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    let fileUrl = this.getAttribute('data-file');
+                    
+                    // Prevent download by using Google Docs Viewer for Office files
+                    const ext = fileUrl.split('.').pop().toLowerCase();
+                    const officeExts = ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'];
+                    
+                    if (officeExts.includes(ext)) {
+                        fileUrl = 'https://docs.google.com/gview?url=' + encodeURIComponent(fileUrl) + '&embedded=true';
+                    }
+
+                    iframe.src = fileUrl;
+                    iframe.style.display = 'block';
+                    if (placeholder) placeholder.style.display = 'none';
+                    if (btnFullscreen) btnFullscreen.style.display = 'inline-block';
+                });
             });
-        });
+        }
+
+        if (btnFullscreen && iframe) {
+            btnFullscreen.addEventListener('click', function() {
+                if (iframe.requestFullscreen) {
+                    iframe.requestFullscreen();
+                } else if (iframe.mozRequestFullScreen) { /* Firefox */
+                    iframe.mozRequestFullScreen();
+                } else if (iframe.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+                    iframe.webkitRequestFullscreen();
+                } else if (iframe.msRequestFullscreen) { /* IE/Edge */
+                    iframe.msRequestFullscreen();
+                }
+            });
+        }
     });
 </script>
 @endpush
