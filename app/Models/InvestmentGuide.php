@@ -42,6 +42,7 @@ class InvestmentGuide extends Model
 
     protected $casts = [
         'document_types' => 'array',
+        'industry_id' => 'array',
     ];
 
     protected $fillable = [
@@ -156,9 +157,12 @@ class InvestmentGuide extends Model
         return $this->belongsTo(Category::class, 'cat_id', 'id');
     }
 
-    public function industry()
+    public function getIndustriesAttribute()
     {
-        return $this->belongsTo(ProjectIndustries::class, 'industry_id', 'id');
+        if (empty($this->industry_id)) {
+            return collect();
+        }
+        return ProjectIndustries::whereIn('id', $this->industry_id)->get();
     }
 
     public function projects()

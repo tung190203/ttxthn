@@ -111,8 +111,8 @@
                             $selectedDocTypes = old('document_types', is_array($investment_guide->document_types) ? $investment_guide->document_types : []);
                         @endphp
                         <div class="form-group row">
-                            <label class="col-sm-2 col-form-label">Loại văn bản</label>
-                            <div class="col-sm-10 pt-2">
+                            <label class="col-sm-3 col-form-label">Loại văn bản</label>
+                            <div class="col-sm-9 pt-2">
                                 @foreach($docTypes as $val => $label)
                                     <div class="custom-control custom-checkbox custom-control-inline">
                                         <input type="checkbox" name="document_types[]" id="doc_type_{{ $val }}" value="{{ $val }}" 
@@ -123,15 +123,10 @@
                             </div>
                         </div>
 
-                        @php
-                            $industryOptions = '<option value="">Chọn Ngành/Lĩnh vực</option>';
-                            foreach($option_industries as $ind) {
-                                $selected = old('industry_id', $investment_guide->industry_id) == $ind->id ? 'selected' : '';
-                                $industryOptions .= '<option value="'.$ind->id.'" '.$selected.'>'.$ind->name.'</option>';
-                            }
-                        @endphp
-                        <x-forms.select name="industry_id" label="Ngành/Lĩnh vực" :options="new HtmlString($industryOptions)"
-                                        :messages="$errors->get('industry_id')"/>
+                        <x-forms.select-multiple name="industry_id" label="Ngành/Lĩnh vực" :options="$option_industries" 
+                            :selected="old('industry_id', is_array($investment_guide->industry_id) ? $investment_guide->industry_id : [])"
+                            :messages="$errors->get('industry_id')" help="Chọn các Ngành/Lĩnh vực"
+                            selectAll="true" selectLabel="Ngành/Lĩnh vực" />
 
                         @php
                             $authorities = \App\Models\InvestmentGuide::AUTHORITIES;
