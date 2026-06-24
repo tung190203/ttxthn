@@ -488,27 +488,6 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                 </div>
             </div>
 
-            @if (!empty($setting['banners']))
-            <div class="news-links__partners py-5" style="background-color: #F4F7FC;">
-                <div class="container">
-                    <div class="partners-slider">
-                        <div class="partners-slider__container swiper-container">
-                            <div class="swiper-wrapper">
-                                @foreach ($setting['banners'] as $banner)
-                                <div class="swiper-slide">
-                                    <div class="partners__item">
-                                        <a href="{{ $banner['link'] ?? '#' }}" target="_blank">
-                                            <img src="{{ $banner['image'] ?? '' }}" alt="" />
-                                        </a>
-                                    </div>
-                                </div>
-                                @endforeach
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            @endif
         </section>
 
         <section class="section d-flex flex-column p-0" id="footer-section">

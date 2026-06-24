@@ -1,5 +1,16 @@
 <style>
+.partners-slider .swiper-wrapper {
+    display: flex;
+    flex-wrap: nowrap;
+}
+.partners__item img {
+    max-width: 100%;
+    object-fit: contain;
+}
 @media (max-width: 767.98px) {
+    .partners__item img {
+        height: 50px !important; /* Scale down on mobile */
+    }
     .newsletter-wrapper {
         padding: 20px 0 !important;
     }
@@ -97,7 +108,29 @@
     </div>
 </div>
 
-<footer class="footer" style="background-color: #F4F7FC; padding-top: 60px; padding-bottom: 20px; color: #333; position: relative;">
+@if (!empty($setting['banners']))
+<div class="news-links__partners pt-5 pb-2" style="background-color: #F4F7FC;">
+    <div class="container">
+        <div class="partners-slider">
+            <div class="partners-slider__container swiper-container">
+                <div class="swiper-wrapper">
+                    @foreach ($setting['banners'] as $banner)
+                    <div class="swiper-slide">
+                        <div class="partners__item">
+                            <a href="{{ $banner['link'] ?? '#' }}" target="_blank">
+                                <img src="{{ $banner['image'] ?? '' }}" alt="" />
+                            </a>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+
+<footer class="footer" style="background-color: #F4F7FC; padding-top: 20px; padding-bottom: 20px; color: #333; position: relative;">
     <div class="container">
         <div class="row mb-5">
             <!-- Column 1 -->
