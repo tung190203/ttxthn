@@ -1,6 +1,17 @@
 @extends('frontend.index')
 
 @section('content')
+<style>
+    .pj-banner .breadcrumb {
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-radius: 8px;
+        padding: 8px 16px;
+        display: inline-flex;
+        margin-bottom: 0;
+    }
+</style>
 <div class="page__content">
     <!-- main content-->
     @if ($project->layout_id == 1)
