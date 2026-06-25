@@ -50,7 +50,11 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
             </div>
             @else
             <div id="video-loader-container" class="home-video-intro">
-                <img id="intro-poster" src="{{ asset('images/intro.png') }}" alt="" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 10; transition: opacity 0.5s ease, visibility 0.5s ease;">
+                <picture id="intro-poster" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; transition: opacity 0.5s ease, visibility 0.5s ease; display: block;">
+                    <source media="(max-width: 576px)" srcset="{{ asset('images/KV-phone.jpg') }}">
+                    <source media="(max-width: 992px)" srcset="{{ asset('images/KV-ipad.jpg') }}">
+                    <img src="{{ asset('images/intro.png') }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                </picture>
                 <video id="loader-video" muted playsinline preload="auto">
                     <source src="/videos/intro.mp4" type="video/mp4">
                     Trình duyệt của bạn không hỗ trợ video.
