@@ -88,7 +88,12 @@ class HomeController extends Controller
                 'name' => $industry->name,
             ];
         })->toArray();
-        $filteredProjectsQuery = Project::withRelations()->whereNull('parent_id')->where('status','approved');
+        $filteredProjectsQuery = Project::withRelations()
+            ->whereNull('parent_id')
+            ->where('status','approved')
+            ->orderBy('is_pinned', 'desc')
+            ->orderByRaw('CASE WHEN pin_order IS NULL THEN 999999 ELSE pin_order END ASC')
+            ->orderBy('updated_at', 'desc');
 
         if ($request->industry) {
             $filteredProjectsQuery->where('industry_number', $request->industry);
