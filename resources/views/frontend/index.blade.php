@@ -100,7 +100,9 @@
 
         @yield('content')
 
-        @include('frontend.footer')
+        @if(!request()->routeIs('home_page'))
+            @include('frontend.footer')
+        @endif
     </div>
     <button class="btn-movetop" type="button" data-target="body"><i class="fa fa-arrow-up"></i></button>
     <!-- ================== LOGIN POPUP ================== -->

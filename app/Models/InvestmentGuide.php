@@ -40,6 +40,11 @@ class InvestmentGuide extends Model
 
     protected $table = 'investment_guides';
 
+    protected $casts = [
+        'document_types' => 'array',
+        'industry_id' => 'array',
+    ];
+
     protected $fillable = [
         'name',
         'slug',
@@ -71,6 +76,9 @@ class InvestmentGuide extends Model
         'extracted_summary',
         'extracted_language',
         'extracted_at',
+        'document_types',
+        'industry_id',
+        'issuing_authority',
     ];
 
     public $translatable = [
@@ -87,8 +95,8 @@ class InvestmentGuide extends Model
 
     protected $dates = ['created_at', 'updated_at', 'deleted_at', 'published_at'];
 
-    const INVESTMENT_PER_PAGE = 10;
-    const INVESTMENT_TAKE = 10;
+    const INVESTMENT_PER_PAGE = 9;
+    const INVESTMENT_TAKE = 9;
 
     const STATUS_ACTIVE = 1;
     const STATUS_INACTIVE = 0;
@@ -98,6 +106,26 @@ class InvestmentGuide extends Model
         self::STATUS_ACTIVE => 'Kích hoạt',
         self::STATUS_INACTIVE => 'Chưa kích hoạt',
         self::STATUS_DELETED => 'Đã xóa',
+    ];
+
+    const DOC_TYPE_LAW = 'luat';
+    const DOC_TYPE_DECREE = 'nghi_dinh_thong_tu';
+    const DOC_TYPE_DECISION = 'quyet_dinh';
+    const DOC_TYPE_OTHER = 'khac';
+
+    const DOC_TYPES = [
+        self::DOC_TYPE_LAW => 'Luật',
+        self::DOC_TYPE_DECREE => 'Nghị định/Thông tư',
+        self::DOC_TYPE_DECISION => 'Quyết định',
+        self::DOC_TYPE_OTHER => 'Văn bản khác',
+    ];
+
+    const AUTHORITY_CENTRAL = 'trung_uong';
+    const AUTHORITY_HANOI = 'ha_noi';
+
+    const AUTHORITIES = [
+        self::AUTHORITY_CENTRAL => 'Trung ương',
+        self::AUTHORITY_HANOI => 'Hà Nội',
     ];
 
     protected static function boot()
@@ -127,6 +155,14 @@ class InvestmentGuide extends Model
     public function category()
     {
         return $this->belongsTo(Category::class, 'cat_id', 'id');
+    }
+
+    public function getIndustriesAttribute()
+    {
+        if (empty($this->industry_id)) {
+            return collect();
+        }
+        return ProjectIndustries::whereIn('id', $this->industry_id)->get();
     }
 
     public function projects()

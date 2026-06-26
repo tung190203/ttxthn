@@ -70,6 +70,7 @@ class ChatbotAdminController extends Controller
 
     public function extract(Request $request)
     {
+        set_time_limit(300);
         $validated = $request->validate([
             'file' => 'required_without:file_url|file|max:20480',
             'file_url' => 'required_without:file|nullable|string|max:2048',
@@ -107,6 +108,7 @@ class ChatbotAdminController extends Controller
 
     public function createKnowledge(Request $request)
     {
+        set_time_limit(300);
         $validated = $request->validate([
             'file_url' => 'required_without:text|nullable|string|max:2048',
             'text' => 'required_without:file_url|nullable|string',
