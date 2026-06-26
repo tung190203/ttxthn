@@ -446,12 +446,35 @@
 @endif
 
 @if($hasVirtualMap)
-<section class="position-relative" id="sa-ban-ao">
-    <div class="section section--overlay">
-        <div class="container">
-            <h2 class="section__title text-white">{{ __('app.virtual_map') }}</h2>
+<section class="section position-relative" id="sa-ban-ao" style="height: 100vh; padding: 0; margin: 0; overflow: hidden;">
+    <!-- Khung Iframe 360 tràn viền 100vh -->
+    @if($effectiveSandTableLink)
+    <div id="vr-iframe-wrapper" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none;">
+        <iframe src="{{ $effectiveSandTableLink }}" frameborder="0" allowfullscreen allow="fullscreen" style="width: 100%; height: 100%; display: block;"></iframe>
+    </div>
+    
+    <!-- Lớp khiên bảo vệ Scroll (Click để bật tương tác) -->
+    <div id="vr-scroll-protector" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; cursor: pointer; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 120px;" onclick="enableVrInteraction()">
+        <div style="background: rgba(0,0,0,0.7); color: white; padding: 10px 24px; border-radius: 30px; font-size: 15px; border: 1px solid rgba(255,255,255,0.3); pointer-events: none; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
+            <i class="fal fa-hand-pointer me-2"></i> Bấm vào màn hình để xoay Sa bàn
+        </div>
+    </div>
+    
+    <!-- Nút "Tắt tương tác" (Ẩn mặc định, hiện ra khi đã bật tương tác) -->
+    <div id="vr-close-interaction" style="position: absolute; top: 110px; right: 20px; z-index: 20; display: none; cursor: pointer;" onclick="disableVrInteraction()">
+        <div style="background: rgba(220, 53, 69, 0.9); color: white; padding: 10px 20px; border-radius: 8px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+            <i class="fal fa-lock me-2"></i> Khóa Sa bàn để Cuộn trang
+        </div>
+    </div>
+    @endif
+
+    <!-- Lớp phủ chứa Tiêu đề và Nút bấm nằm đè lên trên Iframe -->
+    <div class="section--overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; padding-top: 100px;">
+        <div class="container text-center">
+            <h2 class="section__title text-white" style="pointer-events: auto; text-shadow: 0 2px 10px rgba(0,0,0,0.8);">{{ __('app.virtual_map') }}</h2>
+            
             @if($effectiveVrtourLink)
-            <div class="mt-3">
+            <div class="mt-4" style="pointer-events: auto; position: relative; height: 100px;">
                 <a href="{{ $effectiveVrtourLink }}" class="btn btn-warning text-white custom-btn-vrtour"
                     target="_blank" rel="noopener noreferrer">
                     {{ __('app.view_vr_tour') }}
@@ -460,12 +483,21 @@
             @endif
         </div>
     </div>
-    @if($effectiveSandTableLink)
-    <div class="ratio ratio-2x1">
-        <iframe src="{{ $effectiveSandTableLink }}" frameborder="0" allowfullscreen allow="fullscreen"></iframe>
-    </div>
-    @endif
 </section>
+
+<script>
+    function enableVrInteraction() {
+        document.getElementById('vr-iframe-wrapper').style.pointerEvents = 'auto';
+        document.getElementById('vr-scroll-protector').style.display = 'none';
+        document.getElementById('vr-close-interaction').style.display = 'block';
+    }
+    
+    function disableVrInteraction() {
+        document.getElementById('vr-iframe-wrapper').style.pointerEvents = 'none';
+        document.getElementById('vr-scroll-protector').style.display = 'flex';
+        document.getElementById('vr-close-interaction').style.display = 'none';
+    }
+</script>
 @endif
 
 @if($hasDesign)
