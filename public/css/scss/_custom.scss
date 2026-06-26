@@ -40,13 +40,18 @@
 }
 
 .custom_desc {
-  background-color: #ffffff;
-  opacity: 0.9;
-  border-radius: 10px;
-  padding: 10px 20px;
-  width: 51%;
-  margin-top: 250px;
-  color: #2250a0;
+    background-color: #ffffff;
+    opacity: 0.9;
+    border-radius: 10px;
+    padding: 10px 20px;
+    width: 51%;
+    margin-top: 250px;
+    color: #2250a0;
+
+    @media (max-width: 767.98px) {
+        width: 85%;
+        margin-top: 150px;
+    }
 }
 
 .custom-wrapper {
@@ -745,4 +750,11 @@
     .navbar__wrapper {
         width: 100% !important;
     }
+}
+
+.bg-danger-custom {
+  border: 1px solid #FFFFFF99;
+  background-color: #FFFFFF1F;
+  border-radius: 20px;
+  padding: 3px 10px;
 }

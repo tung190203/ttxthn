@@ -47,6 +47,12 @@
   margin-top: 250px;
   color: #2250a0;
 }
+@media (max-width: 767.98px) {
+  .custom_desc {
+    width: 85%;
+    margin-top: 150px;
+  }
+}
 
 .custom-wrapper {
   padding: 30px 0 90px !important;
@@ -674,8 +680,7 @@
   transition: background-color 0.3s ease, backdrop-filter 0.3s ease, -webkit-backdrop-filter 0.3s ease, box-shadow 0.3s ease, top 0.3s ease !important;
 }
 
-.header.is-sticky .header__wrapper,
-.header.header-solid .header__wrapper {
+.header.is-sticky .header__wrapper {
   background-color: rgba(26, 109, 255, 0.9) !important;
   backdrop-filter: blur(10px) !important;
   -webkit-backdrop-filter: blur(10px) !important;
@@ -686,65 +691,11 @@
     width: 100% !important;
   }
 }
-
-.swiper-slide {
-  height: auto;
-}
-
-.swiper-slide .news {
-  height: 100%;
-}
-
-.news__desc {
-  flex-grow: 1;
-}
-
-/* 
- * BỎ SỬ DỤNG ZOOM VÌ XUNG ĐỘT VỚI VH UNITS
- * Thay thế bằng phương pháp override CSS thuần tuý cho màn hình 4K
- */
-@media (min-width: 2560px) {
-  /* Scale font-size cơ sở dựa theo viewport */
-  html {
-    font-size: 1vw !important; /* Thay vì 16px */
-  }
-  
-  /* Scale lại các thẻ có fix cứng chiều cao/chiều rộng */
-  .news__frame {
-    height: 400px !important;
-  }
-  .news-latest__frame {
-    height: 500px !important;
-  }
-  .project-slide-first,
-  .project-slide-grid {
-    height: 680px !important;
-  }
-  .custom-btn {
-    height: 60px !important;
-    font-size: 18px !important;
-  }
-  .project-nav__list_custom li {
-    flex: 0 0 240px !important;
-    max-width: 240px !important;
-  }
-  .project-nav__list_custom a {
-    font-size: 20px !important;
-    padding: 20px !important;
-  }
-  .home-map-intro__orb {
-    width: min(34%, 500px) !important;
-  }
-  .home-map-intro__plate {
-    width: min(54%, 1000px) !important;
-  }
-  .header__logo img,
-  .navbar__logo img {
-    max-height: 120px !important;
-  }
-  .section__title {
-    font-size: 48px !important;
-  }
+.bg-danger-custom {
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background-color: rgba(255, 255, 255, 0.1215686275);
+  border-radius: 20px;
+  padding: 3px 10px;
 }
 
 /*# sourceMappingURL=custom.css.map */

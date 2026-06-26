@@ -11,6 +11,236 @@
         display: inline-flex;
         margin-bottom: 0;
     }
+
+    /* ===== FULLPAGE SCROLL-SNAP: áp dụng trên html element =====
+       Chỉ hoạt động khi body có class pj-detail-page (JS thêm vào) */
+    body.pj-detail-page {
+        overflow: hidden; /* tắt scroll của body */
+    }
+
+    body.pj-detail-page .page {
+        height: 100vh;
+        overflow-y: auto;
+        scroll-snap-type: y mandatory;
+        scroll-behavior: smooth;
+        overflow-x: hidden;
+    }
+
+    /* Mỗi section = 1 trang (Ngoại trừ phần banner đầu tiên có layout riêng) */
+    body.pj-detail-page .page__content section:not(.pj-banner) {
+        min-height: 100vh;
+        scroll-snap-align: start;
+        scroll-snap-stop: always;
+        /* Padding để trừ khoảng trống cho Header và Nav (thanh menu bên dưới) */
+        padding-top: 100px;
+        padding-bottom: 120px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
+    body.pj-detail-page .page__content section.pj-banner {
+        scroll-snap-align: start;
+        scroll-snap-stop: always;
+        min-height: 100vh; /* Giữ snap nhưng không ép layout flex */
+    }
+
+    /* Footer sẽ được bọc lại bằng JS để snap chuẩn 100vh mà không vỡ layout */
+
+    /* ===== NAV STICKY BOTTOM ===== */
+    body.pj-detail-page .project-nav {
+        position: fixed !important;
+        bottom: 0;
+        top: auto !important;
+        left: 0;
+        right: 0;
+        z-index: 9999;
+        background: #fff;
+        box-shadow: 0 -2px 12px rgba(0,0,0,0.10);
+        padding: 8px 0;
+    }
+
+    @media (max-width: 991px) {
+        body.pj-detail-page .project-nav {
+            padding: 6px 0;
+        }
+    }
+
+    /* Fix Lợi thế nổi bật: đảo chiều xen kẽ khi đã bọc vào slide */
+    body.pj-detail-page .swiper-slide:nth-child(even) .advantage {
+        flex-direction: row-reverse;
+    }
+
+    /* Tùy chỉnh thanh cuộn cho các khu vực nội dung dài (như Thông tin chung) */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 0, 0, 0.4);
+    }
+
+    /* Đảm bảo icon không bị phóng to quá mức trên iPad/Mobile */
+    body.pj-detail-page #ke-hoach-trien-khai .step-card > img {
+        max-width: 150px;
+        height: auto;
+    }
+
+    /* =========================================================
+       CHỈ ÁP DỤNG ÉP KHUNG 100VH CHO MÀN HÌNH DESKTOP VÀ IPAD (>= 768px)
+       Trên Mobile (< 768px), giao diện sẽ mở rộng tự nhiên.
+       ========================================================= */
+    @media (min-width: 768px) {
+        /* Thu bé ảnh Thiết kế & mặt bằng để vừa trong 100vh */
+        body.pj-detail-page #thiet-ke-va-mat-bang {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-top: 100px;
+            padding-bottom: 140px; /* Trừ hao khoảng trống cho nav và header */
+        }
+        body.pj-detail-page #thiet-ke-va-mat-bang > .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+        body.pj-detail-page #thiet-ke-va-mat-bang .section__title,
+        body.pj-detail-page #thiet-ke-va-mat-bang .section__desc {
+            flex-shrink: 0;
+        }
+        body.pj-detail-page #thiet-ke-va-mat-bang .design-slider {
+            flex: 1;
+            min-height: 0;
+        }
+        body.pj-detail-page #thiet-ke-va-mat-bang .design-slider__container,
+        body.pj-detail-page #thiet-ke-va-mat-bang .design-slider__container > .swiper-wrapper,
+        body.pj-detail-page #thiet-ke-va-mat-bang .design-slider__slide,
+        body.pj-detail-page #thiet-ke-va-mat-bang .design-slider__frame {
+            height: 100% !important;
+            width: 100%;
+        }
+        body.pj-detail-page #thiet-ke-va-mat-bang .design-slider__frame::before {
+            display: none !important;
+        }
+        body.pj-detail-page #thiet-ke-va-mat-bang .design-slider__frame img {
+            position: absolute !important;
+            top: 0;
+            left: 0;
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+        }
+        body.pj-detail-page #thiet-ke-va-mat-bang .design-thumb-slider {
+            flex-shrink: 0;
+        }
+        
+        /* Fix chiều cao Kế hoạch triển khai để vừa 100vh bằng cách ép khoảng cách */
+        body.pj-detail-page #ke-hoach-trien-khai {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-top: 100px;
+            padding-bottom: 130px;
+        }
+        body.pj-detail-page #ke-hoach-trien-khai > .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            justify-content: center;
+        }
+        /* Thu gọn khoảng cách các phần tử con để tự động khít 100vh mà không thu nhỏ ảnh */
+        body.pj-detail-page #ke-hoach-trien-khai .section__title {
+            margin-bottom: 30px !important;
+        }
+        body.pj-detail-page #ke-hoach-trien-khai .step-card {
+            padding: 20px !important;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        body.pj-detail-page #ke-hoach-trien-khai .step-card > img {
+            margin-bottom: 15px !important;
+        }
+        body.pj-detail-page #ke-hoach-trien-khai .step-card h5 {
+            margin-bottom: 15px !important;
+        }
+        body.pj-detail-page #ke-hoach-trien-khai .step-card ul {
+            margin-bottom: 0 !important;
+        }
+        body.pj-detail-page #ke-hoach-trien-khai .step-card ul li {
+            margin-bottom: 8px;
+        }
+        body.pj-detail-page #ke-hoach-trien-khai .note {
+            margin-top: 20px !important;
+        }
+    }
+
+    /* Đưa Kế hoạch triển khai thành dạng vuốt ngang trên Mobile để nhét vừa 1 session 100vh */
+    @media (max-width: 767.98px) {
+        body.pj-detail-page #ke-hoach-trien-khai {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-top: 80px;
+            padding-bottom: 120px;
+        }
+        body.pj-detail-page #ke-hoach-trien-khai > .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            justify-content: center;
+        }
+        body.pj-detail-page #ke-hoach-trien-khai .row {
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 20px;
+            justify-content: flex-start !important;
+            scrollbar-width: none; /* Ẩn thanh cuộn trên Firefox */
+            scroll-snap-type: x mandatory; /* Bắt dính từng slide */
+            scroll-behavior: smooth;
+        }
+        body.pj-detail-page #ke-hoach-trien-khai .row::-webkit-scrollbar {
+            display: none; /* Ẩn thanh cuộn trên Chrome/Safari */
+        }
+        /* Ẩn mũi tên trên màn hình nhỏ */
+        body.pj-detail-page #ke-hoach-trien-khai .row > .col-md-1 {
+            display: none !important;
+        }
+        /* Thẻ bước chiếm 100% chiều rộng như slide */
+        body.pj-detail-page #ke-hoach-trien-khai .row > .col-md-3 {
+            flex: 0 0 100%;
+            max-width: 100%;
+            scroll-snap-align: center;
+        }
+        body.pj-detail-page #ke-hoach-trien-khai .step-card {
+            padding: 15px !important;
+            height: 100%;
+        }
+        body.pj-detail-page #ke-hoach-trien-khai .step-card > img {
+            max-width: 80px;
+            margin-bottom: 10px !important;
+        }
+        body.pj-detail-page #ke-hoach-trien-khai .step-card h5 {
+            font-size: 14px;
+            margin-bottom: 10px !important;
+        }
+        body.pj-detail-page #ke-hoach-trien-khai .step-card ul li {
+            margin-bottom: 5px;
+            font-size: 13px;
+        }
+    }
 </style>
 <div class="page__content">
     <!-- main content-->
@@ -109,41 +339,33 @@
     $hasNews = isset($posts) && count($posts) > 0;
     @endphp
 
-    <nav class="project-nav">
+    <nav class="project-nav" id="project-detail-nav">
         <div class="container">
             <ul class="project-nav__list">
                 @if($hasGeneralInfo)
                 <li><a class="active" href="#thong-tin-chung">{{ __('app.general_info') }}</a></li>
                 @endif
-
                 @if($hasLocation)
                 <li><a href="#vi-tri">{{ __('app.location') }}</a></li>
                 @endif
-
                 @if($hasAdvantages)
                 <li><a href="#loi-the-noi-bat">{{ __('app.key_advantages') }}</a></li>
                 @endif
-
                 @if($hasVirtualMap)
                 <li><a href="#sa-ban-ao">{{ __('app.virtual_map') }}</a></li>
                 @endif
-
                 @if($hasDesign)
                 <li><a href="#thiet-ke-va-mat-bang">{{ __('app.design_and_layout') }}</a></li>
                 @endif
-
                 @if($hasLegal)
                 <li><a href="#phap-ly">{{ __('app.legal_documents') }}</a></li>
                 @endif
-
                 @if($hasInvestmentGuide)
                 <li><a href="#thu-tuc-dau-tu">{{ __('app.investment_procedure') }}</a></li>
                 @endif
-
                 @if($hasPlan)
                 <li><a href="#ke-hoach-trien-khai">{{ __('app.implementation_plan') }}</a></li>
                 @endif
-
                 @if($hasNews)
                 <li><a href="#tin-tuc">{{ __('app.news') }}</a></li>
                 @endif
@@ -152,11 +374,11 @@
     </nav>
 
     @if($hasGeneralInfo)
-    <section class="section" id="thong-tin-chung">
-        <img class="section__bg" src="{{ asset('./images/achitect-bg.png') }}" alt="">
-        <div class="container">
-            <h2 class="section__title">{{ __('app.general_info') }}</h2>
-            <div class="mx-auto" style="max-width: 800px;">
+    <section class="section" id="thong-tin-chung" style="height: 100vh; padding-top: 100px; padding-bottom: 160px; display: flex; flex-direction: column; position: relative;">
+        <img class="section__bg" src="{{ asset('./images/achitect-bg.png') }}" alt="" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0;">
+        <div class="container" style="flex: 1; display: flex; flex-direction: column; min-height: 0; position: relative; z-index: 1;">
+            <h2 class="section__title" style="flex-shrink: 0;">{{ __('app.general_info') }}</h2>
+            <div class="mx-auto custom-scrollbar" style="max-width: 800px; flex: 1; min-height: 0; overflow-y: auto; padding-right: 15px; width: 100%;">
                 {!! $project->description !!}
             </div>
         </div>
@@ -164,49 +386,62 @@
     @endif
 
     @if($hasLocation)
-    <section class="section pb-0" id="vi-tri">
-        <div class="container">
-            <h2 class="section__title">{{ __('app.location') }}</h2>
-            <img class="w-100" src="{{ $project->location_image ?? asset('./images/position.jpg') }}" alt="">
+    <section class="section" id="vi-tri" style="height: 100vh; padding-top: 100px; padding-bottom: 160px; display: flex; flex-direction: column;">
+        <div class="container text-center" style="flex: 1; display: flex; flex-direction: column; min-height: 0; justify-content: center; align-items: center;">
+            <h2 class="section__title" style="flex-shrink: 0; margin-bottom: 30px;">{{ __('app.location') }}</h2>
+            <div style="display: flex; align-items: center; justify-content: center; width: 100%; max-height: 100%; min-height: 0;">
+                <img src="{{ $project->location_image ?? asset('./images/position.jpg') }}" alt="" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+            </div>
         </div>
     </section>
     @endif
 
     @if($hasAdvantages)
     <section class="section section--light-blue" id="loi-the-noi-bat">
-        <div class="container">
+        <div class="container" style="position: relative;">
             <h2 class="section__title">{{ __('app.key_advantages') }}</h2>
-            <div>
-                @php
-                $images = $project->advantage_images ? array_filter(explode(';', $project->advantage_images)) : [];
-                $titlesRaw = is_array($project->advantage_titles)
-                ? $project->advantage_titles
-                : json_decode($project->advantage_titles, true);
-                $titles = $titlesRaw['vi'] ?? (is_array($titlesRaw) ? $titlesRaw : []);
-                $descsRaw = is_array($project->advantage_descriptions)
-                ? $project->advantage_descriptions
-                : json_decode($project->advantage_descriptions, true);
-                $descs = $descsRaw['vi'] ?? (is_array($descsRaw) ? $descsRaw : []);
-                $count = count($images);
-                @endphp
+            
+            <div class="advantage-slider">
+                <div class="news-slider__nav" style="z-index: 10;">
+                    <div class="advantage-slider__prev news-slider__prev"><i class="fal fa-fw fa-lg fa-angle-left"></i></div>
+                    <div class="advantage-slider__next news-slider__next"><i class="fal fa-fw fa-lg fa-angle-right"></i></div>
+                </div>
+                <div class="advantage-slider__container swiper-container" style="overflow: hidden;">
+                    <div class="swiper-wrapper">
+                        @php
+                        $images = $project->advantage_images ? array_filter(explode(';', $project->advantage_images)) : [];
+                        $titlesRaw = is_array($project->advantage_titles)
+                        ? $project->advantage_titles
+                        : json_decode($project->advantage_titles, true);
+                        $titles = $titlesRaw['vi'] ?? (is_array($titlesRaw) ? $titlesRaw : []);
+                        $descsRaw = is_array($project->advantage_descriptions)
+                        ? $project->advantage_descriptions
+                        : json_decode($project->advantage_descriptions, true);
+                        $descs = $descsRaw['vi'] ?? (is_array($descsRaw) ? $descsRaw : []);
+                        $count = count($images);
+                        @endphp
 
-                @for ($i = 0; $i < $count; $i++)
-                    <div class="advantage mt-20">
-                    <a class="advantage__frame" href="#!">
-                        <img src="{{ $images[$i] ?? '' }}" alt="" />
-                    </a>
-                    <div class="advantage__body">
-                        <div class="advantage__index">{{ $i + 1 }}</div>
-                        <div class="advantage__index-bg">{{ $i + 1 }}</div>
-                        <div class="advantage__title">{{ $titles[$i] ?? '' }}</div>
-                        <div class="advantage__desc text-justify">
-                            {!! $descs[$i] ?? '' !!}
+                        @for ($i = 0; $i < $count; $i++)
+                        <div class="swiper-slide">
+                            <div class="advantage mt-20">
+                                <a class="advantage__frame" href="#!">
+                                    <img src="{{ $images[$i] ?? '' }}" alt="" />
+                                </a>
+                                <div class="advantage__body">
+                                    <div class="advantage__index">{{ $i + 1 }}</div>
+                                    <div class="advantage__index-bg">{{ $i + 1 }}</div>
+                                    <div class="advantage__title">{{ $titles[$i] ?? '' }}</div>
+                                    <div class="advantage__desc text-justify">
+                                        {!! $descs[$i] ?? '' !!}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+                        @endfor
                     </div>
+                </div>
             </div>
-            @endfor
         </div>
-</div>
 </section>
 @endif
 
@@ -276,7 +511,7 @@
                 </div>
             </div>
         </div>
-        <div class="design-thumb-slider mt-3 mt-lg-20">
+        <div class="design-thumb-slider mt-3 mt-lg-10">
             <div class="design-thumb-slider__prev"><i class="fal fa-lg fa-angle-left"></i></div>
             <div class="design-thumb-slider__next"><i class="fal fa-lg fa-angle-right"></i></div>
             <div class="design-thumb-slider__container swiper-container">
@@ -387,7 +622,7 @@
         <div class="row g-2 align-items-stretch justify-content-center position-relative">
 
             <!-- Bước 1 -->
-            <div class="col-12 col-lg-3 d-flex">
+            <div class="col-12 col-md-3 d-flex">
                 <div class="step-card flex-fill d-flex flex-column align-items-center p-4 rounded">
                     <img src="{{asset('images/search-icon.png')}}" alt="">
                     <h5 class="fw-bold text-uppercase mb-3 text-center">
@@ -411,7 +646,7 @@
             </div>
 
             <!-- Bước 2 -->
-            <div class="col-12 col-lg-3 d-flex">
+            <div class="col-12 col-md-3 d-flex">
                 <div class="step-card flex-fill d-flex flex-column align-items-center p-4 rounded">
                     <img src="{{asset('images/partner-icon.png')}}" alt="">
                     <h5 class="fw-bold text-uppercase mb-3 text-center">
@@ -435,7 +670,7 @@
             </div>
 
             <!-- Bước 3 -->
-            <div class="col-12 col-lg-3 d-flex">
+            <div class="col-12 col-md-3 d-flex">
                 <div class="step-card flex-fill d-flex flex-column align-items-center p-4 rounded">
                     <img src="{{asset('images/analytic-icon.png')}}" alt="">
                     <h5 class="fw-bold text-uppercase mb-3 text-center">
@@ -518,44 +753,146 @@
 @push('bottom')
 <script>
     $(document).ready(function() {
-        const OFFSET = 160;
-        const $navLinks = $('.project-nav__list a');
+        $('body').addClass('pj-detail-page');
 
-        // Click scroll mượt
+        // Bọc cụm cuối trang vào 1 thẻ section min-height 100vh (display: block) 
+        // để đảm bảo snap lấp đầy màn hình mà KHÔNG phá vỡ layout gốc trên màn hình lớn.
+        $('.newsletter-wrapper, .news-links__partners, footer.footer').wrapAll('<section class="section footer-snap-wrapper" style="min-height: 100vh; scroll-snap-align: start; scroll-snap-stop: always; background-color: #F4F7FC;"></section>');
+
+        // Tự động cuộn lướt (Auto-slide) phần Kế hoạch triển khai trên Mobile
+        const planRow = document.querySelector('#ke-hoach-trien-khai .row');
+        if (planRow && window.innerWidth < 768) {
+            setInterval(function() {
+                const card = planRow.querySelector('.col-md-3');
+                if (!card) return;
+                const scrollStep = card.offsetWidth;
+                
+                // Nếu cuộn đến cuối cùng, vòng lại thẻ đầu
+                if (planRow.scrollLeft + planRow.clientWidth >= planRow.scrollWidth - 10) {
+                    planRow.scrollTo({ left: 0, behavior: 'smooth' });
+                } else {
+                    planRow.scrollBy({ left: scrollStep, behavior: 'smooth' });
+                }
+            }, 3000); // Tự động trượt sau mỗi 3 giây
+        }
+
+        const $scrollEl = $('.page');
+        const $navLinks = $('.project-nav__list a');
+        const $nav      = $('#project-detail-nav');
+        const navEl     = $nav[0];
+        const footer    = document.querySelector('footer');
+
+        // Click: snap đến đúng section
         $navLinks.on('click', function(e) {
             e.preventDefault();
-
             const targetId = $(this).attr('href');
-            const $target = $(targetId);
-
-            if ($target.length) {
-                $('html, body').animate({
-                    scrollTop: $target.offset().top - OFFSET
-                }, 500);
+            const $target  = $(targetId);
+            if ($target.length && $scrollEl.length) {
+                const pageTop = $scrollEl[0].getBoundingClientRect().top;
+                const secTop  = $target[0].getBoundingClientRect().top;
+                const offset  = $scrollEl[0].scrollTop + (secTop - pageTop);
+                $scrollEl[0].scrollTo({ top: offset, behavior: 'smooth' });
             }
         });
 
+        // ===== NAV BOTTOM: đẩy lên khi qua hết .page__content =====
+        const pageContent = document.querySelector('.page__content');
+
+        function updateNavBottom() {
+            if (!pageContent || !navEl) return;
+            const contentBottom = pageContent.getBoundingClientRect().bottom;
+            const viewH = window.innerHeight;
+            // Nếu contentBottom < viewH, nghĩa là phần nội dung chính đã cuộn qua, 
+            // các thành phần sau nó (newsletter, partners, footer) đang xuất hiện
+            const overlap = viewH - contentBottom;
+            const newBottom = overlap > 0 ? Math.round(overlap) + 'px' : '0px';
+            navEl.style.setProperty('bottom', newBottom, 'important');
+        }
+
+        // Dùng IntersectionObserver cho một element "cột mốc" (ví dụ .newsletter-wrapper hoặc chính footer)
+        // để kích hoạt updateNavBottom mượt hơn, nhưng tính toán thì vẫn dựa trên pageContent.
+        const firstFooterEl = document.querySelector('.newsletter-wrapper') || document.querySelector('footer');
+        if (firstFooterEl) {
+            const thresholds = Array.from({ length: 101 }, (_, i) => i / 100);
+            new IntersectionObserver(function(entries) {
+                updateNavBottom();
+            }, { threshold: thresholds }).observe(firstFooterEl);
+        }
+
+        // ===== STICKY HEADER (Vì .page là thẻ cuộn nên phải viết riêng) =====
+        const $header = $('.header');
+        const $headerWrapper = $('.header__wrapper');
+        function updateStickyHeader() {
+            if ($(window).width() < 1200) return;
+            if ($scrollEl[0].scrollTop > 80) {
+                if (!$header.hasClass('is-sticky')) {
+                    $header.css('min-height', $headerWrapper.outerHeight() + 'px');
+                    $header.addClass('is-sticky');
+                }
+            } else {
+                if ($header.hasClass('is-sticky')) {
+                    $header.removeClass('is-sticky');
+                    $header.css('min-height', '');
+                }
+            }
+        }
+
+        // Scroll + scrollend
+        if ($scrollEl.length) {
+            let rafPending = false;
+            function onScroll() {
+                if (!rafPending) {
+                    rafPending = true;
+                    requestAnimationFrame(function() {
+                        updateNavBottom();
+                        updateScrollSpy();
+                        updateStickyHeader();
+                        rafPending = false;
+                    });
+                }
+            }
+            $scrollEl[0].addEventListener('scroll',    onScroll, { passive: true });
+            $scrollEl[0].addEventListener('scrollend', onScroll, { passive: true });
+        }
+
         // Scroll spy
-        $(window).on('scroll', function() {
-            const scrollPos = $(window).scrollTop() + OFFSET + 5;
+        function updateScrollSpy() {
+            if (!$scrollEl.length) return;
+            const scrollTop = $scrollEl[0].scrollTop;
+            const viewH     = $scrollEl[0].clientHeight;
+            const midPoint  = scrollTop + viewH / 2;
 
             let currentId = null;
-
-            $('section[id]').each(function() {
-                const top = $(this).offset().top;
-                const bottom = top + $(this).outerHeight();
-
-                if (scrollPos >= top && scrollPos < bottom) {
+            $scrollEl.find('.page__content section[id]').each(function() {
+                let top = 0, el = this;
+                while (el && el !== $scrollEl[0]) { top += el.offsetTop; el = el.offsetParent; }
+                const bottom = top + this.offsetHeight;
+                if (midPoint >= top && midPoint < bottom) {
                     currentId = '#' + this.id;
-                    return false; // break loop
+                    return false;
                 }
             });
 
             if (currentId) {
                 $navLinks.removeClass('active');
-                $navLinks.filter(`[href="${currentId}"]`).addClass('active');
+                $navLinks.filter('[href="' + currentId + '"]').addClass('active');
             }
-        });
+        }
+
+        updateNavBottom();
+        updateScrollSpy();
+
+        // ===== KHỞI TẠO SWIPER CHO LỢI THẾ NỔI BẬT =====
+        if ($('.advantage-slider__container').length) {
+            new Swiper('.advantage-slider__container', {
+                slidesPerView: 1,
+                spaceBetween: 20,
+                navigation: {
+                    prevEl: '.advantage-slider__prev',
+                    nextEl: '.advantage-slider__next',
+                }
+            });
+        }
     });
 </script>
 @endpush

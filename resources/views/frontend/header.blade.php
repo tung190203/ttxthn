@@ -51,16 +51,21 @@
                                                         if (str_contains($menuHref, '/cam-nang') || str_contains($menuHref, '/investment-guide')) $isActive = true;
                                                     }
                                                 }
+                                                
+                                                // Xác định trạng thái active cuối cùng của menu
+                                                $isCurrentActive = false;
+                                                if (empty($setting['menu_active']) && request()->routeIs('home_page') && $item['name'] == __('app.home')) {
+                                                    $isCurrentActive = true;
+                                                } elseif ($isActive) {
+                                                    $isCurrentActive = true;
+                                                }
                                             @endphp
-                                            <a class="menu-link 
-                                                    @if(empty($setting['menu_active']) && request()->routeIs('home_page') && $item['name'] == __('app.home')) active
-                                                    @elseif($isActive) active
-                                                    @endif" href="{{ $item['href'] }}">
+                                            <a class="menu-link {{ $isCurrentActive ? 'active' : '' }}" href="{{ $item['href'] }}">
                                                 {{ $item['name'] }}
 
                                                 {{-- Hiển thị badge cho menu nhóm --}}
                                                 @if($item['name'] == __('app.investment_projects'))
-                                                    <span class="badge bg-danger ms-2">{{ $countAllProject ?? 0 }}</span>
+                                                    <span class="badge bg-danger-custom {{ $isCurrentActive ? 'bg-danger text-white border-0' : '' }} ms-2">{{ $countAllProject ?? 0 }}</span>
                                                 @endif
                                             </a>
 

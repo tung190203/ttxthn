@@ -100,7 +100,7 @@
     }
     .footer .text-center {
         padding-top: 10px !important;
-        font-size: 11px !important;
+        font-size: 10px !important;
     }
 }
 @media (max-height: 650px) and (max-width: 767.98px) {

@@ -551,7 +551,15 @@ class HomeController extends Controller
         }
 
         if ($request->filled('industry_id')) {
-            $query->where('industry_id', $request->industry_id);
+            $industries = (array)$request->industry_id;
+            $query->where(function($q) use ($industries) {
+                foreach($industries as $ind) {
+                    // Xử lý cả dạng chuỗi và số để đảm bảo match đúng JSON
+                    $q->orWhereJsonContains('industry_id', $ind)
+                      ->orWhereJsonContains('industry_id', (string)$ind)
+                      ->orWhereJsonContains('industry_id', (int)$ind);
+                }
+            });
         }
 
         if ($request->filled('issuing_authority')) {
