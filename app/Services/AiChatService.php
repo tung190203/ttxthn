@@ -34,7 +34,7 @@ class AiChatService
         return Http::withHeaders([
             'X-API-Key' => $this->apiKey,
             'X-Admin-API-Key' => $this->apiAdminKey,
-        ])->connectTimeout(5)->timeout(60);
+        ])->connectTimeout(5)->timeout(300);
     }
 
     protected function endpointUrl(string $path): string

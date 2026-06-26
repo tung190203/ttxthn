@@ -106,6 +106,39 @@
                             :messages="$errors->get('projects')" help="Chọn các dự án trực thuộc"
                             selectAll="true" selectLabel="dự án" />
 
+                        @php
+                            $docTypes = \App\Models\InvestmentGuide::DOC_TYPES;
+                            $selectedDocTypes = old('document_types', is_array($investment_guide->document_types) ? $investment_guide->document_types : []);
+                        @endphp
+                        <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Loại văn bản</label>
+                            <div class="col-sm-9 pt-2">
+                                @foreach($docTypes as $val => $label)
+                                    <div class="custom-control custom-checkbox custom-control-inline">
+                                        <input type="checkbox" name="document_types[]" id="doc_type_{{ $val }}" value="{{ $val }}" 
+                                            class="custom-control-input" {{ in_array($val, $selectedDocTypes) ? 'checked' : '' }}>
+                                        <label class="custom-control-label" for="doc_type_{{ $val }}">{{ $label }}</label>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        <x-forms.select-multiple name="industry_id" label="Ngành/Lĩnh vực" :options="$option_industries" 
+                            :selected="old('industry_id', is_array($investment_guide->industry_id) ? $investment_guide->industry_id : [])"
+                            :messages="$errors->get('industry_id')" help="Chọn các Ngành/Lĩnh vực"
+                            selectAll="true" selectLabel="Ngành/Lĩnh vực" />
+
+                        @php
+                            $authorities = \App\Models\InvestmentGuide::AUTHORITIES;
+                            $authorityOptions = '<option value="">Chọn Cơ quan ban hành</option>';
+                            foreach($authorities as $val => $label) {
+                                $selected = old('issuing_authority', $investment_guide->issuing_authority) == $val ? 'selected' : '';
+                                $authorityOptions .= '<option value="'.$val.'" '.$selected.'>'.$label.'</option>';
+                            }
+                        @endphp
+                        <x-forms.select name="issuing_authority" label="Cơ quan ban hành" :options="new HtmlString($authorityOptions)"
+                                        :messages="$errors->get('issuing_authority')"/>
+
                         <x-forms.upload name="image" value="{{ old('image') ?: $investment_guide->image }}" label="Image"
                                         type="image" :messages="$errors->get('image')"/>
 

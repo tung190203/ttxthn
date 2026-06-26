@@ -94,8 +94,11 @@ $(function () {
     navigation: true,
     spaceBetween: 0,
     speed: 500,
-    slidesPerView: 2,
+    slidesPerView: 1,
     breakpoints: {
+      768: {
+        slidesPerView: 2
+      },
       992: {
         slidesPerView: 3
       }
@@ -287,8 +290,12 @@ $(function () {
 $(document).ready(function () {
   new Swiper('.project-nav-scroll', {
       slidesPerView: 'auto', 
-      spaceBetween: 10,
+      spaceBetween: 8,
       freeMode: true, 
       loop: true, 
+      breakpoints: {
+        768: { spaceBetween: 12 },
+        1200: { spaceBetween: 16 }
+      }
   });
 });

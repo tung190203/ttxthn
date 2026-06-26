@@ -46,7 +46,7 @@ class PostController extends Controller
         $setting['meta_title'] = ($category->meta_title) ?: $category->name;
         $setting['meta_keywords'] = ($category->meta_keywords) ?: $setting['meta_keywords'];
         $setting['meta_description'] = ($category->meta_description) ?: $setting['meta_description'];
-        $setting['menu_active'] = $category->slug;
+        $setting['menu_active'] = __('app.news_link');
 
         if ($request->ajax()) {
             return response()->json([

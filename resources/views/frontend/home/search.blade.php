@@ -43,7 +43,7 @@
                         <div class="mt-40 mb-3" id="category-{{ $ajax_type }}">
                             <h2 class="section__subtitle section__subtitle--line text-primary">
                                 {{ $categoryName }}
-                                <span class="badge bg-secondary ms-2">{{ $paginator->total() }}</span>
+                                <span class="badge bg-primary ms-2">{{ $paginator->total() }}</span>
                             </h2>
                         </div>
                         <div id="results-{{ $ajax_type }}">
