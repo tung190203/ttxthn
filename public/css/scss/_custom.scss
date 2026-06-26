@@ -740,7 +740,8 @@
 .header .header__wrapper {
   transition: background-color 0.3s ease, backdrop-filter 0.3s ease, -webkit-backdrop-filter 0.3s ease, box-shadow 0.3s ease, top 0.3s ease !important;
 }
-.header.is-sticky .header__wrapper {
+.header.is-sticky .header__wrapper,
+.header.header-solid .header__wrapper {
   background-color: rgba(26, 109, 255, 0.9) !important;
   backdrop-filter: blur(10px) !important;
   -webkit-backdrop-filter: blur(10px) !important;
