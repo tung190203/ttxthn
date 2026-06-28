@@ -2225,29 +2225,43 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// Toạ độ giới hạn vùng Hà Nội (tương đối chính xác)
+const hanoiBounds = L.latLngBounds(
+    [20.4, 104.9],
+    [21.7, 106.4]
+);
+
 // Tile layers
 // Vẫn sử dụng MapTiler làm mặc định nhưng được tối ưu hóa quá trình tải tile
 const defaults = L.tileLayer('https://api.maptiler.com/maps/outdoor-v2/{z}/{x}/{y}.png?key={{ config('services.maptiler.key') }}', {
         maxNativeZoom: 19,
         maxZoom: 21,
-            updateWhenIdle: true,       // Chỉ fetch tiles sau khi người dùng ngừng kéo bản đồ
-            updateWhenZooming: false,   // Không fetch liên tục trong quá trình đang zoom
-            keepBuffer: 3               // Cache nhẹ thêm các tile xung quanh để khi quay lại không cần fetch lại
+        bounds: hanoiBounds,
+        noWrap: true,
+        updateWhenIdle: true,       // Chỉ fetch tiles sau khi người dùng ngừng kéo bản đồ
+        updateWhenZooming: false,   // Không fetch liên tục trong quá trình đang zoom
+        keepBuffer: 3               // Cache nhẹ thêm các tile xung quanh để khi quay lại không cần fetch lại
     });
 
 const streets = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxNativeZoom: 19,
-    maxZoom: 21
+    maxZoom: 21,
+    bounds: hanoiBounds,
+    noWrap: true
 });
 
 const satellite = L.tileLayer(
     'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
         maxNativeZoom: 18,
-        maxZoom: 21
+        maxZoom: 21,
+        bounds: hanoiBounds,
+        noWrap: true
     });
 const topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
     maxNativeZoom: 17,
-    maxZoom: 21
+    maxZoom: 21,
+    bounds: hanoiBounds,
+    noWrap: true
 });
 
 // MapLibre GL 3D Layer
@@ -3131,11 +3145,8 @@ const overlayLayers = {
 const defaultCenter = [21.0285, 105.8542];
 const defaultZoom = 12;
 
-// Toạ độ giới hạn vùng Hà Nội (tương đối chính xác)
-const bounds = L.latLngBounds(
-    [20.4, 104.9],
-    [21.7, 106.4]
-);
+// Sử dụng hanoiBounds đã được định nghĩa ở trên (tại phần Tile layers)
+const bounds = hanoiBounds;
 
 // Tạo bản đồ và giới hạn vùng
 const map = L.map('map', {
