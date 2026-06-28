@@ -2633,7 +2633,7 @@ let districtDisplayNames = {}; // Map of VI Name -> Localized Name
 
 const baseLayers = {
     "{{ __('app.default_map') }}": defaults,
-    "{{ __('app.traffic_map') }}": streets,
+//    "{{ __('app.traffic_map') }}": streets,
     "{{ __('app.satellite_map') }}": satellite,
     "{{ __('app.topo_map') }}": topo,
     "{{ __('app.map_3d') }}": map3d
