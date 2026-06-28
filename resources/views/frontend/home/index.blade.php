@@ -3151,41 +3151,61 @@ const bounds = hanoiBounds;
 
 // Tạo bản đồ và giới hạn vùng
 const map = L.map('map', {
+    center: defaultCenter, // Khởi tạo vị trí ban đầu để tránh lỗi
+    zoom: defaultZoom,
     layers: [defaults],
     maxBounds: bounds, // Giới hạn không cho pan ra khỏi vùng này
     maxBoundsViscosity: 1.0, // 1.0 = không bao giờ cho kéo ra ngoài
-    zoomControl: false, // Tắt nút + / -
-    scrollWheelZoom: false, // Tắt zoom bằng chuột
-    doubleClickZoom: false, // Tắt zoom khi click đúp
-    touchZoom: false, // Tắt zoom trên màn hình cảm ứng
-    boxZoom: false, // Tắt zoom bằng cách vẽ hộp
+    zoomControl: true, // Bật lại nút + / -
+    scrollWheelZoom: true, // Bật zoom bằng chuột
+    doubleClickZoom: true, // Bật zoom khi click đúp
+    touchZoom: true, // Bật zoom trên màn hình cảm ứng
+    boxZoom: true, // Bật zoom bằng cách vẽ hộp
     attributionControl: false,
     keyboard: false // Disable default keyboard panning to allow custom 3D rotation
 });
 
-function lockMapToBounds() {
+function lockMapToBounds(isInit = false) {
     // Tạm mở khóa zoom
     map.setMinZoom(0);
     map.setMaxZoom(21);
     
     // Tính toán mức zoom sao cho vùng bounds lấp đầy (COVER) toàn bộ màn hình
-    // Tham số `true` giúp đảm bảo không có khoảng trống nào hiển thị vùng ngoài bounds
     let targetZoom = map.getBoundsZoom(bounds, true);
     
-    // Đặt bản đồ ở trung tâm vùng bounds với mức zoom vừa tính
-    map.setView(bounds.getCenter(), targetZoom);
+    // Nếu kích thước map = 0 (đang ẩn), targetZoom có thể lỗi (Infinity), ta fallback về defaultZoom
+    if (!isFinite(targetZoom)) {
+        targetZoom = defaultZoom;
+    }
     
-    // Sau khi căn chỉnh, khóa mức zoom hiện tại
+    // Thiết lập giới hạn: Không cho zoom out ra ngoài targetZoom, nhưng VẪN cho zoom in (max 21)
     map.setMinZoom(targetZoom);
-    map.setMaxZoom(targetZoom);
+    map.setMaxZoom(21);
+    
+    // Đặt lại mức zoom về targetZoom nếu:
+    // 1. Là lần load bản đồ đầu tiên (isInit = true)
+    // 2. Hoặc mức zoom hiện tại đang nhỏ hơn targetZoom (bị lòi ra ngoài do resize)
+    try {
+        if (isInit || map.getZoom() < targetZoom) {
+            map.setView(bounds.getCenter(), targetZoom);
+        }
+    } catch (e) {
+        map.setView(bounds.getCenter(), targetZoom);
+    }
 }
 
 // Chạy lần đầu
-lockMapToBounds();
+lockMapToBounds(true);
 
 // Chạy lại khi thay đổi kích thước cửa sổ hoặc browser zoom (Ctrl +/-)
 window.addEventListener('resize', function() {
-    lockMapToBounds();
+    lockMapToBounds(false);
+});
+
+// Chạy lại khi người dùng đổi lớp bản đồ (VD: từ Mặc định sang Vệ tinh)
+// vì Leaflet có thể tự reset minZoom/maxZoom khi đổi base layer
+map.on('baselayerchange', function() {
+    lockMapToBounds(false);
 });
 
 // Click ra ngoài bản đồ để bỏ chọn (reset focus)
