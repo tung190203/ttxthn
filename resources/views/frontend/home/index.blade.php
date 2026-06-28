@@ -3139,15 +3139,41 @@ const bounds = L.latLngBounds(
 
 // Tạo bản đồ và giới hạn vùng
 const map = L.map('map', {
-    center: defaultCenter,
-    zoom: defaultZoom,
     layers: [defaults],
     maxBounds: bounds, // Giới hạn không cho pan ra khỏi vùng này
     maxBoundsViscosity: 1.0, // 1.0 = không bao giờ cho kéo ra ngoài
-    minZoom: 10, // Không cho zoom out thấp hơn mức này
-    maxZoom: 21, // Cho phép zoom in sâu hơn (đến mức 21)
+    zoomControl: false, // Tắt nút + / -
+    scrollWheelZoom: false, // Tắt zoom bằng chuột
+    doubleClickZoom: false, // Tắt zoom khi click đúp
+    touchZoom: false, // Tắt zoom trên màn hình cảm ứng
+    boxZoom: false, // Tắt zoom bằng cách vẽ hộp
     attributionControl: false,
     keyboard: false // Disable default keyboard panning to allow custom 3D rotation
+});
+
+function lockMapToBounds() {
+    // Tạm mở khóa zoom
+    map.setMinZoom(0);
+    map.setMaxZoom(21);
+    
+    // Tính toán mức zoom sao cho vùng bounds lấp đầy (COVER) toàn bộ màn hình
+    // Tham số `true` giúp đảm bảo không có khoảng trống nào hiển thị vùng ngoài bounds
+    let targetZoom = map.getBoundsZoom(bounds, true);
+    
+    // Đặt bản đồ ở trung tâm vùng bounds với mức zoom vừa tính
+    map.setView(bounds.getCenter(), targetZoom);
+    
+    // Sau khi căn chỉnh, khóa mức zoom hiện tại
+    map.setMinZoom(targetZoom);
+    map.setMaxZoom(targetZoom);
+}
+
+// Chạy lần đầu
+lockMapToBounds();
+
+// Chạy lại khi thay đổi kích thước cửa sổ hoặc browser zoom (Ctrl +/-)
+window.addEventListener('resize', function() {
+    lockMapToBounds();
 });
 
 // Click ra ngoài bản đồ để bỏ chọn (reset focus)
