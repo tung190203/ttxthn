@@ -3161,6 +3161,7 @@ const map = L.map('map', {
     doubleClickZoom: true, // Bật zoom khi click đúp
     touchZoom: true, // Bật zoom trên màn hình cảm ứng
     boxZoom: true, // Bật zoom bằng cách vẽ hộp
+    bounceAtZoomLimits: false, // Ngăn chặn pinch-zoom nảy ra ngoài min/max zoom trên mobile
     attributionControl: false,
     keyboard: false // Disable default keyboard panning to allow custom 3D rotation
 });
