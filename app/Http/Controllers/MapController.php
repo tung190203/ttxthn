@@ -91,7 +91,7 @@ class MapController extends Controller
             ->get()
             ->filter(fn($project) => !empty($project->railway_lines));
 
-        return response()->json($this->returnData($projects));
+        return response()->json($this->returnData($projects)->values());
     }
 
     private function returnData($projects)
