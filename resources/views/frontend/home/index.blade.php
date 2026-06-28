@@ -8,7 +8,7 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
     <div class="page__sections">
         <!-- main content-->
         <section class="banner-home home-map-stage" id="home-map-stage" style="position: relative;">
-            @if(!file_exists(public_path('videos/intro.mp4')))
+            @if(!file_exists(public_path('videos/intro.mov')))
             <div class="home-map-intro" id="mapIntroLayer">
                 <div class="home-map-intro__bg"></div>
                 <div class="container home-map-intro__inner">
@@ -56,7 +56,7 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                     <img src="{{ asset('images/intro.png') }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
                 </picture>
                 <video id="loader-video" muted playsinline preload="auto">
-                    <source src="/videos/intro.mp4" type="video/mp4">
+                    <source src="/videos/intro.mov" type="video/mp4">
                     Trình duyệt của bạn không hỗ trợ video.
                 </video>
                 <div class="home-video-intro__overlay">
@@ -2266,8 +2266,9 @@ const topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
 
 // MapLibre GL 3D Layer
 const map3d = L.maplibreGL({
-            style: 'https://api.maptiler.com/maps/streets-v2/style.json?key={{ config('services.maptiler.key') }}',
-    updateInterval: 0 // Eliminate 30fps throttle to fix 3D panning jitter
+    style: 'https://api.maptiler.com/maps/streets-v2/style.json?key={{ config('services.maptiler.key') }}',
+    updateInterval: 0, // Eliminate 30fps throttle to fix 3D panning jitter
+    maxBounds: [[104.9, 20.4], [106.4, 21.7]] // MapLibre dùng định dạng [ [lng, lat], [lng, lat] ]
 });
 
 // Add 3D building extrusion when MapLibre map is ready
