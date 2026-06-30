@@ -7,6 +7,14 @@ header('Content-Type: application/json; charset=utf-8');
 function load_js($file_name)
 {
     $folder = isset($_REQUEST['folder']) ? $_REQUEST['folder'] : '';
+    
+    // BẢO MẬT: Lọc thư mục để chống Path Traversal (chỉ cho phép chữ, số, gạch ngang, gạch dưới)
+    $folder = preg_replace('/[^a-zA-Z0-9_-]/', '', $folder);
+    
+    if (empty($folder)) {
+        return null;
+    }
+
     $path   = 'vrtour/' . $folder . '/' . $file_name . '.js';
    
     if (!file_exists($path)) {

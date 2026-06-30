@@ -6,8 +6,28 @@ if (!isset($_GET['image_path'])) {
 
 $output_width = $_GET['output_width'];
 $output_height = $_GET['output_height'];
-
 $image_path = $_GET['image_path'];
+
+// BẢO MẬT: Kiểm tra tính hợp lệ của đường dẫn ảnh
+$is_valid_url = filter_var($image_path, FILTER_VALIDATE_URL) && preg_match('/^https?:\/\//i', $image_path);
+// Đảm bảo nếu là file nội bộ thì phải nằm trong thư mục uploads
+$real_base = realpath(__DIR__ . '/../../public/uploads');
+$real_path = realpath($image_path);
+$is_local_upload = ($real_base && $real_path && strpos($real_path, $real_base) === 0);
+
+if (!$is_valid_url && !$is_local_upload) {
+    http_response_code(403);
+    exit('Đường dẫn ảnh không hợp lệ');
+}
+
+if ($is_valid_url) {
+    // Ngăn chặn SSRF nếu là URL
+    $host = parse_url($image_path, PHP_URL_HOST);
+    if (preg_match('/^(localhost|127\.0\.0\.1|10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|192\.168\.)/i', $host)) {
+        http_response_code(403);
+        exit('Truy cập bị từ chối');
+    }
+}
 
 function get_image_mime_type(string $image_path): ?string
 {
