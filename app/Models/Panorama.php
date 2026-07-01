@@ -17,7 +17,12 @@ class Panorama extends Model
         'content_en',
         'audio',
         'audio_en',
-        'user_id'
+        'user_id',
+        'approval_level',
+        'max_approval',
+        'is_draft',
+        'parent_id',
+        'status',
     ];
     public function draft()
     {

@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Auth;
 use App\Models\Project;
 use App\Models\Panorama;
-use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
 class ContentController extends Controller
@@ -143,7 +143,6 @@ class ContentController extends Controller
         $panorama = Panorama::findOrFail($id);
 
         // Super Admin sửa trực tiếp
-        // dd($user->is_super_admin);
         if ($user->is_super_admin) {
             $main = $panorama->parent_id
                 ? Panorama::findOrFail($panorama->parent_id)
@@ -217,5 +216,73 @@ class ContentController extends Controller
                     ? 'Đã gửi duyệt cấp 2'
                     : 'Đã gửi duyệt cấp 1'
             );
+    }
+    public function reject(Panorama $content)
+    {
+        $user = auth('web')->user();
+        if (!($user->is_super_admin || $user->is_approve)) {
+            abort(403, 'Bạn không có quyền từ chối panorama.');
+        }
+        $content->delete();
+        return redirect()->route('backend_vrtour_content_index')->with(
+            'success',
+            'Từ chối duyệt panorama thành công'
+        );
+    }
+    public function approve(Panorama $content)
+    {
+        $user = auth('web')->user();
+
+        if (!($user->is_super_admin || $user->is_approve)) {
+            abort(403, 'Bạn không có quyền duyệt nội dung.');
+        }
+        // Duyệt cấp 2 (Super Admin)
+        if ($user->is_super_admin) {
+            if ($content->parent_id) {
+                $parent = Panorama::find($content->parent_id);
+                if ($parent) {
+                    DB::transaction(function () use ($content, $parent) {
+                        $draftData = $content->toArray();
+                        unset(
+                            $draftData['id'],
+                            $draftData['parent_id'],
+                            $draftData['created_at'],
+                            $draftData['updated_at']
+                        );
+
+                        $parent->fill($draftData);
+                        $parent->parent_id = null;
+                        $parent->is_draft = 0;
+                        $parent->status = 'approved';
+                        $parent->approval_level = $parent->max_approval;
+
+                        $parent->save();
+                        $project = Project::find($parent->vrtour_id);
+                        file_put_contents(
+                            'vrtour/' . $project->vrtour_code . '/pano.js',
+                            Panorama::where('vrtour_id', $parent->vrtour_id)
+                                ->where('is_draft', 0)
+                                ->get()
+                        );
+                        // Xóa bản draft
+                        $content->delete();
+                    });
+
+                    return redirect()
+                        ->route('backend_vrtour_content_index')
+                        ->with('success', 'Duyệt nội dung thành công.');
+                }
+            }
+        }
+
+        // Duyệt cấp 1
+        if ($user->is_approve) {
+            if ($content->approval_level < 1) {
+                $content->approval_level = 1;
+                $content->status = 'pending';
+                $content->save();
+            }
+            return redirect()->route('backend_vrtour_content_index')->with('success', 'Đã duyệt cấp 1, chờ duyệt cấp 2.');
+        }
     }
 }
