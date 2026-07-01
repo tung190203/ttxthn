@@ -90,6 +90,7 @@
         if (getParam("vrtour") != null && getParam("type") != null) {
             $('#slt_vrtour').val(getParam("vrtour")).change();
             $('#slt_vrtour_type').val(getParam("type")).change();
+            renderTable(false);
         }
 
         $(document).on('click', '#btn_reset', function(){

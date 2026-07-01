@@ -224,7 +224,9 @@ class ContentController extends Controller
             abort(403, 'Bạn không có quyền từ chối panorama.');
         }
         $content->delete();
-        return redirect()->route('backend_vrtour_content_index')->with(
+        return redirect()->route('backend_vrtour_content_index', [
+            'vrtour' => $content->vrtour_id,
+        ])->with(
             'success',
             'Từ chối duyệt panorama thành công'
         );
@@ -269,7 +271,9 @@ class ContentController extends Controller
                     });
 
                     return redirect()
-                        ->route('backend_vrtour_content_index')
+                        ->route('backend_vrtour_content_index', [
+                            'vrtour' => $parent->vrtour_id
+                        ])
                         ->with('success', 'Duyệt nội dung thành công.');
                 }
             }
@@ -282,7 +286,9 @@ class ContentController extends Controller
                 $content->status = 'pending';
                 $content->save();
             }
-            return redirect()->route('backend_vrtour_content_index')->with('success', 'Đã duyệt cấp 1, chờ duyệt cấp 2.');
+            return redirect()->route('backend_vrtour_content_index', [
+                'vrtour' => $content->vrtour_id
+            ])->with('success', 'Đã duyệt cấp 1, chờ duyệt cấp 2.');
         }
     }
 }

@@ -149,7 +149,7 @@ class HotspotController extends Controller
                 $html .= '<td>' . $hp->tooltip . '</td>';
                 $html .= '<td>' . $hp->opacity . '</td>';
                 $html .= '<td class="grid_row1">';
-                $html .= '<a class="btn btn-info btn-sm mr-1" href="' . route('backend_vrtour_hotspot_edit', $hp->id) . '" title="Chỉnh sửa"><i class="fas fa-pencil-alt"></i></a>';
+                $html .= '<a class="btn btn-info btn-sm mr-1" href="' . route('backend_vrtour_hotspot_edit', ["id"=>$hp->id,"type"=>$hp->type]) . '" title="Chỉnh sửa"><i class="fas fa-pencil-alt"></i></a>';
                 $html .= '</td>';
                 $html .= '</tr>';
             }
@@ -161,7 +161,7 @@ class HotspotController extends Controller
             return response()->json(['data' => $html]);
         }
     }
-    public function edit($hotspot_id)
+    public function edit(Request $request, $hotspot_id)
     {
         if (!Gate::allows('vr_tour/hotspot')) {
             abort(403, self::MESSAGE_UNAUTHORIZED);
@@ -302,19 +302,22 @@ class HotspotController extends Controller
             );
     }
 
-    public function reject(Hotspot $hotspot)
+    public function reject(Request $request, Hotspot $hotspot)
     {
         $user = auth('web')->user();
         if (!($user->is_super_admin || $user->is_approve)) {
             abort(403, 'Bạn không có quyền từ chối hotspot.');
         }
         $hotspot->delete();
-        return redirect()->route('backend_vrtour_hotspot_index')->with(
+        return redirect()->route('backend_vrtour_hotspot_index',[
+            "vrtour" => $hotspot->vrtour_id,
+            "type" => $request->type
+        ])->with(
             'success',
             'Từ chối duyệt hotspot thành công'
         );
     }
-    public function approve(Hotspot $hotspot)
+    public function approve(Request $request, Hotspot $hotspot)
     {
         $user = auth('web')->user();
         if (!($user->is_super_admin || $user->is_approve)) {
@@ -373,7 +376,10 @@ class HotspotController extends Controller
                         $hotspot->delete();
                     });
 
-                    return redirect()->route('backend_vrtour_hotspot_index')->with(
+                    return redirect()->route('backend_vrtour_hotspot_index', [
+                        "vrtour" => $hotspot->vrtour_id,
+                        "type" => $request->type
+                    ])->with(
                         'success',
                         'Duyệt hotspot thành công (Đã duyệt)'
                     );
@@ -387,7 +393,10 @@ class HotspotController extends Controller
                 $hotspot->status = 'pending';
                 $hotspot->save();
             }
-            return redirect()->route('backend_vrtour_hotspot_index')->with(
+            return redirect()->route('backend_vrtour_hotspot_index', [
+                "vrtour" => $hotspot->vrtour_id,
+                "type" => $request->type
+            ])->with(
                 'success',
                 'Đã duyệt cấp 1, chờ duyệt cấp 2'
             );

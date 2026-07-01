@@ -29,6 +29,7 @@
                                 <form action="{{ route('backend_vrtour_hotspot_approve', $hotspot->id) }}" method="POST"
                                     style="display:inline-block">
                                     @csrf
+                                    <input type="hidden" name="type" value="{{ request('type') }}">
                                     <button type="submit" class="btn btn-success btn-sm">
                                         Duyệt
                                     </button>
@@ -38,6 +39,7 @@
                                     style="display:inline-block"
                                     onsubmit="return confirm('Bạn có chắc muốn từ chối bản chỉnh sửa này?')">
                                     @csrf
+                                    <input type="hidden" name="type" value="{{ request('type') }}">
                                     <button type="submit" class="btn btn-danger btn-sm">
                                         Từ chối
                                     </button>
