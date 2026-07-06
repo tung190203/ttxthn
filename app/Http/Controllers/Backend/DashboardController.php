@@ -174,15 +174,16 @@ class DashboardController extends Controller
                 ->distinct('ip_address')
                 ->count('ip_address');
 
-            $returningVisitors = SiteVisitor::select('ip_address')
-                ->whereBetween('visit_date', [
-                    $visitorMonthStart->toDateString(),
-                    $visitorMonthEnd->toDateString(),
-                ])
-                ->groupBy('ip_address')
-                ->havingRaw('COUNT(DISTINCT visit_date) >= 2')
-                ->get()
-                ->count();
+            $returningVisitors = \DB::table(function ($query) use ($visitorMonthStart, $visitorMonthEnd) {
+                $query->from('site_visitors')
+                    ->select('ip_address')
+                    ->whereBetween('visit_date', [
+                        $visitorMonthStart->toDateString(),
+                        $visitorMonthEnd->toDateString(),
+                    ])
+                    ->groupBy('ip_address')
+                    ->havingRaw('COUNT(DISTINCT visit_date) >= 2');
+            }, 'sub')->count();
 
             $totalHitsInMonth = SiteVisitor::whereBetween('visit_date', [
                     $visitorMonthStart->toDateString(),
@@ -212,6 +213,7 @@ class DashboardController extends Controller
                 ])
                 ->groupBy('ip_address')
                 ->orderByDesc('hits')
+                ->limit(2000)
                 ->get();
 
             $visitorMonthlyLabels = [];
@@ -226,12 +228,13 @@ class DashboardController extends Controller
                 $visitorMonthlyData[] = SiteVisitor::whereBetween('visit_date', [$start, $end])
                     ->distinct('ip_address')
                     ->count('ip_address');
-                $returningVisitorMonthlyData[] = SiteVisitor::select('ip_address')
-                    ->whereBetween('visit_date', [$start, $end])
-                    ->groupBy('ip_address')
-                    ->havingRaw('COUNT(DISTINCT visit_date) >= 2')
-                    ->get()
-                    ->count();
+                $returningVisitorMonthlyData[] = \DB::table(function ($query) use ($start, $end) {
+                    $query->from('site_visitors')
+                        ->select('ip_address')
+                        ->whereBetween('visit_date', [$start, $end])
+                        ->groupBy('ip_address')
+                        ->havingRaw('COUNT(DISTINCT visit_date) >= 2');
+                }, 'sub')->count();
             }
 
             // Historical Visit stats for the last 7 days
