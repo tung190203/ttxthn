@@ -70,23 +70,12 @@ class AppServiceProvider extends ServiceProvider
             $view->with('project_industries', ProjectIndustries::orderBy('created_at', 'desc')->get());
         });
 
-        View::composer(['backend.group.create', 'frontend.home.project', 'frontend.home.industrial_project'], function ($view) {
-            $view->with('projects', Project::orderBy('created_at', 'desc')->where('status', 'approved')->get());
-        });
-
-        View::composer(['backend.group.create', 'frontend.home.index', 'frontend.home.partials.news_list', 'frontend.home.project_detail'], function ($view) {
-            $view->with('posts', Post::orderBy('created_at', 'desc')->where('status_approve', 'approved')->get());
-        });
-
-        View::composer(['backend.group.create', 'frontend.home.index', 'frontend.home.partials.investment_guides'], function ($view) {
-            $view->with('investment_guides', InvestmentGuide::orderBy('created_at', 'desc')->where('status_approve', 'approved')->get());
-        });
-
-        View::composer(['backend.group.create', 'frontend.home.search', 'backend.category.create'], function ($view) {
-            $view->with('category', Category::where('status_approve','approved')->get());
-        });
-
+        // Group create/edit needs these global lists for permissions mapping
         View::composer(['backend.group.create'], function ($view) {
+            $view->with('projects', Project::orderBy('created_at', 'desc')->where('status', 'approved')->get());
+            $view->with('posts', Post::orderBy('created_at', 'desc')->where('status_approve', 'approved')->get());
+            $view->with('investment_guides', InvestmentGuide::orderBy('created_at', 'desc')->where('status_approve', 'approved')->get());
+            $view->with('category', Category::where('status_approve','approved')->get());
             $view->with('menus', Menu::where('status_approve','approved')->get());
             $view->with('popups', Popup::where('status_approve','approved')->get());
             $view->with('users', User::where('status_approve', 'approved')

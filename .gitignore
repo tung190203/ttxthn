@@ -12,3 +12,5 @@
 composer.lock
 .DS_Store
 *.map
+error_log
+*.log
