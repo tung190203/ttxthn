@@ -184,9 +184,9 @@
                     <li class="mb-3"><strong>{{__('app.phone')}}:</strong> {{ $setting['phone'] ?? '0343.653.999' }}</li>
                 </ul>
                 <div class="d-flex gap-3 mt-3">
-                    <a href="{{ $setting['facebook'] ?? '#' }}" style="color: #333; font-size: 18px;"><i class="fab fa-facebook-f"></i></a>
-                    <a href="{{ $setting['youtube'] ?? '#' }}" style="color: #333; font-size: 18px;"><i class="fab fa-youtube"></i></a>
-                    <a href="{{ $setting['tiktok'] ?? '#' }}" style="color: #333; font-size: 18px;"><i class="fab fa-tiktok"></i></a>
+                    <a href="{{ $setting['facebook'] ?? '#' }}" style="color: #0866FF; font-size: 18px;"><i class="fab fa-facebook-f"></i></a>
+                    <a href="{{ $setting['youtube'] ?? '#' }}" style="color: #FF0000; font-size: 18px;"><i class="fab fa-youtube"></i></a>
+                    <a href="{{ $setting['tiktok'] ?? '#' }}" style="color: #000000; font-size: 18px;"><i class="fab fa-tiktok"></i></a>
                 </div>
             </div>
         </div>
