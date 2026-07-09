@@ -120,7 +120,7 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                 </div>
             </div>
 
-            <div class="pj-search" id="pjSearchFull">
+            <div class="pj-search" id="pjSearchFull" style="visibility: hidden;">
                 <div class="container py-3"
                     style="position: absolute; top:50%;left:50%;transform: translate(-50%,-100%);">
                     <!-- FORM: TÌM KIẾM DỰ ÁN -->
@@ -265,7 +265,7 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                     </div>
                 </div>
             </div>
-            <div class="pj-search" id="pjSearchMini">
+            <div class="pj-search" id="pjSearchMini" style="visibility: hidden;">
             <div class="container py-3" style="position: absolute; top:50%;left:50%;transform: translate(-50%,-100%);">
                     <div class="pj-search__body custom_body tab-content active" id="projectTabContentMini"
                         style="border-bottom-left-radius:8px !important">
@@ -2173,6 +2173,12 @@ document.addEventListener('DOMContentLoaded', function() {
         videoContainer.classList.add('video-fade-out');
         if (introLayer) introLayer.classList.add('is-hidden');
         document.querySelector('.home-page').classList.remove('home-map-locked');
+
+        // Xoá inline visibility:hidden đã đặt sẵn để tránh flash khi load
+        const pjSearchFull = document.getElementById('pjSearchFull');
+        const pjSearchMini = document.getElementById('pjSearchMini');
+        if (pjSearchFull) pjSearchFull.style.visibility = '';
+        if (pjSearchMini) pjSearchMini.style.visibility = '';
 
         // Bật nền header khi map được mở khóa (video xong hoặc bỏ qua)
         const $header = document.querySelector('.header');
