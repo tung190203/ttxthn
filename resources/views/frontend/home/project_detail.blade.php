@@ -71,6 +71,134 @@
         flex-direction: row-reverse;
     }
 
+    /* Tùy chỉnh Layout cho Lợi thế nổi bật */
+    body.pj-detail-page #loi-the-noi-bat .advantage-slider__container {
+        padding: 15px 0;
+        margin: -15px 0;
+    }
+    body.pj-detail-page #loi-the-noi-bat .swiper-wrapper {
+        align-items: stretch;
+    }
+    body.pj-detail-page #loi-the-noi-bat .swiper-slide {
+        height: auto;
+    }
+    body.pj-detail-page #loi-the-noi-bat .advantage {
+        height: 100%;
+    }
+    body.pj-detail-page #loi-the-noi-bat .advantage__body {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
+    body.pj-detail-page #loi-the-noi-bat .custom-index {
+        background: #E8F0FE !important;
+        color: #1A73E8 !important;
+        font-size: 32px !important;
+        font-weight: 800 !important;
+        width: 60px !important;
+        height: 60px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: 8px !important;
+        margin-right: 20px !important;
+        line-height: 1 !important;
+        flex-shrink: 0 !important;
+        position: relative !important;
+    }
+    body.pj-detail-page #loi-the-noi-bat .custom-index::after {
+        content: "";
+        position: absolute;
+        bottom: -15px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background-color: #E8F0FE;
+    }
+    body.pj-detail-page #loi-the-noi-bat .custom-title {
+        font-size: 16px !important;
+        font-weight: 700 !important;
+        margin-bottom: 0 !important;
+        text-transform: uppercase !important;
+        color: #333 !important;
+        line-height: 1.4 !important;
+    }
+    body.pj-detail-page #loi-the-noi-bat .advantage__desc {
+        flex: 1;
+        overflow-y: auto;
+        padding-right: 15px;
+        margin-top: 10px;
+    }
+    body.pj-detail-page #loi-the-noi-bat .section__title {
+        text-transform: uppercase !important;
+        text-align: center !important;
+        margin: 0 auto !important;
+    }
+    body.pj-detail-page #loi-the-noi-bat .custom-nav-align,
+    body.pj-detail-page #phap-ly .custom-nav-align {
+        position: absolute !important;
+        right: 0 !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        margin: 0 !important;
+        z-index: 10;
+        display: flex;
+        gap: 8px;
+    }
+    body.pj-detail-page #phap-ly .custom-nav-btn {
+        width: 36px !important;
+        height: 36px !important;
+        background: #f1f5f9 !important;
+        border-radius: 6px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer;
+        color: #333 !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        position: static !important;
+        transform: none !important;
+        transition: all 0.2s;
+    }
+    body.pj-detail-page #phap-ly .custom-nav-btn:hover {
+        background: #e2e8f0 !important;
+    }
+    body.pj-detail-page #phap-ly .custom-legal-text p {
+        margin-bottom: 0;
+    }
+
+    /* Thẻ Tin tức & Thủ tục đầu tư - chiều cao bằng nhau */
+    body.pj-detail-page #tin-tuc .swiper-wrapper,
+    body.pj-detail-page #thu-tuc-dau-tu .swiper-wrapper {
+        align-items: stretch;
+    }
+    body.pj-detail-page #tin-tuc .swiper-slide,
+    body.pj-detail-page #thu-tuc-dau-tu .swiper-slide {
+        height: auto;
+    }
+    body.pj-detail-page #tin-tuc .news,
+    body.pj-detail-page #thu-tuc-dau-tu .news {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    body.pj-detail-page #tin-tuc .news__body,
+    body.pj-detail-page #thu-tuc-dau-tu .news__body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    body.pj-detail-page #tin-tuc .news__desc,
+    body.pj-detail-page #thu-tuc-dau-tu .news__desc {
+        flex: 1;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
     /* Tùy chỉnh thanh cuộn cho các khu vực nội dung dài (như Thông tin chung) */
     .custom-scrollbar::-webkit-scrollbar {
         width: 6px;
@@ -378,19 +506,23 @@
         <img class="section__bg" src="{{ asset('./images/achitect-bg.png') }}" alt="" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0;">
         <div class="container" style="flex: 1; display: flex; flex-direction: column; min-height: 0; position: relative; z-index: 1;">
             <h2 class="section__title" style="flex-shrink: 0;">{{ __('app.general_info') }}</h2>
-            <div class="mx-auto custom-scrollbar" style="max-width: 800px; flex: 1; min-height: 0; overflow-y: auto; padding-right: 15px; width: 100%;">
-                {!! $project->description !!}
+            <div class="mx-auto" style="background: #fff; border-radius: 8px; padding: 30px; max-width: 1000px; flex: 1; min-height: 0; display: flex; flex-direction: column; width: 100%; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                <div class="custom-scrollbar" style="flex: 1; min-height: 0; overflow-y: auto; padding-right: 20px; width: 100%;">
+                    {!! $project->description !!}
+                </div>
             </div>
         </div>
     </section>
     @endif
 
     @if($hasLocation)
-    <section class="section" id="vi-tri" style="height: 100vh; padding-top: 100px; padding-bottom: 160px; display: flex; flex-direction: column;">
-        <div class="container text-center" style="flex: 1; display: flex; flex-direction: column; min-height: 0; justify-content: center; align-items: center;">
-            <h2 class="section__title" style="flex-shrink: 0; margin-bottom: 30px;">{{ __('app.location') }}</h2>
-            <div style="display: flex; align-items: center; justify-content: center; width: 100%; max-height: 100%; min-height: 0;">
-                <img src="{{ $project->location_image ?? asset('./images/position.jpg') }}" alt="" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+    <section class="section position-relative" id="vi-tri" style="height: 100vh; padding: 0; margin: 0; overflow: hidden;">
+        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;">
+            <img src="{{ $project->location_image ?? asset('./images/position.jpg') }}" alt="" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+        </div>
+        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; padding-top: 100px;">
+            <div class="container text-center">
+                <h2 class="section__title" style="display: inline-block; background: #FFFFFFCC; padding: 10px 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin: 0; pointer-events: auto; white-space: nowrap;">{{ __('app.location') }}</h2>
             </div>
         </div>
     </section>
@@ -399,13 +531,15 @@
     @if($hasAdvantages)
     <section class="section section--light-blue" id="loi-the-noi-bat">
         <div class="container" style="position: relative;">
-            <h2 class="section__title">{{ __('app.key_advantages') }}</h2>
+            <div class="position-relative mb-4 d-flex align-items-center justify-content-center" style="min-height: 40px;">
+                <h2 class="section__title mb-0" style="margin: 0;">{{ __('app.key_advantages') }}</h2>
+                <div class="news-slider__nav custom-nav-align" style="z-index: 10;">
+                    <div class="advantage-slider__prev news-slider__prev"><i class="fal fa-sm fa-angle-left"></i></div>
+                    <div class="advantage-slider__next news-slider__next"><i class="fal fa-sm fa-angle-right"></i></div>
+                </div>
+            </div>
             
             <div class="advantage-slider">
-                <div class="news-slider__nav" style="z-index: 10;">
-                    <div class="advantage-slider__prev news-slider__prev"><i class="fal fa-fw fa-lg fa-angle-left"></i></div>
-                    <div class="advantage-slider__next news-slider__next"><i class="fal fa-fw fa-lg fa-angle-right"></i></div>
-                </div>
                 <div class="advantage-slider__container swiper-container" style="overflow: hidden;">
                     <div class="swiper-wrapper">
                         @php
@@ -423,15 +557,16 @@
 
                         @for ($i = 0; $i < $count; $i++)
                         <div class="swiper-slide">
-                            <div class="advantage mt-20">
+                            <div class="advantage">
                                 <a class="advantage__frame" href="#!">
                                     <img src="{{ $images[$i] ?? '' }}" alt="" />
                                 </a>
                                 <div class="advantage__body">
-                                    <div class="advantage__index">{{ $i + 1 }}</div>
-                                    <div class="advantage__index-bg">{{ $i + 1 }}</div>
-                                    <div class="advantage__title">{{ $titles[$i] ?? '' }}</div>
-                                    <div class="advantage__desc text-justify">
+                                    <div class="d-flex align-items-center pb-4 mb-3">
+                                        <div class="advantage__index custom-index">{{ str_pad($i + 1, 2, '0', STR_PAD_LEFT) }}</div>
+                                        <div class="advantage__title custom-title">{{ $titles[$i] ?? '' }}</div>
+                                    </div>
+                                    <div class="advantage__desc text-justify custom-scrollbar">
                                         {!! $descs[$i] ?? '' !!}
                                     </div>
                                 </div>
@@ -525,7 +660,7 @@
                     @if($design_count > 0)
                     @foreach ($design_images as $index => $image)
                     <div class="design-slider__slide swiper-slide">
-                        <div class="design-slider__frame">
+                        <div class="design-slider__frame" style="cursor: zoom-in;" onclick="openDesignLightbox('{{ $image }}')">
                             <img src="{{ $image }}" alt="Design image {{ $index + 1 }}" />
                         </div>
                         @if(!empty($design_descs[$index]))
@@ -562,38 +697,58 @@
 
 @if($hasLegal)
 <section class="section section--light-blue" id="phap-ly">
-    <div class="container">
-        <h2 class="section__title">{{ __('app.legal_documents') }}</h2>
-        @if(!empty($project->legal_short_desc))
-        <div class="section__desc">{{ $project->legal_short_desc }}</div>
-        @endif
-        <div class="legal-grid">
-            @php
-            $legal_files = $project->legal_file ? explode(';', $project->legal_file) : [];
-            $legal_descs_data = is_array($project->legal_description)
-            ? $project->legal_description
-            : json_decode($project->legal_description, true);
-            $legal_descs = $legal_descs_data ?? [];
-            @endphp
-            @if(count($legal_files) > 0)
-            @foreach ($legal_files as $index => $file)
-            <a class="legal" href="{{ asset($file) }}" target="_blank" rel="noopener noreferrer">
-                <img class="legal__icon" src="{{ asset('./images/icon-pdf.svg') }}" alt="" />
-                <div class="legal__body">
-                    <div class="legal__title">
-                        @if(isset($legal_descs[$index]) && !empty($legal_descs[$index]))
-                        <div class="fw-bold text-truncate-multiline">
-                            {{ $legal_descs[$index] }}
-                        </div>
-                        @endif
-                    </div>
-                </div>
-            </a>
-            @endforeach
-            @endif
+    <div class="container" style="position: relative;">
+        <div class="position-relative mb-2 d-flex align-items-center justify-content-center" style="min-height: 40px;">
+            <h2 class="section__title mb-0" style="margin: 0; text-align: center;">{{ __('app.legal_documents') }}</h2>
+            <div class="custom-nav-align">
+                <div class="legal-slider__prev custom-nav-btn"><i class="fal fa-lg fa-angle-left"></i></div>
+                <div class="legal-slider__next custom-nav-btn"><i class="fal fa-lg fa-angle-right"></i></div>
+            </div>
         </div>
-        <nav class="d-flex justify-content-center mt-40 mt-lg-60">
-        </nav>
+        
+        @if(!empty($project->legal_short_desc))
+        <div class="section__desc text-center mb-4" style="margin-top: 10px;">{{ $project->legal_short_desc }}</div>
+        @endif
+        
+        <div class="legal-slider mt-4">
+            <div class="legal-slider__container swiper-container" style="overflow: hidden; padding-bottom: 20px; margin-bottom: -20px;">
+                <div class="swiper-wrapper" style="align-items: stretch;">
+                    @php
+                    $legal_files = $project->legal_file ? explode(';', $project->legal_file) : [];
+                    $legal_descs_data = is_array($project->legal_description)
+                    ? $project->legal_description
+                    : json_decode($project->legal_description, true);
+                    $legal_descs = $legal_descs_data ?? [];
+                    @endphp
+                    
+                    @if(count($legal_files) > 0)
+                    @foreach ($legal_files as $index => $file)
+                    <div class="swiper-slide" style="height: auto;">
+                        <div class="legal-card" style="height: 100%; background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); overflow: hidden; display: flex; flex-direction: column; padding: 24px;">
+                            {{-- Icon + Title --}}
+                            <div style="display: flex; align-items: flex-start; gap: 14px; flex: 1;">
+                                <div style="flex-shrink: 0;">
+                                    <div style="width: 52px; height: 52px; background: #EEF2FF; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                        <img src="{{ asset('./images/icon-pdf.svg') }}" alt="PDF" style="width: 28px; height: 28px; object-fit: contain;" />
+                                    </div>
+                                </div>
+                                <div style="font-weight: 700; font-size: 14px; color: #111; line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden;">
+                                    {{ $legal_descs[$index] ?? '' }}
+                                </div>
+                            </div>
+                            {{-- Link --}}
+                            <div style="margin-top: 20px; margin-left: -24px; margin-right: -24px; margin-bottom: -24px; padding: 14px 24px; background: #EEF3FF; text-align: center;">
+                                <a href="{{ asset($file) }}" target="_blank" rel="noopener noreferrer" style="color: #1A73E8; font-weight: 600; font-size: 14px; text-decoration: none;">
+                                    Xem chi tiết &nbsp;<i class="far fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                    @endif
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 @endif
@@ -780,6 +935,45 @@
 </section>
 @endif
 </div>
+
+{{-- Lightbox cho Thiết kế & Mặt bằng --}}
+<div id="design-lightbox" onclick="closeDesignLightbox()" style="
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: rgba(0,0,0,0.92);
+    align-items: center;
+    justify-content: center;
+    cursor: zoom-out;
+">
+    <button onclick="closeDesignLightbox()" style="
+        position: absolute;
+        top: 16px;
+        right: 20px;
+        background: rgba(255,255,255,0.15);
+        border: none;
+        color: #fff;
+        font-size: 28px;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+        z-index: 1;
+    " aria-label="Đóng">&times;</button>
+    <img id="design-lightbox-img" src="" alt="" onclick="event.stopPropagation()" style="
+        max-width: 92vw;
+        max-height: 90vh;
+        object-fit: contain;
+        border-radius: 6px;
+        box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+    " />
+</div>
+
 @endsection
 
 @push('bottom')
@@ -925,6 +1119,42 @@
                 }
             });
         }
+
+        // ===== KHỞI TẠO SWIPER CHO VĂN BẢN PHÁP QUY =====
+        if ($('.legal-slider__container').length) {
+            new Swiper('.legal-slider__container', {
+                slidesPerView: 1,
+                spaceBetween: 20,
+                navigation: {
+                    prevEl: '.legal-slider__prev',
+                    nextEl: '.legal-slider__next',
+                },
+                breakpoints: {
+                    768: {
+                        slidesPerView: 2,
+                    },
+                    992: {
+                        slidesPerView: 3,
+                    }
+                }
+            });
+        }
+    });
+
+    // ===== LIGHTBOX CHO THIẾT KẾ & MẶT BẰNG =====
+    function openDesignLightbox(src) {
+        var lb = document.getElementById('design-lightbox');
+        document.getElementById('design-lightbox-img').src = src;
+        lb.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+    function closeDesignLightbox() {
+        document.getElementById('design-lightbox').style.display = 'none';
+        document.getElementById('design-lightbox-img').src = '';
+        document.body.style.overflow = '';
+    }
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeDesignLightbox();
     });
 </script>
 @endpush
