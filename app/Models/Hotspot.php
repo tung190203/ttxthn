@@ -15,7 +15,6 @@ class Hotspot extends Model
         'unit',
         'intended_use',
         'url',
-        'url_en',
         'opacity',
         'tooltip',
         'tooltip_en',

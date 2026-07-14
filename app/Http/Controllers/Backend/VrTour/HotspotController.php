@@ -209,7 +209,6 @@ class HotspotController extends Controller
 
             $main->potision      = $request->hp_potision;
             $main->url           = $request->hp_url;
-            $main->url_en        = $request->hp_url_en;
             $main->opacity       = $request->hp_opacity;
             $main->tooltip       = $request->hp_tooltip;
             $main->tooltip_en    = $request->hp_tooltip_en;
@@ -278,7 +277,6 @@ class HotspotController extends Controller
 
         $draft->potision      = $request->hp_potision;
         $draft->url           = $request->hp_url;
-        $draft->url_en        = $request->hp_url_en;
         $draft->opacity       = $request->hp_opacity;
         $draft->tooltip       = $request->hp_tooltip;
         $draft->tooltip_en    = $request->hp_tooltip_en;

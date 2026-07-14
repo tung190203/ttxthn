@@ -66,6 +66,7 @@ class Project extends Model
         'design_images',
         'design_description',
         'legal_short_desc',
+        'location_in_tour',
         'legal_file',
         'legal_description',
         'layout_id',
@@ -395,5 +396,12 @@ class Project extends Model
                     });
             }
         });
+    }
+
+    public function pendingSkinApproval()
+    {
+        return $this->hasOne(SkinApproval::class, 'record_id')
+            ->where('type', SkinApproval::TYPE_LOCATION)
+            ->where('status', 'pending');
     }
 }

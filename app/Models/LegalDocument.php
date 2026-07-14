@@ -19,4 +19,8 @@ class LegalDocument extends Model
         'extracted_language',
         'extracted_at',
     ];
+    public function pendingSkinApproval()
+    {
+        return $this->hasOne(SkinApproval::class, 'record_id')->where('type', SkinApproval::TYPE_DOCUMENT)->where('status', 'pending');
+    }
 }

@@ -35,7 +35,6 @@ if (is_array($vr_hotspot)) {
         $list_hotspot[$k] = [
             'potision'   => $val['potision'] ?? null,
             'url'        => $val['url'] ?? null,
-            'url_en'     => $val['url_en'] ?? null,
             'opacity'    => $val['opacity'] ?? null,
             'tooltip'    => $val['tooltip'] ?? null,
             'tooltip_en' => $val['tooltip_en'] ?? null,
