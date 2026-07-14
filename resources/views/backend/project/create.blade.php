@@ -164,9 +164,13 @@
                                     @endif
                                 </div>
                             </div>
+                        <x-forms.switch name="hide_vrtour" label="Ẩn VR Tour" value="{{ $project->hide_vrtour ?? 0 }}"
+                            :messages="$errors->get('hide_vrtour')" help="Nếu bật, VR Tour sẽ không hiển thị trên website ngay cả khi có lưu link" />
                         <x-forms.input name="link_sand_table"
                             value="{{ old('link_sand_table') ?: $project->link_sand_table }}" label="Link sa bàn ảo dự án"
                             :messages="$errors->get('link_sand_table')" />
+                        <x-forms.switch name="hide_saban" label="Ẩn sa bàn ảo" value="{{ $project->hide_saban ?? 0 }}"
+                            :messages="$errors->get('hide_saban')" help="Nếu bật, sa bàn ảo sẽ không hiển thị trên website ngay cả khi có lưu link" />
                         <x-forms.select name="layout_id" label="Lựa chọn layout dự án" :required="true" :options="new HtmlString($option_layouts)"
                             :selected="old('layout_id', $project->layout_id)" :messages="$errors->get('layout_id')" />
                             

@@ -3,6 +3,7 @@
 /public/uploads
 /public/vrtour
 /public/vrtour360
+/public/storage
 /storage/*.key
 .env
 .phpunit.result.cache
@@ -11,3 +12,5 @@
 composer.lock
 .DS_Store
 *.map
+error_log
+*.log

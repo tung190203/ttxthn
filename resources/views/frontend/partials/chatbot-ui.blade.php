@@ -93,6 +93,7 @@
                 </button>
             </div>
         </form>
+        <div id="chatbot-status" class="small mt-2 text-center">{{ __('app.chatbot_ai_disclaimer') }}</div>
     </div>
 </div>
 

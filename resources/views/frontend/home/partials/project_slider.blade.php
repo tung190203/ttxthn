@@ -3,96 +3,115 @@
         {{ __('app.no_suitable_project') }}
     </p>
 @else
-    <!-- phần slider giữ nguyên -->
-    <div class="news-slider">
-        <div class="news-slider__nav">
-            <div class="news-slider__prev"><i class="fal fa-fw fa-lg fa-angle-left"></i></div>
-            <div class="news-slider__next"><i class="fal fa-fw fa-lg fa-angle-right"></i></div>
-        </div>
-        <div class="news-slider__container swiper-container">
-            <div class="swiper-wrapper">
-                @foreach ($project_category as $item)
-                    <div class="swiper-slide">
-                        <div>
-                            <div class="project">
-                                <a class="project__frame"
-                                    href="{{ route('project_detail', ['slug' => $item['slug']]) }}">
-                                    <img src="{{ $item['detail_image'] ?? './images/project-1.jpg' }}"
-                                        alt="" />
-                                </a>
-                                <div class="project__body">
-                                    <h3 class="project__title">
-                                        <a href="{{ route('project_detail', ['slug' => $item['slug']]) }}"
-                                            data-tippy-content="{{ $item['name'] }}">
-                                            {{ $item['name'] }}
-                                        </a>
-                                    </h3>
-                                    @if ($item['is_invest'] == 0)
-                                        <div class="project__overlay">
-                                            <span>{{ __('app.projects_calling_for_investment') }}</span>
-                                            <a class="project__like" href="javascript:void(0)"
-                                                data-id="{{ $item['id'] }}"
-                                                data-type="App\Models\Project"><i
-                                                    class="fas fa-fw fa-lg fa-heart {{ $item['is_interested'] ? 'text-danger' : '' }}"></i></a>
-                                        </div>
-                                    @else
-                                        <div class="project__overlay">
-                                            <span>{{ __('app.projects_with_investors') }}</span>
-                                            <a class="project__like" href="javascript:void(0)"
-                                                data-id="{{ $item['id'] }}"
-                                                data-type="App\Models\Project"><i
-                                                    class="fas fa-fw fa-lg fa-heart {{ $item['is_interested'] ? 'text-danger' : '' }}"></i></a>
-                                        </div>
-                                    @endif
-                                    <ul class="project__info">
-                                        <li>
-                                            <img class="me-2" src="{{ asset('/images/icon-map-marker.svg') }}"
-                                                alt="" />
-                                            <span
-                                                data-tippy-content="{{ __('app.project_under') }} {{ $item['districts'] }}">
-                                                {{ __('app.project_under') }} {{ $item['districts'] }}
-                                            </span>
-                                        </li>
-                                        <li>
-                                            <img class="me-2" src="{{ asset('/images/icon-dimension.svg') }}" alt="" />
-                                            @php
-                                                $hasArea = isset($item['area']) && $item['area'] !== '';
-                                                $formattedArea = $hasArea ? formatDecimalByLocale($item['area']) . ' ' . ($item['unit'] ?? '') : __('app.updating');
-                                            @endphp
-                                            <span>{{ $formattedArea }}</span>
-                                        </li>                                                                 
-                                        </li>
-                                        @php
-                                            $locale = app()->getLocale();
-                                            $hasPrice = isset($item['price']) && $item['price'] !== '';
-                                        @endphp
+    @php
+        $locale = app()->getLocale();
+        $localeLink = $locale === 'vi' ? 'vn' : $locale;
+        $items = collect($project_category);
+    @endphp
 
-                                        <li>
-                                            <img class="me-2" src="{{ asset('/images/icon-save-money.svg') }}" alt="" />
-                                            <span>
-                                                @if($hasPrice)
-                                                    {{ $locale !== 'en'
-                                                        ? number_format($item['price'], 0, ',', '.')
-                                                        : number_format($item['price'], 0, '.', ',') }}
-                                                    {{ __('app.billion_vnd') }}
-                                                @else
-                                                    {{ __('app.updating') }}
-                                                @endif
-                                            </span>
-                                        </li>
-                                    </ul>
-                                </div>
+    {{-- DESKTOP SLIDER (>= 992px) --}}
+    <div class="project-complex-slider d-none d-lg-block">
+        <div class="project-complex-slider__container swiper-container">
+            <div class="swiper-wrapper">
+                @php
+                    $desktopItems = clone $items;
+                    $desktopFirst = $desktopItems->splice(0, 4);
+                    $desktopOthers = $desktopItems->chunk(6);
+                @endphp
+                @if($desktopFirst->isNotEmpty())
+                    <div class="swiper-slide">
+                        <div class="project-slide-first">
+                            @php $largeItem = $desktopFirst->shift(); @endphp
+                            @if($largeItem)
+                                @include('frontend.home.partials.project_large_card', ['item' => $largeItem, 'locale' => $locale])
+                            @endif
+                            <div class="project-small-cards-col">
+                                @foreach($desktopFirst as $item)
+                                    @include('frontend.home.partials.project_small_card', ['item' => $item, 'locale' => $locale])
+                                @endforeach
                             </div>
+                        </div>
+                    </div>
+                @endif
+                @foreach($desktopOthers as $slideItems)
+                    <div class="swiper-slide">
+                        <div class="project-slide-grid">
+                            @foreach($slideItems as $item)
+                                @include('frontend.home.partials.project_small_card', ['item' => $item, 'locale' => $locale])
+                            @endforeach
                         </div>
                     </div>
                 @endforeach
             </div>
         </div>
     </div>
-    @php
-        $locale = app()->getLocale() === 'vi' ? 'vn' : app()->getLocale();
-    @endphp
-    <nav class="d-flex justify-content-center mt-40 mt-lg-60">
-        <a class="button" href="{{ url($locale . '/' . __('app.projects_link') ) }}" style="text-transform: capitalize;">{{ __('app.view_more') }}</a>
-    </nav>
+
+    {{-- TABLET SLIDER (768px - 991px) --}}
+    <div class="project-complex-slider d-none d-md-block d-lg-none">
+        <div class="project-complex-slider__container swiper-container">
+            <div class="swiper-wrapper">
+                @php
+                    $tabletItems = clone $items;
+                    $tabletFirst = $tabletItems->splice(0, 3);
+                    $tabletOthers = $tabletItems->chunk(5);
+                @endphp
+                @if($tabletFirst->isNotEmpty())
+                    <div class="swiper-slide">
+                        <div class="project-slide-first project-slide-first--tablet">
+                            @php $largeItem = $tabletFirst->shift(); @endphp
+                            @if($largeItem)
+                                @include('frontend.home.partials.project_large_card', ['item' => $largeItem, 'locale' => $locale])
+                            @endif
+                            <div class="project-small-cards-col project-small-cards-col--tablet">
+                                @foreach($tabletFirst as $item)
+                                    @include('frontend.home.partials.project_small_card', ['item' => $item, 'locale' => $locale])
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                @endif
+                @foreach($tabletOthers as $slideItems)
+                    <div class="swiper-slide">
+                        <div class="project-slide-grid project-slide-grid--tablet">
+                            @foreach($slideItems as $item)
+                                @include('frontend.home.partials.project_small_card', ['item' => $item, 'locale' => $locale])
+                            @endforeach
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    </div>
+
+    {{-- MOBILE SLIDER (< 768px) --}}
+    <div class="project-complex-slider d-block d-md-none">
+        <div class="project-complex-slider__container swiper-container">
+            <div class="swiper-wrapper">
+                @php
+                    $mobileItems = clone $items;
+                    $mobileFirst = $mobileItems->splice(0, 1);
+                    $mobileOthers = $mobileItems->chunk(3);
+                @endphp
+                @if($mobileFirst->isNotEmpty())
+                    <div class="swiper-slide">
+                        <div class="project-slide-first project-slide-first--mobile">
+                            @php $largeItem = $mobileFirst->shift(); @endphp
+                            @if($largeItem)
+                                @include('frontend.home.partials.project_large_card', ['item' => $largeItem, 'locale' => $locale])
+                            @endif
+                        </div>
+                    </div>
+                @endif
+                @foreach($mobileOthers as $slideItems)
+                    <div class="swiper-slide">
+                        <div class="project-small-cards-col project-small-cards-col--mobile" style="height: 100%; display: flex; flex-direction: column; justify-content: center; gap: 16px;">
+                            @foreach($slideItems as $item)
+                                @include('frontend.home.partials.project_small_card', ['item' => $item, 'locale' => $locale])
+                            @endforeach
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    </div>
 @endif

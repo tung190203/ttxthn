@@ -287,6 +287,8 @@ class ProjectController extends Controller
             'is_pinned' => 'nullable|boolean',
             'pin_order' => 'nullable|integer|min:1',
             'is_hidden' => 'nullable|boolean',
+            'hide_vrtour' => 'nullable|boolean',
+            'hide_saban' => 'nullable|boolean',
         ]);
 
         $validated = $request->validate($validationRules);

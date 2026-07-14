@@ -7,6 +7,14 @@ header('Content-Type: application/json; charset=utf-8');
 function load_js($file_name)
 {
     $folder = isset($_REQUEST['folder']) ? $_REQUEST['folder'] : '';
+    
+    // BẢO MẬT: Lọc thư mục để chống Path Traversal (chỉ cho phép chữ, số, gạch ngang, gạch dưới)
+    $folder = preg_replace('/[^a-zA-Z0-9_-]/', '', $folder);
+    
+    if (empty($folder)) {
+        return null;
+    }
+
     $path   = 'vrtour/' . $folder . '/' . $file_name . '.js';
    
     if (!file_exists($path)) {
@@ -63,7 +71,7 @@ if (is_array($investor)) {
     <p style="margin: 0; line-height: 16.76px;"><br style="display: inline-block; letter-spacing: 0px; white-space: pre-wrap; color: #000000; font-size: 46.17px; font-family: Arial, Helvetica, sans-serif;" /></p>
     <div style="text-align: center; font-size: 36px;">
         <span STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;">
-            <span STYLE="color:#0176bf;font-size:36px;font-family:SVN-Gotham;">';
+            <span STYLE="color:#0176bf;font-size:36px;font-family:Montserrat Medium;">';
 $end_html           = '</span>
         </span>
     </div>
@@ -76,10 +84,15 @@ $end_html           = '</span>
 // ========== PROCESS SCREEN HTML ==========
 
 if (is_array($screen)) {
-    $start_html1        = '<div style="text-align:left; color:#000; "><DIV STYLE="line-height:100%;text-align:left;font-size:1.984564498346196vmin;"><SPAN STYLE="display:inline-block; letter-spacing:0vmin; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:1.98vmin;font-family:SVN-Gotham;">';
+    $start_html1        = '<div style="text-align:left; color:#000; "><DIV STYLE="line-height:100%;text-align:justify;font-size:18px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-line;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:18px;font-family:Montserrat Medium;">';
     $end_html1          = '</SPAN></SPAN></DIV></div>';
 
     $screen['description'] = $start_html1 . ($screen['description'] ?? '') . $end_html1;
+
+    // $start_html_title        = '<div style="text-align:left; color:#000; "><DIV STYLE="line-height:125%;text-align:left;font-size:31px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:31px;font-family:Montserrat Medium">';
+    // $end_html_title          = '</SPAN></SPAN></DIV></div>';
+
+    // $screen['title'] = $start_html_title . ($screen['title'] ?? '') . $end_html_title;
 }
 
 // ========== OUTPUT JSON ==========

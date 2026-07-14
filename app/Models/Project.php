@@ -85,7 +85,9 @@ class Project extends Model
         'views_month_code',
         'boundary',
         'railway_lines',
-        'is_hidden'
+        'is_hidden',
+        'hide_vrtour',
+        'hide_saban'
     ];
 
     public $translatable = [
@@ -122,6 +124,8 @@ class Project extends Model
 
     protected $casts = [
         'railway_lines' => 'array',
+        'hide_vrtour' => 'boolean',
+        'hide_saban' => 'boolean',
     ];
 
     public function getUnitTypeTextAttribute()

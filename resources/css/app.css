@@ -10,3 +10,27 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+@layer base {
+    /* Tự động scale toàn bộ giao diện (chữ, card, padding) khi lên màn hình lớn */
+    @media (min-width: 1536px) {
+        html {
+            zoom: 1.15;
+        }
+    }
+    @media (min-width: 1920px) {
+        html {
+            zoom: 1.4;
+        }
+    }
+    @media (min-width: 2560px) {
+        html {
+            zoom: 1.8;
+        }
+    }
+    @media (min-width: 3840px) { /* Màn hình 4K 55 inch */
+        html {
+            zoom: 2.6;
+        }
+    }
+}

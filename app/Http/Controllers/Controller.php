@@ -44,20 +44,8 @@ abstract class Controller
         View::share('share', $share);
         View::share('setting', $setting);
         View::share('current_locale', $current_locale);
-        View::share('nations', Nation::all());
-        View::share('project_industries', ProjectIndustries::orderBy('created_at', 'desc')->get());
-        View::share('projects', Project::orderBy('created_at', 'desc')->where('status', 'approved')->get());
-        View::share('posts', Post::orderBy('created_at', 'desc')->where('status_approve', 'approved')->get());
-        View::share('investment_guides', InvestmentGuide::orderBy('created_at', 'desc')->where('status_approve', 'approved')->get());
-        View::share('category',Category::where('status_approve','approved')->get());
-        View::share('menus',Menu::where('status_approve','approved')->get());
-        View::share('popups',Popup::where('status_approve','approved')->get());
-        View::share('users', User::where('status_approve', 'approved')
-    ->where('id', '<>', auth('web')->id())
-    ->when(auth('web')->check() && !auth('web')->user()->is_super_admin, function($query) {
-        $query->where('is_super_admin', false);
-    })->get());
-        //End code dự án
+        // removed global view shares that cause memory exhaustion
+        // see AppServiceProvider for view-specific composers
 
     }
 

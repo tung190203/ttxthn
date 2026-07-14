@@ -28,6 +28,7 @@ class SyncRailwayLines extends Command
             return self::FAILURE;
         }
 
+        $syncedNames = [];
         foreach ($matches as $index => $match) {
             RailwayLine::updateOrCreate(
                 ['name' => $match[1]],
@@ -36,7 +37,11 @@ class SyncRailwayLines extends Command
                     'sort_order' => $index + 1,
                 ]
             );
+            $syncedNames[] = $match[1];
         }
+
+        // Delete obsolete railway lines not present in railways.js
+        RailwayLine::whereNotIn('name', $syncedNames)->delete();
 
         $this->info('Đã đồng bộ ' . count($matches) . ' tuyến ĐSĐT vào DB.');
 

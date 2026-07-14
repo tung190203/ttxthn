@@ -91,7 +91,7 @@ class MapController extends Controller
             ->get()
             ->filter(fn($project) => !empty($project->railway_lines));
 
-        return response()->json($this->returnData($projects));
+        return response()->json($this->returnData($projects)->values());
     }
 
     private function returnData($projects)
@@ -110,7 +110,7 @@ class MapController extends Controller
                 'unit' => $project->unit_type_text,
                 'price' => $project->price,
                 'link' => $project->link,
-                'link_vrtour' => $project->link_vrtour,
+                'link_vrtour' => $project->hide_vrtour ? null : $project->link_vrtour,
                 'is_invest' => $project->is_invest,
                 'banner_image' => $project->banner_image,
                 'detail_image' => $project->detail_image,
