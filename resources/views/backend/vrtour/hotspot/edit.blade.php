@@ -15,7 +15,7 @@
     <script src="{{ asset('js/ckfinder/ckfinder.js') }}"></script>
     <script src="{{ asset('js/ckeditor/ckeditor.js') }}"></script>
     <script src="{{ asset('backend_assets/js/globals.js') }}"></script>
-    <script>CKFinder.config({connectorPath: '/ckfinder/connector'});</script>
+    <script>CKFinder.config({ connectorPath: '/ckfinder/connector' });</script>
 
     <section class="content">
         <div class="container-fluid">
@@ -26,24 +26,24 @@
                             <x-forms.button-save />
                         @endcan
                         @if ($hotspot->is_draft && (auth()->user()->is_super_admin || auth()->user()->is_approve))
-                                <form action="{{ route('backend_vrtour_hotspot_approve', $hotspot->id) }}" method="POST"
-                                    style="display:inline-block">
-                                    @csrf
-                                    <input type="hidden" name="type" value="{{ request('type') }}">
-                                    <button type="submit" class="btn btn-success btn-sm">
-                                        Duyệt
-                                    </button>
-                                </form>
+                            <form action="{{ route('backend_vrtour_hotspot_approve', $hotspot->id) }}" method="POST"
+                                style="display:inline-block">
+                                @csrf
+                                <input type="hidden" name="type" value="{{ request('type') }}">
+                                <button type="submit" class="btn btn-success btn-sm">
+                                    Duyệt
+                                </button>
+                            </form>
 
-                                <form action="{{ route('backend_vrtour_hotspot_reject', $hotspot->id) }}" method="POST"
-                                    style="display:inline-block"
-                                    onsubmit="return confirm('Bạn có chắc muốn từ chối bản chỉnh sửa này?')">
-                                    @csrf
-                                    <input type="hidden" name="type" value="{{ request('type') }}">
-                                    <button type="submit" class="btn btn-danger btn-sm">
-                                        Từ chối
-                                    </button>
-                                </form>
+                            <form action="{{ route('backend_vrtour_hotspot_reject', $hotspot->id) }}" method="POST"
+                                style="display:inline-block"
+                                onsubmit="return confirm('Bạn có chắc muốn từ chối bản chỉnh sửa này?')">
+                                @csrf
+                                <input type="hidden" name="type" value="{{ request('type') }}">
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    Từ chối
+                                </button>
+                            </form>
                         @endif
                     </div>
                 </div>
@@ -72,10 +72,24 @@
                         </div>
                     @endif
                     <div class="card-body">
-                        <x-forms.upload name="hp_url" value="{{ old('hp_url') ?: $hotspot->url }}" label="Ảnh VN"
-                            type="image" :messages="$errors->get('hp_url')" />
-                        <x-forms.upload name="hp_url_en" value="{{ old('hp_url_en') ?: $hotspot->url_en }}" label="Ảnh EN"
-                            type="image" :messages="$errors->get('hp_url_en')" />
+                        <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Ảnh VN</label>
+
+                            <div class="col-sm-9">
+                                <input type="text" name="hp_url"  class="form-control" value="{{ $hotspot->url }}" readonly>
+
+                                @if($hotspot->url)
+                                    @php
+                                        $img = $hotspot->url;
+                                        if (!str_starts_with($img, '/') && !str_starts_with($img, 'http')) {
+                                            $img = asset('storage/' . $img);
+                                        }
+                                    @endphp
+
+                                    <img src="{{ $img }}" class="mt-3" style="max-width:200px">
+                                @endif
+                            </div>
+                        </div>
                         @php
                             $displayPotision =
                                 old('hp_potision') ?:
@@ -87,16 +101,19 @@
                         <x-forms.input name="hp_potision_display" :value="$displayPotision" label="Vị trí" type="text"
                             readonly />
                         <input type="hidden" name="hp_potision" value="{{ $realPotision }}">
-                        <x-forms.textarea name="hp_tooltip" :value="old('hp_tooltip') ?: $hotspot->tooltip" label="Mô tả VN" :messages="$errors->get('hp_tooltip')" />
+                        <x-forms.textarea name="hp_tooltip" :value="old('hp_tooltip') ?: $hotspot->tooltip" label="Mô tả VN"
+                            :messages="$errors->get('hp_tooltip')" />
                         <x-forms.textarea name="hp_tooltip_en" value="{{ old('hp_tooltip_en') ?: $hotspot->tooltip_en }}"
                             label="Mô tả EN" :messages="$errors->get('hp_tooltip_en')" />
                         @if (\Illuminate\Support\Str::startsWith($hotspot->potision, 'cmss'))
-                            <x-forms.input name="acreage" value="{{ old('acreage') ?: $hotspot->acreage }}"
-                                label="Diện tích" type="text" :messages="$errors->get('acreage')" />
-                            <x-forms.select name="product_type" label="Loại sản phẩm" :options="$option_product_types" :messages="$errors->get('product_type')" />
+                            <x-forms.input name="acreage" value="{{ old('acreage') ?: $hotspot->acreage }}" label="Diện tích"
+                                type="text" :messages="$errors->get('acreage')" />
+                            <x-forms.select name="product_type" label="Loại sản phẩm" :options="$option_product_types"
+                                :messages="$errors->get('product_type')" />
                             <x-forms.input name="intended_use" value="{{ old('intended_use') ?: $hotspot->intended_use }}"
                                 label="Chức năng" type="text" :messages="$errors->get('intended_use')" />
-                            <x-forms.select name="unit" label="Đơn vị tính" :options="$hotspot_unit" :messages="$errors->get('unit')" />
+                            <x-forms.select name="unit" label="Đơn vị tính" :options="$hotspot_unit"
+                                :messages="$errors->get('unit')" />
                         @endif
                         <x-forms.switch name="hp_opacity" label="Hiển thị" value="{{ $hotspot->opacity }}"
                             :messages="$errors->get('hp_opacity')" />
