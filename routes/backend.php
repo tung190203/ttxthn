@@ -203,18 +203,24 @@ Route::localized(function () {
                 Route::get('index', [SkinController::class, 'index'])->name('backend_vrtour_skin_index');
                 Route::get('get-data/{vrtour_id}/{type}', [SkinController::class, 'getDataAll'])->name('backend_vrtour_skin_getdata');
                 Route::post('update-data/{vrtour_id}', [SkinController::class, 'updateDataAll'])->name('backend_vrtour_skin_updatedata');
+                Route::post('reject',[SkinController::class,'rejectAll'])->name('backend_vrtour_skin_reject_all');
+                Route::post('approve', [SkinController::class,'approveAll'])->name('backend_vrtour_skin_approve_all');
             });
             Route::prefix('hotspot')->group(function () {
                 Route::get('index', [HotspotController::class, 'index'])->name('backend_vrtour_hotspot_index');
                 Route::get('get-hotspot/{id}', [HotspotController::class, 'getHotspot'])->name('backend_vrtour_get_hotspot_index');
                 Route::get('edit/{id}', [HotspotController::class, 'edit'])->name('backend_vrtour_hotspot_edit');
                 Route::post('save/{id}', [HotspotController::class, 'store'])->name('backend_vrtour_hotspot_store');
+                Route::post('approve/{hotspot}', [HotspotController::class, 'approve'])->name('backend_vrtour_hotspot_approve');
+                Route::post('reject/{hotspot}', [HotspotController::class, 'reject'])->name('backend_vrtour_hotspot_reject');
             });
             Route::prefix('content')->group(function () {
                 Route::get('index', [ContentController::class, 'index'])->name('backend_vrtour_content_index');
                 Route::get('get-data/{vrtour_id}', [ContentController::class, 'getDataAll'])->name('backend_vrtour_content_getdata');
                 Route::get('edit/{id}', [ContentController::class, 'edit'])->name('backend_vrtour_content_edit');
                 Route::post('save/{id}', [ContentController::class, 'store'])->name('backend_vrtour_content_store');
+                Route::post('approve/{content}', [ContentController::class, 'approve'])->name('backend_vrtour_content_approve');
+                Route::post('reject/{content}', [ContentController::class, 'reject'])->name('backend_vrtour_content_reject');
             });
         });
 

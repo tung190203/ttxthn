@@ -57,13 +57,78 @@
                 </div>
             </div>
             <div class="row">
+                @if(auth()->user()->is_super_admin || auth()->user()->is_approve)
+                    <div class="col-12 mb-2" id="approvalToolbar" style="display:none;">
+                        <div class="card">
+                            <div class="p-3 d-flex flex-column flex-lg-row align-items-center justify-content-between">
+
+                                <div>
+                                    <label class="mb-0">
+                                        <input type="checkbox" id="checkAllSkin">
+                                        Chọn tất cả
+                                    </label>
+                                </div>
+
+                                <div>
+                                    <button class="btn btn-success" id="btnApproveAll">
+                                        <i class="fa fa-check"></i>
+                                        Chấp nhận
+                                    </button>
+
+                                    <button class="btn btn-danger" id="btnRejectAll">
+                                        <i class="fa fa-times"></i>
+                                        Từ chối
+                                    </button>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                @endif
                 <div class="col-12 skin_div" id="skin_screen" data-id="1">
                     <div class="card">
                         <form action="" method="GET" class="form-horizontal" id="skin_screenForm">
                             <div class="card-body table-responsive p-4">
                                 <div class="row">
-                                    <div class="col-6">
-                                        <h3>Màn hình chào mừng</h3>
+                                    <div class="col-12">
+                                        <div class="d-flex align-items-center">
+                                             @if(auth()->user()->is_super_admin || auth()->user()->is_approve)
+                                            <input type="checkbox" class="skin-checkbox mr-2" id="welcomeCheckbox"
+                                                value="{{ \App\Models\SkinApproval::TYPE_WELCOME }}" disabled>
+                                            @endif
+                                            <h3 class="mb-0">
+                                                Màn hình chào mừng
+                                            </h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 mt-2" id="welcomeApprovalBox" style="display:none;">
+                                        <div class="alert alert-warning mb-3">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <h5 class="mb-2">
+                                                        <i class="fas fa-clock"></i>
+                                                        Có nội dung đang chờ duyệt
+                                                    </h5>
+
+                                                    <div>
+                                                        <strong>Người sửa:</strong>
+                                                        <span id="welcomeApprovalUser"></span>
+                                                    </div>
+
+                                                    <div>
+                                                        <strong>Thời gian:</strong>
+                                                        <span id="welcomeApprovalCreatedAt"></span>
+                                                    </div>
+
+                                                    <div>
+                                                        <strong>Cấp duyệt:</strong>
+                                                        <span id="welcomeApprovalLevel"></span>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+
+                                        </div>
                                     </div>
                                 </div>
                                 <hr>
@@ -85,8 +150,46 @@
                         <form action="" method="GET" class="form-horizontal">
                             <div class="card-body table-responsive p-4">
                                 <div class="row">
-                                    <div class="col-6">
-                                        <h3>Sơ đồ liên kết vùng</h3>
+                                    <div class="col-12">
+                                        <div class="d-flex align-items-center">
+                                            @if(auth()->user()->is_super_admin || auth()->user()->is_approve)
+                                            <input type="checkbox" class="skin-checkbox mr-2" id="connectMapCheckbox"
+                                                value="{{ \App\Models\SkinApproval::TYPE_CONNECT_MAP }}" disabled>
+                                            @endif
+                                            <h3 class="mb-0">
+                                                Sơ đồ liên kết vùng
+                                            </h3>
+
+                                        </div>
+                                    </div>
+                                    <div class="col-12 mt-2" id="connectmapApprovalBox" style="display:none;">
+                                        <div class="alert alert-warning mb-3">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <h5 class="mb-2">
+                                                        <i class="fas fa-clock"></i>
+                                                        Có nội dung đang chờ duyệt
+                                                    </h5>
+
+                                                    <div>
+                                                        <strong>Người sửa:</strong>
+                                                        <span id="connectMapApprovalUser"></span>
+                                                    </div>
+
+                                                    <div>
+                                                        <strong>Thời gian:</strong>
+                                                        <span id="connectMapApprovalCreatedAt"></span>
+                                                    </div>
+
+                                                    <div>
+                                                        <strong>Cấp duyệt:</strong>
+                                                        <span id="connectMapApprovalLevel"></span>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+
+                                        </div>
                                     </div>
                                 </div>
                                 <hr>
@@ -105,17 +208,56 @@
                             <div class="card-body table-responsive p-4">
                                 <div class="row">
                                     <div class="col-6">
-                                        <h3>Văn bản pháp quy</h3>
+                                        <div class="d-flex align-items-center">
+                                            @if(auth()->user()->is_super_admin || auth()->user()->is_approve)
+                                            <input type="checkbox" class="skin-checkbox mr-2" id="documentCheckbox"
+                                                value="{{ \App\Models\SkinApproval::TYPE_DOCUMENT }}" disabled>
+                                            @endif
+                                            <h3 class="mb-0">
+                                                Văn bản pháp quy
+                                            </h3>
+
+                                        </div>
                                     </div>
                                     <div class="col-6 text-right">
-                                        <button type="button" class="btn btn-sm fw-bold btn-primary btn-info" id="add_detail" role="button">
+                                        <button type="button" class="btn btn-sm fw-bold btn-primary btn-info"
+                                            id="add_detail" role="button">
                                             <i class="fa fa-plus" aria-hidden="true"></i> Thêm văn bản
                                         </button>
+                                    </div>
+                                    <div class="col-12 mt-2" id="documentApprovalBox" style="display:none;">
+                                        <div class="alert alert-warning mb-3">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <h5 class="mb-2">
+                                                        <i class="fas fa-clock"></i>
+                                                        Có nội dung đang chờ duyệt
+                                                    </h5>
+
+                                                    <div>
+                                                        <strong>Người sửa:</strong>
+                                                        <span id="documentApprovalUser"></span>
+                                                    </div>
+
+                                                    <div>
+                                                        <strong>Thời gian:</strong>
+                                                        <span id="documentApprovalCreatedAt"></span>
+                                                    </div>
+
+                                                    <div>
+                                                        <strong>Cấp duyệt:</strong>
+                                                        <span id="documentApprovalLevel"></span>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="form-group row">
                                     <div class="col-lg-12" id="multiple_document">
-                                        
+
                                     </div>
                                 </div>
                             </div>
@@ -128,7 +270,43 @@
                             <div class="card-body table-responsive p-4">
                                 <div class="row">
                                     <div class="col-6">
-                                        <h3>Kế hoạch triển khai</h3>
+                                        <div class="d-flex align-items-center">
+                                            @if(auth()->user()->is_super_admin || auth()->user()->is_approve)
+                                            <input type="checkbox" class="skin-checkbox mr-2" id="planCheckbox"
+                                                value="{{ \App\Models\SkinApproval::TYPE_PLAN }}" disabled>
+                                            @endif
+                                            <h3 class="mb-0">
+                                                Kế hoạch triển khai
+                                            </h3>
+
+                                        </div>
+                                    </div>
+                                    <div class="col-12 mt-2" id="planApprovalBox" style="display:none;">
+                                        <div class="alert alert-warning mb-3">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <h5 class="mb-2">
+                                                        <i class="fas fa-clock"></i>
+                                                        Có nội dung đang chờ duyệt
+                                                    </h5>
+
+                                                    <div>
+                                                        <strong>Người sửa:</strong>
+                                                        <span id="planApprovalUser"></span>
+                                                    </div>
+
+                                                    <div>
+                                                        <strong>Thời gian:</strong>
+                                                        <span id="planApprovalCreatedAt"></span>
+                                                    </div>
+
+                                                    <div>
+                                                        <strong>Cấp duyệt:</strong>
+                                                        <span id="planApprovalLevel"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <hr>
@@ -162,7 +340,45 @@
                             <div class="card-body table-responsive p-4">
                                 <div class="row">
                                     <div class="col-6">
-                                        <h3>Thông tin chủ đầu tư</h3>
+                                        <div class="d-flex align-items-center">
+                                            @if(auth()->user()->is_super_admin || auth()->user()->is_approve)
+                                            <input type="checkbox" class="skin-checkbox mr-2" id="investorCheckbox"
+                                                value="{{ \App\Models\SkinApproval::TYPE_INVESTOR }}" disabled>
+                                            @endif
+                                            <h3 class="mb-0">
+                                                Thông tin chủ đầu tư
+                                            </h3>
+
+                                        </div>
+                                    </div>
+                                    <div class="col-12 mt-2" id="investorApprovalBox" style="display:none;">
+                                        <div class="alert alert-warning mb-3">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <h5 class="mb-2">
+                                                        <i class="fas fa-clock"></i>
+                                                        Có nội dung đang chờ duyệt
+                                                    </h5>
+
+                                                    <div>
+                                                        <strong>Người sửa:</strong>
+                                                        <span id="investorApprovalUser"></span>
+                                                    </div>
+
+                                                    <div>
+                                                        <strong>Thời gian:</strong>
+                                                        <span id="investorApprovalCreatedAt"></span>
+                                                    </div>
+
+                                                    <div>
+                                                        <strong>Cấp duyệt:</strong>
+                                                        <span id="investorApprovalLevel"></span>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+
+                                        </div>
                                     </div>
                                 </div>
                                 <hr>
@@ -190,7 +406,45 @@
                             <div class="card-body table-responsive p-4">
                                 <div class="row">
                                     <div class="col-6">
-                                        <h3>Vị trí dự án</h3>
+                                        <div class="d-flex align-items-center">
+                                            @if(auth()->user()->is_super_admin || auth()->user()->is_approve)
+                                            <input type="checkbox" class="skin-checkbox mr-2" id="locationCheckbox"
+                                                value="{{ \App\Models\SkinApproval::TYPE_LOCATION }}" disabled>
+                                            @endif
+                                            <h3 class="mb-0">
+                                                Vị trí dự án
+                                            </h3>
+
+                                        </div>
+                                    </div>
+                                    <div class="col-12 mt-2" id="locationApprovalBox" style="display:none;">
+                                        <div class="alert alert-warning mb-3">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <h5 class="mb-2">
+                                                        <i class="fas fa-clock"></i>
+                                                        Có nội dung đang chờ duyệt
+                                                    </h5>
+
+                                                    <div>
+                                                        <strong>Người sửa:</strong>
+                                                        <span id="locationApprovalUser"></span>
+                                                    </div>
+
+                                                    <div>
+                                                        <strong>Thời gian:</strong>
+                                                        <span id="locationApprovalCreatedAt"></span>
+                                                    </div>
+
+                                                    <div>
+                                                        <strong>Cấp duyệt:</strong>
+                                                        <span id="locationApprovalLevel"></span>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+
+                                        </div>
                                     </div>
                                 </div>
                                 <hr>
@@ -202,9 +456,9 @@
             </div>
         </div>
     </section>
-<div id="document_detail" style="display:none">
-    @include('backend.vrtour.skin.row')
-</div>
+    <div id="document_detail" style="display:none">
+        @include('backend.vrtour.skin.row')
+    </div>
 @endsection
 
 @section('script')
@@ -214,6 +468,7 @@
         $('#skin_investor #investor_status').bootstrapSwitch();
         $('#skin_screen #investor').bootstrapSwitch();
         $('#skin_plan #status').bootstrapSwitch();
+        $("#approvalToolbar").hide();
         var count_detail = 0;
 
         function replaceHtml(count_detail){
@@ -227,6 +482,52 @@
             headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
         });
 
+        function resetApprovalCheckbox() {
+            $("#checkAllSkin").prop("checked", true);
+            $(".skin-checkbox").prop("checked", false).prop("disabled", true);
+        }
+        function disableApprovalToolbar() {
+            $("#approvalToolbar").show();
+            $("#checkAllSkin").prop("checked", false).prop("disabled", true);
+            $("#btnApproveAll").prop("disabled", true);
+            $("#btnRejectAll").prop("disabled", true);
+        }
+
+        function enableApprovalToolbar() {
+            $("#approvalToolbar").show();
+            $("#checkAllSkin").prop("checked", true).prop("disabled", false);
+            $("#btnApproveAll").prop("disabled", false);
+            $("#btnRejectAll").prop("disabled", false);
+        }
+
+        function renderApprovalBox(options) {
+            const {
+                data,
+                checkbox,
+                box,
+                user,
+                createdAt,
+                level
+            } = options;
+            if (data && data.pending_skin_approval) {
+                let approval = data.pending_skin_approval;
+                $(checkbox).prop("disabled", false).prop("checked", true);
+                $(box).show();
+                $(user).text(approval.user ? approval.user.name : "");
+                $(createdAt).text(
+                    approval.created_at ? new Date(approval.created_at).toLocaleDateString("vi-VN") : ""
+                );
+                $(level).text(
+                    approval.approval_level == 0 ? "Đang chờ duyệt cấp 1" : "Đang chờ duyệt cấp 2"
+                );
+                return true;
+            } 
+            $(checkbox).prop("disabled", true).prop("checked", false);
+            $(box).hide();
+
+            return false;
+        }
+
         function fetch_data() {
             var vrtour  = $('#slt_vrtour').val();
             var type    = $('#slt_vrtour_type').val();
@@ -234,10 +535,20 @@
                 $.ajax({
                     url: assetUrl+'vrtour/skin/get-data/'+vrtour+'/'+type,
                     type: "GET",
-                    success: function(response) {
+                    success: function (response) {
+                        let hasPending = false;
+                        resetApprovalCheckbox();
                         $('#update_all').show();
                         //connectmap
                         var connect_map = response.data.connect_map;
+                        hasPending = renderApprovalBox({
+                            data: connect_map,
+                            checkbox: "#connectMapCheckbox",
+                            box: "#connectmapApprovalBox",
+                            user: "#connectMapApprovalUser",
+                            createdAt: "#connectMapApprovalCreatedAt",
+                            level: "#connectMapApprovalLevel"
+                        }) || hasPending;
                         $('#skin_connectmap #connectmap_id').val(connect_map != null ? connect_map['id'] : '');
                         $('#skin_connectmap #image_input').val(connect_map != null ? connect_map['image'] : '');
                         $('#skin_connectmap #image_en_input').val(connect_map != null ? connect_map['image_en'] : '');
@@ -245,10 +556,27 @@
                         CKEDITOR.instances['content_en'].setData(connect_map != null ? connect_map['content_en'] : '');
                         
                         //location in tour
-                        $('#skin_locationtour #location_in_tour').val(response.data.location);
+                        var location = response.data.location;
+                        hasPending = renderApprovalBox({
+                            data: location,
+                            checkbox: "#locationCheckbox",
+                            box: "#locationApprovalBox",
+                            user: "#locationApprovalUser",
+                            createdAt: "#locationApprovalCreatedAt",
+                            level: "#locationApprovalLevel"
+                        }) || hasPending;
+                        $('#skin_locationtour #location_in_tour').val(location['location_in_tour'] || '');
 
                         //investor
                         var investor = response.data.investor;
+                        hasPending = renderApprovalBox({
+                            data: investor,
+                            checkbox: "#investorCheckbox",
+                            box: "#investorApprovalBox",
+                            user: "#investorApprovalUser",
+                            createdAt: "#investorApprovalCreatedAt",
+                            level: "#investorApprovalLevel"
+                        }) || hasPending;
                         $('#skin_investor #investor_id').val(investor != null ? investor['id'] : '');
                         $('#skin_investor #name').val(investor != null ? investor['name'] : '');
                         $('#skin_investor #name_en').val(investor != null ? investor['name_en'] : '');
@@ -266,6 +594,15 @@
                         
                         //welcome
                         var screen = response.data.screen;
+                        hasPending = renderApprovalBox({
+                            data: screen,
+                            checkbox: "#welcomeCheckbox",
+                            box: "#welcomeApprovalBox",
+                            user: "#welcomeApprovalUser",
+                            createdAt: "#welcomeApprovalCreatedAt",
+                            level: "#welcomeApprovalLevel"
+                        }) || hasPending;
+
                         $('#skin_screen #wlscreen_id').val(screen != null ? screen['id'] : '');
                         $('#skin_screen #title').val(screen != null ? screen['title'] : '');
                         CKEDITOR.instances['description'].setData(screen != null ? screen['description'] : '');
@@ -278,8 +615,17 @@
 
                         //plan
                         var plan = response.data.plan;
+                        hasPending = renderApprovalBox({
+                            data: plan,
+                            checkbox: "#planCheckbox",
+                            box: "#planApprovalBox",
+                            user: "#planApprovalUser",
+                            createdAt: "#planApprovalCreatedAt",
+                            level: "#planApprovalLevel"
+                        }) || hasPending;
                         $('#skin_plan #plan_id').val(plan != null ? plan['id'] : '');
-                        $('#skin_plan #status').bootstrapSwitch('state', plan != null ? (plan['show'] == 1 ? true : false) : false);
+                        $('#skin_plan #status').bootstrapSwitch('state', plan != null ? (plan['show'] == 1 ?
+                            true : false) : false);
 
                         $('#skin_plan #image1_input').val(plan != null ? plan['image1'] : '');
                         $('#skin_plan #title1').val(plan != null ? plan['title1'] : '');
@@ -301,11 +647,19 @@
 
                         //document
                         var document    = response.data.document;
+                        hasPending = renderApprovalBox({
+                            data: document,
+                            checkbox: "#documentCheckbox",
+                            box: "#documentApprovalBox",
+                            user: "#documentApprovalUser",
+                            createdAt: "#documentApprovalCreatedAt",
+                            level: "#documentApprovalLevel"
+                        }) || hasPending;
                         count_detail    = 0;
                         var html        = $('#document_detail').html();
                         $('#multiple_document').html('');
                         if (document != null) {
-                            $.each(document, function(_key, _value){
+                            $.each(document.items, function(_key, _value){
                                 count_detail += 1;
                                 replaceHtml(count_detail);
                                 $('#multiple_document .row_detail #document_id-'+(_key+1)).val(_value['id']);
@@ -316,8 +670,13 @@
                         } else {
                             $('#multiple_document').html('');
                         }
-                    
-                        toastr["success"](response.message,'Success');
+
+                        if (hasPending) {
+                            enableApprovalToolbar();
+                        } else {
+                            disableApprovalToolbar();
+                        }
+                        toastr["success"](response.message, 'Success');
                         if (type != '0') {
                             $('.skin_div').each(function(key, value){
                                 if ($(value).data('id') == type) {
@@ -337,7 +696,8 @@
             } else {
                 $('#update_all').hide();
                 $('.skin_div').hide();
-                toastr["error"]('Vui lòng chọn dự án','Error')
+                $("#approvalToolbar").hide();
+                toastr["error"]('Vui lòng chọn dự án', 'Error')
             }
         }
 
@@ -358,7 +718,7 @@
                 const name          = $('#document_name-'+(key+1)).val();
                 const nameEn        = $('#document_name_en-'+(key+1)).val();
                 const download      = $('#download-'+(key+1)+'_input').val();
-                
+
                 result.push({
                     id                  : document_id,
                     document_name       : name,
@@ -431,13 +791,14 @@
                 url: assetUrl + 'vrtour/skin/update-data/' + vrtour+'?type='+type,
                 type: "POST",
                 contentType: "application/json",
-                dataType: "json",                
-                data: JSON.stringify(data),      
-                success: function(response) {
-                    toastr["success"](response.message,'Success');
+                dataType: "json",
+                data: JSON.stringify(data),
+                success: function (response) {
+                    toastr["success"](response.message, 'Success');
+                    fetch_data();
                 },
-                error: function(xhr, status, error) {
-                    toastr["error"]('Có lỗi xảy ra! Vui lòng thử lại','Error')
+                error: function (xhr, status, error) {
+                    toastr["error"]('Có lỗi xảy ra! Vui lòng thử lại', 'Error')
                 }
             });
         });
@@ -456,6 +817,78 @@
 
         $(document).on('click','.remove-btn', function(){
             removeImage(this);
+        });
+        $(document).on("change", "#checkAllSkin", function () {
+            let checked = $(this).is(":checked");
+            $(".skin-checkbox:not(:disabled)").prop("checked", checked);
+        });
+        $(document).on("click", "#btnRejectAll", function () {
+            let vrtour = $("#slt_vrtour").val();
+            let types = [];
+            $(".skin-checkbox:checked").each(function () {
+                types.push(parseInt($(this).val()));
+            });
+            if (types.length == 0) {
+                toastr["warning"]("Vui lòng chọn ít nhất một mục.");
+                return;
+            }
+            if (!confirm("Bạn có chắc muốn từ chối các nội dung đã chọn?")) {
+                return;
+            }
+            $.ajax({
+                url: assetUrl + "vrtour/skin/reject",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    vrtour_id: vrtour,
+                    types: types
+                }),
+                success: function (res) {
+                    toastr["success"](res.message);
+                    fetch_data();
+                },
+                error: function (xhr) {
+                    toastr["error"](
+                        xhr.responseJSON?.message ??
+                        "Có lỗi xảy ra."
+                    );
+                }
+            });
+        });
+        $(document).on("click", "#btnApproveAll", function () {
+            let vrtour = $("#slt_vrtour").val();
+            let types = [];
+            $(".skin-checkbox:checked").each(function () {
+                types.push(parseInt($(this).val()));
+            });
+            if (types.length === 0) {
+                toastr["warning"]("Vui lòng chọn ít nhất một mục.");
+                return;
+            }
+            if (!confirm("Bạn có chắc muốn chấp nhận các nội dung đã chọn?")) {
+                return;
+            }
+
+            $.ajax({
+                url: assetUrl + "vrtour/skin/approve",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    vrtour_id: vrtour,
+                    types: types
+                }),
+                success: function (res) {
+                    toastr["success"](res.message);
+                    fetch_data();
+                },
+                error: function (xhr) {
+                    toastr["error"](
+                        xhr.responseJSON?.message ??
+                        "Có lỗi xảy ra."
+                    );
+                }
+            });
+
         });
     </script>
 @endsection

@@ -36,11 +36,13 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-3 text-left">
+                            @if(auth()->user()->is_super_admin)
+                            <div class="col-md-4 text-left">
                                 <div class="form-group">
                                     <button type="button" class="btn btn-danger btn-sm" id="btn_reset" style="display:none; height: 38px;">Reset</button>
                                 </div>
                             </div>
+                            @endif
                         </div>
                     </form>
                 </div>
@@ -55,6 +57,7 @@
                                         <th style="width:5%" class="grid_header">STT</th>
                                         <th style="width:30%" class="grid_header">Ảnh</th>
                                         <th style="width:10%" class="grid_header">Vị trí</th>
+                                        <th style="width:10%" class="grid_header">Trạng thái</th>
                                         <th style="width:30%" class="grid_header">Mô tả</th>
                                         <th style="width:5%" class="grid_header1">Hiển thị</th>
                                         <th style="width:10%" class="grid_header1"></th>
@@ -87,6 +90,7 @@
         if (getParam("vrtour") != null && getParam("type") != null) {
             $('#slt_vrtour').val(getParam("vrtour")).change();
             $('#slt_vrtour_type').val(getParam("type")).change();
+            renderTable(false);
         }
 
         $(document).on('click', '#btn_reset', function(){
