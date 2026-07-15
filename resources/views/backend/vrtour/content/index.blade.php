@@ -32,11 +32,13 @@
                                     <button type="button" class="btn btn-primary btn-sm" id="btn_search_tour" style="height: 38px">Lấy dữ liệu</button>
                                 </div>
                             </div>
+                             @if(auth()->user()->is_super_admin)                       
                             <div class="col-md-3 text-left">
                                 <div class="form-group">
                                     <button type="button" class="btn btn-danger btn-sm" id="btn_reset" style="display:none; height: 38px;">Reset</button>
                                 </div>
                             </div>
+                            @endif                           
                         </div>
                     </form>
                 </div>
@@ -49,8 +51,9 @@
                                 <thead>
                                     <tr>
                                         <th style="width:5%" class="grid_header">STT</th>
-                                        <th style="width:30%" class="grid_header">Tiêu đề</th>
+                                        <th style="width:20%" class="grid_header">Tiêu đề</th>
                                         <th style="width:55%" class="grid_header">Nội dung</th>
+                                        <th style="width:10%" class="grid_header">Trạng thái</th>
                                         <th style="width:10%" class="grid_header1"></th>
                                     </tr>
                                 </thead>

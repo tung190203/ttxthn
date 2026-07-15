@@ -4,10 +4,7 @@ namespace App\Http\Controllers\Backend\VrTour;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Gate;
-use App\Libs\DataGrid;
-use App\Libs\Util;
 use App\Models\Project;
 use App\Models\Hotspot;
 use App\Models\IndustrialProject;
@@ -26,7 +23,7 @@ class HotspotController extends Controller
         $this->selectedSubMenu('hotspot');
         parent::__construct();
 
-        if (!Gate::allows('hotspot')) {
+        if (!Gate::allows('vr_tour/hotspot')) {
             abort(403, self::MESSAGE_UNAUTHORIZED);
         }
     }
@@ -54,7 +51,14 @@ class HotspotController extends Controller
                 1 => [1, 2, 3],
                 2 => [2],
             };
-            $hotspot_db = Hotspot::where('vrtour_id', $vrtour_id)->whereIn('type', $typeFilter)->get();
+            $user = auth()->user();
+
+            $hotspot_db = Hotspot::with(['draft', 'parent'])
+                ->visibleFor($user)
+                ->where('vrtour_id', $vrtour_id)
+                ->whereIn('type', $typeFilter)
+                ->orderByDesc('id')
+                ->get();
             if ($request->reset == 'true') {
                 $response = getDataVrtour($link_vrtour . 'vista3d/hotspot.json');
                 $hotspotsJson = json_decode($response['data'], true);
@@ -115,19 +119,37 @@ class HotspotController extends Controller
                     ->whereNotIn('code', $positionsFromJson)
                     ->delete();
                 createFile('vrtour/' . $vrtour->vrtour_code, 'hotspot.js');
-                file_put_contents('vrtour/' . $vrtour->vrtour_code . '/hotspot.js', Hotspot::where('vrtour_id', $vrtour_id)->get());
+                file_put_contents('vrtour/' . $vrtour->vrtour_code . '/hotspot.js', Hotspot::where('vrtour_id', $vrtour_id)->where('is_draft', 0)->get());
             }
+          
             // --- KẾT THÚC KHỐI SỬA ĐỔI ---
-            foreach ($hotspot_db as $key => $hp) {
+            foreach ($hotspot_db as $key => $hp) {  
+                $statusHtml = '';
+                if ($hp->is_draft) {
+                    $statusHtml .= "<span class='badge bg-warning'>Bản chỉnh sửa</span> ";
+                }
+
+                if ($hp->status === 'pending') {
+                    if ($hp->approval_level == 0) {
+                        $statusHtml .= "<span class='badge bg-secondary'>Chờ duyệt cấp 1</span>";
+                    } elseif ($hp->approval_level == 1) {
+                        $statusHtml .= "<span class='badge bg-primary'>Chờ duyệt cấp 2</span>";
+                    }
+                } elseif ($hp->status === 'approved') {
+                    $statusHtml .= "<span class='badge bg-success'>Đã duyệt</span>";
+                } elseif ($hp->status === 'rejected') {
+                    $statusHtml .= "<span class='badge bg-danger'>Từ chối</span>";
+                }
                 $potision = str_starts_with($hp->potision, 'cmss_') ? substr($hp->potision, 5) : $hp->potision;
                 $html .= '<tr>';
                 $html .= '<td>' . (++$key) . '</td>';
                 $html .= '<td><img src="' . $hp->url . '" style="width:100px;height:100px;""></td>';
                 $html .= '<td>' . $potision . '</td>';
+                $html .= '<td>' . $statusHtml . '</td>';
                 $html .= '<td>' . $hp->tooltip . '</td>';
                 $html .= '<td>' . $hp->opacity . '</td>';
                 $html .= '<td class="grid_row1">';
-                $html .= '<a class="btn btn-info btn-sm mr-1" href="' . route('backend_vrtour_hotspot_edit', $hp->id) . '" title="Chỉnh sửa"><i class="fas fa-pencil-alt"></i></a>';
+                $html .= '<a class="btn btn-info btn-sm mr-1" href="' . route('backend_vrtour_hotspot_edit', ["id"=>$hp->id,"type"=>$hp->type]) . '" title="Chỉnh sửa"><i class="fas fa-pencil-alt"></i></a>';
                 $html .= '</td>';
                 $html .= '</tr>';
             }
@@ -139,15 +161,19 @@ class HotspotController extends Controller
             return response()->json(['data' => $html]);
         }
     }
-    public function edit($hotspot_id)
+    public function edit(Request $request, $hotspot_id)
     {
-        if (!Gate::allows('hotspot/edit')) {
+        if (!Gate::allows('vr_tour/hotspot')) {
             abort(403, self::MESSAGE_UNAUTHORIZED);
         }
-        $hotspot = Hotspot::with('IndustrialProject.productType')->findOrFail($hotspot_id);
+        $hotspot = Hotspot::with([
+            'IndustrialProject.productType',
+            'draft',
+            'parent'
+        ])->findOrFail($hotspot_id);
         $productType = ProductType::latest('id')->get();
 
-        $selected = optional($hotspot->IndustrialProject)->product_type;
+        $selected = old('product_type') ?: $hotspot->product_type ?: optional($hotspot->IndustrialProject)->product_type;
 
         $option_product_types = ProductType::makeOptions($productType, $selected);
         $hotspot_unit = Hotspot::makeUnitOptions($hotspot->unit);
@@ -156,45 +182,222 @@ class HotspotController extends Controller
 
     public function store(Request $request, $hotspot_id)
     {
-        if (!Gate::allows('hotspot/update')) {
+        if (!Gate::allows('vr_tour/hotspot')) {
             abort(403, self::MESSAGE_UNAUTHORIZED);
         }
-        $request->validate([
-            'hp_url'        => 'required',
-            'hp_potision'   => 'required',
-            'hp_opacity'    => 'required',
-        ]);
-        $translations = ['vi' => $request->hp_tooltip, 'en' => $request->hp_tooltip_en ?? null,];
-        $new_hp             = Hotspot::findorFail($hotspot_id);
-        $new_hp->potision   = $request->hp_potision;
-        $new_hp->url        = $request->hp_url;
-        $new_hp->url_en     = $request->hp_url_en;
-        $new_hp->opacity    = $request->hp_opacity;
-        $new_hp->tooltip    = $request->hp_tooltip;
-        $new_hp->tooltip_en = $request->hp_tooltip_en;
-        $new_hp->acreage    = $request->acreage;
-        $new_hp->intended_use    = $request->intended_use;
-        $new_hp->unit       = $request->unit ?? 0;
 
-        $new_hp->user_id    = Auth::id();
-        $new_hp->save();
-        if ($new_hp->IndustrialProject) {
-            IndustrialProject::updateOrCreate(
-                [
-                    'project_id' => $new_hp->vrtour_id,
-                    'code'       => $new_hp->potision
-                ],
-                [
-                    'name'        => Project::find($new_hp->vrtour_id)->name,
-                    'product_type' => $request->product_type,
-                    'intended_use' => $request->intended_use,
-                    'unit'        => $request->unit ?? 0,
-                    'acreage'     => $request->acreage,
-                    'description' => $translations, // Spatie tự JSON
-                ]
+        $request->validate([
+            'hp_url'      => 'required',
+            'hp_potision' => 'required',
+            'hp_opacity'  => 'required',
+        ]);
+
+        $user = Auth::user();
+
+        $translations = [
+            'vi' => $request->hp_tooltip,
+            'en' => $request->hp_tooltip_en ?? null,
+        ];
+
+        $hotspot = Hotspot::findOrFail($hotspot_id);
+
+        if ($user->is_super_admin) {
+
+            $main = $hotspot->parent_id
+                ? Hotspot::findOrFail($hotspot->parent_id)
+                : $hotspot;
+
+            $main->potision      = $request->hp_potision;
+            $main->url           = $request->hp_url;
+            $main->opacity       = $request->hp_opacity;
+            $main->tooltip       = $request->hp_tooltip;
+            $main->tooltip_en    = $request->hp_tooltip_en;
+            $main->acreage       = $request->acreage;
+            $main->intended_use  = $request->intended_use;
+            $main->unit          = $request->unit ?? 0;
+            $main->product_type  = $request->product_type;
+            $main->user_id       = $user->id;
+
+            $main->approval_level = $main->max_approval;
+            $main->status         = 'approved';
+            $main->is_draft       = 0;
+            $main->parent_id      = null;
+
+            $main->save();
+
+            if ($main->IndustrialProject) {
+
+                IndustrialProject::updateOrCreate(
+                    [
+                        'project_id' => $main->vrtour_id,
+                        'code'       => $main->potision
+                    ],
+                    [
+                        'name'         => Project::find($main->vrtour_id)->name,
+                        'product_type' => $main->product_type,
+                        'intended_use' => $main->intended_use,
+                        'unit'         => $main->unit,
+                        'acreage'      => $main->acreage,
+                        'description'  => $translations,
+                    ]
+                );
+            }
+
+            Hotspot::where('parent_id', $main->id)->delete();
+
+            file_put_contents(
+                'vrtour/' . Project::find($main->vrtour_id)->vrtour_code . '/hotspot.js',
+                Hotspot::where('vrtour_id', $main->vrtour_id)
+                    ->where('is_draft', 0)
+                    ->get()
+            );
+
+            return redirect()
+                ->to(route('backend_vrtour_hotspot_index') .
+                    '?vrtour=' . $main->vrtour_id .
+                    '&type=' . ($main->type == 3 ? 1 : 0))
+                ->with('success', 'Đã duyệt và cập nhật Hotspot');
+        }
+
+        if (!$hotspot->is_draft) {
+
+            $draft = $hotspot->replicate();
+
+            $draft->parent_id = $hotspot->id;
+            $draft->is_draft = 1;
+            $draft->status = 'pending';
+            $draft->approval_level = $user->is_approve ? 1 : 0;
+        } else {
+
+            $draft = $hotspot;
+
+            $draft->status = 'pending';
+            $draft->approval_level = $user->is_approve ? 1 : 0;
+        }
+
+        $draft->potision      = $request->hp_potision;
+        $draft->url           = $request->hp_url;
+        $draft->opacity       = $request->hp_opacity;
+        $draft->tooltip       = $request->hp_tooltip;
+        $draft->tooltip_en    = $request->hp_tooltip_en;
+        $draft->acreage       = $request->acreage;
+        $draft->intended_use  = $request->intended_use;
+        $draft->unit          = $request->unit ?? 0;
+        $draft->product_type = $request->product_type;
+        $draft->user_id       = $user->id;
+
+        $draft->save();
+
+        return redirect()
+            ->to(route('backend_vrtour_hotspot_index') .
+                '?vrtour=' . $draft->vrtour_id .
+                '&type=' . ($draft->type == 3 ? 1 : 0))
+            ->with(
+                'success',
+                $user->is_approve
+                    ? 'Đã gửi duyệt cấp 2'
+                    : 'Đã gửi duyệt cấp 1'
+            );
+    }
+
+    public function reject(Request $request, Hotspot $hotspot)
+    {
+        $user = auth('web')->user();
+        if (!($user->is_super_admin || $user->is_approve)) {
+            abort(403, 'Bạn không có quyền từ chối hotspot.');
+        }
+        $hotspot->delete();
+        return redirect()->route('backend_vrtour_hotspot_index',[
+            "vrtour" => $hotspot->vrtour_id,
+            "type" => $request->type
+        ])->with(
+            'success',
+            'Từ chối duyệt hotspot thành công'
+        );
+    }
+    public function approve(Request $request, Hotspot $hotspot)
+    {
+        $user = auth('web')->user();
+        if (!($user->is_super_admin || $user->is_approve)) {
+            abort(403, 'Bạn không có quyền duyệt hotspot.');
+        }
+        if ($user->is_super_admin) {
+            if ($hotspot->parent_id) {
+                $parent = Hotspot::find($hotspot->parent_id);
+                if ($parent) {
+                    DB::transaction(function () use (
+                        $hotspot,
+                        $parent
+                    ) {
+                        $draftData = $hotspot->toArray();
+                        unset(
+                            $draftData['id'],
+                            $draftData['parent_id'],
+                            $draftData['created_at'],
+                            $draftData['updated_at']
+                        );
+                        $parent->fill($draftData);
+                        $parent->parent_id = null;
+                        $parent->is_draft = 0;
+                        $parent->status = 'approved';
+                        $parent->approval_level = $parent->max_approval;
+                        $parent->save();
+                        $translations = [
+                            'vi' => $parent->tooltip,
+                            'en' => $parent->tooltip_en,
+                        ];
+                        if ($parent->IndustrialProject) {
+
+                            IndustrialProject::updateOrCreate(
+                                [
+                                    'project_id' => $parent->vrtour_id,
+                                    'code'       => $parent->potision,
+                                ],
+                                [
+                                    'name' => Project::find($parent->vrtour_id)->name,
+                                    'product_type' => $parent->product_type,
+                                    'intended_use' => $parent->intended_use,
+                                    'unit' => $parent->unit ?? 0,
+                                    'acreage' => $parent->acreage,
+                                    'description' => $translations,
+                                ]
+                            );
+                        }
+                        $project = Project::find($parent->vrtour_id);
+                        file_put_contents(
+                            'vrtour/' . $project->vrtour_code . '/hotspot.js',
+                            Hotspot::where('vrtour_id', $parent->vrtour_id)
+                                ->where('is_draft', 0)
+                                ->get()
+                        );
+
+                        $hotspot->delete();
+                    });
+
+                    return redirect()->route('backend_vrtour_hotspot_index', [
+                        "vrtour" => $hotspot->vrtour_id,
+                        "type" => $request->type
+                    ])->with(
+                        'success',
+                        'Duyệt hotspot thành công (Đã duyệt)'
+                    );
+                }
+            }
+        }
+
+        if ($user->is_approve) {
+            if ($hotspot->approval_level < 1) {
+                $hotspot->approval_level = 1;
+                $hotspot->status = 'pending';
+                $hotspot->save();
+            }
+            return redirect()->route('backend_vrtour_hotspot_index', [
+                "vrtour" => $hotspot->vrtour_id,
+                "type" => $request->type
+            ])->with(
+                'success',
+                'Đã duyệt cấp 1, chờ duyệt cấp 2'
             );
         }
-        file_put_contents('vrtour/' . Project::find($new_hp->vrtour_id)->vrtour_code . '/hotspot.js', Hotspot::where('vrtour_id', $new_hp->vrtour_id)->get());
-        return redirect()->to(route('backend_vrtour_hotspot_index') . '?vrtour=' . $new_hp->vrtour_id . '&type=' . ($new_hp->type == 3 ? 1 : 0))->with('success', 'Cập nhật thông tin thành công');
     }
 }

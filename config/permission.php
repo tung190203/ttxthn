@@ -49,6 +49,15 @@ return [
         ],
         'super_admin_only' => false,
     ],
+    'vr_tour' => [
+        'label' => 'Vrtour',
+        'items' => [
+            'skin' => 'Sửa skin',
+            'hotspot' => 'Sửa hotspot',
+            'content' => 'Sửa nội dung',
+        ],
+        'super_admin_only' => false,
+    ],
     'guest' => [
         'label' => 'Người dùng',
         'items' => [
