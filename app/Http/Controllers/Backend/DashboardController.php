@@ -357,6 +357,9 @@ class DashboardController extends Controller
         }
         $firstPermission = $permissions[0];
         $routeName = 'backend_' . str_replace('/', '_', $firstPermission);
+        if ($routeName == "backend_vr_tour") {
+            return redirect()->route('backend_vrtour_skin_index');
+        }
         if (app('router')->has($routeName)) {
             return redirect()->route($routeName);
         }
