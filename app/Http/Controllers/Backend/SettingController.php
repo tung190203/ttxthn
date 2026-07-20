@@ -14,7 +14,7 @@ class SettingController extends Controller
 {
     private Setting $setting;
     // Định nghĩa các key cần được coi là đa ngôn ngữ đơn giản (vi, en)
-    const MULTI_LANGUAGE_KEYS = ['site_name', 'footer_info', 'copyright_notice', 'copyright', 'address', 'social_title', 'logo', 'chatbot_name', 'chatbot_tooltip', 'chatbot_welcome_message']; 
+    const MULTI_LANGUAGE_KEYS = ['site_name', 'footer_info', 'copyright_notice', 'copyright', 'address', 'social_title', 'logo', 'chatbot_name', 'chatbot_tooltip', 'chatbot_welcome_message', 'contact_auto_reply_message']; 
 
     // Định nghĩa các key là mảng JSON phức tạp (chứa đa ngôn ngữ bên trong nó)
     const COMPLEX_JSON_KEYS = ['banners', 'features']; 
