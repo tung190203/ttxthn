@@ -213,7 +213,8 @@ class AuthController extends Controller
     
             return redirect()->intended('/');
         } catch (\Exception $e) {
-            return redirect()->route('guest_login')->withErrors(['msg' => 'Đăng nhập Google thất bại.']);
+            \Illuminate\Support\Facades\Log::error('Google Login Error: ' . $e->getMessage() . ' - File: ' . $e->getFile() . ' - Line: ' . $e->getLine());
+            return redirect()->route('home_page')->withErrors(['msg' => 'Đăng nhập Google thất bại.']);
         }
     }
 }
