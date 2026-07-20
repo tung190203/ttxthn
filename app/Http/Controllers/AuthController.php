@@ -188,11 +188,19 @@ class AuthController extends Controller
     
             // Nếu Google có avatar thì tải về
             if ($googleUser->getAvatar()) {
-                $avatarUrl = $googleUser->getAvatar();
-                $avatarContents = file_get_contents($avatarUrl);
-                $fileName = 'avatars/' . uniqid() . '.jpg';
-                Storage::disk('public')->put($fileName, $avatarContents);
-                $avatarPath = $fileName;
+                try {
+                    $avatarUrl = $googleUser->getAvatar();
+                    // Sử dụng Http client với timeout 5s để tránh treo web nếu máy chủ chặn tải file
+                    $response = \Illuminate\Support\Facades\Http::timeout(5)->get($avatarUrl);
+                    if ($response->successful()) {
+                        $fileName = 'avatars/' . uniqid() . '.jpg';
+                        Storage::disk('public')->put($fileName, $response->body());
+                        $avatarPath = $fileName;
+                    }
+                } catch (\Exception $avatarEx) {
+                    // Nếu không tải được ảnh (do tường lửa server chặn, mạng lỗi,...), ghi log và bỏ qua, vẫn cho phép đăng nhập
+                    \Illuminate\Support\Facades\Log::warning('Không thể tải avatar từ Google: ' . $avatarEx->getMessage());
+                }
             }
     
             $guest = Guest::updateOrCreate(
