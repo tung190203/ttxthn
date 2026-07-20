@@ -66,6 +66,9 @@
                                 <h4 class="mt-4 border-bottom pb-2">Section 2 (VI)</h4>
                                 <x-forms.textarea name="settings[section2_title][vi]" value="{{ $settings['section2_title']['vi'] ?? '' }}" editor="true" label="Tiêu đề Section 2 (VI)" />
                                 <x-forms.textarea name="settings[section2_content][vi]" value="{{ $settings['section2_content']['vi'] ?? '' }}" editor="true" label="Nội dung Section 2 (VI)" />
+                                
+                                <h4 class="mt-4 border-bottom pb-2">Nội dung Email (VI)</h4>
+                                <x-forms.textarea name="settings[contact_auto_reply_message][vi]" value="{{ $settings['contact_auto_reply_message']['vi'] ?? 'Hệ thống đã ghi nhận yêu cầu của bạn, chuyển cho bộ phận chuyên môn phụ trách và sẽ trả lời bạn trong thời gian sớm nhất.' }}" editor="true" label="Nội dung tự động trả lời liên hệ (VI)" />
                             </div>
 
                             {{-- TAB TIẾNG ANH --}}
@@ -86,6 +89,9 @@
                                 <h4 class="mt-4 border-bottom pb-2">Section 2 (EN)</h4>
                                 <x-forms.textarea name="settings[section2_title][en]" value="{{ $settings['section2_title']['en'] ?? '' }}" editor="true" label="Tiêu đề Section 2 (EN)" />
                                 <x-forms.textarea name="settings[section2_content][en]" value="{{ $settings['section2_content']['en'] ?? '' }}" editor="true" label="Nội dung Section 2 (EN)" />
+
+                                <h4 class="mt-4 border-bottom pb-2">Nội dung Email (EN)</h4>
+                                <x-forms.textarea name="settings[contact_auto_reply_message][en]" value="{{ $settings['contact_auto_reply_message']['en'] ?? 'The system has recorded your request, forwarded it to the specialized department in charge, and will reply to you as soon as possible.' }}" editor="true" label="Nội dung tự động trả lời liên hệ (EN)" />
                             </div>
                         </div>
 

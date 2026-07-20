@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\ContactMail;
+use App\Mail\ContactAutoReplyMail;
 use App\Models\Category;
 use App\Models\Contact;
 use App\Models\District;
@@ -628,7 +629,11 @@ class HomeController extends Controller
             $contact->save();
             $contact->load('projectIndustry');
 
+            // Send notification to admin
             Mail::to($setting['email'] ?? config('contact.admin_email'))->queue(new ContactMail($contact));
+            
+            // Send auto-reply to user
+            Mail::to($contact->email)->queue(new ContactAutoReplyMail($contact));
 
             return redirect()->route('contact')
                 ->with('success', __('app.contact_success'));
