@@ -55,6 +55,23 @@
                                 </div>
                                 <div class="modal-body" style="white-space: normal !important;">
                                     @php
+                                    if (!function_exists('formatLogValue')) {
+                                        function formatLogValue($val) {
+                                            if (is_array($val)) {
+                                                $val = json_encode($val, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                                            } elseif (is_string($val)) {
+                                                $decoded = json_decode($val, true);
+                                                if (json_last_error() === JSON_ERROR_NONE && (is_array($decoded) || is_object($decoded))) {
+                                                    $val = json_encode($decoded, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                                                }
+                                            }
+                                            if (is_string($val)) {
+                                                $val = html_entity_decode($val, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                                            }
+                                            return $val;
+                                        }
+                                    }
+
                                     $properties = $activity->properties;
                                     $attributes = $properties['attributes'] ?? null;
                                     $old = $properties['old'] ?? null;
@@ -92,9 +109,9 @@
                                             <tr>
                                                 <td class="font-weight-bold" style="word-break: break-word;">{{ $translations[$key] ?? $key }}</td>
                                                 @if($old)
-                                                <td class="text-muted" style="word-break: break-word;">{{ is_array($old[$key]) ? json_encode($old[$key]) : $old[$key] }}</td>
+                                                <td class="text-muted" style="word-break: break-word;">{{ formatLogValue($old[$key]) }}</td>
                                                 @endif
-                                                <td class="text-success" style="word-break: break-word;">{{ is_array($value) ? json_encode($value) : $value }}</td>
+                                                <td class="text-success" style="word-break: break-word;">{{ formatLogValue($value) }}</td>
                                             </tr>
                                             @endforeach
                                         </tbody>

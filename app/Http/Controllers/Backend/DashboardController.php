@@ -308,6 +308,14 @@ class DashboardController extends Controller
                 ->when($activityEvent, function ($query) use ($activityEvent) {
                     return $query->where('event', $activityEvent);
                 })
+                ->where(function ($query) {
+                    $query->where('event', '!=', 'created')
+                          ->orWhere(function ($q) {
+                              $q->where('properties', 'not like', '%"is_draft":1%')
+                                ->where('properties', 'not like', '%"is_draft":true%')
+                                ->where('properties', 'not like', '%"status_approve":"draft"%');
+                          });
+                })
                 ->paginate(10, ['*'], 'activity_page')
                 ->appends($request->all());
 
