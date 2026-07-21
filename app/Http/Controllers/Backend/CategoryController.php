@@ -127,7 +127,42 @@ class CategoryController extends Controller
 
         $type = session('category_type', Category::CATEGORY_TYPE_POST);
         $list_category = Category::makeListCategory(0, $type, $category->parent_id, true);
-        return view('backend.category.create', compact('category', 'list_category', 'type'));
+
+        $parentData = [];
+        $draftData = [];
+
+        if ($category->exists && $category->is_draft && $category->main_id) {
+            $parent = Category::find($category->main_id);
+            if ($parent) {
+                $standardFields = [
+                    'parent_id' => 'ID Danh mục cha',
+                    'status' => 'Trạng thái (1: HĐ, 0: Khoá)',
+                    'priority' => 'Thứ tự ưu tiên',
+                    'image' => 'Ảnh',
+                    'at_home' => 'Hiển thị trang chủ',
+                ];
+                foreach ($standardFields as $field => $label) {
+                    $parentData[$label] = (string) ($parent->$field ?? '');
+                    $draftData[$label] = (string) ($category->$field ?? '');
+                }
+
+                $locales = ['vi' => 'Tiếng Việt', 'en' => 'Tiếng Anh'];
+                foreach ($category->translatable as $field) {
+                    foreach ($locales as $locale => $localeName) {
+                        $parentVal = $parent->getTranslation($field, $locale, false);
+                        $draftVal = $category->getTranslation($field, $locale, false);
+                        
+                        if (is_array($parentVal) || is_object($parentVal)) $parentVal = json_encode($parentVal, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                        if (is_array($draftVal) || is_object($draftVal)) $draftVal = json_encode($draftVal, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+                        $parentData["{$field} ({$localeName})"] = (string) $parentVal;
+                        $draftData["{$field} ({$localeName})"] = (string) $draftVal;
+                    }
+                }
+            }
+        }
+
+        return view('backend.category.create', compact('category', 'list_category', 'type', 'parentData', 'draftData'));
     }
 
     public function save(Category $category, Request $request)

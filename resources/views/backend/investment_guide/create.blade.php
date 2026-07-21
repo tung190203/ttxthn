@@ -46,6 +46,8 @@
                                 (auth('web')->user()->is_super_admin || auth('web')->user()->is_approve) &&
                                 $investment_guide->status_approve === 'pending'
                             )
+                                @include('backend.partials._diff_viewer')
+
                                 <button type="button" class="btn btn-sm fw-bold btn-success" data-toggle="modal" data-target="#approveModal-{{ $investment_guide->id }}">
                                     <i class="fa fa-check" aria-hidden="true"></i> Duyệt
                                 </button>

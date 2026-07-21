@@ -142,7 +142,44 @@ class PostController extends Controller
         $option_categories = Category::makeListCategoryForPost(0, '', $post->cat_id);
         // $option_projects = Project::makeListProject($post->project_id);
         $option_projects = Project::makeListProjectArray();
-        return view('backend.post.create', compact('post', 'option_categories', 'option_projects'));
+
+        $parentData = [];
+        $draftData = [];
+
+        if ($post->exists && $post->is_draft && $post->parent_id) {
+            $parent = Post::find($post->parent_id);
+            if ($parent) {
+                $standardFields = [
+                    'cat_id' => 'ID Danh mục',
+                    'project_id' => 'ID Dự án',
+                    'status' => 'Trạng thái',
+                    'is_hot' => 'Tin nổi bật',
+                    'priority' => 'Thứ tự ưu tiên',
+                    'published_at' => 'Ngày xuất bản',
+                    'image' => 'Ảnh đại diện',
+                ];
+                foreach ($standardFields as $field => $label) {
+                    $parentData[$label] = (string) ($parent->$field ?? '');
+                    $draftData[$label] = (string) ($post->$field ?? '');
+                }
+
+                $locales = ['vi' => 'Tiếng Việt', 'en' => 'Tiếng Anh'];
+                foreach ($post->translatable as $field) {
+                    foreach ($locales as $locale => $localeName) {
+                        $parentVal = $parent->getTranslation($field, $locale, false);
+                        $draftVal = $post->getTranslation($field, $locale, false);
+                        
+                        if (is_array($parentVal) || is_object($parentVal)) $parentVal = json_encode($parentVal, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                        if (is_array($draftVal) || is_object($draftVal)) $draftVal = json_encode($draftVal, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+                        $parentData["{$field} ({$localeName})"] = (string) $parentVal;
+                        $draftData["{$field} ({$localeName})"] = (string) $draftVal;
+                    }
+                }
+            }
+        }
+
+        return view('backend.post.create', compact('post', 'option_categories', 'option_projects', 'parentData', 'draftData'));
     }
 
     public function save(Post $post, Request $request)

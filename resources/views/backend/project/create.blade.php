@@ -46,6 +46,8 @@
                                 (auth('web')->user()->is_super_admin || auth('web')->user()->is_approve) &&
                                 $project->status === 'pending'
                             )
+                                @include('backend.partials._diff_viewer')
+
                                 <button type="button" class="btn btn-sm fw-bold btn-success" data-toggle="modal" data-target="#approveModal-{{ $project->id }}">
                                     <i class="fa fa-check" aria-hidden="true"></i> Duyệt
                                 </button>

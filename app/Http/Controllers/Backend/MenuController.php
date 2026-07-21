@@ -119,8 +119,43 @@ class MenuController extends Controller
         $menu_type = session('menu_type', 'main');
         $option_categories = Category::makeListCategory(0, -1, $menu->cat_id, true);
         $option_menu = Menu::makeListMenu(0, $menu_type, $menu->parent_id, true);
+        
+        $parentData = [];
+        $draftData = [];
+
+        if ($menu->exists && $menu->is_draft && $menu->main_id) {
+            $parent = Menu::find($menu->main_id);
+            if ($parent) {
+                $standardFields = [
+                    'parent_id' => 'ID Menu cha',
+                    'cat_id' => 'ID Danh mục',
+                    'priority' => 'Thứ tự ưu tiên',
+                    'type' => 'Loại Menu',
+                    'status' => 'Trạng thái',
+                ];
+                foreach ($standardFields as $field => $label) {
+                    $parentData[$label] = (string) ($parent->$field ?? '');
+                    $draftData[$label] = (string) ($menu->$field ?? '');
+                }
+
+                $locales = ['vi' => 'Tiếng Việt', 'en' => 'Tiếng Anh'];
+                foreach ($menu->translatable as $field) {
+                    foreach ($locales as $locale => $localeName) {
+                        $parentVal = $parent->getTranslation($field, $locale, false);
+                        $draftVal = $menu->getTranslation($field, $locale, false);
+                        
+                        if (is_array($parentVal) || is_object($parentVal)) $parentVal = json_encode($parentVal, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                        if (is_array($draftVal) || is_object($draftVal)) $draftVal = json_encode($draftVal, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+                        $parentData["{$field} ({$localeName})"] = (string) $parentVal;
+                        $draftData["{$field} ({$localeName})"] = (string) $draftVal;
+                    }
+                }
+            }
+        }
+
         return view('backend.menu.create',
-            compact('menu', 'option_menu', 'option_categories', 'parent_id'));
+            compact('menu', 'option_menu', 'option_categories', 'parent_id', 'parentData', 'draftData'));
     }
 
     public function save(Menu $menu, Request $request)

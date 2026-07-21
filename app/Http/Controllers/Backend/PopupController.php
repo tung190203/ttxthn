@@ -101,7 +101,27 @@ class PopupController extends Controller
         if(!$popup->exists && !Gate::allows('popup/add')) {
             abort(403, self::MESSAGE_UNAUTHORIZED);
         }
-        return view('backend.popup.create', compact('popup'));
+        $parentData = [];
+        $draftData = [];
+
+        if ($popup->exists && $popup->is_draft && $popup->parent_id) {
+            $parent = Popup::find($popup->parent_id);
+            if ($parent) {
+                $standardFields = [
+                    'image' => 'Hình ảnh',
+                    'link' => 'Đường dẫn',
+                    'target' => 'Mở trong trang mới (_blank, _self)',
+                    'status' => 'Trạng thái',
+                    'priority' => 'Thứ tự ưu tiên',
+                ];
+                foreach ($standardFields as $field => $label) {
+                    $parentData[$label] = (string) ($parent->$field ?? '');
+                    $draftData[$label] = (string) ($popup->$field ?? '');
+                }
+            }
+        }
+
+        return view('backend.popup.create', compact('popup', 'parentData', 'draftData'));
     }
 
     public function save(Popup $popup, Request $request)
