@@ -152,13 +152,25 @@ class InvestMentGuideController extends Controller
                     'cat_id' => 'ID Danh mục',
                     'project_id' => 'ID Dự án',
                     'industry_id' => 'ID Ngành nghề',
+                    'document_types' => 'Loại tài liệu',
+                    'issuing_authority' => 'Cơ quan ban hành',
+                    'published_at' => 'Ngày xuất bản',
                     'status' => 'Trạng thái',
                     'priority' => 'Thứ tự ưu tiên',
                     'image' => 'Ảnh đại diện',
                 ];
                 foreach ($standardFields as $field => $label) {
-                    $parentData[$label] = (string) ($parent->$field ?? '');
-                    $draftData[$label] = (string) ($investment_guide->$field ?? '');
+                    $pVal = $parent->$field ?? '';
+                    $dVal = $investment_guide->$field ?? '';
+                    if (is_array($pVal)) $pVal = implode(', ', $pVal);
+                    if (is_array($dVal)) $dVal = implode(', ', $dVal);
+                    $parentData[$label] = (string) $pVal;
+                    $draftData[$label] = (string) $dVal;
+                }
+                
+                if ($parent->relationLoaded('projects') || $parent->projects()->exists()) {
+                    $parentData['Dự án liên kết'] = $parent->projects->pluck('name')->implode(', ');
+                    $draftData['Dự án liên kết'] = $investment_guide->projects->pluck('name')->implode(', ');
                 }
 
                 $locales = ['vi' => 'Tiếng Việt', 'en' => 'Tiếng Anh'];

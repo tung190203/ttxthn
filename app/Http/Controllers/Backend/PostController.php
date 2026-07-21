@@ -152,6 +152,10 @@ class PostController extends Controller
                 $standardFields = [
                     'cat_id' => 'ID Danh mục',
                     'project_id' => 'ID Dự án',
+                    'relic_id' => 'ID Di tích',
+                    'source' => 'Nguồn tin',
+                    'view_num' => 'Lượt xem',
+                    'project_type' => 'Loại dự án',
                     'status' => 'Trạng thái',
                     'is_hot' => 'Tin nổi bật',
                     'priority' => 'Thứ tự ưu tiên',
@@ -159,8 +163,17 @@ class PostController extends Controller
                     'image' => 'Ảnh đại diện',
                 ];
                 foreach ($standardFields as $field => $label) {
-                    $parentData[$label] = (string) ($parent->$field ?? '');
-                    $draftData[$label] = (string) ($post->$field ?? '');
+                    $pVal = $parent->$field ?? '';
+                    $dVal = $post->$field ?? '';
+                    if (is_array($pVal)) $pVal = implode(', ', $pVal);
+                    if (is_array($dVal)) $dVal = implode(', ', $dVal);
+                    $parentData[$label] = (string) $pVal;
+                    $draftData[$label] = (string) $dVal;
+                }
+                
+                if ($parent->relationLoaded('projects') || $parent->projects()->exists()) {
+                    $parentData['Dự án liên kết'] = $parent->projects->pluck('name')->implode(', ');
+                    $draftData['Dự án liên kết'] = $post->projects->pluck('name')->implode(', ');
                 }
 
                 $locales = ['vi' => 'Tiếng Việt', 'en' => 'Tiếng Anh'];
