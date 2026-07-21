@@ -97,7 +97,33 @@ class UserController extends Controller
         }
 
         $option_groups = Group::makeListGroup($user->group_id);
-        return view('backend.user.create', compact('user', 'option_groups'));
+
+        $parentData = [];
+        $draftData = [];
+
+        if ($user->exists && $user->is_draft && $user->main_id) {
+            $parent = User::find($user->main_id);
+            if ($parent) {
+                $standardFields = [
+                    'group_id' => 'ID Nhóm',
+                    'username' => 'Tên đăng nhập',
+                    'email' => 'Email',
+                    'name' => 'Họ và tên',
+                    'phone' => 'Số điện thoại',
+                    'birthday' => 'Ngày sinh',
+                    'gender' => 'Giới tính',
+                    'address' => 'Địa chỉ',
+                    'status' => 'Trạng thái',
+                    'avatar' => 'Ảnh đại diện',
+                ];
+                foreach ($standardFields as $field => $label) {
+                    $parentData[$label] = (string) ($parent->$field ?? '');
+                    $draftData[$label] = (string) ($user->$field ?? '');
+                }
+            }
+        }
+
+        return view('backend.user.create', compact('user', 'option_groups', 'parentData', 'draftData'));
     }
 
     public function save(User $user, Request $request)

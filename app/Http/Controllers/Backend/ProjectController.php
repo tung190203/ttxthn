@@ -179,6 +179,56 @@ class ProjectController extends Controller
         $railway_industry_number = Project::RAILWAY_INDUSTRY_NUMBER;
         $option_invest_statuses = Project::makeListInvestmentStatuses($project->is_invest ?? 0);
 
+        $parentData = [];
+        $draftData = [];
+
+        if ($project->exists && $project->is_draft && $project->parent_id) {
+            $parent = Project::find($project->parent_id);
+            if ($parent) {
+                $standardFields = [
+                    'price' => 'Giá',
+                    'area' => 'Diện tích',
+                    'unit' => 'Đơn vị tính',
+                    'link_vrtour' => 'Link VR360',
+                    'link_sand_table' => 'Link Sa Bàn',
+                    'is_invest' => 'Trạng thái đầu tư (0,1,2)',
+                    'occupancy_rate' => 'Tỷ lệ lấp đầy',
+                    'banner_image' => 'Ảnh Banner',
+                    'detail_image' => 'Ảnh chi tiết',
+                    'location_image' => 'Ảnh vị trí',
+                ];
+                foreach ($standardFields as $field => $label) {
+                    $parentData[$label] = (string) ($parent->$field ?? '');
+                    $draftData[$label] = (string) ($project->$field ?? '');
+                }
+
+                $locales = ['vi' => 'Tiếng Việt', 'en' => 'Tiếng Anh'];
+                foreach ($project->translatable as $field) {
+                    foreach ($locales as $locale => $localeName) {
+                        $parentVal = $parent->getTranslation($field, $locale, false);
+                        $draftVal = $project->getTranslation($field, $locale, false);
+                        
+                        if (is_array($parentVal) || is_object($parentVal)) $parentVal = json_encode($parentVal, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                        if (is_array($draftVal) || is_object($draftVal)) $draftVal = json_encode($draftVal, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+                        $parentData["{$field} ({$localeName})"] = (string) $parentVal;
+                        $draftData["{$field} ({$localeName})"] = (string) $draftVal;
+                    }
+                }
+
+                $trailingFields = [
+                    'advantage_images' => 'Ảnh thế mạnh',
+                    'design_images' => 'Ảnh thiết kế',
+                    'legal_file' => 'Tệp đính kèm văn bản pháp quy',
+                    'pdf_file' => 'Tệp PDF',
+                ];
+                foreach ($trailingFields as $field => $label) {
+                    $parentData[$label] = (string) ($parent->$field ?? '');
+                    $draftData[$label] = (string) ($project->$field ?? '');
+                }
+            }
+        }
+
         return view('backend.project.create', compact(
             'project',
             'option_types',
@@ -189,7 +239,9 @@ class ProjectController extends Controller
             'option_railway_lines',
             'selected_railway_lines',
             'railway_industry_number',
-            'option_invest_statuses'
+            'option_invest_statuses',
+            'parentData',
+            'draftData'
         ));
     }
 

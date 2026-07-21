@@ -38,6 +38,8 @@
                                 (auth('web')->user()->is_super_admin || auth('web')->user()->is_approve) &&
                                 $user->status_approve === 'pending'
                             )
+                                @include('backend.partials._diff_viewer')
+
                                 <!-- Button trigger modal -->
                                 <button type="button" class="btn btn-sm fw-bold btn-success" data-toggle="modal" data-target="#approveModal-{{ $user->id }}">
                                     <i class="fa fa-check" aria-hidden="true"></i> Duyệt
