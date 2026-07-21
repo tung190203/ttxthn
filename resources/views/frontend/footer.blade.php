@@ -116,9 +116,9 @@
         <h2 class="text-white mb-2 font-heading" style="font-size: 32px; font-weight: 700;">{{ __('app.subscribe_project_updates') }}</h2>
         <p class="text-white mb-4" style="font-size: 15px; opacity: 0.9;">{{ __('app.subscribe_newsletter_desc') }}</p>
         <div class="d-flex justify-content-center">
-            <form action="#" class="newsletter-form" style="display: flex; max-width: 500px; width: 100%;">
-                <input type="email" placeholder="{{ __('app.your_email_address') }}" class="form-control" style="border-radius: 4px 0 0 4px; border: none; padding: 14px 20px; box-shadow: none; font-size: 15px;">
-                <button type="button" class="btn fw-bold" style="background-color: #ffc107; color: #000; border-radius: 0 4px 4px 0; font-weight: 700; white-space: nowrap; padding: 0 24px; border: none; font-size: 15px;">
+            <form action="{{ route('contact') }}" method="GET" class="newsletter-form" style="display: flex; max-width: 500px; width: 100%;">
+                <input type="email" name="email" placeholder="{{ __('app.your_email_address') }}" class="form-control" style="border-radius: 4px 0 0 4px; border: none; padding: 14px 20px; box-shadow: none; font-size: 15px;">
+                <button type="submit" class="btn fw-bold" style="background-color: #ffc107; color: #000; border-radius: 0 4px 4px 0; font-weight: 700; white-space: nowrap; padding: 0 24px; border: none; font-size: 15px;">
                     {{ __('app.contact') }} <i class="fas fa-arrow-right ms-2"></i>
                 </button>
             </form>

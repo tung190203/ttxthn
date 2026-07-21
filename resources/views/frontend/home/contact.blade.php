@@ -45,7 +45,7 @@
                                     <label for="email" class="form-label">{{ __('app.email_address') }}</label>
                                     <input type="email" name="email" id="email"
                                            class="form-control @error('email') is-invalid @enderror"
-                                           placeholder="you@example.com" value="{{ old('email', Auth::guard('guest')->check() ? Auth::guard('guest')->user()->email : '') }}">
+                                           placeholder="you@example.com" value="{{ old('email', request('email') ?? (Auth::guard('guest')->check() ? Auth::guard('guest')->user()->email : '')) }}">
                                     @error('email')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror

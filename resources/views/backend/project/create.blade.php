@@ -132,6 +132,14 @@
                                 selectLabel="tuyến"
                                 help="Danh sách này được đồng bộ từ public/js/railways.js. Có thể chọn nhiều tuyến hoặc chọn tất cả." />
                         </div>
+                        <div id="occupancy-rate-field">
+                            <x-forms.switch name="has_occupancy_rate" label="Bật thông số tỷ lệ lấp đầy" value="{{ old('has_occupancy_rate', $project->has_occupancy_rate) ? 1 : 0 }}"
+                                :messages="$errors->get('has_occupancy_rate')" />
+                            <div id="occupancy-rate-input-field" style="display: {{ ($project->has_occupancy_rate ?? 0) ? 'block' : 'none' }}">
+                                <x-forms.input type="number" name="occupancy_rate" value="{{ old('occupancy_rate') ?: $project->occupancy_rate }}" label="Tỷ lệ lấp đầy (%)"
+                                    :messages="$errors->get('occupancy_rate')" step="0.01" min="0" max="100" />
+                            </div>
+                        </div>
                         <x-forms.input name="price" value="{{ old('price') ?: $project->price }}" label="Vốn đầu tư"
                             :messages="$errors->get('price')" />
                         <x-forms.input name="link" value="{{ old('link') ?: $project->link }}" label="Link dự án"
@@ -141,8 +149,8 @@
                             label="Ảnh sơ đồ liên kết dự án" type="image" :messages="$errors->get('location_image')" />
                         <x-forms.select-multiple name="districts" label="Khu vực" :options="$option_districts" :selected="old('districts', $project->districts->pluck('id')->toArray())"
                             :messages="$errors->get('districts')" help="Chọn các khu vực liên quan" />
-                        <x-forms.switch name="is_invest" label="Trạng thái đầu tư" value="{{ $project->is_invest ?? 0 }}"
-                            :messages="$errors->get('is_invest')" />
+                        <x-forms.select name="is_invest" label="Trạng thái đầu tư" :options="new \Illuminate\Support\HtmlString($option_invest_statuses)"
+                            :selected="old('is_invest', $project->is_invest ?? 0)" :messages="$errors->get('is_invest')" />
                         <x-forms.switch name="is_pinned" label="Có ghim dự án không" value="{{ $project->is_pinned ?? 0 }}"
                             :messages="$errors->get('is_pinned')" />
                         <x-forms.input name="pin_order" value="{{ old('pin_order') ?: $project->pin_order }}"
@@ -355,6 +363,8 @@
         const railwayIndustryNumber = @json((string) $railway_industry_number);
         const industrySelect = document.getElementById('industry_number');
         const railwayField = document.getElementById('railway-lines-field');
+        const occupancyField = document.getElementById('occupancy-rate-field');
+        const occupancyInputField = document.getElementById('occupancy-rate-input-field');
 
         function toggleRailwayLinesField() {
             if (!industrySelect || !railwayField) return;
@@ -372,9 +382,27 @@
             }
         }
 
+        function toggleOccupancyInput() {
+            if (!occupancyInputField) return;
+            const switchEl = $('#has_occupancy_rate');
+            if (switchEl.length) {
+                occupancyInputField.style.display = switchEl.prop('checked') ? 'block' : 'none';
+            }
+        }
+
         toggleRailwayLinesField();
+        
+        setTimeout(() => {
+            toggleOccupancyInput();
+            $('#has_occupancy_rate').on('switchChange.bootstrapSwitch', function(event, state) {
+                toggleOccupancyInput();
+            });
+        }, 500);
+
         if (industrySelect) {
-            industrySelect.addEventListener('change', toggleRailwayLinesField);
+            industrySelect.addEventListener('change', function() {
+                toggleRailwayLinesField();
+            });
         }
     });
 

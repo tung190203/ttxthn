@@ -2089,6 +2089,17 @@ html {
         height: 130px;
     }
 }
+.marker-cluster-small,
+.marker-cluster-medium,
+.marker-cluster-large {
+    background-color: rgba(255, 255, 255, 0.6) !important;
+}
+.marker-cluster-small div,
+.marker-cluster-medium div,
+.marker-cluster-large div {
+    background-color: rgba(255, 255, 255, 0.9) !important;
+    color: #333 !important;
+}
 </style>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -3636,11 +3647,21 @@ function createProjectPopupContent(loc) {
     if (loc.area !== null && loc.area !== undefined && loc.area !== '') {
         const areaText = fmtNumber(loc.area);
         if (loc.unit === 'ha') {
-            areaHtml = `{{ __('app.area') }}: ${areaText} ha`;
+            areaHtml = `{{ __('app.area') }}: ${areaText} ha<br>`;
         } else if (loc.unit === 'km') {
-            areaHtml = `{{ __('app.length') }}: ${areaText} km`;
+            areaHtml = `{{ __('app.length') }}: ${areaText} km<br>`;
         }
     }
+    
+    let occupancyHtml = '';
+    if (loc.has_occupancy_rate) {
+        occupancyHtml = `{{ __('app.occupancy_rate') }}: ${loc.occupancy_rate || 0}%<br>`;
+    }
+    
+    let investStatusHtml = '';
+    if (loc.is_invest == 1) investStatusHtml = '{{ __('app.status') }}: {{ __('app.projects_with_investors') }}<br>';
+    else if (loc.is_invest == 2) investStatusHtml = '{{ __('app.status') }}: {{ __('app.projects_proposed') }}<br>';
+    else investStatusHtml = '{{ __('app.status') }}: {{ __('app.projects_calling_for_investment') }}<br>';
 
     return `
                 <div class='info-box' style="max-width:250px;">
@@ -3650,6 +3671,8 @@ function createProjectPopupContent(loc) {
                     {{ __('app.zone') }}: ${districtText}<br>
                     {{ __('app.investment_scale') }}: ${priceText} {{ __('app.billion_vnd') }}<br>
                     ${areaHtml}
+                    ${occupancyHtml}
+                    ${investStatusHtml}
                     <div style="margin-top:10px; display:flex; gap:8px; justify-content:flex-end;">
                         ${tourButtonHtml}
                         <a href="${detailUrl}" target="_blank" class="btn btn-sm btn-primary text-white">{{ __('app.information') }}</a>
@@ -3696,8 +3719,10 @@ function createMarker(loc) {
 
     let marker;
     if (style) {
-        // Nếu is_invest = 0 → đổi sang màu đỏ
-        const markerColor = (loc.is_invest === 1) ? "#d9534f" : style.color;
+        let markerColor = style.color;
+        if (loc.is_invest == 1) markerColor = "#d9534f"; // Đã có CĐT (Đỏ)
+        else if (loc.is_invest == 2) markerColor = "#ffc107"; // Đề xuất (Vàng)
+        else markerColor = "#28a745"; // Đang kêu gọi (Xanh lá cây)
 
         marker = L.marker([loc.lat, loc.lng], {
             icon: createDropIcon(markerColor, style.icon)
