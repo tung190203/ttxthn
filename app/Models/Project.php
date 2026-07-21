@@ -87,7 +87,9 @@ class Project extends Model
         'railway_lines',
         'is_hidden',
         'hide_vrtour',
-        'hide_saban'
+        'hide_saban',
+        'has_occupancy_rate',
+        'occupancy_rate'
     ];
 
     public $translatable = [
@@ -120,17 +122,49 @@ class Project extends Model
         self::HECTARES => 'ha',
     ];
 
+    const STATUS_CALLING_FOR_INVESTMENT = 0;
+    const STATUS_HAS_INVESTOR = 1;
+    const STATUS_PROPOSED = 2;
+
+    public static function getInvestmentStatuses()
+    {
+        return [
+            self::STATUS_CALLING_FOR_INVESTMENT => __('app.projects_calling_for_investment'),
+            self::STATUS_HAS_INVESTOR => __('app.projects_with_investors'),
+            self::STATUS_PROPOSED => __('app.projects_proposed'),
+        ];
+    }
+
     protected $appends = ['unit_type_text'];
 
     protected $casts = [
         'railway_lines' => 'array',
         'hide_vrtour' => 'boolean',
         'hide_saban' => 'boolean',
+        'has_occupancy_rate' => 'boolean',
+        'occupancy_rate' => 'float',
     ];
 
     public function getUnitTypeTextAttribute()
     {
         return self::UNIT_OPTIONS[$this->unit] ?? '';
+    }
+
+        public static function makeListInvestmentStatuses($selected = null)
+    {
+        $statuses = self::getInvestmentStatuses();
+        $html = '';
+        foreach ($statuses as $value => $label) {
+            $isSelected = ($value == $selected) ? 'selected' : '';
+            $html .= "<option value=\"{$value}\" {$isSelected}>{$label}</option>";
+        }
+        return $html;
+    }
+
+    public function getInvestmentStatusTextAttribute()
+    {
+        $statuses = self::getInvestmentStatuses();
+        return $statuses[$this->is_invest] ?? 'Dự án đang kêu gọi đầu tư';
     }
 
     public function interests()
@@ -224,6 +258,10 @@ class Project extends Model
             ->when(
                 $request->filled('district'),
                 fn($q) => $q->whereHas('districts', fn($q2) => $q2->where('name', 'like', '%' . $request->district . '%'))
+            )
+            ->when(
+                $request->filled('invest_status') && $request->invest_status !== 'all',
+                fn($q) => $q->where('is_invest', $request->invest_status)
             );
     }
 

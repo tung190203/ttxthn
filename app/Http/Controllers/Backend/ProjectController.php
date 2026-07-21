@@ -177,6 +177,7 @@ class ProjectController extends Controller
         $option_railway_lines = RailwayLine::orderBy('sort_order')->pluck('name', 'name')->toArray();
         $selected_railway_lines = $this->normalizeRailwayLineSelection($project->railway_lines ?? [], $option_railway_lines);
         $railway_industry_number = Project::RAILWAY_INDUSTRY_NUMBER;
+        $option_invest_statuses = Project::makeListInvestmentStatuses($project->is_invest ?? 0);
 
         return view('backend.project.create', compact(
             'project',
@@ -187,7 +188,8 @@ class ProjectController extends Controller
             'option_units',
             'option_railway_lines',
             'selected_railway_lines',
-            'railway_industry_number'
+            'railway_industry_number',
+            'option_invest_statuses'
         ));
     }
 
@@ -283,7 +285,7 @@ class ProjectController extends Controller
             'link_vrtour' => 'nullable|url',
             'link_sand_table' => 'nullable|url',
             'layout_id' => 'required|integer|min:1|max:3',
-            'is_invest' => 'nullable|boolean',
+            'is_invest' => 'nullable|integer|in:0,1,2',
             'is_pinned' => 'nullable|boolean',
             'pin_order' => 'nullable|integer|min:1',
             'is_hidden' => 'nullable|boolean',

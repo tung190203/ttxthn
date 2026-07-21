@@ -1,5 +1,7 @@
 <?php
 return [
+    'status' => 'Trạng thái',
+    'occupancy_rate' => 'Tỷ lệ lấp đầy',
     'search' => 'Tìm kiếm',
     'project_types' => 'Hình thức đầu tư',
     'enter_project_name' => 'Nhập tên dự án',
@@ -21,6 +23,7 @@ return [
     'no_suitable_project' => 'Không có dự án phù hợp',
     'projects_calling_for_investment' => 'Dự án đang kêu gọi đầu tư',
     'projects_with_investors' => 'Dự án đã có chủ đầu tư',
+    'projects_proposed' => 'Dự án đã có nhà đầu tư đề xuất chấp thuận chủ trương đầu tư',
     'project_under' => 'Dự án thuộc',
     'view_more' => 'Xem thêm',
     'link' => 'Liên kết',

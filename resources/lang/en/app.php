@@ -1,5 +1,7 @@
 <?php
 return [
+    'status' => 'Status',
+    'occupancy_rate' => 'Occupancy rate',
     'search' => 'Search',
     'project_types' => 'Investment Form',
     'enter_project_name' => 'Enter Project Name',
@@ -21,6 +23,7 @@ return [
     'no_suitable_project' => 'No Suitable Project',
     'projects_calling_for_investment' => 'Projects Calling for Investment',
     'projects_with_investors' => 'Projects with Investors',
+    'projects_proposed' => 'Projects with Proposed Investors',
     'project_under' => 'Project Under',
     'view_more' => 'View more',
     'link' => 'Linkage',

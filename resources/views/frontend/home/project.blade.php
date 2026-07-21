@@ -47,6 +47,15 @@
                             {{ __('app.projects_calling_for_investment') }}
                         </a>
                     </li>
+
+                    {{-- Dự án đề xuất --}}
+                    <li>
+                        <a 
+                            href="{{ route('projects', array_merge(request()->all(), ['is_invest' => 2])) }}" 
+                            class="{{ request('is_invest') === '2' ? 'active' : '' }}">
+                            {{ __('app.projects_proposed') }}
+                        </a>
+                    </li>
                 </ul>
             </div>
         </nav>        

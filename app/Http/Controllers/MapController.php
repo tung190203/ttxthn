@@ -27,6 +27,7 @@ class MapController extends Controller
             ($request->has('price') && (int)$request->price > 0) ||
             ($request->filled('type') && $request->type !== 'all') ||
             ($request->filled('industry') && $request->industry !== 'all') ||
+            ($request->filled('invest_status') && $request->invest_status !== 'all') ||
             $request->filled('district');
 
         if ($request->tab === 'project') {
@@ -115,6 +116,8 @@ class MapController extends Controller
                 'banner_image' => $project->banner_image,
                 'detail_image' => $project->detail_image,
                 'boundary' => $project->boundary,
+                'has_occupancy_rate' => $project->has_occupancy_rate,
+                'occupancy_rate' => $project->occupancy_rate,
                 'railway_lines' => $project->railway_lines ?? [],
                 'districts' => $project->districts->pluck('name')->toArray(),
                 'industrial' => $project->industrialProjects->map(function ($industrialProject) {
