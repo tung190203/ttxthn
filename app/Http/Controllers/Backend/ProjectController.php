@@ -189,17 +189,40 @@ class ProjectController extends Controller
                     'price' => 'Giá',
                     'area' => 'Diện tích',
                     'unit' => 'Đơn vị tính',
-                    'link_vrtour' => 'Link VR360',
-                    'link_sand_table' => 'Link Sa Bàn',
-                    'is_invest' => 'Trạng thái đầu tư (0,1,2)',
+                    'lat' => 'Vĩ độ (Lat)',
+                    'lng' => 'Kinh độ (Lng)',
+                    'boundary' => 'Tọa độ boundary',
+                    'type_number' => 'Loại dự án',
+                    'industry_number' => 'Ngành/Lĩnh vực',
+                    'railway_lines' => 'Các tuyến ĐSĐT liên kết',
+                    'has_occupancy_rate' => 'Bật tỷ lệ lấp đầy',
                     'occupancy_rate' => 'Tỷ lệ lấp đầy',
+                    'link' => 'Link dự án',
+                    'link_vrtour' => 'Link VR360',
+                    'hide_vrtour' => 'Ẩn VR Tour',
+                    'link_sand_table' => 'Link Sa Bàn',
+                    'hide_saban' => 'Ẩn sa bàn ảo',
+                    'is_invest' => 'Trạng thái đầu tư (0,1,2)',
+                    'layout_id' => 'Layout hiển thị',
+                    'is_pinned' => 'Có ghim dự án',
+                    'pin_order' => 'Thứ tự ghim',
+                    'is_hidden' => 'Ẩn dự án',
                     'banner_image' => 'Ảnh Banner',
                     'detail_image' => 'Ảnh chi tiết',
                     'location_image' => 'Ảnh vị trí',
                 ];
                 foreach ($standardFields as $field => $label) {
-                    $parentData[$label] = (string) ($parent->$field ?? '');
-                    $draftData[$label] = (string) ($project->$field ?? '');
+                    $pVal = $parent->$field ?? '';
+                    $dVal = $project->$field ?? '';
+                    if (is_array($pVal)) $pVal = implode(', ', $pVal);
+                    if (is_array($dVal)) $dVal = implode(', ', $dVal);
+                    $parentData[$label] = (string) $pVal;
+                    $draftData[$label] = (string) $dVal;
+                }
+
+                if ($parent->relationLoaded('districts') || $parent->districts()->exists()) {
+                    $parentData['Khu vực'] = $parent->districts->pluck('name')->implode(', ');
+                    $draftData['Khu vực'] = $project->districts->pluck('name')->implode(', ');
                 }
 
                 $locales = ['vi' => 'Tiếng Việt', 'en' => 'Tiếng Anh'];

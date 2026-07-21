@@ -129,13 +129,20 @@ class MenuController extends Controller
                 $standardFields = [
                     'parent_id' => 'ID Menu cha',
                     'cat_id' => 'ID Danh mục',
+                    'page_id' => 'ID Trang tĩnh',
                     'priority' => 'Thứ tự ưu tiên',
                     'type' => 'Loại Menu',
                     'status' => 'Trạng thái',
+                    'is_mega' => 'Mega Menu',
+                    'image' => 'Ảnh đại diện',
                 ];
                 foreach ($standardFields as $field => $label) {
-                    $parentData[$label] = (string) ($parent->$field ?? '');
-                    $draftData[$label] = (string) ($menu->$field ?? '');
+                    $pVal = $parent->$field ?? '';
+                    $dVal = $menu->$field ?? '';
+                    if (is_array($pVal)) $pVal = implode(', ', $pVal);
+                    if (is_array($dVal)) $dVal = implode(', ', $dVal);
+                    $parentData[$label] = (string) $pVal;
+                    $draftData[$label] = (string) $dVal;
                 }
 
                 $locales = ['vi' => 'Tiếng Việt', 'en' => 'Tiếng Anh'];

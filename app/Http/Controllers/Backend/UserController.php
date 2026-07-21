@@ -115,6 +115,8 @@ class UserController extends Controller
                     'address' => 'Địa chỉ',
                     'status' => 'Trạng thái',
                     'avatar' => 'Ảnh đại diện',
+                    'is_super_admin' => 'Quyền Super Admin',
+                    'is_approve' => 'Quyền duyệt bài',
                 ];
                 foreach ($standardFields as $field => $label) {
                     $parentData[$label] = (string) ($parent->$field ?? '');
