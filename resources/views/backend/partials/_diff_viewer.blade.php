@@ -97,8 +97,11 @@
                         }
                     } catch (e) {
                         if (str.includes(';')) {
-                            // If it's a semicolon separated list of paths
-                            str = str.split(';').map(s => s.trim()).filter(s => s).join('\n');
+                            // Check if it's a semicolon separated list of paths
+                            // Avoid splitting if it contains HTML tags or HTML entities to prevent breaking Vietnamese characters
+                            if (!/<[a-z][\s\S]*>/i.test(str) && !/&[a-z0-9#]+;/i.test(str)) {
+                                str = str.split(';').map(s => s.trim()).filter(s => s).join('\n');
+                            }
                         }
                     }
                     
@@ -106,6 +109,18 @@
                         // Decode URL-encoded characters (like %20 to space, %C3%A1 to á)
                         str = decodeURIComponent(str);
                     } catch (e) {}
+                    
+                    // Strip HTML tags for cleaner text diff, preserving newlines for block elements
+                    if (/<[a-z][\s\S]*>/i.test(str) || /&[a-z0-9#]+;/i.test(str)) {
+                        let tmp = str;
+                        tmp = tmp.replace(/<br\s*[\/]?>/gi, '\n');
+                        tmp = tmp.replace(/<\/p>|<\/div>|<\/li>|<\/h[1-6]>/gi, '\n');
+                        tmp = tmp.replace(/<[^>]+>/g, '');
+                        
+                        // Decode HTML entities
+                        let doc = new DOMParser().parseFromString(tmp, "text/html");
+                        str = doc.documentElement.textContent;
+                    }
                     
                     return str;
                 }
