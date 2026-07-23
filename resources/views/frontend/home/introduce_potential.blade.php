@@ -51,7 +51,7 @@
                                 </div>
                             </div>
                             <div class="mb-4">
-                                <div class="fw-600 text-uppercase mb-2">Loại văn bản</div>
+                                <div class="fw-600 text-uppercase mb-2">{{ __('app.document_type') }}</div>
                                 @php
                                     $reqDocs = (array)request('document_types', []);
                                 @endphp
@@ -59,13 +59,13 @@
                                     <div class="form-check mb-2">
                                         <input class="form-check-input" type="checkbox" name="document_types[]" value="{{ $val }}" id="doc_{{ $val }}"
                                             {{ in_array($val, $reqDocs) ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="doc_{{ $val }}">{{ $label }}</label>
+                                        <label class="form-check-label" for="doc_{{ $val }}">{{ __('app.doc_type_' . $val) }}</label>
                                     </div>
                                 @endforeach
                             </div>
 
                             <div class="mb-4">
-                                <div class="fw-600 text-uppercase mb-2">Ngành/Lĩnh vực</div>
+                                <div class="fw-600 text-uppercase mb-2">{{ __('app.industry_field') }}</div>
                                 <select class="form-select" name="industry_id">
                                     <option value="">{{ __('app.all') }}</option>
                                     @foreach($industries as $ind)
@@ -77,12 +77,12 @@
                             </div>
 
                             <div class="mb-4">
-                                <div class="fw-600 text-uppercase mb-2">Cơ quan ban hành</div>
+                                <div class="fw-600 text-uppercase mb-2">{{ __('app.issuing_authority') }}</div>
                                 <select class="form-select" name="issuing_authority">
                                     <option value="">{{ __('app.all') }}</option>
                                     @foreach($authorities as $val => $label)
                                         <option value="{{ $val }}" {{ request('issuing_authority') == $val ? 'selected' : '' }}>
-                                            {{ $label }}
+                                            {{ __('app.authority_' . $val) }}
                                         </option>
                                     @endforeach
                                 </select>
