@@ -394,7 +394,7 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                         
                         {{-- DESKTOP: Wrap normally --}}
                         <div class="policy-tags d-none d-lg-flex flex-wrap gap-2 mb-4" style="gap: 10px;">
-                            <a href="javascript:void(0)" class="policy-tag active" data-id="" style="background: #33AAFA; color: white; padding: 6px 16px; border-radius: 20px; font-size: 12px; text-decoration: none; display: inline-block; margin-bottom: 10px;">TẤT CẢ</a>
+                            <a href="javascript:void(0)" class="policy-tag active" data-id="" style="background: #33AAFA; color: white; padding: 6px 16px; border-radius: 20px; font-size: 12px; text-decoration: none; display: inline-block; margin-bottom: 10px; text-transform: uppercase;">{{ __('app.all') }}</a>
                             @foreach($guide_categories as $cat)
                             <a href="javascript:void(0)" class="policy-tag" data-id="{{ $cat->id }}" style="border: 1px solid rgba(255,255,255,0.3); color: white; padding: 6px 16px; border-radius: 20px; font-size: 12px; text-decoration: none; display: inline-block; margin-bottom: 10px;">{{ mb_strtoupper($cat->name) }}</a>
                             @endforeach
@@ -404,7 +404,7 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                         <div class="swiper-container policy-tags-slider w-100 mb-4 d-block d-lg-none">
                             <div class="swiper-wrapper policy-tags">
                                 <div class="swiper-slide" style="width: auto;">
-                                    <a href="javascript:void(0)" class="policy-tag active flex-shrink-0" data-id="" style="background: #33AAFA; color: white; padding: 6px 16px; border-radius: 20px; font-size: 12px; text-decoration: none; display: inline-block;">TẤT CẢ</a>
+                                    <a href="javascript:void(0)" class="policy-tag active flex-shrink-0" data-id="" style="background: #33AAFA; color: white; padding: 6px 16px; border-radius: 20px; font-size: 12px; text-decoration: none; display: inline-block; text-transform: uppercase;">{{ __('app.all') }}</a>
                                 </div>
                                 @foreach($guide_categories as $cat)
                                 <div class="swiper-slide" style="width: auto;">
