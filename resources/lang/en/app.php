@@ -233,4 +233,12 @@ return [
     'rainway_line_annotation' => 'Rainway line annotation',
     'open_annotation' => 'Open annotation',
     'planned_line' => '(planned)',
+    'document_type' => 'Document Type',
+    'issuing_authority' => 'Issuing Authority',
+    'doc_type_luat' => 'Law',
+    'doc_type_nghi_dinh_thong_tu' => 'Decree/Circular',
+    'doc_type_quyet_dinh' => 'Decision',
+    'doc_type_khac' => 'Other Documents',
+    'authority_trung_uong' => 'Central',
+    'authority_ha_noi' => 'Hanoi',
 ];
