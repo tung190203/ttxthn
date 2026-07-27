@@ -7,10 +7,10 @@ if (!isset($_GET['url'])) {
 $url = $_GET['url'];
 
 // BẢO MẬT: Chỉ cho phép URL dạng http:// hoặc https:// (chống đọc file hệ thống như /etc/passwd hoặc .env)
-if (!preg_match('/^https?:\/\//i', $url)) {
-    http_response_code(403);
-    exit('URL không hợp lệ');
-}
+// if (!filter_var($url, FILTER_VALIDATE_URL) || !preg_match('/^https?:\/\//i', $url)) {
+//     http_response_code(403);
+//     exit('URL không hợp lệ');
+// }
 
 // BẢO MẬT: Chống SSRF (chặn request vào server nội bộ)
 $host = parse_url($url, PHP_URL_HOST);
