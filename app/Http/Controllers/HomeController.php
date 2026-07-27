@@ -868,4 +868,22 @@ class HomeController extends Controller
         ]);
     }
 
+    public function siteMap()
+    {
+        $urls = [
+            url('/'),
+            route('project'),
+        ];
+
+        $content = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+        $content .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+        
+        foreach ($urls as $url) {
+            $content .= '    <url><loc>' . $url . '</loc></url>' . "\n";
+        }
+        
+        $content .= '</urlset>';
+
+        return response($content, 200)->header('Content-Type', 'text/xml');
+    }
 }

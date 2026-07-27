@@ -235,4 +235,12 @@ return [
     'rainway_line_annotation' => 'Chú thích tuyến ĐSĐT',
     'open_annotation' => 'Mở chú thích',
     'planned_line' => '(dự kiến)',
+    'document_type' => 'Loại văn bản',
+    'issuing_authority' => 'Cơ quan ban hành',
+    'doc_type_luat' => 'Luật',
+    'doc_type_nghi_dinh_thong_tu' => 'Nghị định/Thông tư',
+    'doc_type_quyet_dinh' => 'Quyết định',
+    'doc_type_khac' => 'Văn bản khác',
+    'authority_trung_uong' => 'Trung ương',
+    'authority_ha_noi' => 'Hà Nội',
 ];
