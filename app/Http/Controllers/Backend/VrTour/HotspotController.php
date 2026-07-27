@@ -68,7 +68,6 @@ class HotspotController extends Controller
             if ($request->reset == 'true') {
                 $response = getDataVrtour($link_vrtour . 'vista3d/hotspot.json');
                 $hotspotsJson = json_decode($response['data'], true);
-
                 $media_index = $response['media_index'];
                 $vrtour->media_index = $media_index;
                 $vrtour->save();
