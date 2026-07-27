@@ -69,8 +69,14 @@
                                     </label>
                                 </div>
 
-                                <div>
-                                    <button class="btn btn-success" id="btnApproveAll">
+                                <div class="d-flex align-items-center">
+
+                                    <button class="btn btn-warning mr-2" id="btnViewDiff">
+                                        <i class="fa fa-exchange-alt"></i>
+                                        Xem thay đổi
+                                    </button>
+
+                                    <button class="btn btn-success mr-2" id="btnApproveAll">
                                         <i class="fa fa-check"></i>
                                         Chấp nhận
                                     </button>
@@ -79,6 +85,7 @@
                                         <i class="fa fa-times"></i>
                                         Từ chối
                                     </button>
+
                                 </div>
 
                             </div>
@@ -455,6 +462,7 @@
                 </div>
             </div>
         </div>
+    @include('backend.vrtour.skin.partials._diff_viewer')
     </section>
     <div id="document_detail" style="display:none">
         @include('backend.vrtour.skin.row')
@@ -470,6 +478,7 @@
         $('#skin_plan #status').bootstrapSwitch();
         $("#approvalToolbar").hide();
         var count_detail = 0;
+        let currentSkinType = 0; // 0 = Tất cả
 
         function replaceHtml(count_detail){
             var html    = $('#document_detail').html();
@@ -491,6 +500,7 @@
             $("#checkAllSkin").prop("checked", false).prop("disabled", true);
             $("#btnApproveAll").prop("disabled", true);
             $("#btnRejectAll").prop("disabled", true);
+            $("#btnViewDiff").prop("disabled", true);
         }
 
         function enableApprovalToolbar() {
@@ -498,6 +508,7 @@
             $("#checkAllSkin").prop("checked", true).prop("disabled", false);
             $("#btnApproveAll").prop("disabled", false);
             $("#btnRejectAll").prop("disabled", false);
+            $("#btnViewDiff").prop("disabled", false);
         }
 
         function renderApprovalBox(options) {
@@ -531,6 +542,7 @@
         function fetch_data() {
             var vrtour  = $('#slt_vrtour').val();
             var type    = $('#slt_vrtour_type').val();
+            currentSkinType = type;
             if (vrtour != 'all') {
                 $.ajax({
                     url: assetUrl+'vrtour/skin/get-data/'+vrtour+'/'+type,
@@ -554,7 +566,7 @@
                         $('#skin_connectmap #image_en_input').val(connect_map != null ? connect_map['image_en'] : '');
                         CKEDITOR.instances['content'].setData(connect_map != null ? connect_map['content'] : '');
                         CKEDITOR.instances['content_en'].setData(connect_map != null ? connect_map['content_en'] : '');
-                        
+
                         //location in tour
                         var location = response.data.location;
                         hasPending = renderApprovalBox({
@@ -591,7 +603,7 @@
                         $('#skin_investor #sologan').val(investor != null ? investor['sologan'] : '');
                         $('#skin_investor #sologan_en').val(investor != null ? investor['sologan_en'] : '');
                         $('#skin_investor #investor_status').bootstrapSwitch('state', investor != null ? (investor['status'] == 1 ? true : false) : false);
-                        
+
                         //welcome
                         var screen = response.data.screen;
                         hasPending = renderApprovalBox({
@@ -890,5 +902,19 @@
             });
 
         });
+        $(document).on("click", "#btnViewDiff", function () {
+                let vrtourId = $("#slt_vrtour").val();
+                $.get(assetUrl + "vrtour/skin/diff", {
+                    vrtour_id: vrtourId,
+                    type: currentSkinType
+                }, function (res) {
+                    if (!res.status) {
+                        toastr.error("Không có dữ liệu.");
+                        return;
+                    }
+                    renderDiffViewer(res.data);
+                    $("#diffModal").modal("show");
+                });
+            });
     </script>
 @endsection

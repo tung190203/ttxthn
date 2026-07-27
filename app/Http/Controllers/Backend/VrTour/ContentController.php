@@ -25,7 +25,13 @@ class ContentController extends Controller
 
     public function index()
     {
-        $vrtour     = Project::all();
+         $user = auth('web')->user();
+        $query = Project::query()->visibleFor($user);
+        $scope = $user->getScope('project');
+        if (!empty($scope)) {
+            $query->whereIn('id', $scope);
+        }
+        $vrtour = $query->orderBy('name')->get();
         return view('backend.vrtour.content.index', compact('vrtour'));
     }
 
@@ -122,8 +128,27 @@ class ContentController extends Controller
         if (!Gate::allows('vr_tour/content')) {
             abort(403, self::MESSAGE_UNAUTHORIZED);
         }
-        $pano   = Panorama::findorFail($id);
-        return view('backend.vrtour.content.edit', compact(['pano']));
+        $pano = Panorama::findOrFail($id);
+        $parentData = [];
+        $draftData = [];
+        if ($pano->is_draft && $pano->parent_id) {
+            $parent = Panorama::find($pano->parent_id);
+            if ($parent) {
+                $fields = [
+                    'title'      => 'Tiêu đề',
+                    'title_en'   => 'Tiêu đề (EN)',
+                    'content'    => 'Nội dung',
+                    'content_en' => 'Nội dung (EN)',
+                    'audio'      => 'Audio',
+                    'audio_en'   => 'Audio (EN)',
+                ];
+                foreach ($fields as $field => $label) {
+                    $parentData[$label] = (string)($parent->$field ?? '');
+                    $draftData[$label]  = (string)($pano->$field ?? '');
+                }
+            }
+        }
+        return view('backend.vrtour.content.edit',compact('pano','parentData','draftData'));
     }
 
     public function store(Request $request, $id)

@@ -26,6 +26,7 @@
                             <x-forms.button-save/>
                         @endcan
                         @if ($pano->is_draft && (auth()->user()->is_super_admin || auth()->user()->is_approve))
+                                @include('backend.partials._diff_viewer')
                                 <form action="{{ route('backend_vrtour_content_approve', $pano->id) }}" method="POST"
                                     style="display:inline-block">
                                     @csrf

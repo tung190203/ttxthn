@@ -33,7 +33,13 @@ class SkinController extends Controller
 
     public function index()
     {
-        $vrtour     = Project::all();
+        $user = auth('web')->user();
+        $query = Project::query()->visibleFor($user);
+        $scope = $user->getScope('project');
+        if (!empty($scope)) {
+            $query->whereIn('id', $scope);
+        }
+        $vrtour = $query->orderBy('name')->get();
         return view('backend.vrtour.skin.index', compact('vrtour'));
     }
 
@@ -393,5 +399,21 @@ class SkinController extends Controller
             'items' => $documents,
             'pending_skin_approval' => null,
         ];
+    }
+    public function getDiff(Request $request)
+    {
+        $request->validate([
+            'vrtour_id' => 'required|integer',
+            'type'      => 'required|integer',
+        ]);
+
+        $diff = $this->skinApprovalService->getDiff(
+            $request->vrtour_id,
+            $request->type
+        );
+        return response()->json([
+            'status' => true,
+            'data'   => $diff,
+        ]);
     }
 }
