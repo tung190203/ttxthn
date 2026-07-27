@@ -49,7 +49,10 @@ class IndustrialProject extends Model
 
     public function hotspots()
     {
-        return $this->hasOne(Hotspot::class, 'potision', 'code');
+        return $this->hasOne(Hotspot::class, 'potision', 'code')->whereColumn(
+            'hotspot.vrtour_id',
+            'industrial_projects.project_id'
+        );
     }
     public function productType()
     {
