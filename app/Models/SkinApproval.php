@@ -17,6 +17,7 @@ class SkinApproval extends Model
         'is_draft',
         'status',
     ];
+    public const TYPE_ALL = 0;
     public const TYPE_WELCOME = 1;
     public const TYPE_CONNECT_MAP = 3;
     public const TYPE_DOCUMENT = 4;

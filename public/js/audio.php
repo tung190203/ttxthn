@@ -7,7 +7,7 @@ if (!isset($_GET['url'])) {
 $url = $_GET['url'];
 
 // BẢO MẬT: Chỉ cho phép URL dạng http:// hoặc https:// (chống đọc file hệ thống như /etc/passwd hoặc .env)
-if (!filter_var($url, FILTER_VALIDATE_URL) || !preg_match('/^https?:\/\//i', $url)) {
+if (!preg_match('/^https?:\/\//i', $url)) {
     http_response_code(403);
     exit('URL không hợp lệ');
 }
