@@ -205,6 +205,7 @@ Route::localized(function () {
                 Route::post('update-data/{vrtour_id}', [SkinController::class, 'updateDataAll'])->name('backend_vrtour_skin_updatedata');
                 Route::post('reject',[SkinController::class,'rejectAll'])->name('backend_vrtour_skin_reject_all');
                 Route::post('approve', [SkinController::class,'approveAll'])->name('backend_vrtour_skin_approve_all');
+                Route::get('diff', [SkinController::class, 'getDiff'])->name('backend_skin_diff');
             });
             Route::prefix('hotspot')->group(function () {
                 Route::get('index', [HotspotController::class, 'index'])->name('backend_vrtour_hotspot_index');

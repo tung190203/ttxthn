@@ -32,8 +32,14 @@ class HotspotController extends Controller
      */
     public function index(Request $request)
     {
-        $vrtour     = Project::all();
-        return view('backend.vrtour.hotspot.index', compact(['vrtour']));
+        $user = auth('web')->user();
+        $query = Project::query()->visibleFor($user);
+        $scope = $user->getScope('project');
+        if (!empty($scope)) {
+            $query->whereIn('id', $scope);
+        }
+        $vrtour = $query->orderBy('name')->get();
+        return view('backend.vrtour.hotspot.index', compact('vrtour'));
     }
 
     public function getHotspot(Request $request, $vrtour_id)
@@ -177,7 +183,34 @@ class HotspotController extends Controller
 
         $option_product_types = ProductType::makeOptions($productType, $selected);
         $hotspot_unit = Hotspot::makeUnitOptions($hotspot->unit);
-        return view('backend.vrtour.hotspot.edit', compact(['hotspot', 'option_product_types','hotspot_unit']));
+        $parentData = [];
+        $draftData  = [];
+
+        if ($hotspot->is_draft && $hotspot->parent) {
+            $parent = $hotspot->parent;
+            $fields = [
+                'potision'      => 'Vị trí',
+                'url'           => 'Ảnh',
+                'tooltip'       => 'Tooltip (VI)',
+                'tooltip_en'    => 'Tooltip (EN)',
+                'opacity'       => 'Opacity',
+                'acreage'       => 'Diện tích',
+                'unit'          => 'Đơn vị',
+                'intended_use'  => 'Mục đích sử dụng',
+                'product_type'  => 'Loại sản phẩm',
+                'opacity'        => 'Hiển thị',
+            ];
+
+            foreach ($fields as $field => $label) {
+                $parentData[$label] = (string) ($parent->$field ?? '');
+                $draftData[$label]  = (string) ($hotspot->$field ?? '');
+            }
+        }
+
+        return view(
+            'backend.vrtour.hotspot.edit',
+            compact('hotspot','option_product_types','hotspot_unit','parentData','draftData')
+        );
     }
 
     public function store(Request $request, $hotspot_id)

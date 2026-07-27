@@ -26,7 +26,8 @@
                             <x-forms.button-save />
                         @endcan
                         @if ($hotspot->is_draft && (auth()->user()->is_super_admin || auth()->user()->is_approve))
-                            <form action="{{ route('backend_vrtour_hotspot_approve', $hotspot->id) }}" method="POST"
+                        @include('backend.partials._diff_viewer')    
+                        <form action="{{ route('backend_vrtour_hotspot_approve', $hotspot->id) }}" method="POST"
                                 style="display:inline-block">
                                 @csrf
                                 <input type="hidden" name="type" value="{{ request('type') }}">
