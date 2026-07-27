@@ -137,8 +137,12 @@
                                                 <div class="project__overlay"><span>{{ __('app.projects_calling_for_investment') }}</span>
                                                     <a class="project__like" href="javascript:void(0)" data-id="{{ $item->id }}" data-type="App\Models\Project"><i class="fas fa-fw fa-lg fa-heart {{ $item->is_interested ? 'text-danger' : '' }}"></i></a>
                                                 </div>
-                                            @else
+                                            @elseif($item->is_invest == 1)
                                                 <div class="project__overlay"><span>{{ __('app.projects_with_investors') }}</span>
+                                                    <a class="project__like" href="javascript:void(0)" data-id="{{ $item->id }}" data-type="App\Models\Project"><i class="fas fa-fw fa-lg fa-heart {{ $item->is_interested ? 'text-danger' : '' }}"></i></a>
+                                                </div>
+                                            @elseif($item->is_invest == 2)
+                                                <div class="project__overlay"><span>{{ __('app.projects_proposed') }}</span>
                                                     <a class="project__like" href="javascript:void(0)" data-id="{{ $item->id }}" data-type="App\Models\Project"><i class="fas fa-fw fa-lg fa-heart {{ $item->is_interested ? 'text-danger' : '' }}"></i></a>
                                                 </div>
                                             @endif
