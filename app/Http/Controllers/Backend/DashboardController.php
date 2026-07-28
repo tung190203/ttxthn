@@ -14,6 +14,7 @@ use App\Models\VisitLog;
 use App\Models\SiteVisitor;
 use Spatie\Activitylog\Models\Activity;
 use App\Services\LogExportService;
+use Illuminate\Support\Facades\Cache;
 
 class DashboardController extends Controller
 {
@@ -153,10 +154,12 @@ class DashboardController extends Controller
 
             // Visitor Stats
             $todayDate = now()->toDateString();
-            $visitStats = [
-                'unique_ips_today' => VisitLog::whereDate('created_at', $todayDate)->count(),
-                'bots_today' => VisitLog::whereDate('created_at', $todayDate)->where('is_bot', true)->count(),
-            ];
+            $visitStats = Cache::remember('dashboard_visit_stats_' . $todayDate, 600, function () use ($todayDate) {
+                return [
+                    'unique_ips_today' => VisitLog::whereDate('created_at', $todayDate)->count(),
+                    'bots_today' => VisitLog::whereDate('created_at', $todayDate)->where('is_bot', true)->count(),
+                ];
+            });
 
             $visitorMonthInput = $request->get('visitor_month', now()->format('Y-m'));
             try {
@@ -167,54 +170,61 @@ class DashboardController extends Controller
             $visitorMonthStart = $visitorMonth->copy()->startOfMonth();
             $visitorMonthEnd = $visitorMonth->copy()->endOfMonth();
 
-            $totalSiteVisitors = SiteVisitor::whereBetween('visit_date', [
-                    $visitorMonthStart->toDateString(),
-                    $visitorMonthEnd->toDateString(),
-                ])
-                ->distinct('ip_address')
-                ->count('ip_address');
+            $cacheKeyMonth = 'dashboard_site_visitor_stats_' . $visitorMonth->format('Y_m');
+            $cacheDuration = $visitorMonth->isCurrentMonth() ? 600 : 86400 * 30; // 10 mins current, 30 days past
 
-            $returningVisitors = \DB::table(function ($query) use ($visitorMonthStart, $visitorMonthEnd) {
-                $query->from('site_visitors')
-                    ->select('ip_address')
+            $siteVisitorStats = Cache::remember($cacheKeyMonth, $cacheDuration, function () use ($visitorMonthStart, $visitorMonthEnd, $visitorMonth) {
+                $totalSiteVisitors = SiteVisitor::whereBetween('visit_date', [
+                        $visitorMonthStart->toDateString(),
+                        $visitorMonthEnd->toDateString(),
+                    ])
+                    ->distinct('ip_address')
+                    ->count('ip_address');
+
+                $returningVisitors = \DB::table(function ($query) use ($visitorMonthStart, $visitorMonthEnd) {
+                    $query->from('site_visitors')
+                        ->select('ip_address')
+                        ->whereBetween('visit_date', [
+                            $visitorMonthStart->toDateString(),
+                            $visitorMonthEnd->toDateString(),
+                        ])
+                        ->groupBy('ip_address')
+                        ->havingRaw('COUNT(DISTINCT visit_date) >= 2');
+                }, 'sub')->count();
+
+                $totalHitsInMonth = SiteVisitor::whereBetween('visit_date', [
+                        $visitorMonthStart->toDateString(),
+                        $visitorMonthEnd->toDateString(),
+                    ])
+                    ->sum('hits');
+
+                return [
+                    'total_visitors' => $totalSiteVisitors,
+                    'returning_visitors' => $returningVisitors,
+                    'visitors_in_month' => $totalSiteVisitors,
+                    'total_hits_in_month' => $totalHitsInMonth,
+                    'month_label' => $visitorMonth->format('m/Y'),
+                    'month_value' => $visitorMonth->format('Y-m'),
+                ];
+            });
+            
+            $monthIps = Cache::remember('dashboard_site_visitor_month_ips_' . $visitorMonth->format('Y_m'), $cacheDuration, function () use ($visitorMonthStart, $visitorMonthEnd) {
+                return SiteVisitor::select(
+                        'ip_address',
+                        \DB::raw('SUM(hits) as hits'),
+                        \DB::raw('COUNT(DISTINCT visit_date) as visit_days'),
+                        \DB::raw('MIN(visit_date) as first_visit_date'),
+                        \DB::raw('MAX(visit_date) as last_visit_date')
+                    )
                     ->whereBetween('visit_date', [
                         $visitorMonthStart->toDateString(),
                         $visitorMonthEnd->toDateString(),
                     ])
                     ->groupBy('ip_address')
-                    ->havingRaw('COUNT(DISTINCT visit_date) >= 2');
-            }, 'sub')->count();
-
-            $totalHitsInMonth = SiteVisitor::whereBetween('visit_date', [
-                    $visitorMonthStart->toDateString(),
-                    $visitorMonthEnd->toDateString(),
-                ])
-                ->sum('hits');
-
-            $siteVisitorStats = [
-                'total_visitors' => $totalSiteVisitors,
-                'returning_visitors' => $returningVisitors,
-                'visitors_in_month' => $totalSiteVisitors,
-                'total_hits_in_month' => $totalHitsInMonth,
-                'month_label' => $visitorMonth->format('m/Y'),
-                'month_value' => $visitorMonth->format('Y-m'),
-            ];
-            
-            $monthIps = SiteVisitor::select(
-                    'ip_address',
-                    \DB::raw('SUM(hits) as hits'),
-                    \DB::raw('COUNT(DISTINCT visit_date) as visit_days'),
-                    \DB::raw('MIN(visit_date) as first_visit_date'),
-                    \DB::raw('MAX(visit_date) as last_visit_date')
-                )
-                ->whereBetween('visit_date', [
-                    $visitorMonthStart->toDateString(),
-                    $visitorMonthEnd->toDateString(),
-                ])
-                ->groupBy('ip_address')
-                ->orderByDesc('hits')
-                ->limit(2000)
-                ->get();
+                    ->orderByDesc('hits')
+                    ->limit(2000)
+                    ->get();
+            });
 
             $visitorMonthlyLabels = [];
             $visitorMonthlyData = [];
@@ -223,18 +233,32 @@ class DashboardController extends Controller
                 $month = now()->startOfMonth()->subMonths($i);
                 $start = $month->copy()->startOfMonth()->toDateString();
                 $end = $month->copy()->endOfMonth()->toDateString();
+                
+                $cacheKey = 'dashboard_visitor_month_loop_' . $month->format('Y_m');
+                $cacheLoopDuration = $month->isCurrentMonth() ? 600 : 86400 * 30;
+
+                $data = Cache::remember($cacheKey, $cacheLoopDuration, function () use ($start, $end) {
+                    $monthlyData = SiteVisitor::whereBetween('visit_date', [$start, $end])
+                        ->distinct('ip_address')
+                        ->count('ip_address');
+                    
+                    $returningData = \DB::table(function ($query) use ($start, $end) {
+                        $query->from('site_visitors')
+                            ->select('ip_address')
+                            ->whereBetween('visit_date', [$start, $end])
+                            ->groupBy('ip_address')
+                            ->havingRaw('COUNT(DISTINCT visit_date) >= 2');
+                    }, 'sub')->count();
+
+                    return [
+                        'monthly' => $monthlyData,
+                        'returning' => $returningData,
+                    ];
+                });
 
                 $visitorMonthlyLabels[] = $month->format('m/Y');
-                $visitorMonthlyData[] = SiteVisitor::whereBetween('visit_date', [$start, $end])
-                    ->distinct('ip_address')
-                    ->count('ip_address');
-                $returningVisitorMonthlyData[] = \DB::table(function ($query) use ($start, $end) {
-                    $query->from('site_visitors')
-                        ->select('ip_address')
-                        ->whereBetween('visit_date', [$start, $end])
-                        ->groupBy('ip_address')
-                        ->havingRaw('COUNT(DISTINCT visit_date) >= 2');
-                }, 'sub')->count();
+                $visitorMonthlyData[] = $data['monthly'];
+                $returningVisitorMonthlyData[] = $data['returning'];
             }
 
             // Historical Visit stats for the last 7 days
@@ -243,9 +267,20 @@ class DashboardController extends Controller
             $botChartData = [];
             for ($i = 6; $i >= 0; $i--) {
                 $d = now()->subDays($i)->format('Y-m-d');
+                
+                $cacheKeyDaily = 'dashboard_visit_log_daily_' . $d;
+                $cacheDailyDuration = ($i === 0) ? 600 : 86400 * 30;
+
+                $visitData = Cache::remember($cacheKeyDaily, $cacheDailyDuration, function () use ($d) {
+                    return [
+                        'total' => VisitLog::whereDate('created_at', $d)->count(),
+                        'bot' => VisitLog::whereDate('created_at', $d)->where('is_bot', true)->count(),
+                    ];
+                });
+
                 $visitChartLabels[] = now()->subDays($i)->format('d/m');
-                $visitChartData[] = VisitLog::whereDate('created_at', $d)->count();
-                $botChartData[] = VisitLog::whereDate('created_at', $d)->where('is_bot', true)->count();
+                $visitChartData[] = $visitData['total'];
+                $botChartData[] = $visitData['bot'];
             }
 
             // Monthly Activity Chart Data
