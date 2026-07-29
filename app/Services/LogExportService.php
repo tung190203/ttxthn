@@ -15,9 +15,10 @@ class LogExportService
      * @param bool $olderThan If true, export logs older than $months. If false, export logs within the last $months.
      * @param string|null $password
      * @param string $format 'csv' or 'excel'
+     * @param string $exportClass The class name of the export to run
      * @return array|null
      */
-    public function exportToZip($months = 3, $olderThan = true, $password = null, $format = 'csv')
+    public function exportToZip($months = 3, $olderThan = true, $password = null, $format = 'csv', $exportClass = \App\Exports\ActivityLogExport::class)
     {
         $dateStr = now()->format('Y_m_d_His');
         $extension = ($format === 'excel') ? 'xlsx' : 'csv';
@@ -35,8 +36,8 @@ class LogExportService
         $dataPath = $storagePath . '/' . $dataFileName;
         $zipPath = $storagePath . '/' . $zipFileName;
 
-        // Use ActivityLogExport for data generation
-        $export = new \App\Exports\ActivityLogExport($months, $olderThan);
+        // Use the provided Export class for data generation
+        $export = new $exportClass($months, $olderThan);
         
         // Quick check if there is data before proceeding
         if ($export->collection()->isEmpty()) {
