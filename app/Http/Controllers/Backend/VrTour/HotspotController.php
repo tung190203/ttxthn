@@ -79,9 +79,6 @@ class HotspotController extends Controller
                     $position = $hp['position'];
                     $existsHotspot = $existingHotspots->has($position);
                     $existsProject = $existingProjects->has($position);
-                    if ($existsHotspot && $existsProject) {
-                        continue;
-                    }
                     if (!$existsHotspot) {
                         $new_hp = new Hotspot;
                         $new_hp->vrtour_id = $vrtour_id;
@@ -95,26 +92,32 @@ class HotspotController extends Controller
                         $new_hp->user_id = Auth::id();
                         $new_hp->save();
                     }
-                    if (str_contains($position, 'cmss_') && !$existsProject) {
+                    if (str_starts_with($position, 'cmss_')) {
+                        $link = $link_vrtour
+                            . 'vista3d/search.html?search_link='
+                            . $link_vrtour
+                            . '?media-index=' . $media_index
+                            . '&hct=HOLDER_SELECT_LANGUAGE_CN2&trigger-overlay-name=' . $position
+                            . '&focus-overlay-name=' . $position
+                            . '&show-overlays-names=' . $position
+                            . '&skip-loading';
 
-                        $translations = [
-                            'vi' => $hp['tooltip'] ?? null,
-                            'en' => $hp['tooltip_en'] ?? null,
-                        ];
-
-                        IndustrialProject::create([
-                            'project_id' => $vrtour_id,
-                            'code'       => $position,
-                            'name'       => $vrtour->name,
-                            'acreage'    => $hp['acreage'] ?? null,
-                            'description' => $translations,
-                            'link'       => $link_vrtour . 'vista3d/search.html?search_link='
-                                . $link_vrtour . '?media-index=' . $media_index
-                                . '&hct=HOLDER_SELECT_LANGUAGE_CN2&trigger-overlay-name=' . $position
-                                . '&focus-overlay-name=' . $position
-                                . '&show-overlays-names=' . $position
-                                . '&skip-loading',
-                        ]);
+                        if (!$existsProject) {
+                            $translations = [
+                                'vi' => $hp['tooltip'] ?? null,
+                                'en' => $hp['tooltip_en'] ?? null,
+                            ];
+                            IndustrialProject::create([
+                                'project_id'  => $vrtour_id,
+                                'code'        => $position,
+                                'name'        => $vrtour->name,
+                                'acreage'     => $hp['acreage'] ?? null,
+                                'description' => $translations,
+                                'link'        => $link,
+                            ]);
+                        } else {
+                            IndustrialProject::where('project_id', $vrtour_id)->where('code', $position)->update(['link' => $link,]);
+                        }
                     }
                 }
                 Hotspot::where('vrtour_id', $vrtour_id)
@@ -172,13 +175,13 @@ class HotspotController extends Controller
             abort(403, self::MESSAGE_UNAUTHORIZED);
         }
         $hotspot = Hotspot::with([
-            'IndustrialProject.productType',
             'draft',
             'parent'
         ])->findOrFail($hotspot_id);
+        $industrialProject = IndustrialProject::with('productType')->where('code', $hotspot->potision)->where('project_id', $hotspot->vrtour_id)->first();
         $productType = ProductType::latest('id')->get();
 
-        $selected = old('product_type') ?: $hotspot->product_type ?: optional($hotspot->IndustrialProject)->product_type;
+        $selected = old('product_type') ?: $hotspot->product_type ?: optional($industrialProject)->product_type;
 
         $option_product_types = ProductType::makeOptions($productType, $selected);
         $hotspot_unit = Hotspot::makeUnitOptions($hotspot->unit);
@@ -192,7 +195,6 @@ class HotspotController extends Controller
                 'url'           => 'Ảnh',
                 'tooltip'       => 'Tooltip (VI)',
                 'tooltip_en'    => 'Tooltip (EN)',
-                'opacity'       => 'Opacity',
                 'acreage'       => 'Diện tích',
                 'unit'          => 'Đơn vị',
                 'intended_use'  => 'Mục đích sử dụng',
@@ -234,10 +236,7 @@ class HotspotController extends Controller
         $hotspot = Hotspot::findOrFail($hotspot_id);
 
         if ($user->is_super_admin) {
-
-            $main = $hotspot->parent_id
-                ? Hotspot::findOrFail($hotspot->parent_id)
-                : $hotspot;
+            $main = $hotspot->parent_id ? Hotspot::findOrFail($hotspot->parent_id) : $hotspot;
 
             $main->potision      = $request->hp_potision;
             $main->url           = $request->hp_url;
@@ -287,22 +286,21 @@ class HotspotController extends Controller
             return redirect()
                 ->to(route('backend_vrtour_hotspot_index') .
                     '?vrtour=' . $main->vrtour_id .
-                    '&type=' . ($main->type == 3 ? 1 : 0))
+                    '&type=' . ($main->type))
                 ->with('success', 'Đã duyệt và cập nhật Hotspot');
         }
 
         if (!$hotspot->is_draft) {
-
-            $draft = $hotspot->replicate();
-
-            $draft->parent_id = $hotspot->id;
-            $draft->is_draft = 1;
-            $draft->status = 'pending';
+            $draft = Hotspot::where('parent_id', $hotspot->id)->where('is_draft', 1)->first();
+            if (!$draft) {
+                $draft = $hotspot->replicate();
+                $draft->parent_id = $hotspot->id;
+                $draft->is_draft = 1;
+                $draft->status = 'pending';
+            }
             $draft->approval_level = $user->is_approve ? 1 : 0;
         } else {
-
             $draft = $hotspot;
-
             $draft->status = 'pending';
             $draft->approval_level = $user->is_approve ? 1 : 0;
         }
@@ -323,7 +321,7 @@ class HotspotController extends Controller
         return redirect()
             ->to(route('backend_vrtour_hotspot_index') .
                 '?vrtour=' . $draft->vrtour_id .
-                '&type=' . ($draft->type == 3 ? 1 : 0))
+                '&type=' . $draft->type)
             ->with(
                 'success',
                 $user->is_approve
