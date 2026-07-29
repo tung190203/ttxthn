@@ -126,6 +126,8 @@
                 }
 
                 for (const key in parentData) {
+                    if (key.toLowerCase().includes('slug')) continue;
+                    
                     const oldRawText = parentData[key] || '';
                     const newRawText = draftData[key] || '';
                     
