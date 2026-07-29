@@ -3,14 +3,14 @@
 namespace App\Exports;
 
 use App\Models\VisitLog;
-use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class VisitLogRotateExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithStyles
+class VisitLogRotateExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSize, WithStyles
 {
     protected $months;
     protected $olderThan;
@@ -21,7 +21,7 @@ class VisitLogRotateExport implements FromCollection, WithHeadings, WithMapping,
         $this->olderThan = $olderThan;
     }
 
-    public function collection()
+    public function query()
     {
         $query = VisitLog::query();
         
@@ -34,7 +34,7 @@ class VisitLogRotateExport implements FromCollection, WithHeadings, WithMapping,
             }
         }
 
-        return $query->orderBy('created_at', 'asc')->get();
+        return $query->orderBy('created_at', 'asc');
     }
 
     public function headings(): array

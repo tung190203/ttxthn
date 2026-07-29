@@ -3,14 +3,14 @@
 namespace App\Exports;
 
 use App\Models\SiteVisitor;
-use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class SiteVisitorRotateExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithStyles
+class SiteVisitorRotateExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSize, WithStyles
 {
     protected $months;
     protected $olderThan;
@@ -21,7 +21,7 @@ class SiteVisitorRotateExport implements FromCollection, WithHeadings, WithMappi
         $this->olderThan = $olderThan;
     }
 
-    public function collection()
+    public function query()
     {
         $query = SiteVisitor::query();
         
@@ -34,7 +34,7 @@ class SiteVisitorRotateExport implements FromCollection, WithHeadings, WithMappi
             }
         }
 
-        return $query->orderBy('visit_date', 'asc')->get();
+        return $query->orderBy('visit_date', 'asc');
     }
 
     public function headings(): array
