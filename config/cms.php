@@ -57,15 +57,15 @@ return [
                    'title' => 'VrTour',
                    'items' => [
                        'skin' => [
-                           'title' => 'Skin',
+                           'title' => 'Skin(Nội dung popup)',
                            'route' => 'backend_vrtour_skin_index',
                        ],
                        'hotspot' => [
-                           'title' => 'Hotspot',
+                           'title' => 'Hotspot(Nội dung lô đất)',
                            'route' => 'backend_vrtour_hotspot_index',
                        ],
                        'content' => [
-                           'title' => 'Nội dung',
+                           'title' => 'Nội dung toàn cảnh',
                            'route' => 'backend_vrtour_content_index',
                        ]
                    ]
