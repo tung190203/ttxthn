@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Investor extends Model
 {
+    use LogsActivity;
     protected $table = "investor";
     protected $fillable = [
         'vrtour_id',
@@ -29,5 +32,9 @@ class Investor extends Model
         return $this->hasOne(SkinApproval::class, 'record_id')
             ->where('type', SkinApproval::TYPE_INVESTOR)
             ->where('status', 'pending');
+    }
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()->logFillable()->logOnlyDirty()->dontSubmitEmptyLogs();
     }
 }

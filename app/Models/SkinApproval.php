@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class SkinApproval extends Model
 {
+    use LogsActivity;
     protected $fillable = [
         'vrtour_id',
         'type',
@@ -17,6 +20,10 @@ class SkinApproval extends Model
         'is_draft',
         'status',
     ];
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()->logFillable()->logOnlyDirty()->dontSubmitEmptyLogs();
+    }
     public const TYPE_ALL = 0;
     public const TYPE_WELCOME = 1;
     public const TYPE_CONNECT_MAP = 3;
@@ -41,6 +48,27 @@ class SkinApproval extends Model
     }
     public function welcomeScreen()
     {
-        return $this->belongsTo(WelcomeScreen::class, 'record_id')->where('type', 1);
+        return $this->belongsTo(WelcomeScreen::class, 'record_id')->where('type', self::TYPE_WELCOME);
+    }
+    public function connectMap()
+    {
+        return $this->belongsTo(ConnectMap::class, 'record_id');
+    }
+
+    public function plan()
+    {
+        return $this->belongsTo(Plan::class, 'record_id');
+    }
+    public function investor()
+    {
+        return $this->belongsTo(Investor::class, 'record_id');
+    }
+    public function location()
+    {
+        return $this->belongsTo(Project::class, 'record_id');
+    }
+    public function legalDocument()
+    {
+        return $this->belongsTo(LegalDocument::class, 'record_id');
     }
 }
