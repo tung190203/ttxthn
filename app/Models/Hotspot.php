@@ -4,9 +4,11 @@ namespace App\Models;
 
 use Illuminate\Support\HtmlString;
 use Illuminate\Database\Eloquent\Model;
-
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 class Hotspot extends Model
 {
+    use LogsActivity;
     protected $table = "hotspot";
     protected $fillable = [
         'vrtour_id',
@@ -27,6 +29,10 @@ class Hotspot extends Model
         'parent_id',
         'status',
     ];
+     public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()->logFillable()->logOnlyDirty()->dontSubmitEmptyLogs();
+    }
 
     public function draft()
     {

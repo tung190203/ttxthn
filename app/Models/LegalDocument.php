@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class LegalDocument extends Model
 {
+    use LogsActivity;
     protected $table = "legal_document";
 
     protected $fillable = [
@@ -14,13 +17,13 @@ class LegalDocument extends Model
         'name_en',
         'download',
         'user_id',
-        'extracted_text',
-        'extracted_summary',
-        'extracted_language',
-        'extracted_at',
     ];
     public function pendingSkinApproval()
     {
         return $this->hasOne(SkinApproval::class, 'record_id')->where('type', SkinApproval::TYPE_DOCUMENT)->where('status', 'pending');
+    }
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()->logFillable()->logOnlyDirty()->dontSubmitEmptyLogs();
     }
 }

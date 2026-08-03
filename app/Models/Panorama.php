@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Panorama extends Model
 {
+    use  LogsActivity;
     protected $table = "panorama";
     protected $fillable = [
         'vrtour_id',
@@ -24,6 +27,11 @@ class Panorama extends Model
         'parent_id',
         'status',
     ];
+
+     public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()->logFillable()->logOnlyDirty()->dontSubmitEmptyLogs();
+    }
     public function draft()
     {
         return $this->hasOne(Panorama::class, 'parent_id');
