@@ -47,16 +47,16 @@
                     </td>
                     <td>
                         @if ($activity->properties && count($activity->properties) > 0)
-                            <button type="button" class="btn btn-xs btn-outline-info" data-toggle="modal"
+                            <button type="button" class="btn btn-xs btn-outline-warning" data-toggle="modal"
                                 data-target="#activity-{{ $activity->id }}">
-                                <i class="fas fa-eye"></i> Xem
+                                <i class="fas fa-exchange-alt"></i> Xem thay đổi
                             </button>
                             <div class="modal fade" id="activity-{{ $activity->id }}" tabindex="-1" role="dialog"
                                 aria-hidden="true">
-                                <div class="modal-dialog modal-lg" role="document">
+                                <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
                                     <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title">Chi tiết thay đổi</h5>
+                                        <div class="modal-header bg-warning text-dark">
+                                            <h5 class="modal-title">So sánh thay đổi</h5>
                                             <button type="button" class="close" data-dismiss="modal"
                                                 aria-label="Close">
                                                 <span aria-hidden="true">&times;</span>
@@ -119,68 +119,73 @@
                                             @endphp
 
                                             @if ($attributes)
-                                                <table class="table table-sm table-bordered"
-                                                    style="white-space: normal; table-layout: fixed; width: 100%;">
-                                                    <thead class="bg-light">
-                                                        <tr>
-                                                            <th style="width: 30%;">Trường</th>
-                                                            @if ($old)
-                                                                <th style="width: 35%;">Giá trị cũ</th>
-                                                            @endif
-                                                            <th style="width: {{ $old ? '35%' : '70%' }};">Giá trị mới
-                                                            </th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        @foreach ($attributes as $key => $value)
-                                                            @if ($key == 'updated_at' || $key == 'created_at') @continue @endif
-                                                            @if ($key == 'payload')
+                                                <div class="activity-diff-wrapper">
+                                                    @foreach ($attributes as $key => $value)
+                                                        @if ($key == 'updated_at' || $key == 'created_at') @continue @endif
+                                                        
+                                                        @if ($key == 'payload')
+                                                            @php
+                                                                $oldPayload = [];
+                                                                if ($old && isset($old['payload'])) {
+                                                                    $oldPayload = is_array($old['payload']) ? $old['payload'] : json_decode($old['payload'], true);
+                                                                }
+                                                                $newPayload = is_array($value) ? $value : json_decode($value, true);
+                                                            @endphp
+                                                            @foreach ($newPayload as $payloadKey => $payloadValue)
                                                                 @php
-                                                                    $oldPayload = [];
-                                                                    if ($old && isset($old['payload'])) {
-                                                                        $oldPayload = is_array($old['payload']) ? $old['payload'] : json_decode($old['payload'], true);
-                                                                    }
-                                                                    $newPayload = is_array($value) ? $value : json_decode($value, true);
+                                                                    $oldValue = $oldPayload[$payloadKey] ?? [];
                                                                 @endphp
-                                                                @foreach ($newPayload as $payloadKey => $payloadValue)
-                                                                    @php
-                                                                        $oldValue = $oldPayload[$payloadKey] ?? [];
-                                                                    @endphp
-                                                                    @if (is_array($payloadValue))
-                                                                        <tr>
-                                                                            <td colspan="3" class="bg-light font-weight-bold">
-                                                                                Văn bản số {{ $payloadKey + 1 }}
-                                                                            </td>
-                                                                        </tr>
-                                                                        @foreach ($payloadValue as $field => $fieldValue)
-                                                                            @if (($oldValue[$field] ?? null) != $fieldValue)
-                                                                                <tr>
-                                                                                    <td>
-                                                                                        {{ $translations[$field] ?? $field }}
-                                                                                    </td>
-                                                                                    <td class="text-muted">
-                                                                                        {{ is_array($oldValue[$field] ?? null) ? json_encode($oldValue[$field], JSON_UNESCAPED_UNICODE) : $oldValue[$field] ?? '' }}
-                                                                                    </td>
-                                                                                    <td class="text-success">
-                                                                                        {{ is_array($fieldValue) ? json_encode($fieldValue, JSON_UNESCAPED_UNICODE) : $fieldValue }}
-                                                                                    </td>
-                                                                                </tr>
-                                                                            @endif
-                                                                        @endforeach
-                                                                    @endif
-                                                                @endforeach
-                                                            @else
-                                                                <tr>
-                                                                    <td class="font-weight-bold">{{ $translations[$key] ?? $key }}</td>
-                                                                    @if ($old)
-                                                                        <td class="text-muted" style="word-break: break-word;">{{ formatLogValue($old[$key]) }}</td>
-                                                                    @endif
-                                                                    <td class="text-success" style="word-break: break-word;">{{ formatLogValue($value) }}</td>
-                                                                </tr>
+                                                                @if (is_array($payloadValue))
+                                                                    @foreach ($payloadValue as $field => $fieldValue)
+                                                                        @if (($oldValue[$field] ?? null) != $fieldValue)
+                                                                            @php
+                                                                                $oVal = is_array($oldValue[$field] ?? null) ? json_encode($oldValue[$field], JSON_UNESCAPED_UNICODE) : $oldValue[$field] ?? '';
+                                                                                $nVal = is_array($fieldValue) ? json_encode($fieldValue, JSON_UNESCAPED_UNICODE) : $fieldValue;
+                                                                            @endphp
+                                                                            <div class="diff-container diff-pending-render">
+                                                                                <div class="diff-header">Payload (Văn bản số {{ $payloadKey + 1 }}) - {{ $translations[$field] ?? $field }}</div>
+                                                                                <div class="d-none raw-old">{{ $oVal }}</div>
+                                                                                <div class="d-none raw-new">{{ $nVal }}</div>
+                                                                                <div style="display: grid; grid-template-columns: 1fr 1fr;">
+                                                                                    <div class="p-3 border-right diff-col bg-light">
+                                                                                        <div class="text-muted mb-2 border-bottom pb-1"><strong><i class="fas fa-file-alt"></i> Giá trị cũ</strong></div>
+                                                                                        <div class="diff-left"></div>
+                                                                                    </div>
+                                                                                    <div class="p-3 diff-col">
+                                                                                        <div class="text-primary mb-2 border-bottom pb-1"><strong><i class="fas fa-edit"></i> Giá trị mới</strong></div>
+                                                                                        <div class="diff-right"></div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        @endif
+                                                                    @endforeach
+                                                                @endif
+                                                            @endforeach
+                                                        @else
+                                                            @php
+                                                                $oVal = $old ? formatLogValue($old[$key]) : '';
+                                                                $nVal = formatLogValue($value);
+                                                            @endphp
+                                                            @if ($oVal != $nVal)
+                                                                <div class="diff-container diff-pending-render">
+                                                                    <div class="diff-header">{{ $translations[$key] ?? $key }}</div>
+                                                                    <div class="d-none raw-old">{{ $oVal }}</div>
+                                                                    <div class="d-none raw-new">{{ $nVal }}</div>
+                                                                    <div style="display: grid; grid-template-columns: 1fr 1fr;">
+                                                                        <div class="p-3 border-right diff-col bg-light">
+                                                                            <div class="text-muted mb-2 border-bottom pb-1"><strong><i class="fas fa-file-alt"></i> Giá trị cũ</strong></div>
+                                                                            <div class="diff-left"></div>
+                                                                        </div>
+                                                                        <div class="p-3 diff-col">
+                                                                            <div class="text-primary mb-2 border-bottom pb-1"><strong><i class="fas fa-edit"></i> Giá trị mới</strong></div>
+                                                                            <div class="diff-right"></div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
                                                             @endif
-                                                        @endforeach
-                                                    </tbody>
-                                                </table>
+                                                        @endif
+                                                    @endforeach
+                                                </div>
                                             @endif
 
                                             @php
@@ -188,14 +193,14 @@
                                             @endphp
 
                                             @if ($otherProps->isNotEmpty())
-                                                <div class="mt-3">
+                                                <div class="mt-3 p-3 bg-light rounded border">
                                                     <h6 class="font-weight-bold">Thông tin bổ sung:</h6>
-                                                    <ul class="list-unstyled">
+                                                    <ul class="list-unstyled mb-0">
                                                         @foreach ($otherProps as $key => $value)
                                                             <li
                                                                 style="word-break: break-word; overflow-wrap: anywhere;">
                                                                 <strong>{{ $translations[$key] ?? $key }}:</strong>
-                                                                {{ $value }}
+                                                                {{ is_array($value) ? json_encode($value, JSON_UNESCAPED_UNICODE) : $value }}
                                                             </li>
                                                         @endforeach
                                                     </ul>
@@ -227,3 +232,84 @@
         {{ $activities->links() }}
     </div>
 </div>
+
+@once
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsdiff/5.1.0/diff.min.js"></script>
+<style>
+    .diff-added { background-color: #e6ffed; color: #22863a; text-decoration: none; font-weight: bold; }
+    .diff-removed { background-color: #ffeef0; color: #cb2431; text-decoration: line-through; }
+    .diff-container { border: 1px solid #ddd; margin-bottom: 20px; border-radius: 4px; overflow: hidden; }
+    .diff-header { background: #f6f8fa; padding: 10px; font-weight: bold; border-bottom: 1px solid #ddd; }
+    .diff-col { white-space: pre-wrap; font-family: 'Courier New', Courier, monospace; word-break: break-word; font-size: 14px; }
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        function formatTextForDiff(text) {
+            if (!text) return '';
+            let str = String(text);
+            try {
+                let arr = JSON.parse(str);
+                if (Array.isArray(arr)) {
+                    str = arr.join('\n');
+                } else if (typeof arr === 'object') {
+                    str = JSON.stringify(arr, null, 2);
+                }
+            } catch (e) {
+                if (str.includes(';')) {
+                    if (!/<[a-z][\s\S]*>/i.test(str) && !/&[a-z0-9#]+;/i.test(str)) {
+                        str = str.split(';').map(s => s.trim()).filter(s => s).join('\n');
+                    }
+                }
+            }
+            try { str = decodeURIComponent(str); } catch (e) {}
+            if (/<[a-z][\s\S]*>/i.test(str) || /&[a-z0-9#]+;/i.test(str)) {
+                let tmp = str;
+                tmp = tmp.replace(/<br\s*[\/]?>/gi, '\n');
+                tmp = tmp.replace(/<\/p>|<\/div>|<\/li>|<\/h[1-6]>/gi, '\n');
+                tmp = tmp.replace(/<[^>]+>/g, '');
+                try {
+                    let doc = new DOMParser().parseFromString(tmp, "text/html");
+                    str = doc.documentElement.textContent;
+                } catch(e) {}
+            }
+            return str;
+        }
+
+        // Render when modal opens
+        $('.modal').on('show.bs.modal', function () {
+            let $modal = $(this);
+            if (typeof Diff === 'undefined') return;
+            
+            $modal.find('.diff-pending-render').each(function() {
+                let $container = $(this);
+                let oldRaw = $container.find('.raw-old').text();
+                let newRaw = $container.find('.raw-new').text();
+                
+                let oldText = formatTextForDiff(oldRaw);
+                let newText = formatTextForDiff(newRaw);
+                
+                const diff = Diff.diffWordsWithSpace(String(oldText), String(newText));
+                let leftTextHtml = '';
+                let rightTextHtml = '';
+                
+                diff.forEach((part) => {
+                    let val = part.value.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+                    if (part.added) {
+                        rightTextHtml += `<ins class="diff-added">${val}</ins>`;
+                    } else if (part.removed) {
+                        leftTextHtml += `<del class="diff-removed">${val}</del>`;
+                    } else {
+                        leftTextHtml += `<span>${val}</span>`;
+                        rightTextHtml += `<span>${val}</span>`;
+                    }
+                });
+                
+                $container.find('.diff-left').html(leftTextHtml);
+                $container.find('.diff-right').html(rightTextHtml);
+                
+                $container.removeClass('diff-pending-render');
+            });
+        });
+    });
+</script>
+@endonce
