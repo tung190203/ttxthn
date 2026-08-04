@@ -43,13 +43,14 @@ class PostController extends Controller
         $this->selectedSubMenu('post');
         $category = new Category();
         $category->getParentArray();
+        
+        $activeTab = $request->get('tab', 'approved');
 
         $filter['name'] = $request->get('name', '');
         $filter['cat_id'] = $request->get('cat_id', 0);
         $filter['status'] = $request->get('status', -1);
         $query = $this->post->with(['category', 'user'])
             ->visibleFor(auth('web')->user())
-            ->orderByRaw("CASE WHEN status_approve IN ('pending', 'pending_delete') THEN 1 ELSE 2 END ASC")
             ->orderBy('id', 'desc');
         if ($filter['name'] !== '') {
             $query->where('name', 'like', '%' . $filter['name'] . '%');
@@ -71,6 +72,14 @@ class PostController extends Controller
         $scope = $user->getScope('post');
         if (!empty($scope)) {
             $query->whereIn('id', $scope);
+        }
+
+        $pendingCount = (clone $query)->whereIn('status_approve', ['pending', 'pending_delete'])->count();
+
+        if ($activeTab === 'pending') {
+            $query->whereIn('status_approve', ['pending', 'pending_delete']);
+        } else {
+            $query->whereNotIn('status_approve', ['pending', 'pending_delete']);
         }
 
         $posts = $query->paginate(20);
@@ -118,7 +127,7 @@ class PostController extends Controller
 
         $dataGrid = $clsDataGrid->showDataGrid($posts, $paginate, $posts->total());
 
-        return view('backend.post.index', compact('posts', 'filter', 'options', 'dataGrid'));
+        return view('backend.post.index', compact('posts', 'filter', 'options', 'dataGrid', 'activeTab', 'pendingCount'));
     }
 
     public function saveDataIndex(Request $request)
@@ -509,6 +518,10 @@ class PostController extends Controller
                             $post->projects()->sync($request->input('projects'));
                         } else {
                             $post->projects()->detach();
+                        }
+
+                        if (Gate::allows('post/add')) {
+                            $this->addPostToScope($user, $post->id);
                         }
                     }
                 }
@@ -912,8 +925,8 @@ class PostController extends Controller
         $scopeData = $group->scope_data ?? [];
         $resource = 'post';
 
-        if (empty($scopeData[$resource])) {
-            return;
+        if (!isset($scopeData[$resource])) {
+            $scopeData[$resource] = [];
         }
 
         if (!in_array((string)$postId, $scopeData[$resource])) {

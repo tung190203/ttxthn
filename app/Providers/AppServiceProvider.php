@@ -84,5 +84,70 @@ class AppServiceProvider extends ServiceProvider
                     $query->where('is_super_admin', false);
                 })->get());
         });
+
+        // Sidebar View Composer
+        View::composer('backend.blocks.sidebar', function ($view) {
+            $user = auth('web')->user();
+            if (!$user) return;
+            
+            $pendingCounts = [
+                'project' => Project::visibleFor($user)->whereIn('status', ['pending', 'pending_delete'])->count(),
+                'post' => Post::visibleFor($user)->whereIn('status_approve', ['pending', 'pending_delete'])->count(),
+                'category' => Category::visibleFor($user)->whereIn('status_approve', ['pending', 'pending_delete'])->count(),
+                'user' => User::visibleFor($user)->whereIn('status_approve', ['pending', 'pending_delete'])->count(),
+                'popup' => Popup::visibleFor($user)->whereIn('status_approve', ['pending', 'pending_delete'])->count(),
+                'menu' => Menu::visibleFor($user)->whereIn('status_approve', ['pending', 'pending_delete'])->count(),
+                'investment_guide' => InvestmentGuide::visibleFor($user)->whereIn('status_approve', ['pending', 'pending_delete'])->count(),
+            ];
+
+            $view->with('pendingCounts', $pendingCounts);
+        });
+
+        // Notifications Event Listeners
+        $notifyModels = [
+            'project' => Project::class,
+            'post' => Post::class,
+            'category' => Category::class,
+            'user' => User::class,
+            'popup' => Popup::class,
+            'menu' => Menu::class,
+            'investment_guide' => InvestmentGuide::class,
+        ];
+
+        foreach ($notifyModels as $module => $class) {
+            $class::saved(function ($model) use ($module) {
+                // Prevent duplicate notifications during the same request if needed
+                // But for now, rely on isDirty
+                $statusField = $module === 'project' ? 'status' : 'status_approve';
+                
+                // Only trigger if status changed to pending/pending_delete
+                if ($model->isDirty($statusField) || $model->wasRecentlyCreated) {
+                    $status = $model->{$statusField};
+                    if (in_array($status, ['pending', 'pending_delete'])) {
+                        $action = $status === 'pending' ? 'chờ duyệt' : 'yêu cầu xóa';
+                        
+                        $moduleNames = [
+                            'project' => 'Dự án',
+                            'post' => 'Tin tức',
+                            'category' => 'Danh mục',
+                            'user' => 'Người dùng',
+                            'popup' => 'Popup',
+                            'menu' => 'Menu',
+                            'investment_guide' => 'Cẩm nang đầu tư',
+                        ];
+                        $moduleNameVn = $moduleNames[$module] ?? $module;
+
+                        $itemName = $model->name ?? ($model->title ?? 'Không tên');
+                        if (is_array($itemName)) {
+                            $itemName = $itemName['vi'] ?? reset($itemName);
+                        }
+                        $message = "Có <b>{$moduleNameVn}</b> mới đang {$action}: " . \Illuminate\Support\Str::limit($itemName, 60);
+                        
+                        $url = route("backend_{$module}_edit", $model->id);
+                        User::notifyApprovers($module, $message, $url);
+                    }
+                }
+            });
+        }
     }
 }

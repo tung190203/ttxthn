@@ -17,6 +17,7 @@
                 <div class="col-xl-3"></div>
                 <div class="col-xl-6 text-center">
                     <form action="" method="GET" class="form-filter-top-index">
+                        <input type="hidden" name="tab" value="{{ $activeTab ?? 'approved' }}">
                         <div class="row">
                             <div class="col-md-3">
                                 <div class="form-group">
@@ -63,6 +64,23 @@
                     </div>
                 </div>
             </div>
+            
+            <ul class="nav nav-tabs mb-3" id="custom-tabs-two-tab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link {{ ($activeTab ?? 'approved') == 'approved' ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['tab' => 'approved', 'page' => 1]) }}">
+                        Đã duyệt
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ ($activeTab ?? '') == 'pending' ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['tab' => 'pending', 'page' => 1]) }}">
+                        Chờ duyệt
+                        @if(($pendingCount ?? 0) > 0)
+                            <span class="badge badge-danger ml-1">{{ $pendingCount }}</span>
+                        @endif
+                    </a>
+                </li>
+            </ul>
+
             <form method="post" action="{{ route('backend_post_save_data_index') }}" id="formDataGrid">
                 {{ csrf_field() }}
                 <div class="row">

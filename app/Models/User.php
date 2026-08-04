@@ -242,4 +242,17 @@ class User extends Authenticatable
             }
         });
     }
+
+    public static function notifyApprovers($module, $message, $url)
+    {
+        $approvers = self::where('status', self::STATUS_ACTIVE)
+            ->where(function ($q) use ($module) {
+                $q->where('is_super_admin', 1)
+                  ->orWhereHas('group', function ($q2) use ($module) {
+                      $q2->where('permission_data', 'LIKE', '%"' . $module . '/approve"%');
+                  });
+            })->get();
+        
+        \Illuminate\Support\Facades\Notification::send($approvers, new \App\Notifications\PendingApprovalNotification($module, $message, $url));
+    }
 }

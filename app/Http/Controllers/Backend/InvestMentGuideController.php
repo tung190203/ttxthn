@@ -41,12 +41,12 @@ class InvestMentGuideController extends Controller
         $category = new Category();
         $category->getParentArray();
 
+        $activeTab = $request->get('tab', 'approved');
         $filter['name'] = $request->get('name', '');
         $filter['cat_id'] = $request->get('cat_id', 0);
         $filter['status'] = $request->get('status', -1);
         $query = $this->investment_guide->with(['category', 'user'])
         ->visibleFor(auth('web')->user())
-        ->orderByRaw("CASE WHEN status_approve IN ('pending', 'pending_delete') THEN 1 ELSE 2 END ASC")
         ->orderBy('id', 'desc');
         if ($filter['name'] !== '') {
             $query->where('name', 'like', '%' . $filter['name'] . '%');
@@ -69,6 +69,14 @@ class InvestMentGuideController extends Controller
         $scope = $user->getScope('investment_guide');
         if (!empty($scope)) {
             $query->whereIn('id', $scope);
+        }
+
+        $pendingCount = (clone $query)->whereIn('status_approve', ['pending', 'pending_delete'])->count();
+
+        if ($activeTab === 'pending') {
+            $query->whereIn('status_approve', ['pending', 'pending_delete']);
+        } else {
+            $query->whereNotIn('status_approve', ['pending', 'pending_delete']);
         }
 
         $investment_guides = $query->paginate(20);
@@ -117,7 +125,7 @@ class InvestMentGuideController extends Controller
 
         $dataGrid = $clsDataGrid->showDataGrid($investment_guides, $paginate, $investment_guides->total());
 
-        return view('backend.investment_guide.index', compact('investment_guides', 'filter', 'options', 'dataGrid'));
+        return view('backend.investment_guide.index', compact('investment_guides', 'filter', 'options', 'dataGrid', 'activeTab', 'pendingCount'));
     }
 
     public function saveDataIndex(Request $request)
@@ -528,6 +536,10 @@ public function save(InvestmentGuide $investment_guide, Request $request)
                     } else {
                         $investment_guide->projects()->detach();
                     }
+
+                    if (Gate::allows('investment_guide/add')) {
+                        $this->addInvestmentGuideToScope($user, $investment_guide->id);
+                    }
                 }
             }
         }
@@ -935,8 +947,8 @@ public function save(InvestmentGuide $investment_guide, Request $request)
         $scopeData = $group->scope_data ?? [];
         $resource = 'investment_guide';
 
-        if (empty($scopeData[$resource])) {
-            return;
+        if (!isset($scopeData[$resource])) {
+            $scopeData[$resource] = [];
         }
 
         if (!in_array((string)$investment_guideId, $scopeData[$resource])) {

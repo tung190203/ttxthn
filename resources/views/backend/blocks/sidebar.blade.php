@@ -26,6 +26,9 @@
                         <i class="nav-icon {{ $backend_items['icon'] }}"></i>
                         <p>
                             {{ $backend_items['title'] }}
+                            @if(isset($pendingCounts[$backend_parent_key]) && $pendingCounts[$backend_parent_key] > 0)
+                                <span class="badge badge-danger right" style="right: 2.5rem;">{{ $pendingCounts[$backend_parent_key] }}</span>
+                            @endif
                             <i class="fas fa-angle-left right"></i>
                         </p>
                     </a>
@@ -53,7 +56,12 @@
                     <a href="{{ route($backend_items['route']) }}"
                         class="nav-link @if($selectedMainMenu == $backend_parent_key) active @endif">
                         <i class="nav-icon {{ $backend_items['icon'] }}"></i>
-                        <p>{{ $backend_items['title'] }}</p>
+                        <p>
+                            {{ $backend_items['title'] }}
+                            @if(isset($pendingCounts[$backend_parent_key]) && $pendingCounts[$backend_parent_key] > 0)
+                                <span class="badge badge-danger right">{{ $pendingCounts[$backend_parent_key] }}</span>
+                            @endif
+                        </p>
                     </a>
                 </li>
                 @endcan

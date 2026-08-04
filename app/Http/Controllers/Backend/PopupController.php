@@ -30,14 +30,23 @@ class PopupController extends Controller
     {
         $paginate = 20;
         $user = auth('web')->user();
+        $activeTab = $request->get('tab', 'approved');
         $query = $this->popup
         ->visibleFor($user)
-        ->orderByRaw("CASE WHEN status_approve IN ('pending', 'pending_delete') THEN 1 ELSE 2 END ASC")
         ->orderBy('id', 'desc');
         $scope = $user->getScope('popup');
         if (!empty($scope)) {
             $query->whereIn('id', $scope);
         }
+
+        $pendingCount = (clone $query)->whereIn('status_approve', ['pending', 'pending_delete'])->count();
+
+        if ($activeTab === 'pending') {
+            $query->whereIn('status_approve', ['pending', 'pending_delete']);
+        } else {
+            $query->whereNotIn('status_approve', ['pending', 'pending_delete']);
+        }
+
         $popups = $query->paginate($paginate);
         $this->selectedSubMenu('popup');
         $option_column_button = Popup::makeOptionColumnButton();
@@ -79,7 +88,9 @@ class PopupController extends Controller
         return view('backend.popup.index',
             compact(
                 'popups',
-                'dataGrid'
+                'dataGrid',
+                'activeTab',
+                'pendingCount'
             )
         );
     }
@@ -197,6 +208,10 @@ class PopupController extends Controller
                         $popup->status_approve = 'pending';
                         $popup->approval_level = $user->is_approve ? 1 : 0;
                         $popup->save();
+
+                        if (Gate::allows('popup/add')) {
+                            $this->addPopupToScope($user, $popup->id);
+                        }
                     }
                 }
             }

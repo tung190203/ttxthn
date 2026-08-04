@@ -32,12 +32,12 @@ class UserController extends Controller
     {
         $user = Auth::guard('web')->user();
         $paginate = 20;
+        $activeTab = $request->get('tab', 'approved');
 
         $query = $this->user
             ->where('id', '<>', User::ROOT_ADMIN_ID)
             ->where('id', '<>', $user->id)
             ->visibleFor($user)
-            ->orderByRaw("CASE WHEN status_approve IN ('pending', 'pending_delete') THEN 1 ELSE 2 END ASC")
             ->orderBy('id', 'desc');
 
         if (!$user->isSuperAdmin()) {
@@ -49,6 +49,14 @@ class UserController extends Controller
         $scope = $user->getScope('user');
         if (!empty($scope)) {
             $query->whereIn('id', $scope);
+        }
+
+        $pendingCount = (clone $query)->whereIn('status_approve', ['pending', 'pending_delete'])->count();
+
+        if ($activeTab === 'pending') {
+            $query->whereIn('status_approve', ['pending', 'pending_delete']);
+        } else {
+            $query->whereNotIn('status_approve', ['pending', 'pending_delete']);
         }
 
         $users = $query->paginate($paginate);
@@ -91,7 +99,7 @@ class UserController extends Controller
 
         $dataGrid = $clsDataGrid->showDataGrid($users, $paginate, $users->total());
 
-        return view('backend.user.index', compact('users', 'dataGrid'));
+        return view('backend.user.index', compact('users', 'dataGrid', 'activeTab', 'pendingCount'));
     }
 
     public function edit(User $user)
@@ -274,6 +282,10 @@ class UserController extends Controller
                         $user->status_approve = 'pending';
                         $user->approval_level = $checkUser->is_approve ? 1 : 0;
                         $user->save();
+
+                        if (Gate::allows('user/add')) {
+                            $this->addUserToScope($checkUser, $user->id);
+                        }
                     }
                 }
             }
@@ -426,8 +438,8 @@ class UserController extends Controller
         $scopeData = $group->scope_data ?? [];
         $resource = 'user';
 
-        if (empty($scopeData[$resource])) {
-            return;
+        if (!isset($scopeData[$resource])) {
+            $scopeData[$resource] = [];
         }
 
         if (!in_array((string)$userId, $scopeData[$resource])) {

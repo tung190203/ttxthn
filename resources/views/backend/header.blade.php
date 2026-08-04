@@ -16,6 +16,36 @@
             </a>
         </li>
         <li class="nav-item dropdown">
+            <a class="nav-link" data-toggle="dropdown" href="#" aria-expanded="false">
+                <i class="far fa-bell"></i>
+                @if(Auth::check() && Auth::user()->unreadNotifications->count() > 0)
+                <span class="badge badge-warning navbar-badge">{{ Auth::user()->unreadNotifications->count() }}</span>
+                @endif
+            </a>
+            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right" style="min-width: 320px;">
+                @if(Auth::check() && Auth::user()->unreadNotifications->count() > 0)
+                <span class="dropdown-item dropdown-header">{{ Auth::user()->unreadNotifications->count() }} thông báo chưa đọc</span>
+                <div class="dropdown-divider"></div>
+                @foreach(Auth::user()->unreadNotifications->take(5) as $notification)
+                <a href="{{ route('backend_notification_read', $notification->id) }}" class="dropdown-item">
+                    <div class="media">
+                        <div class="media-body">
+                            <p class="text-sm" style="white-space: normal; line-height: 1.5; margin-bottom: 0;">
+                                <i class="fas fa-circle text-warning mr-1" style="font-size: 10px;"></i> {!! $notification->data['message'] ?? 'Có thông báo mới' !!}
+                            </p>
+                            <p class="text-sm text-muted mt-1 mb-0"><i class="far fa-clock mr-1"></i> {{ $notification->created_at->diffForHumans() }}</p>
+                        </div>
+                    </div>
+                </a>
+                <div class="dropdown-divider"></div>
+                @endforeach
+                <a href="{{ route('backend_notification_read_all') }}" class="dropdown-item dropdown-footer text-center">Đánh dấu đã đọc tất cả</a>
+                @else
+                <span class="dropdown-item dropdown-header">Không có thông báo mới</span>
+                @endif
+            </div>
+        </li>
+        <li class="nav-item dropdown">
             <a class="nav-link hmg-navbar-profile" data-toggle="dropdown" href="#!" title="Profiles">
                 <img src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : asset('backend_assets/images/logo.png') }}"
                     alt="User Avatar"
