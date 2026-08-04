@@ -13,6 +13,7 @@ use App\Http\Controllers\Backend\UserController;
 use App\Http\Controllers\Backend\GroupController;
 use App\Http\Controllers\Backend\GuestController;
 use App\Http\Controllers\Backend\InvestMentGuideController;
+use App\Http\Controllers\Backend\NotificationController;
 use App\Http\Controllers\Backend\VrTour\SkinController;
 use App\Http\Controllers\Backend\VrTour\HotspotController;
 use App\Http\Controllers\Backend\VrTour\ContentController;
@@ -175,6 +176,11 @@ Route::localized(function () {
             Route::get('delete/{user}', [UserController::class, 'delete'])->name('backend_user_delete');
             Route::post('approve/{user}', [UserController::class, 'approve'])->name('backend_user_approve');
             Route::post('/reject/{user}', [UserController::class, 'reject'])->name('backend_user_reject');
+        });
+
+        Route::prefix('notification')->group(function () {
+            Route::get('/read-all', [NotificationController::class, 'readAll'])->name('backend_notification_read_all');
+            Route::get('/read/{id}', [NotificationController::class, 'read'])->name('backend_notification_read');
         });
 
         Route::prefix('group')->group(function () {

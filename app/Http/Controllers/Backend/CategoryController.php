@@ -39,9 +39,9 @@ class CategoryController extends Controller
         }
         $type = session('category_type', Category::CATEGORY_TYPE_POST);
         $filter['name'] = $request->get('name', '');
+        $activeTab = $request->get('tab', 'approved');
         $query = $this->category
         ->visibleFor(auth('web')->user())
-        ->orderByRaw("CASE WHEN status_approve IN ('pending', 'pending_delete') THEN 1 ELSE 2 END ASC")
         ->orderBy('name');    
         if (!empty($filter['name'])) {
             $query->where('name', 'like', '%' . $filter['name'] . '%');
@@ -54,6 +54,14 @@ class CategoryController extends Controller
         $scope = $user->getScope('category');
         if (!empty($scope)) {
             $query->whereIn('id', $scope);
+        }
+
+        $pendingCount = (clone $query)->whereIn('status_approve', ['pending', 'pending_delete'])->count();
+
+        if ($activeTab === 'pending') {
+            $query->whereIn('status_approve', ['pending', 'pending_delete']);
+        } else {
+            $query->whereNotIn('status_approve', ['pending', 'pending_delete']);
         }
 
         $categories = $this->category->showCategories($query->get());
@@ -102,7 +110,9 @@ class CategoryController extends Controller
                 'categories',
                 'option_category_types',
                 'filter',
-                'dataGrid'
+                'dataGrid',
+                'activeTab',
+                'pendingCount'
             )
         );
     }
@@ -357,6 +367,10 @@ class CategoryController extends Controller
                         $category->status_approve = 'pending';
                         $category->approval_level = $user->is_approve ? 1 : 0;
                         $category->save();
+
+                        if (Gate::allows('category/add')) {
+                            $this->addCategoryToScope($user, $category->id);
+                        }
                     }
                 }
             }
@@ -561,8 +575,8 @@ class CategoryController extends Controller
         $scopeData = $group->scope_data ?? [];
         $resource = 'category';
 
-        if (empty($scopeData[$resource])) {
-            return;
+        if (!isset($scopeData[$resource])) {
+            $scopeData[$resource] = [];
         }
 
         if (!in_array((string)$categoryId, $scopeData[$resource])) {

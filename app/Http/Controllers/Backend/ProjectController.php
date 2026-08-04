@@ -43,13 +43,13 @@ class ProjectController extends Controller
             'district_id' => $request->get('district_id') !== null ? (int) $request->get('district_id') : null,
         ];
     
+        $activeTab = $request->get('tab', 'approved');
         $paginate = 10;
         $user = auth('web')->user();
 
         $query = $this->project
         ->with(['type', 'industry', 'districts', 'draft', 'parent'])
         ->visibleFor($user)
-        ->orderByRaw("CASE WHEN status IN ('pending', 'pending_delete') THEN 1 ELSE 2 END ASC")
         ->orderBy('is_pinned', 'desc')
         ->orderByRaw('CASE WHEN pin_order IS NULL THEN 999999 ELSE pin_order END ASC')
         ->orderBy('updated_at', 'desc');
@@ -78,6 +78,15 @@ class ProjectController extends Controller
         if (!empty($scope)) {
             $query->whereIn('id', $scope);
         }
+
+        $pendingCount = (clone $query)->whereIn('status', ['pending', 'pending_delete'])->count();
+
+        if ($activeTab === 'pending') {
+            $query->whereIn('status', ['pending', 'pending_delete']);
+        } else {
+            $query->whereNotIn('status', ['pending', 'pending_delete']);
+        }
+
         $projects = $query->paginate($paginate);
 
         $route_name = 'backend_project_edit';
@@ -147,7 +156,9 @@ class ProjectController extends Controller
             'filter',
             'types',
             'industries',
-            'districts'
+            'districts',
+            'activeTab',
+            'pendingCount'
         ));
     }
 
@@ -642,6 +653,10 @@ class ProjectController extends Controller
                         } else {
                             $project->districts()->detach();
                         }
+
+                        if (Gate::allows('project/add')) {
+                            $this->addProjectToScope($user, $project->id);
+                        }
                     }
                 }
             }
@@ -763,8 +778,8 @@ class ProjectController extends Controller
         $scopeData = $group->scope_data ?? [];
         $resource = 'project';
 
-        if (empty($scopeData[$resource])) {
-            return;
+        if (!isset($scopeData[$resource])) {
+            $scopeData[$resource] = [];
         }
 
         if (!in_array((string) $projectId, $scopeData[$resource])) {

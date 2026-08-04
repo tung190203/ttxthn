@@ -43,17 +43,27 @@ class MenuController extends Controller
             session(['menu_type' => $menu_type]);
         }
         $menu_type = session('menu_type', 'main');
+        $activeTab = $request->get('tab', 'approved');
         $parent_id = $request->get('parent_id', 0);
-        $menu_raw = $this->menu->where('type', $menu_type)
+        $query = $this->menu->where('type', $menu_type)
             ->visibleFor(auth('web')->user())
-            ->orderByRaw("CASE WHEN status_approve IN ('pending', 'pending_delete') THEN 1 ELSE 2 END ASC")
-            ->orderBy('priority')->get();
+            ->orderBy('priority');
         $user = auth('web')->user();
 
         $scope = $user->getScope('menu');
         if (!empty($scope)) {
-            $menu_raw = $menu_raw->whereIn('id', $scope);
+            $query->whereIn('id', $scope);
         }
+
+        $pendingCount = (clone $query)->whereIn('status_approve', ['pending', 'pending_delete'])->count();
+
+        if ($activeTab === 'pending') {
+            $query->whereIn('status_approve', ['pending', 'pending_delete']);
+        } else {
+            $query->whereNotIn('status_approve', ['pending', 'pending_delete']);
+        }
+
+        $menu_raw = $query->get();
         $menus = $this->menu->showMenus($menu_raw);
         $option_positions = Util::makeHTMLOptions($this->types, $menu_type, 0, 0, 0);
 
@@ -94,7 +104,7 @@ class MenuController extends Controller
 
         $dataGrid = $clsDataGrid->showDataGrid($menus);
 
-        return view('backend.menu.index', compact('menus', 'parent_id', 'option_positions', 'dataGrid'));
+        return view('backend.menu.index', compact('menus', 'parent_id', 'option_positions', 'dataGrid', 'activeTab', 'pendingCount'));
     }
 
     public function saveDataIndex(Request $request)
@@ -288,6 +298,10 @@ class MenuController extends Controller
                         $menu->status_approve = 'pending';
                         $menu->approval_level = $user->is_approve ? 1 : 0;
                         $menu->save();
+
+                        if (Gate::allows('menu/add')) {
+                            $this->addMenuToScope($user, $menu->id);
+                        }
                     }
                 }
             }
@@ -481,8 +495,8 @@ class MenuController extends Controller
         $scopeData = $group->scope_data ?? [];
         $resource = 'menu';
 
-        if (empty($scopeData[$resource])) {
-            return;
+        if (!isset($scopeData[$resource])) {
+            $scopeData[$resource] = [];
         }
 
         if (!in_array((string)$menuId, $scopeData[$resource])) {
