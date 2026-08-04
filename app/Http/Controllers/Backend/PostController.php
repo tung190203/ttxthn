@@ -49,6 +49,7 @@ class PostController extends Controller
         $filter['status'] = $request->get('status', -1);
         $query = $this->post->with(['category', 'user'])
             ->visibleFor(auth('web')->user())
+            ->orderByRaw("CASE WHEN status_approve IN ('pending', 'pending_delete') THEN 1 ELSE 2 END ASC")
             ->orderBy('id', 'desc');
         if ($filter['name'] !== '') {
             $query->where('name', 'like', '%' . $filter['name'] . '%');
@@ -87,14 +88,20 @@ class PostController extends Controller
             $html = e($row->name);
     
             // Hiển thị nhãn trạng thái
-            if ($row->is_draft) {
+            if ($row->is_draft && $row->status_approve !== 'pending_delete') {
                 $html .= " <span class='badge bg-warning'>Bản chỉnh sửa</span>";
+            }
+            if ($row->is_draft && $row->status_approve === 'pending_delete') {
+                $html .= " <span class='badge bg-danger'>Yêu cầu xóa</span>";
             }
     
             // Hiển thị trạng thái duyệt
             if ($row->status_approve === 'pending') {
                 if ($row->approval_level == 0) $html .= " <span class='badge bg-secondary'>Chờ duyệt cấp 1</span>";
                 elseif ($row->approval_level == 1) $html .= " <span class='badge bg-primary'>Chờ duyệt cấp 2</span>";
+            } elseif ($row->status_approve === 'pending_delete') {
+                if ($row->approval_level == 0) $html .= " <span class='badge bg-secondary'>Chờ duyệt xóa cấp 1</span>";
+                elseif ($row->approval_level == 1) $html .= " <span class='badge bg-primary'>Chờ duyệt xóa cấp 2</span>";
             } elseif ($row->status_approve === 'approved') {
                 $html .= " <span class='badge bg-success'>Đã duyệt</span>";
             } elseif ($row->status_approve === 'rejected') {
@@ -525,6 +532,16 @@ class PostController extends Controller
         }
     
         if ($user->is_super_admin) {
+            if ($post->status_approve === 'pending_delete') {
+                $parent = Post::find($post->parent_id);
+                $post->delete();
+                if ($parent) {
+                    $parent->delete();
+                    $this->removePostFromScope($parent->id);
+                }
+                return redirect()->route('backend_post')->with('success', 'Đã duyệt yêu cầu xóa bài viết');
+            }
+
             $post->approval_level = $post->max_approval;
             $post->status_approve = 'approved';
             $post->is_draft = false;
@@ -560,7 +577,9 @@ class PostController extends Controller
         } elseif ($user->is_approve) {
             if ($post->approval_level < 1) {
                 $post->approval_level = 1;
-                $post->status_approve = 'pending';
+                if ($post->status_approve !== 'pending_delete') {
+                    $post->status_approve = 'pending';
+                }
             }
         }
     
@@ -612,8 +631,44 @@ class PostController extends Controller
             abort(403, self::MESSAGE_UNAUTHORIZED);
         }
 
-        $this->post->destroy($id);
-        return redirect()->to(route('backend_post'))->with('success', 'Xóa thành công');
+        $post = Post::find($id);
+        if (!$post) {
+            return redirect()->to(route('backend_post'))->with('error', 'Bài viết không tồn tại');
+        }
+
+        $user = auth('web')->user();
+
+        if ($user->is_super_admin) {
+            if ($post->is_draft) {
+                 $post->delete();
+                 return redirect()->to(route('backend_post'))->with('success', 'Xóa bản nháp thành công');
+            }
+            $this->post->destroy($id);
+            $this->removePostFromScope($id);
+            return redirect()->to(route('backend_post'))->with('success', 'Xóa thành công');
+        } else {
+            if ($post->status_approve === 'pending' || $post->status_approve === 'rejected') {
+                $post->delete();
+                return redirect()->to(route('backend_post'))->with('success', 'Xóa bài viết/bản nháp thành công');
+            } else {
+                $draft = $post->draft;
+                if ($draft) {
+                    $draft->status_approve = 'pending_delete';
+                    $draft->approval_level = $user->is_approve ? 1 : 0;
+                    $draft->save();
+                } else {
+                    $draft = $post->replicate();
+                    $draft->parent_id = $post->id;
+                    $draft->is_draft = true;
+                    $draft->status_approve = 'pending_delete';
+                    $draft->approval_level = $user->is_approve ? 1 : 0;
+                    $draft->save();
+                    
+                    $this->addPostToScope($user, $draft->id);
+                }
+                return redirect()->to(route('backend_post'))->with('success', 'Yêu cầu xóa bài viết đã được gửi để duyệt');
+            }
+        }
     }
 
     public function bulkDelete(Request $request)
@@ -629,7 +684,42 @@ class PostController extends Controller
             return $this->responseJsonBadRequest();
         }
 
-        $this->post->destroy($ids);
+        $user = auth('web')->user();
+
+        foreach ($ids as $id) {
+            $post = Post::find($id);
+            if (!$post) continue;
+
+            if ($user->is_super_admin) {
+                if ($post->is_draft) {
+                    $post->delete();
+                } else {
+                    $this->post->destroy($id);
+                    $this->removePostFromScope($id);
+                }
+            } else {
+                if ($post->status_approve === 'pending' || $post->status_approve === 'rejected') {
+                    $post->delete();
+                } else {
+                    $draft = $post->draft;
+                    if ($draft) {
+                        $draft->status_approve = 'pending_delete';
+                        $draft->approval_level = $user->is_approve ? 1 : 0;
+                        $draft->save();
+                    } else {
+                        $draft = $post->replicate();
+                        $draft->parent_id = $post->id;
+                        $draft->is_draft = true;
+                        $draft->status_approve = 'pending_delete';
+                        $draft->approval_level = $user->is_approve ? 1 : 0;
+                        $draft->save();
+                        
+                        $this->addPostToScope($user, $draft->id);
+                    }
+                }
+            }
+        }
+
         return $this->responseJsonOk();
     }
 

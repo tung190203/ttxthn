@@ -49,6 +49,7 @@ class ProjectController extends Controller
         $query = $this->project
         ->with(['type', 'industry', 'districts', 'draft', 'parent'])
         ->visibleFor($user)
+        ->orderByRaw("CASE WHEN status IN ('pending', 'pending_delete') THEN 1 ELSE 2 END ASC")
         ->orderBy('is_pinned', 'desc')
         ->orderByRaw('CASE WHEN pin_order IS NULL THEN 999999 ELSE pin_order END ASC')
         ->orderBy('updated_at', 'desc');
@@ -88,14 +89,20 @@ class ProjectController extends Controller
             $html = e($row->name);
     
             // Hiển thị nhãn trạng thái
-            if ($row->is_draft) {
+            if ($row->is_draft && $row->status !== 'pending_delete') {
                 $html .= " <span class='badge bg-warning'>Bản chỉnh sửa</span>";
+            }
+            if ($row->is_draft && $row->status === 'pending_delete') {
+                $html .= " <span class='badge bg-danger'>Yêu cầu xóa</span>";
             }
     
             // Hiển thị trạng thái duyệt
             if ($row->status === 'pending') {
                 if ($row->approval_level == 0) $html .= " <span class='badge bg-secondary'>Chờ duyệt cấp 1</span>";
                 elseif ($row->approval_level == 1) $html .= " <span class='badge bg-primary'>Chờ duyệt cấp 2</span>";
+            } elseif ($row->status === 'pending_delete') {
+                if ($row->approval_level == 0) $html .= " <span class='badge bg-secondary'>Chờ duyệt xóa cấp 1</span>";
+                elseif ($row->approval_level == 1) $html .= " <span class='badge bg-primary'>Chờ duyệt xóa cấp 2</span>";
             } elseif ($row->status === 'approved') {
                 $html .= " <span class='badge bg-success'>Đã duyệt</span>";
             } elseif ($row->status === 'rejected') {
@@ -666,6 +673,17 @@ class ProjectController extends Controller
         }
     
         if ($user->is_super_admin) {
+            if ($project->status === 'pending_delete') {
+                $parent = Project::find($project->parent_id);
+                $project->delete();
+                if ($parent) {
+                    $parent->districts()->detach();
+                    $parent->delete();
+                    $this->removeProjectFromScope($parent->id);
+                }
+                return redirect()->route('backend_project')->with('success', 'Đã duyệt yêu cầu xóa dự án');
+            }
+
             $project->approval_level = $project->max_approval;
             $project->status = 'approved';
             $project->is_draft = false;
@@ -710,7 +728,9 @@ class ProjectController extends Controller
         } elseif ($user->is_approve) {
             if ($project->approval_level < 1) {
                 $project->approval_level = 1;
-                $project->status = 'pending';
+                if ($project->status !== 'pending_delete') {
+                    $project->status = 'pending';
+                }
             }
         }
     
@@ -731,7 +751,7 @@ class ProjectController extends Controller
         $project->delete();
 
         return redirect()
-            ->route('backend_category')
+            ->route('backend_project')
             ->with('success', 'Từ chối duyệt dự án thành công');
     }
 
@@ -782,36 +802,100 @@ class ProjectController extends Controller
     public function delete(Request $request, $id)
     {
         $project = Project::find($id);
-        if (!Gate::allows('project/delete',$project)) {
+        if (!Gate::allows('project/delete', $project)) {
             abort(403, self::MESSAGE_UNAUTHORIZED);
         }
 
-        $this->project->destroy($id);
-        $project->districts()->detach();
-        $this->removeProjectFromScope($id);
+        $user = auth('web')->user();
 
-        return redirect()->route('backend_project')->with('success', 'Xóa dự án thành công');
+        if ($user->is_super_admin) {
+            if ($project->is_draft) {
+                 $project->districts()->detach();
+                 $project->delete();
+                 return redirect()->route('backend_project')->with('success', 'Xóa bản nháp thành công');
+            }
+            $this->project->destroy($id);
+            $project->districts()->detach();
+            $this->removeProjectFromScope($id);
+
+            return redirect()->route('backend_project')->with('success', 'Xóa dự án thành công');
+        } else {
+            if ($project->status === 'pending' || $project->status === 'rejected') {
+                $project->districts()->detach();
+                $project->delete();
+                return redirect()->route('backend_project')->with('success', 'Xóa dự án/bản nháp thành công');
+            } else {
+                $draft = $project->draft;
+                if ($draft) {
+                    $draft->status = 'pending_delete';
+                    $draft->approval_level = $user->is_approve ? 1 : 0;
+                    $draft->save();
+                } else {
+                    $draft = $project->replicate();
+                    $draft->parent_id = $project->id;
+                    $draft->is_draft = true;
+                    $draft->status = 'pending_delete';
+                    $draft->approval_level = $user->is_approve ? 1 : 0;
+                    $draft->save();
+                    
+                    $draft->districts()->sync($project->districts->pluck('id'));
+                    $this->addProjectToScope($user, $draft->id);
+                }
+                return redirect()->route('backend_project')->with('success', 'Yêu cầu xóa dự án đã được gửi để duyệt');
+            }
+        }
     }
 
     public function bulkDelete(Request $request)
     {
-        foreach ($request->ids as $id) {
-            $p = Project::find($id);
-            if (!Gate::allows('project/delete', $p)) {
-                abort(403);
-            }
-        }
-
         $request->validate(['ids' => 'required|array']);
         $ids = $request->get('ids');
         if (empty($ids)) {
             return response()->json(['status' => 'bad_request'], 400);
         }
 
-        $this->project->destroy($ids);
-        $this->project->districts()->detach($ids);
+        $user = auth('web')->user();
+
         foreach ($ids as $id) {
-            $this->removeProjectFromScope($id);
+            $project = Project::find($id);
+            if (!$project) continue;
+
+            if (!Gate::allows('project/delete', $project)) {
+                abort(403, self::MESSAGE_UNAUTHORIZED);
+            }
+
+            if ($user->is_super_admin) {
+                if ($project->is_draft) {
+                    $project->districts()->detach();
+                    $project->delete();
+                } else {
+                    $this->project->destroy($id);
+                    $project->districts()->detach();
+                    $this->removeProjectFromScope($id);
+                }
+            } else {
+                if ($project->status === 'pending' || $project->status === 'rejected') {
+                    $project->districts()->detach();
+                    $project->delete();
+                } else {
+                    $draft = $project->draft;
+                    if ($draft) {
+                        $draft->status = 'pending_delete';
+                        $draft->approval_level = $user->is_approve ? 1 : 0;
+                        $draft->save();
+                    } else {
+                        $draft = $project->replicate();
+                        $draft->parent_id = $project->id;
+                        $draft->is_draft = true;
+                        $draft->status = 'pending_delete';
+                        $draft->approval_level = $user->is_approve ? 1 : 0;
+                        $draft->save();
+                        
+                        $draft->districts()->sync($project->districts->pluck('id'));
+                        $this->addProjectToScope($user, $draft->id);
+                    }
+                }
+            }
         }
 
         return response()->json(['status' => 'ok']);
