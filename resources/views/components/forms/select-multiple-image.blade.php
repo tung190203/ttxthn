@@ -9,6 +9,7 @@
     'help' => '',
     'displayType' => 'text', // 'text' hoặc 'image'
     'imageHeight' => '40px', // Chiều cao ảnh mặc định
+    'selectAll' => false,
 ])
 
 @php
@@ -69,6 +70,14 @@
                 </div>
 
                 <div id="dropdown-options-{{ $name }}" class="px-2 pb-2">
+                    @if($selectAll)
+                        <div class="form-check border-bottom mb-2 pb-1">
+                            <input type="checkbox" class="form-check-input custom-large" id="select_all_{{ $name }}"
+                                onchange="toggleAll_{{ $name }}(this.checked)"
+                                {{ count(array_intersect(array_keys(is_array($options) ? $options : $options->toArray()), $selected)) === count($options) && count($options) > 0 ? 'checked' : '' }}>
+                            <label class="form-check-label fw-bold" for="select_all_{{ $name }}">Chọn tất cả</label>
+                        </div>
+                    @endif
                     @foreach ($options as $key => $value)
                         <div class="form-check d-flex align-items-center py-1" data-search="{{ $displayType === 'text' ? strtolower($value) : '' }}">
                             <input type="checkbox" class="form-check-input custom-large me-2" name="{{ $name }}[]"
@@ -114,6 +123,25 @@
     function toggleDropdown_{{ $name }}() {
         const el = document.getElementById('dropdown_{{ $name }}');
         el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function toggleAll_{{ $name }}(checked) {
+        const checkboxes = document.querySelectorAll('#dropdown-options-{{ $name }} .form-check:not(.border-bottom) input[type="checkbox"]');
+        checkboxes.forEach(cb => {
+            if (cb.offsetParent !== null) { // Chỉ toggle các item đang hiển thị
+                cb.checked = checked;
+            }
+        });
+        updateTags_{{ $name }}();
+    }
+
+    function updateSelectAllState_{{ $name }}() {
+        const selectAllCb = document.getElementById('select_all_{{ $name }}');
+        if (!selectAllCb) return;
+
+        const checkboxes = document.querySelectorAll('#dropdown-options-{{ $name }} .form-check:not(.border-bottom) input[type="checkbox"]');
+        const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+        selectAllCb.checked = checkboxes.length > 0 && checkedCount === checkboxes.length;
     }
 
     function updateTags_{{ $name }}() {
@@ -174,6 +202,8 @@
                 container.appendChild(span);
             });
         }
+
+        updateSelectAllState_{{ $name }}();
     }
 
     function removeTag_{{ $name }}(value, event) {

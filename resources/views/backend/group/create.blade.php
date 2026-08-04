@@ -58,7 +58,7 @@
 
                         <div id="scope-container">
                             <div class="scope-item" data-permission="category">
-                                <x-forms.select-multiple
+                                <x-forms.select-multiple :selectAll="true"
                                 name="scope_data_category"
                                 label="Category Scope"
                                 :options="$category->pluck('name','id')"
@@ -69,7 +69,7 @@
                             </div>
 
                             <div class="scope-item" data-permission="project">
-                                <x-forms.select-multiple
+                                <x-forms.select-multiple :selectAll="true"
                                 name="scope_data_project"
                                 label="Project Scope"
                                 :options="$projects->pluck('name','id')"
@@ -80,7 +80,7 @@
                             </div>
 
                             <div class="scope-item" data-permission="post">
-                                <x-forms.select-multiple
+                                <x-forms.select-multiple :selectAll="true"
                                 name="scope_data_post"
                                 label="Posts Scope"
                                 :options="$posts->pluck('name','id')"
@@ -91,7 +91,7 @@
                             </div>
 
                             <div class="scope-item" data-permission="investment_guide">
-                                <x-forms.select-multiple
+                                <x-forms.select-multiple :selectAll="true"
                                 name="scope_data_investment_guide"
                                 label="Investment Guide Scope"
                                 :options="$investment_guides->pluck('name','id')"
@@ -102,7 +102,7 @@
                             </div>
 
                             <div class="scope-item" data-permission="menu">
-                                <x-forms.select-multiple
+                                <x-forms.select-multiple :selectAll="true"
                                 name="scope_data_menu"
                                 label="Menu Scope"
                                 :options="$menus->pluck('name','id')"
@@ -113,7 +113,7 @@
                             </div>
 
                             <div class="scope-item" data-permission="popup">
-                                <x-forms.select-multiple-image
+                                <x-forms.select-multiple -image :selectAll="true"
                                 name="scope_data_popup"
                                 label="Popup Scope"
                                 :options="$popups->pluck('image','id')"
@@ -126,7 +126,7 @@
                             </div>
 
                             <div class="scope-item" data-permission="user">
-                                <x-forms.select-multiple
+                                <x-forms.select-multiple :selectAll="true"
                                 name="scope_data_user"
                                 label="User Scope"
                                 :options="$users->pluck('name','id')"
