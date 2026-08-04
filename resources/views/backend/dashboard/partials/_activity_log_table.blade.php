@@ -276,7 +276,7 @@
         }
 
         // Render when modal opens
-        $('.modal').on('show.bs.modal', function () {
+        $(document).on('show.bs.modal', '.modal', function () {
             let $modal = $(this);
             if (typeof Diff === 'undefined') return;
             
