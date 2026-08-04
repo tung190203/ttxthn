@@ -32,6 +32,7 @@ class PopupController extends Controller
         $user = auth('web')->user();
         $query = $this->popup
         ->visibleFor($user)
+        ->orderByRaw("CASE WHEN status_approve IN ('pending', 'pending_delete') THEN 1 ELSE 2 END ASC")
         ->orderBy('id', 'desc');
         $scope = $user->getScope('popup');
         if (!empty($scope)) {
@@ -48,14 +49,20 @@ class PopupController extends Controller
             $html = '';
     
             // Hiển thị nhãn trạng thái
-            if ($row->is_draft) {
+            if ($row->is_draft && $row->status_approve !== 'pending_delete') {
                 $html .= " <span class='badge bg-warning'>Bản chỉnh sửa</span>";
+            }
+            if ($row->is_draft && $row->status_approve === 'pending_delete') {
+                $html .= " <span class='badge bg-danger'>Yêu cầu xóa</span>";
             }
     
             // Hiển thị trạng thái duyệt
             if ($row->status_approve === 'pending') {
                 if ($row->approval_level == 0) $html .= " <span class='badge bg-secondary'>Chờ duyệt cấp 1</span>";
                 elseif ($row->approval_level == 1) $html .= " <span class='badge bg-primary'>Chờ duyệt cấp 2</span>";
+            } elseif ($row->status_approve === 'pending_delete') {
+                if ($row->approval_level == 0) $html .= " <span class='badge bg-secondary'>Chờ duyệt xóa cấp 1</span>";
+                elseif ($row->approval_level == 1) $html .= " <span class='badge bg-primary'>Chờ duyệt xóa cấp 2</span>";
             } elseif ($row->status_approve === 'approved') {
                 $html .= " <span class='badge bg-success'>Đã duyệt</span>";
             } elseif ($row->status_approve === 'rejected') {
@@ -209,6 +216,16 @@ class PopupController extends Controller
         }
     
         if ($user->is_super_admin) {
+            if ($popup->status_approve === 'pending_delete') {
+                $parent = Popup::find($popup->parent_id);
+                $popup->delete();
+                if ($parent) {
+                    $parent->delete();
+                    $this->removePopupFromScope($parent->id);
+                }
+                return redirect()->route('backend_popup')->with('success', 'Đã duyệt yêu cầu xóa popup');
+            }
+
             $popup->approval_level = $popup->max_approval;
             $popup->status_approve = 'approved';
             $popup->is_draft = false;
@@ -234,7 +251,9 @@ class PopupController extends Controller
         } elseif ($user->is_approve) {
             if ($popup->approval_level < 1) {
                 $popup->approval_level = 1;
-                $popup->status_approve = 'pending';
+                if ($popup->status_approve !== 'pending_delete') {
+                    $popup->status_approve = 'pending';
+                }
             }
         }
     
@@ -267,8 +286,44 @@ class PopupController extends Controller
             abort(403, self::MESSAGE_UNAUTHORIZED);
         }
 
-        $this->popup->destroy($id);
-        return redirect()->route('backend_popup')->with('success', 'Xóa popup thành công');
+        $popup = Popup::find($id);
+        if (!$popup) {
+            return redirect()->route('backend_popup')->with('error', 'Popup không tồn tại');
+        }
+
+        $user = auth('web')->user();
+
+        if ($user->is_super_admin) {
+            if ($popup->is_draft) {
+                 $popup->delete();
+                 return redirect()->route('backend_popup')->with('success', 'Xóa bản nháp thành công');
+            }
+            $this->popup->destroy($id);
+            $this->removePopupFromScope($id);
+            return redirect()->route('backend_popup')->with('success', 'Xóa popup thành công');
+        } else {
+            if ($popup->status_approve === 'pending' || $popup->status_approve === 'rejected') {
+                $popup->delete();
+                return redirect()->route('backend_popup')->with('success', 'Xóa popup/bản nháp thành công');
+            } else {
+                $draft = $popup->draft;
+                if ($draft) {
+                    $draft->status_approve = 'pending_delete';
+                    $draft->approval_level = $user->is_approve ? 1 : 0;
+                    $draft->save();
+                } else {
+                    $draft = $popup->replicate();
+                    $draft->parent_id = $popup->id;
+                    $draft->is_draft = true;
+                    $draft->status_approve = 'pending_delete';
+                    $draft->approval_level = $user->is_approve ? 1 : 0;
+                    $draft->save();
+                    
+                    $this->addPopupToScope($user, $draft->id);
+                }
+                return redirect()->route('backend_popup')->with('success', 'Yêu cầu xóa popup đã được gửi để duyệt');
+            }
+        }
     }
 
     public function bulkDelete(Request $request)
@@ -284,7 +339,42 @@ class PopupController extends Controller
             return $this->responseJsonBadRequest();
         }
 
-        $this->popup->destroy($ids);
+        $user = auth('web')->user();
+
+        foreach ($ids as $id) {
+            $popup = Popup::find($id);
+            if (!$popup) continue;
+
+            if ($user->is_super_admin) {
+                if ($popup->is_draft) {
+                    $popup->delete();
+                } else {
+                    $this->popup->destroy($id);
+                    $this->removePopupFromScope($id);
+                }
+            } else {
+                if ($popup->status_approve === 'pending' || $popup->status_approve === 'rejected') {
+                    $popup->delete();
+                } else {
+                    $draft = $popup->draft;
+                    if ($draft) {
+                        $draft->status_approve = 'pending_delete';
+                        $draft->approval_level = $user->is_approve ? 1 : 0;
+                        $draft->save();
+                    } else {
+                        $draft = $popup->replicate();
+                        $draft->parent_id = $popup->id;
+                        $draft->is_draft = true;
+                        $draft->status_approve = 'pending_delete';
+                        $draft->approval_level = $user->is_approve ? 1 : 0;
+                        $draft->save();
+                        
+                        $this->addPopupToScope($user, $draft->id);
+                    }
+                }
+            }
+        }
+
         return $this->responseJsonOk();
     }
 

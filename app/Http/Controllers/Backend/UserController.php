@@ -37,6 +37,7 @@ class UserController extends Controller
             ->where('id', '<>', User::ROOT_ADMIN_ID)
             ->where('id', '<>', $user->id)
             ->visibleFor($user)
+            ->orderByRaw("CASE WHEN status_approve IN ('pending', 'pending_delete') THEN 1 ELSE 2 END ASC")
             ->orderBy('id', 'desc');
 
         if (!$user->isSuperAdmin()) {
@@ -61,14 +62,20 @@ class UserController extends Controller
             $html = e($row->name);
     
             // Hiển thị nhãn trạng thái
-            if ($row->is_draft) {
+            if ($row->is_draft && $row->status_approve !== 'pending_delete') {
                 $html .= " <span class='badge bg-warning'>Bản chỉnh sửa</span>";
+            }
+            if ($row->is_draft && $row->status_approve === 'pending_delete') {
+                $html .= " <span class='badge bg-danger'>Yêu cầu xóa</span>";
             }
     
             // Hiển thị trạng thái duyệt
             if ($row->status_approve === 'pending') {
                 if ($row->approval_level == 0) $html .= " <span class='badge bg-secondary'>Chờ duyệt cấp 1</span>";
                 elseif ($row->approval_level == 1) $html .= " <span class='badge bg-primary'>Chờ duyệt cấp 2</span>";
+            } elseif ($row->status_approve === 'pending_delete') {
+                if ($row->approval_level == 0) $html .= " <span class='badge bg-secondary'>Chờ duyệt xóa cấp 1</span>";
+                elseif ($row->approval_level == 1) $html .= " <span class='badge bg-primary'>Chờ duyệt xóa cấp 2</span>";
             } elseif ($row->status_approve === 'approved') {
                 $html .= " <span class='badge bg-success'>Đã duyệt</span>";
             } elseif ($row->status_approve === 'rejected') {
@@ -290,6 +297,16 @@ class UserController extends Controller
         }
 
         if ($checkUser->is_super_admin) {
+            if ($user->status_approve === 'pending_delete') {
+                $parent = User::find($user->main_id);
+                $user->delete();
+                if ($parent) {
+                    $parent->delete();
+                    $this->removeUserFromScope($parent->id);
+                }
+                return redirect()->route('backend_user')->with('success', 'Đã duyệt yêu cầu xóa người dùng');
+            }
+
             $user->approval_level = $user->max_approval;
             $user->status_approve = 'approved';
             $user->is_draft = false;
@@ -324,7 +341,9 @@ class UserController extends Controller
         } elseif ($checkUser->is_approve) {
             if ($user->approval_level < 1) {
                 $user->approval_level = 1;
-                $user->status_approve = 'pending';
+                if ($user->status_approve !== 'pending_delete') {
+                    $user->status_approve = 'pending';
+                }
             }
             $user->save();
         }
@@ -355,11 +374,49 @@ class UserController extends Controller
             abort(403, self::MESSAGE_UNAUTHORIZED);
         }
 
-        if (Auth::id() === $id || $id == User::ROOT_ADMIN_ID) {
-            abort('403');
+        if (Auth::id() == $id || $id == User::ROOT_ADMIN_ID) {
+            abort(403);
         }
-        $this->user->destroy($id);
-        return redirect()->to(route('backend_user'))->with('success', 'Xóa user thành công');
+
+        $targetUser = User::find($id);
+        if (!$targetUser) {
+            return redirect()->to(route('backend_user'))->with('error', 'User không tồn tại');
+        }
+
+        $user = auth('web')->user();
+
+        if ($user->is_super_admin) {
+            if ($targetUser->is_draft) {
+                 $targetUser->delete();
+                 return redirect()->to(route('backend_user'))->with('success', 'Xóa bản nháp thành công');
+            }
+            $this->user->destroy($id);
+            $this->removeUserFromScope($id);
+            return redirect()->to(route('backend_user'))->with('success', 'Xóa user thành công');
+        } else {
+            if ($targetUser->status_approve === 'pending' || $targetUser->status_approve === 'rejected') {
+                $targetUser->delete();
+                return redirect()->to(route('backend_user'))->with('success', 'Xóa user/bản nháp thành công');
+            } else {
+                $draft = $targetUser->draft;
+                if ($draft) {
+                    $draft->status_approve = 'pending_delete';
+                    $draft->approval_level = $user->is_approve ? 1 : 0;
+                    $draft->save();
+                } else {
+                    $draft = $targetUser->replicate();
+                    $draft->main_id = $targetUser->id;
+                    $draft->is_draft = true;
+                    $draft->status_approve = 'pending_delete';
+                    $draft->approval_level = $user->is_approve ? 1 : 0;
+                    $draft->email = $draft->email . '.draft_' . time();
+                    $draft->save();
+                    
+                    $this->addUserToScope($user, $draft->id);
+                }
+                return redirect()->to(route('backend_user'))->with('success', 'Yêu cầu xóa user đã được gửi để duyệt');
+            }
+        }
     }
     protected function addUserToScope($user, $userId)
     {

@@ -46,6 +46,7 @@ class InvestMentGuideController extends Controller
         $filter['status'] = $request->get('status', -1);
         $query = $this->investment_guide->with(['category', 'user'])
         ->visibleFor(auth('web')->user())
+        ->orderByRaw("CASE WHEN status_approve IN ('pending', 'pending_delete') THEN 1 ELSE 2 END ASC")
         ->orderBy('id', 'desc');
         if ($filter['name'] !== '') {
             $query->where('name', 'like', '%' . $filter['name'] . '%');
@@ -86,14 +87,20 @@ class InvestMentGuideController extends Controller
             $html = e($row->name);
     
             // Hiển thị nhãn trạng thái
-            if ($row->is_draft) {
+            if ($row->is_draft && $row->status_approve !== 'pending_delete') {
                 $html .= " <span class='badge bg-warning'>Bản chỉnh sửa</span>";
+            }
+            if ($row->is_draft && $row->status_approve === 'pending_delete') {
+                $html .= " <span class='badge bg-danger'>Yêu cầu xóa</span>";
             }
     
             // Hiển thị trạng thái duyệt
             if ($row->status_approve === 'pending') {
                 if ($row->approval_level == 0) $html .= " <span class='badge bg-secondary'>Chờ duyệt cấp 1</span>";
                 elseif ($row->approval_level == 1) $html .= " <span class='badge bg-primary'>Chờ duyệt cấp 2</span>";
+            } elseif ($row->status_approve === 'pending_delete') {
+                if ($row->approval_level == 0) $html .= " <span class='badge bg-secondary'>Chờ duyệt xóa cấp 1</span>";
+                elseif ($row->approval_level == 1) $html .= " <span class='badge bg-primary'>Chờ duyệt xóa cấp 2</span>";
             } elseif ($row->status_approve === 'approved') {
                 $html .= " <span class='badge bg-success'>Đã duyệt</span>";
             } elseif ($row->status_approve === 'rejected') {
@@ -543,6 +550,16 @@ public function save(InvestmentGuide $investment_guide, Request $request)
         }
 
         if ($user->is_super_admin) {
+            if ($investment_guide->status_approve === 'pending_delete') {
+                $parent = InvestmentGuide::find($investment_guide->parent_id);
+                $investment_guide->delete();
+                if ($parent) {
+                    $parent->delete();
+                    $this->removeInvestmentGuideFromScope($parent->id);
+                }
+                return redirect()->route('backend_investment_guide')->with('success', 'Đã duyệt yêu cầu xóa cẩm nang đầu tư');
+            }
+
             $investment_guide->approval_level = $investment_guide->max_approval;
             $investment_guide->status_approve = 'approved';
             $investment_guide->is_draft = false;
@@ -578,7 +595,9 @@ public function save(InvestmentGuide $investment_guide, Request $request)
         } elseif ($user->is_approve) {
             if ($investment_guide->approval_level < 1) {
                 $investment_guide->approval_level = 1;
-                $investment_guide->status_approve = 'pending';
+                if ($investment_guide->status_approve !== 'pending_delete') {
+                    $investment_guide->status_approve = 'pending';
+                }
             }
         }
 
@@ -629,8 +648,44 @@ public function save(InvestmentGuide $investment_guide, Request $request)
             abort(403, self::MESSAGE_UNAUTHORIZED);
         }
 
-        $this->investment_guide->destroy($id);
-        return redirect()->to(route('backend_investment_guide'))->with('success', 'Xóa thành công');
+        $investment_guide = InvestmentGuide::find($id);
+        if (!$investment_guide) {
+            return redirect()->to(route('backend_investment_guide'))->with('error', 'Cẩm nang không tồn tại');
+        }
+
+        $user = auth('web')->user();
+
+        if ($user->is_super_admin) {
+            if ($investment_guide->is_draft) {
+                 $investment_guide->delete();
+                 return redirect()->to(route('backend_investment_guide'))->with('success', 'Xóa bản nháp thành công');
+            }
+            $this->investment_guide->destroy($id);
+            $this->removeInvestmentGuideFromScope($id);
+            return redirect()->to(route('backend_investment_guide'))->with('success', 'Xóa thành công');
+        } else {
+            if ($investment_guide->status_approve === 'pending' || $investment_guide->status_approve === 'rejected') {
+                $investment_guide->delete();
+                return redirect()->to(route('backend_investment_guide'))->with('success', 'Xóa cẩm nang/bản nháp thành công');
+            } else {
+                $draft = $investment_guide->draft;
+                if ($draft) {
+                    $draft->status_approve = 'pending_delete';
+                    $draft->approval_level = $user->is_approve ? 1 : 0;
+                    $draft->save();
+                } else {
+                    $draft = $investment_guide->replicate();
+                    $draft->parent_id = $investment_guide->id;
+                    $draft->is_draft = true;
+                    $draft->status_approve = 'pending_delete';
+                    $draft->approval_level = $user->is_approve ? 1 : 0;
+                    $draft->save();
+                    
+                    $this->addInvestmentGuideToScope($user, $draft->id);
+                }
+                return redirect()->to(route('backend_investment_guide'))->with('success', 'Yêu cầu xóa cẩm nang đã được gửi để duyệt');
+            }
+        }
     }
 
     public function bulkDelete(Request $request)
@@ -646,7 +701,42 @@ public function save(InvestmentGuide $investment_guide, Request $request)
             return $this->responseJsonBadRequest();
         }
 
-        $this->investment_guide->destroy($ids);
+        $user = auth('web')->user();
+
+        foreach ($ids as $id) {
+            $investment_guide = InvestmentGuide::find($id);
+            if (!$investment_guide) continue;
+
+            if ($user->is_super_admin) {
+                if ($investment_guide->is_draft) {
+                    $investment_guide->delete();
+                } else {
+                    $this->investment_guide->destroy($id);
+                    $this->removeInvestmentGuideFromScope($id);
+                }
+            } else {
+                if ($investment_guide->status_approve === 'pending' || $investment_guide->status_approve === 'rejected') {
+                    $investment_guide->delete();
+                } else {
+                    $draft = $investment_guide->draft;
+                    if ($draft) {
+                        $draft->status_approve = 'pending_delete';
+                        $draft->approval_level = $user->is_approve ? 1 : 0;
+                        $draft->save();
+                    } else {
+                        $draft = $investment_guide->replicate();
+                        $draft->parent_id = $investment_guide->id;
+                        $draft->is_draft = true;
+                        $draft->status_approve = 'pending_delete';
+                        $draft->approval_level = $user->is_approve ? 1 : 0;
+                        $draft->save();
+                        
+                        $this->addInvestmentGuideToScope($user, $draft->id);
+                    }
+                }
+            }
+        }
+
         return $this->responseJsonOk();
     }
 

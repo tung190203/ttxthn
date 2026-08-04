@@ -46,6 +46,7 @@ class MenuController extends Controller
         $parent_id = $request->get('parent_id', 0);
         $menu_raw = $this->menu->where('type', $menu_type)
             ->visibleFor(auth('web')->user())
+            ->orderByRaw("CASE WHEN status_approve IN ('pending', 'pending_delete') THEN 1 ELSE 2 END ASC")
             ->orderBy('priority')->get();
         $user = auth('web')->user();
 
@@ -65,14 +66,20 @@ class MenuController extends Controller
             $html = $row->name;
     
             // Hiển thị nhãn trạng thái
-            if ($row->is_draft) {
+            if ($row->is_draft && $row->status_approve !== 'pending_delete') {
                 $html .= " <span class='badge bg-warning'>Bản chỉnh sửa</span>";
+            }
+            if ($row->is_draft && $row->status_approve === 'pending_delete') {
+                $html .= " <span class='badge bg-danger'>Yêu cầu xóa</span>";
             }
     
             // Hiển thị trạng thái duyệt
             if ($row->status_approve === 'pending') {
                 if ($row->approval_level == 0) $html .= " <span class='badge bg-secondary'>Chờ duyệt cấp 1</span>";
                 elseif ($row->approval_level == 1) $html .= " <span class='badge bg-primary'>Chờ duyệt cấp 2</span>";
+            } elseif ($row->status_approve === 'pending_delete') {
+                if ($row->approval_level == 0) $html .= " <span class='badge bg-secondary'>Chờ duyệt xóa cấp 1</span>";
+                elseif ($row->approval_level == 1) $html .= " <span class='badge bg-primary'>Chờ duyệt xóa cấp 2</span>";
             } elseif ($row->status_approve === 'approved') {
                 $html .= " <span class='badge bg-success'>Đã duyệt</span>";
             } elseif ($row->status_approve === 'rejected') {
@@ -303,6 +310,16 @@ class MenuController extends Controller
         }
     
         if ($user->is_super_admin) {
+            if ($menu->status_approve === 'pending_delete') {
+                $parent = Menu::find($menu->main_id);
+                $menu->delete();
+                if ($parent) {
+                    $parent->delete();
+                    $this->removeMenuFromScope($parent->id);
+                }
+                return redirect()->route('backend_menu')->with('success', 'Đã duyệt yêu cầu xóa menu');
+            }
+
             $menu->approval_level = $menu->max_approval;
             $menu->status_approve = 'approved';
             $menu->is_draft = false;
@@ -328,7 +345,9 @@ class MenuController extends Controller
         } elseif ($user->is_approve) {
             if ($menu->approval_level < 1) {
                 $menu->approval_level = 1;
-                $menu->status_approve = 'pending';
+                if ($menu->status_approve !== 'pending_delete') {
+                    $menu->status_approve = 'pending';
+                }
             }
         }
     
@@ -362,8 +381,44 @@ class MenuController extends Controller
             abort(403, self::MESSAGE_UNAUTHORIZED);
         }
 
-        $this->menu->destroy($id);
-        return redirect()->route('backend_menu')->with('success', 'Xóa menu thành công');
+        $menu = Menu::find($id);
+        if (!$menu) {
+            return redirect()->route('backend_menu')->with('error', 'Menu không tồn tại');
+        }
+
+        $user = auth('web')->user();
+
+        if ($user->is_super_admin) {
+            if ($menu->is_draft) {
+                 $menu->delete();
+                 return redirect()->route('backend_menu')->with('success', 'Xóa bản nháp thành công');
+            }
+            $this->menu->destroy($id);
+            $this->removeMenuFromScope($id);
+            return redirect()->route('backend_menu')->with('success', 'Xóa menu thành công');
+        } else {
+            if ($menu->status_approve === 'pending' || $menu->status_approve === 'rejected') {
+                $menu->delete();
+                return redirect()->route('backend_menu')->with('success', 'Xóa menu/bản nháp thành công');
+            } else {
+                $draft = $menu->draft;
+                if ($draft) {
+                    $draft->status_approve = 'pending_delete';
+                    $draft->approval_level = $user->is_approve ? 1 : 0;
+                    $draft->save();
+                } else {
+                    $draft = $menu->replicate();
+                    $draft->main_id = $menu->id;
+                    $draft->is_draft = true;
+                    $draft->status_approve = 'pending_delete';
+                    $draft->approval_level = $user->is_approve ? 1 : 0;
+                    $draft->save();
+                    
+                    $this->addMenuToScope($user, $draft->id);
+                }
+                return redirect()->route('backend_menu')->with('success', 'Yêu cầu xóa menu đã được gửi để duyệt');
+            }
+        }
     }
 
     public function bulkDelete(Request $request)
@@ -379,7 +434,42 @@ class MenuController extends Controller
             return $this->responseJsonBadRequest();
         }
 
-        $this->menu->destroy($ids);
+        $user = auth('web')->user();
+
+        foreach ($ids as $id) {
+            $menu = Menu::find($id);
+            if (!$menu) continue;
+
+            if ($user->is_super_admin) {
+                if ($menu->is_draft) {
+                    $menu->delete();
+                } else {
+                    $this->menu->destroy($id);
+                    $this->removeMenuFromScope($id);
+                }
+            } else {
+                if ($menu->status_approve === 'pending' || $menu->status_approve === 'rejected') {
+                    $menu->delete();
+                } else {
+                    $draft = $menu->draft;
+                    if ($draft) {
+                        $draft->status_approve = 'pending_delete';
+                        $draft->approval_level = $user->is_approve ? 1 : 0;
+                        $draft->save();
+                    } else {
+                        $draft = $menu->replicate();
+                        $draft->main_id = $menu->id;
+                        $draft->is_draft = true;
+                        $draft->status_approve = 'pending_delete';
+                        $draft->approval_level = $user->is_approve ? 1 : 0;
+                        $draft->save();
+                        
+                        $this->addMenuToScope($user, $draft->id);
+                    }
+                }
+            }
+        }
+
         return $this->responseJsonOk();
     }
 

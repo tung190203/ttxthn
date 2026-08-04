@@ -41,6 +41,7 @@ class CategoryController extends Controller
         $filter['name'] = $request->get('name', '');
         $query = $this->category
         ->visibleFor(auth('web')->user())
+        ->orderByRaw("CASE WHEN status_approve IN ('pending', 'pending_delete') THEN 1 ELSE 2 END ASC")
         ->orderBy('name');    
         if (!empty($filter['name'])) {
             $query->where('name', 'like', '%' . $filter['name'] . '%');
@@ -66,14 +67,20 @@ class CategoryController extends Controller
             $html = $row->name;
     
             // Hiển thị nhãn trạng thái
-            if ($row->is_draft) {
+            if ($row->is_draft && $row->status_approve !== 'pending_delete') {
                 $html .= " <span class='badge bg-warning'>Bản chỉnh sửa</span>";
+            }
+            if ($row->is_draft && $row->status_approve === 'pending_delete') {
+                $html .= " <span class='badge bg-danger'>Yêu cầu xóa</span>";
             }
     
             // Hiển thị trạng thái duyệt
             if ($row->status_approve === 'pending') {
                 if ($row->approval_level == 0) $html .= " <span class='badge bg-secondary'>Chờ duyệt cấp 1</span>";
                 elseif ($row->approval_level == 1) $html .= " <span class='badge bg-primary'>Chờ duyệt cấp 2</span>";
+            } elseif ($row->status_approve === 'pending_delete') {
+                if ($row->approval_level == 0) $html .= " <span class='badge bg-secondary'>Chờ duyệt xóa cấp 1</span>";
+                elseif ($row->approval_level == 1) $html .= " <span class='badge bg-primary'>Chờ duyệt xóa cấp 2</span>";
             } elseif ($row->status_approve === 'approved') {
                 $html .= " <span class='badge bg-success'>Đã duyệt</span>";
             } elseif ($row->status_approve === 'rejected') {
@@ -373,6 +380,16 @@ class CategoryController extends Controller
         }
     
         if ($user->is_super_admin) {
+            if ($category->status_approve === 'pending_delete') {
+                $parent = Category::find($category->main_id);
+                $category->delete();
+                if ($parent) {
+                    $parent->delete();
+                    $this->removeCategoryFromScope($parent->id);
+                }
+                return redirect()->route('backend_category')->with('success', 'Đã duyệt yêu cầu xóa danh mục');
+            }
+
             $category->approval_level = $category->max_approval;
             $category->status_approve = 'approved';
             $category->is_draft = false;
@@ -408,7 +425,9 @@ class CategoryController extends Controller
         } elseif ($user->is_approve) {
             if ($category->approval_level < 1) {
                 $category->approval_level = 1;
-                $category->status_approve = 'pending';
+                if ($category->status_approve !== 'pending_delete') {
+                    $category->status_approve = 'pending';
+                }
             }
         }
     
@@ -442,8 +461,44 @@ class CategoryController extends Controller
             abort(403, self::MESSAGE_UNAUTHORIZED);
         }
 
-        $this->category->destroy($id);
-        return redirect()->route('backend_category')->with('success', 'Xóa danh mục thành công');
+        $category = Category::find($id);
+        if (!$category) {
+            return redirect()->route('backend_category')->with('error', 'Danh mục không tồn tại');
+        }
+
+        $user = auth('web')->user();
+
+        if ($user->is_super_admin) {
+            if ($category->is_draft) {
+                 $category->delete();
+                 return redirect()->route('backend_category')->with('success', 'Xóa bản nháp thành công');
+            }
+            $this->category->destroy($id);
+            $this->removeCategoryFromScope($id);
+            return redirect()->route('backend_category')->with('success', 'Xóa danh mục thành công');
+        } else {
+            if ($category->status_approve === 'pending' || $category->status_approve === 'rejected') {
+                $category->delete();
+                return redirect()->route('backend_category')->with('success', 'Xóa danh mục/bản nháp thành công');
+            } else {
+                $draft = $category->draft;
+                if ($draft) {
+                    $draft->status_approve = 'pending_delete';
+                    $draft->approval_level = $user->is_approve ? 1 : 0;
+                    $draft->save();
+                } else {
+                    $draft = $category->replicate();
+                    $draft->main_id = $category->id;
+                    $draft->is_draft = true;
+                    $draft->status_approve = 'pending_delete';
+                    $draft->approval_level = $user->is_approve ? 1 : 0;
+                    $draft->save();
+                    
+                    $this->addCategoryToScope($user, $draft->id);
+                }
+                return redirect()->route('backend_category')->with('success', 'Yêu cầu xóa danh mục đã được gửi để duyệt');
+            }
+        }
     }
 
     public function bulkDelete(Request $request)
@@ -459,7 +514,42 @@ class CategoryController extends Controller
             return $this->responseJsonBadRequest();
         }
 
-        $this->category->destroy($ids);
+        $user = auth('web')->user();
+
+        foreach ($ids as $id) {
+            $category = Category::find($id);
+            if (!$category) continue;
+
+            if ($user->is_super_admin) {
+                if ($category->is_draft) {
+                    $category->delete();
+                } else {
+                    $this->category->destroy($id);
+                    $this->removeCategoryFromScope($id);
+                }
+            } else {
+                if ($category->status_approve === 'pending' || $category->status_approve === 'rejected') {
+                    $category->delete();
+                } else {
+                    $draft = $category->draft;
+                    if ($draft) {
+                        $draft->status_approve = 'pending_delete';
+                        $draft->approval_level = $user->is_approve ? 1 : 0;
+                        $draft->save();
+                    } else {
+                        $draft = $category->replicate();
+                        $draft->main_id = $category->id;
+                        $draft->is_draft = true;
+                        $draft->status_approve = 'pending_delete';
+                        $draft->approval_level = $user->is_approve ? 1 : 0;
+                        $draft->save();
+                        
+                        $this->addCategoryToScope($user, $draft->id);
+                    }
+                }
+            }
+        }
+
         return $this->responseJsonOk();
     }
 
