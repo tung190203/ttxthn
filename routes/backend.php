@@ -19,6 +19,7 @@ use App\Http\Controllers\Backend\VrTour\HotspotController;
 use App\Http\Controllers\Backend\VrTour\ContentController;
 use App\Http\Controllers\Backend\ProfileController;
 use App\Http\Controllers\Backend\AIChatMonitorController;
+use App\Http\Controllers\Backend\Vrtour\ApprovalController;
 use Illuminate\Support\Facades\Route;
 
 Route::localized(function () {
@@ -229,6 +230,11 @@ Route::localized(function () {
                 Route::post('approve/{content}', [ContentController::class, 'approve'])->name('backend_vrtour_content_approve');
                 Route::post('reject/{content}', [ContentController::class, 'reject'])->name('backend_vrtour_content_reject');
             });
+            Route::prefix('approval')->group(function () {
+                Route::get('index',[ApprovalController::class, 'index'])->name('backend_vrtour_approval_index');
+                Route::get('get-pending-count', [ApprovalController::class, 'getPendingCount'])->name('backend_vrtour_approval_get_pending_count');
+            });
+
         });
 
         Route::prefix('ai-monitor')->group(function () {

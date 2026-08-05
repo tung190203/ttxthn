@@ -51,8 +51,9 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-body table-responsive p-0">
+                            <div id="messageBox" class="alert alert-warning text-center" style="display: none;"></div>
                             <table class="table table-hover table-grid-admin text-center">
-                                <thead>
+                                <thead  id="tableHeader" style="display: none;">
                                     <tr>
                                         <th style="width:5%" class="grid_header">STT</th>
                                         <th style="width:30%" class="grid_header">Ảnh</th>
@@ -116,11 +117,23 @@
                     url: assetUrl+'vrtour/hotspot/get-hotspot/'+vrtour+'?type='+type+'&reset='+reset,
                     type: "GET",
                     success: function(response) {
-                        $('#dataGrid').html(response.data);
-                        if (notify == true) {
-                            toastr["success"]('Lấy dữ liệu thành công','Success')
+                       if (response.success) {
+                            $('#tableHeader').show();
+                            $('#messageBox').hide();
+                            $('#dataGrid').html(response.data);
+                            if (notify) {
+                                toastr["success"](
+                                    'Lấy dữ liệu thành công',
+                                    'Success'
+                                );
+                            }
+                            $('#btn_reset').show();
+                        } else {
+                            $('#tableHeader').hide();
+                            $('#dataGrid').html('');
+                            $('#messageBox').text(response.message).show();
+                            toastr["warning"](response.message, 'Warning');
                         }
-                        $('#btn_reset').show();
                     },
                     error: function(xhr, status, error) {
                          $('#btn_reset').hide();

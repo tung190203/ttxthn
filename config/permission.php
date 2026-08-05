@@ -52,6 +52,7 @@ return [
     'vr_tour' => [
         'label' => 'Vrtour',
         'items' => [
+            "approval" => "Quản lý duyệt vrtour",
             'skin' => 'Sửa skin',
             'hotspot' => 'Sửa hotspot',
             'content' => 'Sửa nội dung',
