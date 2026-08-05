@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Backend\Vrtour;
+namespace App\Http\Controllers\Backend\VrTour;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
