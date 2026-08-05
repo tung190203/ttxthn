@@ -19,7 +19,7 @@ use App\Http\Controllers\Backend\VrTour\HotspotController;
 use App\Http\Controllers\Backend\VrTour\ContentController;
 use App\Http\Controllers\Backend\ProfileController;
 use App\Http\Controllers\Backend\AIChatMonitorController;
-use App\Http\Controllers\Backend\Vrtour\ApprovalController;
+use App\Http\Controllers\Backend\VrTour\ApprovalController;
 use Illuminate\Support\Facades\Route;
 
 Route::localized(function () {
