@@ -35,6 +35,7 @@
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <select class="form-control" id="slt_vrtour_type" style="height: 38px">
+                                        <option value="">-- Chọn loại skin --</option>
                                         <option value="0">Toàn bộ</option>
                                         <option value="1">Màn hình chào mừng</option>
                                         <option value="3">Sơ đồ liên kết vùng</option>
@@ -471,6 +472,11 @@
 
 @section('script')
     <script>
+        $(document).ready(function () {
+        const params = new URLSearchParams(window.location.search);
+        $('#slt_vrtour').val(params.get('vrtour')).trigger('change');
+        $('#slt_vrtour_type').val(params.get('type')).trigger('change');
+        });
         $('.skin_div').hide();
         $('#update_all').hide();
         $('#skin_investor #investor_status').bootstrapSwitch();
@@ -491,6 +497,16 @@
             headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
         });
 
+        function refreshApprovalBadge() {
+                $.get('/backend/vrtour/approval/get-pending-count', function (res) {
+                    $('.approval-count').text(res.count);
+                    if (res.count <= 0) {
+                        $('.approval-count').hide();
+                    } else {
+                        $('.approval-count').show();
+                    }
+                });
+            }
         function resetApprovalCheckbox() {
             $("#checkAllSkin").prop("checked", true);
             $(".skin-checkbox").prop("checked", false).prop("disabled", true);
@@ -715,10 +731,12 @@
 
         $(document).on('change', '#slt_vrtour_type', function(){
             fetch_data();
+            refreshApprovalBadge();
         });
 
         $(document).on('change', '#slt_vrtour', function(){
             fetch_data();
+            refreshApprovalBadge();
         });
 
         $(document).on('click', '#update_all', function(){
@@ -807,6 +825,7 @@
                 data: JSON.stringify(data),
                 success: function (response) {
                     toastr["success"](response.message, 'Success');
+                    refreshApprovalBadge();
                     fetch_data();
                 },
                 error: function (xhr, status, error) {
@@ -857,6 +876,7 @@
                 }),
                 success: function (res) {
                     toastr["success"](res.message);
+                    refreshApprovalBadge();
                     fetch_data();
                 },
                 error: function (xhr) {
@@ -891,6 +911,7 @@
                 }),
                 success: function (res) {
                     toastr["success"](res.message);
+                    refreshApprovalBadge();
                     fetch_data();
                 },
                 error: function (xhr) {

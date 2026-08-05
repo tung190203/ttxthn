@@ -142,6 +142,7 @@ class SkinApprovalService
                 }
                 $model->save();
             }
+            SkinApproval::where(['vrtour_id' => $vrtourId, 'type' => $type, 'status' => 'pending'])->delete();
             return [
                 'status' => 'approved',
                 'model'  => $isCollection ? $payload : $model,

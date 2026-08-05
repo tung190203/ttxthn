@@ -56,6 +56,10 @@ return [
                    'icon' => 'fas fa-vr-cardboard',
                    'title' => 'VrTour',
                    'items' => [
+                        'approval' => [
+                            'title' => 'Quản lý duyệt vrtour',
+                            'route' => 'backend_vrtour_approval_index',
+                        ],
                        'skin' => [
                            'title' => 'Skin(Nội dung popup)',
                            'route' => 'backend_vrtour_skin_index',

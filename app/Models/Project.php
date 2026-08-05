@@ -446,4 +446,14 @@ class Project extends Model
             ->where('type', SkinApproval::TYPE_LOCATION)
             ->where('status', 'pending');
     }
+
+    public function skinApprovals()
+    {
+        return $this->hasMany(SkinApproval::class, 'vrtour_id');
+    }
+
+    public function panoramas()
+    {
+        return $this->hasMany(Panorama::class, 'vrtour_id', 'id');
+    }
 }
