@@ -14,8 +14,11 @@ use App\Models\Project;
 use App\Models\Post;
 use App\Models\InvestmentGuide;
 use App\Models\Category;
+use App\Models\Hotspot;
 use App\Models\Menu;
+use App\Models\Panorama;
 use App\Models\Popup;
+use App\Models\SkinApproval;
 use App\Models\User;
 
 class AppServiceProvider extends ServiceProvider
@@ -89,8 +92,17 @@ class AppServiceProvider extends ServiceProvider
         View::composer('backend.blocks.sidebar', function ($view) {
             $user = auth('web')->user();
             if (!$user) return;
-            
+            $approvalCount = Project::whereHas('panoramas', function ($q) {
+                $q->where('status', 'pending');
+            })->orWhereHas('hotspots', function ($q) {
+                $q->where('status', 'pending');
+            })->orWhereHas('skinApprovals', function ($q) {
+                $q->where('status', 'pending');
+            })->count();
+
             $pendingCounts = [
+                'approval' => $approvalCount,
+                'vr_tour' => $approvalCount,
                 'project' => Project::visibleFor($user)->whereIn('status', ['pending', 'pending_delete'])->count(),
                 'post' => Post::visibleFor($user)->whereIn('status_approve', ['pending', 'pending_delete'])->count(),
                 'category' => Category::visibleFor($user)->whereIn('status_approve', ['pending', 'pending_delete'])->count(),
@@ -112,16 +124,23 @@ class AppServiceProvider extends ServiceProvider
             'popup' => Popup::class,
             'menu' => Menu::class,
             'investment_guide' => InvestmentGuide::class,
+            'content' => Panorama::class,
+            'hotspot' => Hotspot::class,
+            'skin' => SkinApproval::class,
         ];
 
         foreach ($notifyModels as $module => $class) {
             $class::saved(function ($model) use ($module) {
                 // Prevent duplicate notifications during the same request if needed
                 // But for now, rely on isDirty
-                $statusField = $module === 'project' ? 'status' : 'status_approve';
-                
+                $statusField = in_array($module, [
+                    'project',
+                    'content',
+                    'hotspot',
+                    'skin'
+                ]) ? 'status' : 'status_approve';
                 // Only trigger if status changed to pending/pending_delete
-                if ($model->isDirty($statusField) || $model->wasRecentlyCreated) {
+                if ($model->wasChanged($statusField) || $model->wasRecentlyCreated) {
                     $status = $model->{$statusField};
                     if (in_array($status, ['pending', 'pending_delete'])) {
                         $action = $status === 'pending' ? 'chờ duyệt' : 'yêu cầu xóa';
@@ -134,16 +153,31 @@ class AppServiceProvider extends ServiceProvider
                             'popup' => 'Popup',
                             'menu' => 'Menu',
                             'investment_guide' => 'Cẩm nang đầu tư',
+                            'content' => 'Nội dung toàn cảnh',
+                            'hotspot' => 'Nội dung lô đất',
+                            'skin' => 'Nội dung popup',
                         ];
                         $moduleNameVn = $moduleNames[$module] ?? $module;
 
-                        $itemName = $model->name ?? ($model->title ?? 'Không tên');
+                        $itemName = $model->name
+                            ?? $model->title
+                            ?? optional($model->project)->name
+                            ?? 'Không tên';
+
                         if (is_array($itemName)) {
                             $itemName = $itemName['vi'] ?? reset($itemName);
                         }
                         $message = "Có <b>{$moduleNameVn}</b> mới đang {$action}: " . \Illuminate\Support\Str::limit($itemName, 60);
-                        
-                        $url = route("backend_{$module}_edit", $model->id);
+
+                        $url = match ($module) {
+                            'content' => route('backend_vrtour_content_edit', $model->id),
+                            'hotspot' => route('backend_vrtour_hotspot_edit', $model->id),
+                            'skin' => route('backend_vrtour_skin_index', [
+                                'vrtour' => $model->vrtour_id,
+                                'type' => SkinApproval::TYPE_ALL,
+                            ]),
+                            default => route("backend_{$module}_edit", $model->id),
+                        };
                         User::notifyApprovers($module, $message, $url);
                     }
                 }

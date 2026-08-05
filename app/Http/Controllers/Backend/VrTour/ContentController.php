@@ -46,7 +46,9 @@ class ContentController extends Controller
             $pano = getDataVrtour($link_vrtour . 'vista3d/pano.json');
             if (empty($pano)) {
                 return response()->json([
-                    'data' => 'Hiện tại data pano không tồn tại'
+                    'success' => false,
+                    'message' => 'Hiện tại data pano không tồn tại',
+                    'data' => ''
                 ]);
             }
             $dbPanoramas = $panorama->keyBy('title');
@@ -77,10 +79,7 @@ class ContentController extends Controller
 
             $panorama = Panorama::where('vrtour_id', $vrtour_id)->where('is_draft', 0)->get();
             createFile('vrtour/' . $vrtour->vrtour_code, 'pano.js');
-            file_put_contents(
-                'vrtour/' . $vrtour->vrtour_code . '/pano.js',
-                $panorama
-            );
+            file_put_contents('vrtour/' . $vrtour->vrtour_code . '/pano.js',$panorama);
         }
         $html = '';
         foreach ($panorama as $key => $pn) {
@@ -119,6 +118,7 @@ class ContentController extends Controller
         }
 
         return response()->json([
+            'success' => true,
             'data' => $html
         ]);
     }

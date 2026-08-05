@@ -67,6 +67,14 @@ class HotspotController extends Controller
                 ->get();
             if ($request->reset == 'true') {
                 $response = getDataVrtour($link_vrtour . 'vista3d/hotspot.json');
+                if (empty($response) || empty($response['data'])) {
+                    DB::rollBack();
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Hiện tại data hotspot không tồn tại',
+                        'data' => ''
+                    ]);
+                }
                 $hotspotsJson = json_decode($response['data'], true);
                 $media_index = $response['media_index'];
                 $vrtour->media_index = $media_index;
@@ -120,12 +128,8 @@ class HotspotController extends Controller
                         }
                     }
                 }
-                Hotspot::where('vrtour_id', $vrtour_id)
-                    ->whereNotIn('potision', $positionsFromJson)
-                    ->delete();
-                IndustrialProject::where('project_id', $vrtour_id)
-                    ->whereNotIn('code', $positionsFromJson)
-                    ->delete();
+                Hotspot::where('vrtour_id', $vrtour_id)->whereNotIn('potision', $positionsFromJson)->delete();
+                IndustrialProject::where('project_id', $vrtour_id)->whereNotIn('code', $positionsFromJson)->delete();
                 createFile('vrtour/' . $vrtour->vrtour_code, 'hotspot.js');
                 file_put_contents('vrtour/' . $vrtour->vrtour_code . '/hotspot.js', Hotspot::where('vrtour_id', $vrtour_id)->where('is_draft', 0)->get());
             }
@@ -162,7 +166,14 @@ class HotspotController extends Controller
                 $html .= '</tr>';
             }
             DB::commit();
-            return response()->json(['data' => $html]);
+            if (empty($html)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không có hotspot nào',
+                    'data' => ''
+                ]);
+            }
+            return response()->json(['success' => true, 'data' => $html]);
         } catch (\Exception $e) {
             dd($e->getMessage());
             DB::rollBack();
