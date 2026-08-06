@@ -113,13 +113,13 @@
                                     'Success'
                                 );
                             }
-                            $('#btn_reset').show();
                         } else {
                             $('#tableHeader').hide();
                             $('#dataGrid').html('');
                             $('#messageBox').text(response.message).show();
                             toastr["warning"](response.message, 'Warning');
                         }
+                        $('#btn_reset').show();
                     },
                     error: function(xhr, status, error) { 
                         $('#btn_reset').hide();
