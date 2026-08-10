@@ -133,17 +133,12 @@ class AppServiceProvider extends ServiceProvider
             $class::saved(function ($model) use ($module) {
                 // Prevent duplicate notifications during the same request if needed
                 // But for now, rely on isDirty
-                $statusField = in_array($module, [
-                    'project',
-                    'content',
-                    'hotspot',
-                    'skin'
-                ]) ? 'status' : 'status_approve';
+                $statusField = $module === 'project' ? 'status' : 'status_approve';
+                
                 // Only trigger if status changed to pending/pending_delete
-                if ($model->wasChanged($statusField) || $model->wasRecentlyCreated) {
+                if ($model->isDirty($statusField) || $model->wasRecentlyCreated) {
                     $status = $model->{$statusField};
-                    if (in_array($status, ['pending', 'pending_delete'])) {
-                        $action = $status === 'pending' ? 'chờ duyệt' : 'yêu cầu xóa';
+                    if (in_array($status, ['pending', 'pending_delete', 'approved'])) {
                         
                         $moduleNames = [
                             'project' => 'Dự án',
@@ -167,18 +162,19 @@ class AppServiceProvider extends ServiceProvider
                         if (is_array($itemName)) {
                             $itemName = $itemName['vi'] ?? reset($itemName);
                         }
-                        $message = "Có <b>{$moduleNameVn}</b> mới đang {$action}: " . \Illuminate\Support\Str::limit($itemName, 60);
+                        
+                        $url = route("backend_{$module}_edit", $model->id);
 
-                        $url = match ($module) {
-                            'content' => route('backend_vrtour_content_edit', $model->id),
-                            'hotspot' => route('backend_vrtour_hotspot_edit', $model->id),
-                            'skin' => route('backend_vrtour_skin_index', [
-                                'vrtour' => $model->vrtour_id,
-                                'type' => SkinApproval::TYPE_ALL,
-                            ]),
-                            default => route("backend_{$module}_edit", $model->id),
-                        };
-                        User::notifyApprovers($module, $message, $url);
+                        if (in_array($status, ['pending', 'pending_delete'])) {
+                            $action = $status === 'pending' ? 'chờ duyệt' : 'yêu cầu xóa';
+                            $message = "Có <b>{$moduleNameVn}</b> mới đang {$action}: " . \Illuminate\Support\Str::limit($itemName, 60);
+                            
+                            User::notifyApprovers($module, $message, $url);
+                        } elseif ($status === 'approved') {
+                            $message = "<b>{$moduleNameVn}</b> của bạn đã được duyệt: " . \Illuminate\Support\Str::limit($itemName, 60);
+                            
+                            User::notifyCreator($model, $module, $message, $url);
+                        }
                     }
                 }
             });

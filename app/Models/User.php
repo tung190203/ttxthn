@@ -255,4 +255,30 @@ class User extends Authenticatable
         
         \Illuminate\Support\Facades\Notification::send($approvers, new \App\Notifications\PendingApprovalNotification($module, $message, $url));
     }
+
+    public static function notifyCreator($model, $module, $message, $url)
+    {
+        $creatorId = null;
+        if (!empty($model->user_id)) {
+            $creatorId = $model->user_id;
+        } elseif (!empty($model->created_by)) {
+            $creatorId = $model->created_by;
+        } else {
+            // For Project etc., fetch from activity log
+            $activity = \Spatie\Activitylog\Models\Activity::where('subject_type', get_class($model))
+                ->where('subject_id', $model->id)
+                ->where('event', 'created')
+                ->first();
+            if ($activity && $activity->causer_id) {
+                $creatorId = $activity->causer_id;
+            }
+        }
+
+        if ($creatorId && $creatorId != auth()->id()) {
+            $creator = self::find($creatorId);
+            if ($creator) {
+                \Illuminate\Support\Facades\Notification::send($creator, new \App\Notifications\PendingApprovalNotification($module, $message, $url));
+            }
+        }
+    }
 }
