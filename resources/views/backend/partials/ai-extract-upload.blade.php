@@ -371,9 +371,16 @@
                         body: formData
                     });
 
-                    const data = await response.json();
+                    const contentType = response.headers.get('content-type');
+                    let data = {};
+                    if (contentType && contentType.includes('application/json')) {
+                        data = await response.json();
+                    } else {
+                        throw new Error('Máy chủ không phản hồi đúng định dạng JSON (Có thể do quá tải, file quá lớn hoặc Timeout). Vui lòng thử lại sau.');
+                    }
+
                     if (!response.ok) {
-                        throw new Error(data.message || 'Không thể trích xuất file.');
+                        throw new Error(data.message || data.error || 'Không thể trích xuất file.');
                     }
 
                     wrapper.querySelector('textarea[name="extracted_text"]').value = data.extracted_text || '';
