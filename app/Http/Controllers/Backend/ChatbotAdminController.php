@@ -21,7 +21,16 @@ class ChatbotAdminController extends Controller
 
     private function proxyResponse($response)
     {
-        return response($response->body(), $response->status())->header('Content-Type', 'application/json');
+        $contentType = $response->header('Content-Type') ?? '';
+        
+        if (str_contains(strtolower($contentType), 'application/json')) {
+            return response($response->body(), $response->status())->header('Content-Type', 'application/json');
+        }
+
+        return response()->json([
+            'message' => 'Lỗi từ máy chủ AI (HTTP ' . $response->status() . ')',
+            'error' => 'Phản hồi không hợp lệ từ AI service.'
+        ], $response->status() >= 400 ? $response->status() : 500);
     }
 
     private function logAiUsage(string $endpoint, array $payload): void
