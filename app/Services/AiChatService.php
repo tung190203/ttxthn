@@ -141,7 +141,7 @@ class AiChatService
     {
         return $this->multipartClient()
             ->attach('file', fopen($file->getRealPath(), 'r'), $file->getClientOriginalName())
-            ->post($this->baseUrl . '/api/v1/admin/extract', [
+            ->post($this->baseUrl . '/api/v1/admin/extract-jobs', [
                 'summary_mode' => $summaryMode,
                 'language' => $language,
             ]);
@@ -151,10 +151,15 @@ class AiChatService
     {
         return $this->multipartClient()
             ->attach('file', fopen($path, 'r'), $filename ?: basename($path))
-            ->post($this->baseUrl . '/api/v1/admin/extract', [
+            ->post($this->baseUrl . '/api/v1/admin/extract-jobs', [
                 'summary_mode' => $summaryMode,
                 'language' => $language,
             ]);
+    }
+
+    public function getExtractJob(string $jobId)
+    {
+        return $this->client()->get($this->baseUrl . "/api/v1/admin/extract-jobs/{$jobId}");
     }
 
     public function getExtractConfig()

@@ -345,7 +345,7 @@
 
                 function setStatus(type, message) {
                     statusBox.className = 'ai-extract-status js-ai-extract-status alert-' + type;
-                    statusBox.textContent = message;
+                    statusBox.innerHTML = message;
                 }
 
                 if (!fileUrlInput.value) {
@@ -359,7 +359,7 @@
                 formData.append('language', wrapper.querySelector('.js-ai-extract-language').value);
 
                 button.disabled = true;
-                setStatus('info', 'Đang trích xuất nội dung, vui lòng chờ...');
+                setStatus('info', '<i class="fas fa-spinner fa-spin mr-1"></i> Đang trích xuất nội dung, vui lòng chờ...');
 
                 try {
                     const response = await fetch('/backend/chatbot-admin/extract', {
@@ -372,15 +372,49 @@
                     });
 
                     const contentType = response.headers.get('content-type');
-                    let data = {};
+                    let initData = {};
                     if (contentType && contentType.includes('application/json')) {
-                        data = await response.json();
+                        initData = await response.json();
                     } else {
                         throw new Error('Máy chủ không phản hồi đúng định dạng JSON (Có thể do quá tải, file quá lớn hoặc Timeout). Vui lòng thử lại sau.');
                     }
 
                     if (!response.ok) {
-                        throw new Error(data.message || data.error || 'Không thể trích xuất file.');
+                        throw new Error(initData.message || initData.error || 'Không thể trích xuất file.');
+                    }
+
+                    if (!initData.job_id) {
+                        throw new Error('Không nhận được mã công việc (job_id).');
+                    }
+
+                    const jobId = initData.job_id;
+                    const deadline = Date.now() + 10 * 60 * 1000;
+                    let data = null;
+
+                    while (Date.now() < deadline) {
+                        setStatus('info', `<i class="fas fa-spinner fa-spin mr-1"></i> Đang xử lý nội dung, vui lòng không tải lại trang...`);
+                        await new Promise(r => setTimeout(r, 2500));
+
+                        const p = await fetch(`/backend/chatbot-admin/extract-jobs/${jobId}`, {
+                            headers: { 'Accept': 'application/json' }
+                        });
+                        
+                        if (!p.ok) {
+                            throw new Error(`Lỗi kiểm tra trạng thái: ${p.status}`);
+                        }
+                        
+                        const jobData = await p.json();
+                        if (jobData.status === 'completed') {
+                            data = jobData;
+                            break;
+                        }
+                        if (jobData.status === 'failed') {
+                            throw new Error(`${jobData.error_code || 'Lỗi'}: ${jobData.error_message || 'Xử lý thất bại.'}`);
+                        }
+                    }
+
+                    if (!data) {
+                        throw new Error(`Quá thời gian chờ. Dùng job_id ${jobId} để kiểm tra lại sau.`);
                     }
 
                     wrapper.querySelector('textarea[name="extracted_text"]').value = data.extracted_text || '';
@@ -390,7 +424,11 @@
                     summaryPreview.value = data.summary || '';
                     wrapper.querySelector('.js-ai-extract-text-preview').value = data.extracted_text || '';
 
-                    setStatus('success', 'Trích xuất thành công. Chi phí ước tính: $' + Number(data.cost_usd_total || 0).toFixed(6));
+                    let costUsdTotal = 0;
+                    if (data.usage && Array.isArray(data.usage.models)) {
+                        costUsdTotal = data.usage.models.reduce((sum, item) => sum + (Number(item.cost_usd) || 0), 0);
+                    }
+                    setStatus('success', 'Trích xuất thành công. Chi phí ước tính: $' + costUsdTotal.toFixed(6));
                 } catch (error) {
                     setStatus('danger', error.message);
                 } finally {

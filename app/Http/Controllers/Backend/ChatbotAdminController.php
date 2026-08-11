@@ -103,8 +103,26 @@ class ChatbotAdminController extends Controller
             );
         }
 
+        return $this->proxyResponse($response);
+    }
+
+    public function getExtractJob($jobId)
+    {
+        $response = $this->aiChatService->getExtractJob($jobId);
+
         if ($response->successful()) {
-            $this->logAiUsage('/admin/extract', $response->json() ?? []);
+            $data = $response->json() ?? [];
+            if (($data['status'] ?? '') === 'completed' && !empty($data['usage'])) {
+                $models = Arr::get($data, 'usage.models', []);
+                $this->logAiUsage('/admin/extract', [
+                    'model_used' => Arr::get($models, '0.model'),
+                    'cost_usd_total' => array_sum(array_column($models, 'cost_usd')),
+                    'tokens' => [
+                        'input' => array_sum(array_column($models, 'input_tokens')),
+                        'output' => array_sum(array_column($models, 'output_tokens')),
+                    ]
+                ]);
+            }
         }
 
         return $this->proxyResponse($response);

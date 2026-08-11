@@ -139,6 +139,7 @@ Route::localized(function () {
             Route::get('/sync/history', [ChatbotAdminController::class, 'getSyncHistory']);
             Route::get('/extract/config', [ChatbotAdminController::class, 'getExtractConfig']);
             Route::post('/extract', [ChatbotAdminController::class, 'extract']);
+            Route::get('/extract-jobs/{jobId}', [ChatbotAdminController::class, 'getExtractJob']);
             Route::get('/knowledge/config', [ChatbotAdminController::class, 'getKnowledgeConfig']);
             Route::post('/knowledge', [ChatbotAdminController::class, 'createKnowledge']);
             Route::get('/knowledge/jobs', [ChatbotAdminController::class, 'getKnowledgeJobs']);
