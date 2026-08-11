@@ -345,7 +345,7 @@
 
                 function setStatus(type, message) {
                     statusBox.className = 'ai-extract-status js-ai-extract-status alert-' + type;
-                    statusBox.textContent = message;
+                    statusBox.innerHTML = message;
                 }
 
                 if (!fileUrlInput.value) {
@@ -359,7 +359,7 @@
                 formData.append('language', wrapper.querySelector('.js-ai-extract-language').value);
 
                 button.disabled = true;
-                setStatus('info', 'Đang trích xuất nội dung, vui lòng chờ...');
+                setStatus('info', '<i class="fas fa-spinner fa-spin mr-1"></i> Đang trích xuất nội dung, vui lòng chờ...');
 
                 try {
                     const response = await fetch('/backend/chatbot-admin/extract', {
@@ -392,7 +392,7 @@
                     let data = null;
 
                     while (Date.now() < deadline) {
-                        setStatus('info', `Đang xử lý nền, vui lòng không tải lại trang...`);
+                        setStatus('info', `<i class="fas fa-spinner fa-spin mr-1"></i> Đang xử lý nội dung, vui lòng không tải lại trang...`);
                         await new Promise(r => setTimeout(r, 2500));
 
                         const p = await fetch(`/backend/chatbot-admin/extract-jobs/${jobId}`, {
