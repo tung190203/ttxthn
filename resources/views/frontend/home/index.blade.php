@@ -2109,9 +2109,9 @@ html {
 <script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.0.21/leaflet-maplibre-gl.js"></script>
 <script src="/js/industry-styles.js"></script>
 <script src="/js/boundaries.js"></script>
-<script src="/js/railways.js"></script>
-<script src="/js/railway_stations.js"></script>
-<script src="/js/railway_depots.js"></script>
+<script src="/js/railways/railways.js"></script>
+<script src="/js/railways/railway_stations.js"></script>
+<script src="/js/railways/railway_depots.js"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
