@@ -30,6 +30,7 @@ return [
     'filter_results' => 'Filter Results',
     'close' => 'Close',
     'default_map' => 'Default Map',
+    'standard_map' => 'Standard Map',
     'traffic_map' => 'Traffic Map',
     'satellite_map' => 'Satellite Map',
     'topo_map' => 'Topographic Map',

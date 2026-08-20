@@ -30,6 +30,7 @@ return [
     'filter_results' => 'Kết quả lọc',
     'close' => 'Đóng',
     'default_map' => 'Bản đồ mặc định',
+    'standard_map' => 'Bản đồ tiêu chuẩn',
     'traffic_map' => 'Bản đồ giao thông',
     'satellite_map' => 'Bản đồ vệ tinh',
     'topo_map' => 'Bản đồ địa hình',
