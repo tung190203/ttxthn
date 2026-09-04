@@ -1,26 +1,16 @@
-# 1. Chặn đứng bot cào dữ liệu nặng & bot rà quét lỗ hổng (Trả về 403 ngay lập tức, không chạm vào PHP)
-<IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteCond %{HTTP_USER_AGENT}
-    (Sogou|PetalBot|Baiduspider|DotBot|crusader-worker|AhrefsBot|Claude-SearchBot|bingbot) [NC]
-    RewriteRule .* - [F,L]
-
-    # Chặn quét file ẩn và file cấu hình nhạy cảm (.env, .git, .aws, .yml...)
-    RewriteRule (^|/)\.(env|git|aws|yml|yaml|ini|sql) - [F,L]
-</IfModule>
-
-<IfModule mod_headers.c>
-    Header always set Access-Control-Allow-Origin "*"
-    Header always set Access-Control-Allow-Methods "GET, OPTIONS"
-    Header always set Access-Control-Allow-Headers "*"
-</IfModule>
-
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes
     </IfModule>
 
     RewriteEngine On
+
+    # 1. Chặn bot rác
+    RewriteCond %{HTTP_USER_AGENT} (Sogou|PetalBot|Baiduspider|DotBot|crusader-worker|AhrefsBot|Claude-SearchBot|bingbot) [NC]
+    RewriteRule .* - [F,L]
+
+    # 2. Chặn quét file ẩn và file cấu hình nhạy cảm
+    RewriteRule (^|/)\.(env|git|aws|yml|yaml|ini|sql) - [F,L]
 
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
@@ -39,6 +29,12 @@
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
+</IfModule>
+
+<IfModule mod_headers.c>
+    Header always set Access-Control-Allow-Origin "*"
+    Header always set Access-Control-Allow-Methods "GET, OPTIONS"
+    Header always set Access-Control-Allow-Headers "*"
 </IfModule>
 
 # BEGIN cPanel-generated php ini directives, do not edit
