@@ -1,7 +1,7 @@
 # 1. Chặn đứng bot cào dữ liệu nặng & bot rà quét lỗ hổng (Trả về 403 ngay lập tức, không chạm vào PHP)
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteCond %{HTTP_USER_AGENT} (PetalBot|Baiduspider|DotBot|crusader-worker|AhrefsBot|Claude-SearchBot) [NC]
+    RewriteCond %{HTTP_USER_AGENT} (PetalBot|Baiduspider|DotBot|crusader-worker|AhrefsBot|Claude-SearchBot|bingbot) [NC]
     RewriteRule .* - [F,L]
 
     # Chặn quét file ẩn và file cấu hình nhạy cảm (.env, .git, .aws, .yml...)
