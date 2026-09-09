@@ -47,7 +47,11 @@ Route::localized(function () {
     Route::get('/search', [HomeController::class, 'search'])->name('search');
     Route::get('/ajax-project-suggestions', [HomeController::class, 'ajaxSuggestions'])->name('ajax_project_suggestions');
     Route::get('/huongdansudungbando', function () {
-        return response()->file(public_path('brochures/huong-dan-su-dung-ban-do.html'));
+        $brochure = app()->getLocale() === 'en'
+            ? 'huong-dan-su-dung-ban-do-eng.html'
+            : 'huong-dan-su-dung-ban-do.html';
+
+        return response()->file(public_path("brochures/{$brochure}"));
     })->name('map_user_guide');
     Route::group(['prefix' => 'chat'], function () {
         Route::post('/', [AIChatController::class, 'chat']);
