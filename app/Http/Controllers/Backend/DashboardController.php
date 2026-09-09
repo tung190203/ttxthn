@@ -36,7 +36,10 @@ class DashboardController extends Controller
             return redirect()->route('login')->with('error', 'Tài khoản của bạn đang chờ phê duyệt hoặc bị từ chối. Vui lòng liên hệ quản trị viên.');
         }
 
-        if ($user->isSuperAdmin()) {
+        // A member with the Dashboard permission is intentionally read-only:
+        // they can see the same reporting screen without receiving permissions
+        // for any content or system-management module.
+        if ($user->isSuperAdmin() || $user->hasPermission('dashboard')) {
             $quantityProjects = Project::count() ?? 0;
             $quantityUser = Guest::count() ?? 0;
             $quantityPost = Post::count() ?? 0;
