@@ -29,7 +29,9 @@ Route::localized(function () {
 
     Route::prefix('backend')->middleware(['auth', 'can:backend_access'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('backend_dashboard');
-        Route::get('/dashboard/export-logs', [DashboardController::class, 'exportLogs'])->name('backend_dashboard_export_logs');
+        Route::get('/dashboard/export-logs', [DashboardController::class, 'exportLogs'])
+            ->middleware('can:dashboard')
+            ->name('backend_dashboard_export_logs');
         Route::post('/profile/update', [ProfileController::class, 'update'])->name('backend.profile.update');
 
         Route::prefix('category')->group(function () {
@@ -131,7 +133,7 @@ Route::localized(function () {
             Route::post('/save', [SettingController::class, 'save'])->name('backend_setting_save');
         });
 
-        Route::prefix('chatbot-admin')->group(function () {
+        Route::prefix('chatbot-admin')->middleware('can:chatbot_management')->group(function () {
             Route::get('/sync/settings', [ChatbotAdminController::class, 'getSyncSettings']);
             Route::post('/sync/settings', [ChatbotAdminController::class, 'updateSyncSettings']);
             Route::post('/sync/trigger', [ChatbotAdminController::class, 'triggerSync']);
@@ -247,7 +249,7 @@ Route::localized(function () {
     });
 });
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'can:file_manager'])->group(function () {
     Route::any('/ckfinder/connector', '\CKSource\CKFinderBridge\Controller\CKFinderController@requestAction')->name('ckfinder_connector');
     Route::any('/ckfinder/browser', '\CKSource\CKFinderBridge\Controller\CKFinderController@browserAction')->name('ckfinder_browser');
 });

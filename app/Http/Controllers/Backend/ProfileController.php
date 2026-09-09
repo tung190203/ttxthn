@@ -16,6 +16,18 @@ class ProfileController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::guard('web')->user();
 
+        // Keep the dashboard-viewer account completely read-only, including
+        // its profile endpoint. Other backend roles retain self-service
+        // profile updates as before.
+        $permissions = $user->getAllPermissionsFromGroup();
+        $isDashboardViewer = !$user->isSuperAdmin()
+            && in_array('dashboard', $permissions, true)
+            && empty(array_diff($permissions, ['backend_access', 'dashboard']));
+
+        if ($isDashboardViewer) {
+            abort(403, self::MESSAGE_UNAUTHORIZED);
+        }
+
         $rules = [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
