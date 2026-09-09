@@ -46,6 +46,9 @@ Route::localized(function () {
     Route::post('/interest', [InterestController::class, 'toggleInterest'])->name('interest');
     Route::get('/search', [HomeController::class, 'search'])->name('search');
     Route::get('/ajax-project-suggestions', [HomeController::class, 'ajaxSuggestions'])->name('ajax_project_suggestions');
+    Route::get('/huongdansudungbando', function () {
+        return response()->file(public_path('brochures/huong-dan-su-dung-ban-do.html'));
+    })->name('map_user_guide');
     Route::group(['prefix' => 'chat'], function () {
         Route::post('/', [AIChatController::class, 'chat']);
         Route::get('/session/{sessionId}', [AIChatController::class, 'sessionHistory']);
