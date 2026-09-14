@@ -27,7 +27,7 @@ class HomeController extends Controller
     public function index(Request $request)
     {
         $setting = Setting::getAllSetting();
-        $setting['meta_title'] = __('app.home');
+        $setting['meta_title'] = app()->getLocale() === 'en' ? 'Hanoi Investment Map' : 'Bản đồ đầu tư Hà Nội';
         $list_post_popular = Post::where('published_at', '<=', Carbon::now())->popular(4)->whereNull('parent_id')->where('status_approve','approved')->get();
         $rawProjects = Project::withRelations()->whereNull('parent_id')->where('status','approved')->get();
         $projects = $rawProjects->map([ProjectTransformer::class, 'transform']);
