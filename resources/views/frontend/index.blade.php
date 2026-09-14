@@ -40,7 +40,7 @@
     <script>var baseUrl = "{{ url('/') }}";</script>
     <script>var current_locale = "{{ app()->getLocale() }}";</script>
 
-    <title>{{ $setting['meta_title'] }}</title>
+    <title>{{ app()->getLocale() === 'en' ? 'Hanoi Investment Map' : 'Bản đồ đầu tư Hà Nội' }}</title>
     <meta name="keywords" content="{{ $setting['meta_keywords'] }}">
     <meta name="description" content="{{ $setting['meta_description'] }}">
     @if($setting['noindex'])
