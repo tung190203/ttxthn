@@ -156,7 +156,15 @@
                         error: error,
                         response: xhr.responseText
                     });
-                    alert('Có lỗi xảy ra khi tải dữ liệu. Vui lòng thử lại!');
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: '{{ __('app.error') ?? 'Lỗi!' }}',
+                            text: 'Có lỗi xảy ra khi tải dữ liệu. Vui lòng thử lại!'
+                        });
+                    } else {
+                        console.error('Có lỗi xảy ra khi tải dữ liệu.');
+                    }
                 },
                 complete: function () {
                     $paginationWrapper.css('opacity', '1').css('pointer-events', 'auto');

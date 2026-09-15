@@ -2244,6 +2244,11 @@ document.addEventListener('DOMContentLoaded', function() {
         skipBtn.addEventListener('click', unlockMap);
     }
 });
+(function() {
+'use strict';
+
+let layerControl = null;
+let _currentProjectBoundaryPolygon = null;
 
 // Toạ độ giới hạn vùng Hà Nội (tương đối chính xác)
 const hanoiBounds = L.latLngBounds(
@@ -3195,8 +3200,65 @@ const map = L.map('map', {
     keyboard: false // Disable default keyboard panning to allow custom 3D rotation
 });
 
+// Bảo vệ chống can thiệp hoặc điều hướng bản đồ ra ngoài phạm vi Hà Nội
+const _originalSetView = map.setView.bind(map);
+const _originalFlyTo = map.flyTo.bind(map);
+const _originalPanTo = map.panTo.bind(map);
+const _originalFitBounds = map.fitBounds.bind(map);
+const _originalSetMinZoom = map.setMinZoom.bind(map);
+let _currentMinAllowedZoom = 0;
+
+map.setView = function(center, zoom, options) {
+    const latLng = L.latLng(center);
+    if (!bounds.contains(latLng)) {
+        console.warn('Toạ độ điều hướng nằm ngoài phạm vi Hà Nội:', latLng);
+        return map;
+    }
+    return _originalSetView(latLng, zoom, options);
+};
+
+map.flyTo = function(center, zoom, options) {
+    const latLng = L.latLng(center);
+    if (!bounds.contains(latLng)) {
+        console.warn('Toạ độ điều hướng nằm ngoài phạm vi Hà Nội:', latLng);
+        return map;
+    }
+    return _originalFlyTo(latLng, zoom, options);
+};
+
+map.panTo = function(center, options) {
+    const latLng = L.latLng(center);
+    if (!bounds.contains(latLng)) {
+        console.warn('Toạ độ điều hướng nằm ngoài phạm vi Hà Nội:', latLng);
+        return map;
+    }
+    return _originalPanTo(latLng, options);
+};
+
+map.fitBounds = function(b, options) {
+    const targetBounds = L.latLngBounds(b);
+    if (!bounds.intersects(targetBounds)) {
+        console.warn('Vùng bounds nằm ngoài phạm vi Hà Nội:', targetBounds);
+        return map;
+    }
+    return _originalFitBounds(b, options);
+};
+
+map.setMinZoom = function(zoom) {
+    if (zoom < _currentMinAllowedZoom) {
+        return map;
+    }
+    return _originalSetMinZoom(zoom);
+};
+
+// Không cho phép gỡ bỏ maxBounds
+map.setMaxBounds = function() {
+    return map;
+};
+
 function lockMapToBounds(isInit = false) {
     // Tạm mở khóa zoom
+    _currentMinAllowedZoom = 0;
     map.setMinZoom(0);
     map.setMaxZoom(21);
     
@@ -3209,6 +3271,7 @@ function lockMapToBounds(isInit = false) {
     }
     
     // Thiết lập giới hạn: Không cho zoom out ra ngoài targetZoom, nhưng VẪN cho zoom in (max 21)
+    _currentMinAllowedZoom = targetZoom;
     map.setMinZoom(targetZoom);
     map.setMaxZoom(21);
     
@@ -3234,13 +3297,13 @@ window.addEventListener('resize', function() {
 
 // Đồng bộ ô tích (checkbox) Ranh giới trong menu chọn lớp bản đồ (Layer Control)
 function syncLayerControlCheckboxes() {
-    if (!window.layerControl) return;
+    if (!layerControl) return;
 
-    if (typeof window.layerControl._update === 'function') {
-        window.layerControl._update();
+    if (typeof layerControl._update === 'function') {
+        layerControl._update();
     }
 
-    const container = window.layerControl.getContainer();
+    const container = layerControl.getContainer();
     if (!container) return;
 
     const overlaysList = container.querySelectorAll('.leaflet-control-layers-overlays label');
@@ -3310,12 +3373,12 @@ map.on('click', function() {
     updateRailwayStyles();
     stationOverlayGroup.clearLayers(); // Ẩn các nhà ga khi bỏ chọn tuyến
             depotOverlayGroup.clearLayers();   // Ẩn các depot khi bỏ chọn tuyến
-    if (window._currentProjectBoundaryPolygon) {
-        map.removeLayer(window._currentProjectBoundaryPolygon);
-        window._currentProjectBoundaryPolygon = null;
+    if (_currentProjectBoundaryPolygon) {
+        map.removeLayer(_currentProjectBoundaryPolygon);
+        _currentProjectBoundaryPolygon = null;
     }
-    if (window.layerControl && window.layerControl.forceCollapse) {
-        window.layerControl.forceCollapse();
+    if (layerControl && layerControl.forceCollapse) {
+        layerControl.forceCollapse();
     }
 });
 
@@ -3385,7 +3448,9 @@ const redIcon = new L.Icon({
 });
 
 
-// Thêm nút reset bản đồ
+// Thêm nút reset bản đồ và định vị
+let isUserOutsideHanoi = false;
+
 const resetControl = L.control({
     position: window.innerWidth <= 1024 ? 'topright' : 'bottomright'
 });
@@ -3399,7 +3464,9 @@ const fullScreenControl = L.control({
 window.addEventListener('resize', () => {
     const newPosition = window.innerWidth <= 1024 ? 'topright' : 'bottomright';
     resetControl.setPosition(newPosition);
-    currentLocation.setPosition(newPosition);
+    if (!isUserOutsideHanoi) {
+        currentLocation.setPosition(newPosition);
+    }
     fullScreenControl.setPosition(newPosition);
 
     resetControl.remove();
@@ -3409,12 +3476,16 @@ window.addEventListener('resize', () => {
     if (newPosition === 'topright') {
         // Muốn C -> B -> A trên mobile (hiển thị dưới cùng lên)
         fullScreenControl.addTo(map);
-        currentLocation.addTo(map);
+        if (!isUserOutsideHanoi) {
+            currentLocation.addTo(map);
+        }
         resetControl.addTo(map);
     } else {
         // Muốn A -> B -> C trên web
         resetControl.addTo(map);
-        currentLocation.addTo(map);
+        if (!isUserOutsideHanoi) {
+            currentLocation.addTo(map);
+        }
         fullScreenControl.addTo(map);
     }
 });
@@ -3444,6 +3515,112 @@ resetControl.onAdd = function(map) {
 
 resetControl.addTo(map);
 
+// Hàm hiển thị thông báo Toast nhẹ nhàng trên bản đồ
+function showMapToast(message, type = 'info') {
+    let container = document.getElementById('mapToastContainer');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'mapToastContainer';
+        container.style.cssText = 'position:fixed;top:90px;left:50%;transform:translateX(-50%);z-index:10000;pointer-events:none;display:flex;flex-direction:column;gap:8px;align-items:center;width:max-content;max-width:90vw;';
+        document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    const bgColors = {
+        warning: 'linear-gradient(135deg, rgba(234, 88, 12, 0.95), rgba(194, 65, 12, 0.95))',
+        error: 'linear-gradient(135deg, rgba(220, 38, 38, 0.95), rgba(185, 28, 28, 0.95))',
+        success: 'linear-gradient(135deg, rgba(22, 163, 74, 0.95), rgba(21, 128, 61, 0.95))',
+        info: 'linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95))'
+    };
+    const icons = {
+        warning: '<i class="fas fa-exclamation-triangle" style="margin-right:8px;font-size:15px;"></i>',
+        error: '<i class="fas fa-times-circle" style="margin-right:8px;font-size:15px;"></i>',
+        success: '<i class="fas fa-check-circle" style="margin-right:8px;font-size:15px;"></i>',
+        info: '<i class="fas fa-info-circle" style="margin-right:8px;font-size:15px;"></i>'
+    };
+
+    toast.style.cssText = 'background:' + (bgColors[type] || bgColors.info) + ';' +
+        'color:#ffffff;padding:11px 22px;border-radius:50px;font-size:14px;font-family:inherit;font-weight:500;' +
+        'box-shadow:0 10px 25px -5px rgba(0,0,0,0.3), 0 8px 10px -6px rgba(0,0,0,0.2);' +
+        'backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;' +
+        'opacity:0;transform:translateY(-15px) scale(0.96);transition:all 0.35s cubic-bezier(0.16, 1, 0.3, 1);pointer-events:auto;';
+
+    toast.innerHTML = (icons[type] || '') + '<span>' + message + '</span>';
+    container.appendChild(toast);
+
+    requestAnimationFrame(() => {
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateY(0) scale(1)';
+    });
+
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(-15px) scale(0.96)';
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 350);
+    }, 3200);
+}
+
+// Hàm lấy toạ độ vị trí qua IP (cứu cánh cho Mac/PC/máy tính bàn không có chip GPS vệ tinh)
+function fetchLocationByIP(onSuccess, onError) {
+    fetch('https://ipwho.is/')
+        .then(res => res.json())
+        .then(data => {
+            if (data && data.success && data.latitude && data.longitude) {
+                onSuccess(data.latitude, data.longitude);
+            } else {
+                if (typeof onError === 'function') onError();
+            }
+        })
+        .catch(() => {
+            fetch('https://freeipapi.com/api/json')
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.latitude && data.longitude) {
+                        onSuccess(data.latitude, data.longitude);
+                    } else {
+                        if (typeof onError === 'function') onError();
+                    }
+                })
+                .catch(() => {
+                    if (typeof onError === 'function') onError();
+                });
+        });
+}
+
+function applyUserLocation(lat, lng, isSilent = false) {
+    const latLng = L.latLng(lat, lng);
+
+    // Nếu người dùng không ở khu vực Hà Nội: ẩn nút định vị đi luôn và thông báo
+    if (!bounds.contains(latLng)) {
+        isUserOutsideHanoi = true;
+        currentLocation.remove();
+        if (!isSilent) {
+            showMapToast('{{ __('app.location_outside_hanoi') }}', 'warning');
+        }
+        return false;
+    }
+
+    if (isSilent) return true;
+
+    map.setView(latLng, 16);
+
+    if (map._currentLocationMarker) {
+        map.removeLayer(map._currentLocationMarker);
+    }
+    map._currentLocationMarker = L.marker(latLng, {
+            icon: redIcon
+        }).addTo(map)
+        .bindPopup("{{ __('app.current_location') }}")
+        .openPopup();
+
+    showMapToast('{{ __('app.current_location') }}', 'success');
+    return true;
+}
+
 currentLocation.onAdd = function(map) {
     const btn = L.DomUtil.create('button', 'leaflet-bar leaflet-control leaflet-control-custom');
     btn.innerHTML = '<i class="fas fa-crosshairs"></i>';
@@ -3463,32 +3640,55 @@ currentLocation.onAdd = function(map) {
     L.DomEvent.disableClickPropagation(btn);
 
     btn.onclick = function() {
+        btn.disabled = true;
+        btn.style.opacity = '0.6';
+
+        const handleSuccess = function(lat, lng) {
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            applyUserLocation(lat, lng, false);
+        };
+
+        const handleFail = function() {
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            showMapToast('{{ __('app.unable_to_get_current_location') }}', 'warning');
+        };
+
+        // 1. Thử lấy GPS từ trình duyệt (hoạt động tốt trên điện thoại có chip GPS)
         if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function(position) {
-                const latLng = [position.coords.latitude, position.coords.longitude];
-                map.setView(latLng, 16);
-
-                if (map._currentLocationMarker) {
-                    map.removeLayer(map._currentLocationMarker);
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    handleSuccess(position.coords.latitude, position.coords.longitude);
+                },
+                function(err) {
+                    console.warn('GPS trình duyệt không khả dụng (phổ biến trên máy tính/Mac/Brave), chuyển sang IP Fallback:', err);
+                    // 2. Tự động fallback qua IP định vị cho Mac và máy tính bàn
+                    fetchLocationByIP(handleSuccess, handleFail);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 4000,
+                    maximumAge: 60000
                 }
-                map._currentLocationMarker = L.marker(latLng, {
-                        icon: redIcon
-                    }).addTo(map)
-                    .bindPopup("{{ __('app.current_location') }}")
-                    .openPopup();
-
-            }, function() {
-                        alert('{{ __('app.unable_to_get_current_location') }}');
-            });
+            );
         } else {
-                    alert('{{ __('app.browser_not_support_geolocation') }}');
+            // Trình duyệt không hỗ trợ Geolocation: lấy qua IP
+            fetchLocationByIP(handleSuccess, handleFail);
         }
     };
 
     return btn;
 };
 
-currentLocation.addTo(map);
+// Kiểm tra ngầm vị trí qua IP lúc tải trang: nếu người dùng ở ngoài Hà Nội thì ẩn nút luôn
+fetchLocationByIP(function(lat, lng) {
+    applyUserLocation(lat, lng, true);
+}, function() {});
+
+if (!isUserOutsideHanoi) {
+    currentLocation.addTo(map);
+}
 
 fullScreenControl.onAdd = function(map) {
     const btn = L.DomUtil.create('button', 'leaflet-bar leaflet-control leaflet-control-custom');
@@ -3585,23 +3785,23 @@ if (!window._patchedLeafletLayers) {
 }
 
 // Khởi tạo bình thường (không dùng collapsed: false để tránh phá DOM Leaflet)
-window.layerControl = L.control.layers(baseLayers, overlayLayers).addTo(map);
+layerControl = L.control.layers(baseLayers, overlayLayers).addTo(map);
 syncLayerControlCheckboxes();
 
 // Reset trạng thái flag an toàn
-window.layerControl._clickToOpen = false;
-window.layerControl._clickToClose = false;
+layerControl._clickToOpen = false;
+layerControl._clickToClose = false;
 
 // Public method an toàn để map onClick bên ngoài có thể gọi force form collapse
-window.layerControl.forceCollapse = function() {
-    window.layerControl._clickToClose = true;
-    window.layerControl._collapse();
-    window.layerControl._clickToClose = false;
+layerControl.forceCollapse = function() {
+    layerControl._clickToClose = true;
+    layerControl._collapse();
+    layerControl._clickToClose = false;
 };
 
 // Lắng nghe sự kiện click thay vì hover
 (function setupLayerControlClick() {
-    const lcContainer = window.layerControl.getContainer();
+    const lcContainer = layerControl.getContainer();
     const toggleBtn = lcContainer.querySelector('.leaflet-control-layers-toggle');
 
             if(toggleBtn) {
@@ -3610,11 +3810,11 @@ window.layerControl.forceCollapse = function() {
             L.DomEvent.preventDefault(e);
 
             if (L.DomUtil.hasClass(lcContainer, 'leaflet-control-layers-expanded')) {
-                window.layerControl.forceCollapse();
+                layerControl.forceCollapse();
             } else {
-                window.layerControl._clickToOpen = true;
-                window.layerControl._expand();
-                window.layerControl._clickToOpen = false;
+                layerControl._clickToOpen = true;
+                layerControl._expand();
+                layerControl._clickToOpen = false;
             }
         });
     }
@@ -3763,15 +3963,15 @@ function createProjectPopupContent(loc) {
 function showProjectBoundary(loc) {
     if (!loc.boundary) return;
 
-    if (window._currentProjectBoundaryPolygon) {
-        map.removeLayer(window._currentProjectBoundaryPolygon);
-        window._currentProjectBoundaryPolygon = null;
+    if (_currentProjectBoundaryPolygon) {
+        map.removeLayer(_currentProjectBoundaryPolygon);
+        _currentProjectBoundaryPolygon = null;
     }
 
     try {
         const coords = JSON.parse(loc.boundary);
         if (coords && coords.length > 0) {
-            window._currentProjectBoundaryPolygon = L.polygon(coords, {
+            _currentProjectBoundaryPolygon = L.polygon(coords, {
                 color: '#e65100',
                 weight: 2,
                 dashArray: '5, 5',
@@ -3780,8 +3980,8 @@ function showProjectBoundary(loc) {
                 interactive: true
             }).addTo(map);
 
-            if (window._currentProjectBoundaryPolygon) {
-                window._currentProjectBoundaryPolygon.bindTooltip(loc.name, {
+            if (_currentProjectBoundaryPolygon) {
+                _currentProjectBoundaryPolygon.bindTooltip(loc.name, {
                     sticky: true,
                     direction: 'top',
                     className: 'boundary-tooltip'
@@ -3825,8 +4025,13 @@ function createMarker(loc) {
 function loadMarkers(data, triggeredBySearch = false) {
     markersLayer.clearLayers();
 
-    const filtered = data.filter(loc => loc.lat && loc.lng && Array.isArray(loc.districts) && loc.districts.length >
-        0);
+    const filtered = data.filter(loc => {
+        if (!loc.lat || !loc.lng || !Array.isArray(loc.districts) || loc.districts.length === 0) return false;
+        const lat = parseFloat(loc.lat);
+        const lng = parseFloat(loc.lng);
+        if (isNaN(lat) || isNaN(lng)) return false;
+        return hanoiBounds.contains([lat, lng]);
+    });
     const markers = filtered.map(loc => createMarker(loc));
 
     if (markers.length === 0) return;
@@ -3837,19 +4042,23 @@ function loadMarkers(data, triggeredBySearch = false) {
 
     if (markers.length === 1) {
         const latLng = markers[0].getLatLng();
-        map.flyTo(latLng, 16); // hoặc 15 tuỳ layout
+        if (hanoiBounds.contains(latLng)) {
+            map.flyTo(latLng, 16); // hoặc 15 tuỳ layout
+        }
     } else {
         const group = new L.featureGroup(markers);
-        const bounds = group.getBounds();
+        const groupBounds = group.getBounds();
 
-        if (!map.getBounds().contains(bounds)) {
-            map.fitBounds(bounds, {
-                padding: [50, 50],
-                maxZoom: 16
-            });
-        } else {
-            // Nếu đã nằm trong màn hình, chỉ pan nhẹ đến giữa
-            map.panTo(bounds.getCenter());
+        if (hanoiBounds.contains(groupBounds)) {
+            if (!map.getBounds().contains(groupBounds)) {
+                map.fitBounds(groupBounds, {
+                    padding: [50, 50],
+                    maxZoom: 16
+                });
+            } else {
+                // Nếu đã nằm trong màn hình, chỉ pan nhẹ đến giữa
+                map.panTo(groupBounds.getCenter());
+            }
         }
     }
 }
@@ -4278,6 +4487,8 @@ function showTab(tab) {
         $('#industrialTabContent').show();
     }
 }
+window.showTab = showTab;
+})();
 </script>
 <script>
 $(document).ready(function() {

@@ -779,15 +779,13 @@ DashBoard
         }
         if (ips.length === 0) {
             if (typeof toastr !== 'undefined') toastr.info("Không có dữ liệu IP");
-            else alert("Không có dữ liệu IP");
             return;
         }
         var text = ips.join('\n');
         navigator.clipboard.writeText(text).then(function() {
             if (typeof toastr !== 'undefined') toastr.success("Đã copy " + ips.length + " IP!");
-            else alert("Đã copy " + ips.length + " IP!");
         }, function() {
-            alert("Copy thất bại");
+            if (typeof toastr !== 'undefined') toastr.error("Copy thất bại");
         });
     }
 

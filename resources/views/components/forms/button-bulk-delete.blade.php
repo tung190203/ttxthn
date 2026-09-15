@@ -16,7 +16,13 @@
                 const ids = Array.from(checkboxes).map(cb => cb.value);
 
                 if (!ids.length) {
-                    alert('Vui lòng chọn ít nhất một bản ghi để xóa.');
+                    if (typeof toastr !== 'undefined') {
+                        toastr.warning('Vui lòng chọn ít nhất một bản ghi để xóa.');
+                    } else if (typeof Swal !== 'undefined') {
+                        Swal.fire({ icon: 'warning', text: 'Vui lòng chọn ít nhất một bản ghi để xóa.' });
+                    } else {
+                        alert('Vui lòng chọn ít nhất một bản ghi để xóa.');
+                    }
                     return;
                 }
 
