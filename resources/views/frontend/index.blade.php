@@ -383,7 +383,11 @@
                     } else if (xhr.status === 401) {
                         form.find('.error-password').text('Thông tin đăng nhập không chính xác');
                     } else {
-                        alert('Có lỗi xảy ra, vui lòng thử lại!');
+                        Swal.fire({
+                            icon: 'error',
+                            title: '{{ __('app.error') ?? 'Lỗi!' }}',
+                            text: 'Có lỗi xảy ra, vui lòng thử lại!'
+                        });
                     }
                 }
             });
@@ -412,7 +416,11 @@
                         let errors = xhr.responseJSON.errors;
                         if (errors.email) form.find('.error-email').text(errors.email[0]);
                     } else {
-                        alert('{{ __('app.generic_error') }}');
+                        Swal.fire({
+                            icon: 'error',
+                            title: '{{ __('app.error') ?? 'Lỗi!' }}',
+                            text: '{{ __('app.generic_error') }}'
+                        });
                     }
                 }
             });
@@ -446,7 +454,11 @@
                             form.find('.error-' + key).text(errors[key][0]);
                         }
                     } else {
-                        alert('Có lỗi xảy ra, vui lòng thử lại!');
+                        Swal.fire({
+                            icon: 'error',
+                            title: '{{ __('app.error') ?? 'Lỗi!' }}',
+                            text: 'Có lỗi xảy ra, vui lòng thử lại!'
+                        });
                     }
                 }
             });

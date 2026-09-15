@@ -39,6 +39,7 @@ return [
     'map_3d' => 'Bản đồ 3D (Tự động)',
     'reset_map' => 'Đặt lại bản đồ',
     'current_location' => 'Vị trí hiện tại',
+    'location_outside_hanoi' => 'Vị trí của bạn nằm ngoài khu vực Hà Nội.',
     'unable_to_get_current_location' => 'Không thể lấy vị trí hiện tại',
     'browser_not_support_geolocation' => 'Trình duyệt không hỗ trợ định vị địa lý',
     'public_private_partnership' => 'Đối tác công tư (PPP)',

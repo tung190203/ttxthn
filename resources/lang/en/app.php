@@ -39,6 +39,7 @@ return [
     'map_3d' => '3D Map (Auto-Tilt)',
     'reset_map' => 'Reset Map',
     'current_location' => 'Current Location',
+    'location_outside_hanoi' => 'Your location is outside the Hanoi area.',
     'unable_to_get_current_location' => 'Unable to get current location',
     'browser_not_support_geolocation' => 'Browser does not support geolocation',
     'public_private_partnership' => 'Public-Private Partnership (PPP)',
