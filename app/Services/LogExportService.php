@@ -113,4 +113,77 @@ class LogExportService
             'count' => 'N/A' // Count is harder to get now, but let's keep it simple
         ];
     }
+
+    /**
+     * Export from a pre-built Export object (e.g. with custom date range).
+     *
+     * @param mixed  $export     An already-instantiated Export object (FromQuery + WithHeadings + WithMapping)
+     * @param string $password   Password for the zip file
+     * @param string $filePrefix Prefix for the output file name (e.g. "visit_logs_2026_08")
+     * @return array|null
+     */
+    public function exportToZipFromExport($export, string $password, string $filePrefix = 'export'): ?array
+    {
+        $dateStr = now()->format('Y_m_d_His');
+        $dataFileName = "{$filePrefix}_{$dateStr}.csv";
+        $zipFileName  = "{$filePrefix}_{$dateStr}.zip";
+
+        $storagePath = storage_path('app/private/logs_archive');
+        if (!File::exists($storagePath)) {
+            File::makeDirectory($storagePath, 0755, true);
+        }
+
+        $dataPath = $storagePath . '/' . $dataFileName;
+        $zipPath  = $storagePath . '/' . $zipFileName;
+
+        try {
+            $file = fopen($dataPath, 'w');
+
+            // BOM for UTF-8 Excel compatibility
+            fputs($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
+            if (method_exists($export, 'headings')) {
+                fputcsv($file, $export->headings());
+            }
+
+            if (method_exists($export, 'query')) {
+                $export->query()->chunk(2000, function ($rows) use ($file, $export) {
+                    foreach ($rows as $row) {
+                        $mapped = method_exists($export, 'map') ? $export->map($row) : $row->toArray();
+                        fputcsv($file, $mapped);
+                    }
+                });
+            } elseif (method_exists($export, 'collection')) {
+                foreach ($export->collection() as $row) {
+                    $mapped = method_exists($export, 'map') ? $export->map($row) : $row->toArray();
+                    fputcsv($file, $mapped);
+                }
+            }
+
+            fclose($file);
+        } catch (\Throwable $e) {
+            Log::error('exportToZipFromExport failed: ' . $e->getMessage());
+            return null;
+        }
+
+        if (!File::exists($dataPath)) {
+            return null;
+        }
+
+        $zip = new ZipArchive();
+        if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
+            $zip->addFile($dataPath, $dataFileName);
+            if (method_exists($zip, 'setEncryptionName')) {
+                $zip->setEncryptionName($dataFileName, ZipArchive::EM_AES_256, $password);
+            }
+            $zip->close();
+        }
+
+        File::delete($dataPath);
+
+        return [
+            'path' => $zipPath,
+            'name' => $zipFileName,
+        ];
+    }
 }

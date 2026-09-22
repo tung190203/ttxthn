@@ -14,18 +14,25 @@ class VisitLogRotateExport implements FromQuery, WithHeadings, WithMapping, Shou
 {
     protected $months;
     protected $olderThan;
+    protected $startDate;
+    protected $endDate;
 
-    public function __construct($months = 1, $olderThan = false)
+    public function __construct($months = 1, $olderThan = false, $startDate = null, $endDate = null)
     {
         $this->months = $months;
         $this->olderThan = $olderThan;
+        $this->startDate = $startDate;
+        $this->endDate = $endDate;
     }
 
     public function query()
     {
         $query = VisitLog::query();
-        
-        if ($this->months != 0 && $this->months !== null) {
+
+        if ($this->startDate && $this->endDate) {
+            // Filter by specific date range (e.g. a specific month)
+            $query->whereBetween('created_at', [$this->startDate, $this->endDate]);
+        } elseif ($this->months != 0 && $this->months !== null) {
             $cutoffDate = now()->subMonths($this->months);
             if ($this->olderThan) {
                 $query->where('created_at', '<', $cutoffDate);

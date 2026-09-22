@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
 use App\Models\VisitLog;
@@ -15,7 +16,11 @@ class RotateVisitLogs extends Command
      *
      * @var string
      */
-    protected $signature = 'visit-logs:rotate {--password= : Password for the zip file} {--now : Rotate all logs instead of just 1 month old} {--test : Send email with data but do NOT delete any records}';
+    protected $signature = 'visit-logs:rotate
+        {--password= : Password for the zip file}
+        {--now : Rotate all logs instead of just 1 month old}
+        {--month= : Export and delete logs for a specific month (format: YYYY-MM)}
+        {--test : Send email with data but do NOT delete any records}';
 
     /**
      * The console command description.
@@ -31,8 +36,8 @@ class RotateVisitLogs extends Command
     {
         $isNow = $this->option('now');
         $isTest = $this->option('test');
-        $months = $isNow ? null : 1;
-        
+        $monthOption = $this->option('month');
+
         $password = $this->option('password') ?: env('LOG_ROTATE_PASSWORD');
         $targetEmailString = env('LOG_ROTATE_EMAIL');
 
@@ -43,6 +48,71 @@ class RotateVisitLogs extends Command
 
         $targetEmails = array_map('trim', explode(',', $targetEmailString));
         $targetEmails = array_filter($targetEmails);
+
+        // --- Xử lý mode --month ---
+        if ($monthOption) {
+            try {
+                $month = Carbon::createFromFormat('Y-m', $monthOption)->startOfMonth();
+            } catch (\Exception $e) {
+                $this->error("Invalid --month value. Expected format: YYYY-MM (e.g. 2026-08)");
+                return;
+            }
+
+            $startDate = $month->copy()->startOfMonth()->toDateTimeString();
+            $endDate   = $month->copy()->endOfMonth()->toDateTimeString();
+            $monthLabel = $month->format('m/Y');
+
+            $this->info("Starting visit log rotation for month: {$monthLabel}" . ($isTest ? " [TEST MODE - no data will be deleted]" : ""));
+
+            $export = new VisitLogRotateExport(null, false, $startDate, $endDate);
+
+            if ($export->query()->count() === 0) {
+                $this->info("No visit logs found for {$monthLabel}.");
+                return;
+            }
+
+            // Dùng LogExportService để tạo ZIP
+            $result = $logExportService->exportToZipFromExport($export, $password, "visit_logs_{$month->format('Y_m')}");
+
+            if (!$result) {
+                $this->error("Failed to export visit logs for {$monthLabel}.");
+                return;
+            }
+
+            $zipPath = $result['path'];
+            $zipFileName = $result['name'];
+
+            try {
+                Mail::raw(
+                    "Chào bạn,\n\nĐây là file backup Visit Log tháng {$monthLabel}.\nFile được nén và đặt mật khẩu bảo mật.\n\nTên file: {$zipFileName}\n\nTrân trọng.",
+                    function ($message) use ($targetEmails, $zipPath, $zipFileName, $monthOption) {
+                        $message->to($targetEmails)
+                            ->subject("[Visit Log Backup] {$monthOption}")
+                            ->attach($zipPath, [
+                                'as' => $zipFileName,
+                                'mime' => 'application/zip',
+                            ]);
+                    }
+                );
+                $this->info("Email sent successfully to: " . implode(', ', $targetEmails));
+            } catch (\Exception $e) {
+                $this->error("Failed to send email: " . $e->getMessage());
+                return;
+            }
+
+            if ($isTest) {
+                $this->warn("[TEST MODE] Skipping database cleanup. No records were deleted.");
+            } else {
+                $deleted = VisitLog::whereBetween('created_at', [$startDate, $endDate])->delete();
+                $this->info("Deleted {$deleted} records from database.");
+            }
+
+            $this->info("Rotation for {$monthLabel} completed successfully.");
+            return;
+        }
+
+        // --- Mode mặc định (cũ): hơn 1 tháng hoặc --now ---
+        $months = $isNow ? null : 1;
 
         $this->info("Starting visit log rotation for " . ($isNow ? "ALL logs" : "logs older than 1 month") . ($isTest ? " [TEST MODE - no data will be deleted]" : ""));
 
@@ -84,3 +154,4 @@ class RotateVisitLogs extends Command
         $this->info("Rotation completed successfully.");
     }
 }
+
