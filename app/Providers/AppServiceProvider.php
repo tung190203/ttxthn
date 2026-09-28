@@ -163,7 +163,7 @@ class AppServiceProvider extends ServiceProvider
                             $itemName = $itemName['vi'] ?? reset($itemName);
                         }
                         
-                        $url = route("backend_{$module}_edit", $model->id);
+                        $url = route("backend_{$module}_edit", $model->id, false);
 
                         if (in_array($status, ['pending', 'pending_delete'])) {
                             $action = $status === 'pending' ? 'chờ duyệt' : 'yêu cầu xóa';
