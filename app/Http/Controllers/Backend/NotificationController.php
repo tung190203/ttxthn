@@ -14,8 +14,13 @@ class NotificationController extends Controller
         if ($notification) {
             $notification->markAsRead();
             
-            $url = $notification->data['url'] ?? route('backend_dashboard');
-            return redirect($url);
+            $url = $notification->data['url'] ?? route('backend_dashboard', [], false);
+            
+            // Chuyển thành relative path để luôn ở lại domain hiện tại mà user đang truy cập (dautuhanoi...)
+            $parsed = parse_url($url);
+            $target = ($parsed['path'] ?? '/backend') . (isset($parsed['query']) ? '?' . $parsed['query'] : '');
+            
+            return redirect($target);
         }
         
         return redirect()->back();
