@@ -36,12 +36,14 @@ class Guest extends Auththenticatable
         'locked_until',
         'last_login_ip',
         'verification_token',
+        'dashboard_layout',
     ];
 
     protected $casts = [
         'interested_sectors' => 'array',
         'locked_until' => 'datetime',
         'email_verified_at' => 'datetime',
+        'dashboard_layout' => 'array',
     ];
 
     /**
@@ -58,6 +60,11 @@ class Guest extends Auththenticatable
     public function nation()
     {
         return $this->belongsTo(Nation::class, 'nation_id', 'id');
+    }
+
+    public function viewHistories()
+    {
+        return $this->hasMany(GuestViewHistory::class);
     }
 
     public function getAvatarUrlAttribute()

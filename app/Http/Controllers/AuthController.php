@@ -270,6 +270,10 @@ class AuthController extends Controller
         $guest->nation_id = $request->input('nation_id');
         $guest->phone = $request->input('phone');
         $guest->address = $request->input('address');
+        $guest->organization_name = $request->input('organization_name');
+        $guest->tax_code = $request->input('tax_code');
+        $guest->interested_sectors = $request->input('interested_sectors', []);
+        
         if($request->filled('password')) {
             $guest->password = Hash::make($request->input('password'));
         }

@@ -393,7 +393,12 @@
             <div class="container" style="text-align: center;">
                 <div style="background: rgba(255, 255, 255, 0.349);border-radius:8px;padding:10px 20px;display: inline-block;">
                     <div class="pj-banner__subtitle">{{ __('app.projects') }}</div>
-                    <div class="pj-banner__title">{{ $project->name }}</div>
+                    <div class="pj-banner__title d-flex align-items-center justify-content-center" style="gap: 10px;">
+                        {{ $project->name }}
+                        <button class="btn btn-sm btn-light btn-bookmark" data-id="{{ $project->id }}" style="border-radius: 50%; width: 36px; height: 36px; padding: 0;">
+                            <i class="{{ $isBookmarked ? 'fas' : 'far' }} fa-bookmark text-warning" style="font-size: 1.2rem;"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="pj-banner__separator"></div>
                 <div class="pj-banner__desc" style="background: white;border-radius:8px;padding:10px 20px;opacity: 0.9; text-align: justify;">{{ $project->short_desc ?? '' }}</div>
@@ -416,7 +421,12 @@
             <div class="container" style="text-align: right;">
                 <div style="background: rgba(255, 255, 255, 0.349);border-radius:8px;padding:10px 20px;display: inline-block;text-align: right;">
                     <div class="pj-banner__subtitle text-end">{{ __('app.projects') }}</div>
-                    <div class="pj-banner__title text-end">{{ $project->name }}</div>
+                    <div class="pj-banner__title text-end d-flex align-items-center justify-content-end" style="gap: 10px;">
+                        <button class="btn btn-sm btn-light btn-bookmark" data-id="{{ $project->id }}" style="border-radius: 50%; width: 36px; height: 36px; padding: 0;">
+                            <i class="{{ $isBookmarked ? 'fas' : 'far' }} fa-bookmark text-warning" style="font-size: 1.2rem;"></i>
+                        </button>
+                        {{ $project->name }}
+                    </div>
                 </div>
                 <div class="custom_desc" style="text-align:start">{{ $project->short_desc ?? '' }}</div>
             </div>
@@ -438,7 +448,12 @@
             <div class="container">
                 <div style="background: rgba(255, 255, 255, 0.349);border-radius:8px;padding:10px 20px;display: inline-block;text-align: left;">
                     <div class="pj-banner__subtitle text-start">{{ __('app.projects') }}</div>
-                    <div class="pj-banner__title text-start">{{ $project->name }}</div>
+                    <div class="pj-banner__title text-start d-flex align-items-center" style="gap: 10px;">
+                        {{ $project->name }}
+                        <button class="btn btn-sm btn-light btn-bookmark" data-id="{{ $project->id }}" style="border-radius: 50%; width: 36px; height: 36px; padding: 0;">
+                            <i class="{{ $isBookmarked ? 'fas' : 'far' }} fa-bookmark text-warning" style="font-size: 1.2rem;"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="d-flex justify-content-end">
                     <div class="custom_desc">{{ $project->short_desc ?? '' }}</div>
@@ -1108,7 +1123,63 @@
         updateNavBottom();
         updateScrollSpy();
 
-        // ===== KHỞI TẠO SWIPER CHO LỢI THẾ NỔI BẬT =====
+        // ===== Modal Bookmark Note =====
+        var $bookmarkModal = $(
+            '<div class="modal fade" id="bookmarkNoteModal" tabindex="-1" role="dialog">' +
+                '<div class="modal-dialog" role="document">' +
+                    '<div class="modal-content">' +
+                        '<div class="modal-header">' +
+                            '<h5 class="modal-title">Ghi chú & Phân loại Dự án</h5>' +
+                            '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>' +
+                        '</div>' +
+                        '<div class="modal-body">' +
+                            '<form id="bookmarkNoteForm">' +
+                                '<input type="hidden" name="bookmark_id" id="modal_bookmark_id">' +
+                                '<div class="form-group mb-3">' +
+                                    '<label>Ghi chú cá nhân (tuỳ chọn)</label>' +
+                                    '<textarea name="notes" id="modal_bookmark_notes" class="form-control" rows="3" placeholder="Ví dụ: Cần hỏi thêm về pháp lý..."></textarea>' +
+                                '</div>' +
+                                '<div class="form-group mb-3">' +
+                                    '<label>Nhãn (tuỳ chọn)</label>' +
+                                    '<input type="text" name="tag" id="modal_bookmark_tag" class="form-control" placeholder="Ví dụ: Quan trọng, Ưu tiên...">' +
+                                '</div>' +
+                            '</form>' +
+                        '</div>' +
+                        '<div class="modal-footer">' +
+                            '<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Để sau</button>' +
+                            '<button type="button" class="btn btn-primary" id="btnSaveBookmarkNote">Lưu Ghi chú</button>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
+            '</div>'
+        );
+        $('body').append($bookmarkModal);
+
+        $('#btnSaveBookmarkNote').on('click', function() {
+            var bookmarkId = $('#modal_bookmark_id').val();
+            var notes = $('#modal_bookmark_notes').val();
+            var tag = $('#modal_bookmark_tag').val();
+            
+            $.ajax({
+                url: `{{ url('/interest') }}/${bookmarkId}`,
+                method: 'PUT',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    notes: notes,
+                    tag: tag
+                },
+                dataType: 'json',
+                success: function(res) {
+                    if (res.success) {
+                        toastr.success(res.message);
+                        $('#bookmarkNoteModal').modal('hide');
+                    } else {
+                        toastr.error(res.message);
+                    }
+                }
+            });
+        });
+
         if ($('.advantage-slider__container').length) {
             new Swiper('.advantage-slider__container', {
                 slidesPerView: 1,
@@ -1155,6 +1226,51 @@
     }
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') closeDesignLightbox();
+    });
+
+    $(document).on('click', '.btn-bookmark', function(e) {
+        e.preventDefault();
+        var $btn = $(this);
+        var projectId = $btn.data('id');
+        
+        $.ajax({
+            url: '{{ route('interest') }}',
+            method: 'POST',
+            data: { 
+                _token: '{{ csrf_token() }}',
+                interestable_id: projectId,
+                interestable_type: 'App\\Models\\Project'
+            },
+            dataType: 'json',
+            success: function(res) {
+                if (res.success) {
+                    var $icon = $btn.find('i');
+                    if (res.bookmarked) {
+                        $icon.removeClass('far').addClass('fas');
+                        toastr.success(res.message);
+                        // Mở modal nếu response trả về bookmark_id (cần update API trả về id)
+                        if (res.bookmark_id) {
+                            $('#modal_bookmark_id').val(res.bookmark_id);
+                            $('#modal_bookmark_notes').val('');
+                            $('#modal_bookmark_tag').val('');
+                            $('#bookmarkNoteModal').modal('show');
+                        }
+                    } else {
+                        $icon.removeClass('fas').addClass('far');
+                        toastr.success(res.message);
+                    }
+                } else {
+                    toastr.error(res.message);
+                }
+            },
+            error: function(xhr) {
+                if (xhr.status === 401) {
+                    toastr.error('Bạn cần đăng nhập để sử dụng tính năng này.');
+                } else {
+                    toastr.error('Có lỗi xảy ra, vui lòng thử lại.');
+                }
+            }
+        });
     });
 </script>
 @endpush

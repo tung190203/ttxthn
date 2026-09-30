@@ -550,9 +550,14 @@ class ProjectController extends Controller
                     $mainProject->setTranslations('slug', $mainProjectSlugTranslations);
                     $firstLocaleSlug = $mainProjectSlugTranslations[$firstLocale];
                     $mainProject->link = $request->input('link') ?? url("/project-detail/$firstLocaleSlug");
+                    
+                    $wasChanged = $mainProject->isDirty(['status', 'legal_file']);
                     $mainProject->save();
                     $this->writeDocumentFile($mainProject);
     
+                    if ($wasChanged) {
+                        $this->notifyInterestedGuests($mainProject, 'vừa có cập nhật pháp lý hoặc thay đổi trạng thái');
+                    }
                     // Đồng bộ districts
                     if (isset($validated['districts'])) {
                         $mainProject->districts()->sync($validated['districts']);
@@ -738,6 +743,7 @@ class ProjectController extends Controller
                     $parent->setTranslations('slug', $parentSlugTranslations);
 
                     $parent->save();
+                    $this->notifyInterestedGuests($parent, 'vừa được cập nhật thông tin mới');
 
                     $parent->districts()->sync($draftDistricts);
 
@@ -945,5 +951,17 @@ class ProjectController extends Controller
 
         createFile('vrtour/' . $project->vrtour_code, 'document.js');
         file_put_contents('vrtour/' . $project->vrtour_code . '/document.js',json_encode($documents));
+    }
+
+    protected function notifyInterestedGuests(Project $project, $message = 'đã có cập nhật mới')
+    {
+        $interestedGuestIds = \App\Models\Interest::where('interestable_type', Project::class)
+            ->where('interestable_id', $project->id)
+            ->pluck('guest_id');
+            
+        $guests = \App\Models\Guest::whereIn('id', $interestedGuestIds)->get();
+        foreach ($guests as $guest) {
+            $guest->notify(new \App\Notifications\ProjectUpdatedNotification($project, $message));
+        }
     }
 }

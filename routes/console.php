@@ -16,3 +16,4 @@ Schedule::command('ai:usage-cost-alert')->hourly();
 Schedule::command('site-visitors:monthly-export')->lastDayOfMonth('23:55');
 Schedule::command('site-visitors:rotate')->quarterly();
 Schedule::command('visit-logs:rotate')->monthly();
+Schedule::job(new \App\Jobs\CleanGuestViewHistoryJob)->daily();

@@ -2,7 +2,7 @@
     $listProjectHeader = App\Models\Project::orderBy('is_pinned', 'desc')->orderByRaw('CASE WHEN pin_order IS NULL THEN 999999 ELSE pin_order END ASC')->orderBy('updated_at', 'desc')->whereNull('parent_id')->where('status', 'approved')->take(5)->get();
     $countAllProject = App\Models\Project::where('is_invest', 0)->where('status', 'approved')->count();
 @endphp
-<header class="header @if(request()->routeIs(['project_detail', 'investment_guide_detail', 'post_detail'])) header-solid @endif">
+<header class="header @if(request()->routeIs(['project_detail', 'investment_guide_detail', 'post_detail', 'guest.compare.show'])) header-solid @endif">
     <div class="header__wrapper">
         <nav class="navigation">
             <div class="container">
@@ -106,6 +106,37 @@
                     </form>
                     <button class="h-btn d-none d-xl-flex ms-1 js-search-btn" type="button"><i
                             class="fal fa-fw fa-lg fa-search"></i></button>
+                    @if(Auth::guard('guest')->check())
+                    <div class="h-dropdown">
+                        <div class="h-dropdown__toggle position-relative">
+                            <button class="h-btn ms-1" type="button"><i class="fal fa-fw fa-lg fa-bell"></i></button>
+                            @if(Auth::guard('guest')->user()->unreadNotifications->count() > 0)
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; transform: translate(-50%, -20%) !important;">
+                                    {{ Auth::guard('guest')->user()->unreadNotifications->count() }}
+                                </span>
+                            @endif
+                        </div>
+                        <div class="h-dropdown__menu" style="min-width: 380px; max-height: 400px; overflow-y: auto; right: 0; left: auto;">
+                            <div class="dropdown-header d-flex justify-content-between align-items-center" style="padding: 10px 15px; background: #f8f9fa; border-bottom: 1px solid #eee;">
+                                <h6 class="text-uppercase fw-bold mb-0">Thông báo của bạn</h6>
+                                @if(Auth::guard('guest')->user()->unreadNotifications->count() > 0)
+                                    <form action="{{ route('guest.notifications.read_all') }}" method="POST" class="m-0 p-0">
+                                        @csrf
+                                        <button type="submit" class="btn btn-link p-0 text-decoration-none" style="font-size: 12px;">Đánh dấu đã đọc</button>
+                                    </form>
+                                @endif
+                            </div>
+                            @forelse(Auth::guard('guest')->user()->notifications->take(10) as $notification)
+                                <a class="h-dropdown__item d-block {{ $notification->read_at ? '' : 'fw-bold bg-light' }}" href="{{ route('guest.notifications.read', $notification->id) }}" style="white-space: normal; line-height: 1.5; border-bottom: 1px solid #eee; padding: 12px 15px;">
+                                    <div style="font-size: 14px; margin-bottom: 5px;">{{ $notification->data['message'] ?? 'Bạn có thông báo mới' }}</div>
+                                    <div class="text-secondary fw-normal" style="font-size: 12px;"><i class="fal fa-clock me-1"></i>{{ $notification->created_at->diffForHumans() }}</div>
+                                </a>
+                            @empty
+                                <div class="p-3 text-center text-muted">Không có thông báo nào.</div>
+                            @endforelse
+                        </div>
+                    </div>
+                    @endif
                     <div class="h-dropdown">
                         <div class="h-dropdown__toggle">
                             <button class="h-btn ms-1" type="button"><i class="fal fa-fw fa-lg fa-user"></i></button>
@@ -116,7 +147,7 @@
                                 <a class="h-dropdown__item"
                                     href="{{ route('account') }}">{{ __('app.personal_information') }}</a>
                                 <a class="h-dropdown__item"
-                                    href="{{ route('account') }}#project-interest">{{ __('app.interested_projects') }}</a>
+                                    href="{{ route('guest.dashboard') }}">Dashboard</a>
                                 <a class="h-dropdown__item" href="{{ route('guest_logout') }}">{{ __('app.logout') }}</a>
                             @else
                                 <!-- Nếu chưa login -->

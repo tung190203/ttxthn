@@ -41,6 +41,17 @@ Route::localized(function () {
         Route::post('/update-info', [AuthController::class, 'updateAccount'])->name('guest_update_account');
         Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('google_login');
         Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
+        
+        Route::get('/dashboard', [\App\Http\Controllers\GuestDashboardController::class, 'index'])->name('guest.dashboard');
+        Route::get('/dashboard/export', [\App\Http\Controllers\GuestDashboardController::class, 'exportBookmarks'])->name('guest.dashboard.export');
+        Route::post('/dashboard/layout', [\App\Http\Controllers\GuestDashboardController::class, 'updateLayout'])->name('guest.dashboard.layout');
+        
+        // Compare feature routes
+        Route::post('/compare', [\App\Http\Controllers\GuestDashboardController::class, 'createCompareSession'])->name('guest.compare.create');
+        Route::get('/compare/{id}', [\App\Http\Controllers\GuestDashboardController::class, 'showCompareSession'])->name('guest.compare.show');
+        Route::post('/compare/{id}/notes', [\App\Http\Controllers\GuestDashboardController::class, 'saveCompareNotes'])->name('guest.compare.notes.save');
+        Route::get("/notifications/{id}", [\App\Http\Controllers\GuestNotificationController::class, "read"])->name("guest.notifications.read");
+        Route::post("/notifications/read-all", [\App\Http\Controllers\GuestNotificationController::class, "markAllAsRead"])->name("guest.notifications.read_all");
     });
 
     Route::get('/', [HomeController::class, 'index'])->name('home_page');
@@ -58,6 +69,7 @@ Route::localized(function () {
     Route::match(['get', 'post'], '/lien-he', [HomeController::class, 'contact'])->name('contact');
     Route::match(['get', 'post'], '/contact', [HomeController::class, 'contact'])->name('contact');
     Route::post('/interest', [InterestController::class, 'toggleInterest'])->name('interest');
+    Route::put('/interest/{id}', [InterestController::class, 'updateInterest'])->name('interest_update');
     Route::get('/search', [HomeController::class, 'search'])->name('search');
     Route::get('/ajax-project-suggestions', [HomeController::class, 'ajaxSuggestions'])->name('ajax_project_suggestions');
     Route::get('/huongdansudungbando', function () {

@@ -389,6 +389,19 @@ class HomeController extends Controller
         $project->view_num += 1;
         $project->save();            
 
+        // Log view history if guest is logged in
+        if (auth('guest')->check()) {
+            \App\Models\GuestViewHistory::updateOrCreate(
+                [
+                    'guest_id' => auth('guest')->id(),
+                    'project_id' => $project->id,
+                ],
+                [
+                    'viewed_at' => now(),
+                ]
+            );
+        }
+
         $preferential = collect(); // default empty
         $posts = collect();        // default empty
 
@@ -440,6 +453,14 @@ class HomeController extends Controller
 
         $setting['meta_title'] = $project->name;
 
+        $isBookmarked = false;
+        if (auth('guest')->check()) {
+            $isBookmarked = \App\Models\Interest::where('guest_id', auth('guest')->id())
+                ->where('interestable_id', $project->id)
+                ->where('interestable_type', \App\Models\Project::class)
+                ->exists();
+        }
+
         return view('frontend.home.project_detail', compact(
             'setting',
             'list_post_popular',
@@ -447,7 +468,8 @@ class HomeController extends Controller
             'posts',
             'project',
             'backUrl',
-            'backLabel'
+            'backLabel',
+            'isBookmarked'
         ));
     }
 
