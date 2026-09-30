@@ -72,8 +72,10 @@ Route::localized(function () {
 
         Route::prefix('guest')->group(function () {
             Route::get('/', [GuestController::class, 'index'])->name('backend_guest');
+            Route::get('/export', [GuestController::class, 'export'])->name('backend_guest_export');
             Route::post('/', [GuestController::class, 'saveDataIndex'])->name('backend_guest_save_data_index');
             Route::get('/create', [GuestController::class, 'edit'])->name('backend_guest_create');
+            Route::get('/show/{guest}', [GuestController::class, 'show'])->name('backend_guest_show');
             Route::get('/edit/{guest}', [GuestController::class, 'edit'])->name('backend_guest_edit');
             Route::post('/save/{guest?}', [GuestController::class, 'save'])->name('backend_guest_save');
             Route::get('/delete/{id}', [GuestController::class, 'delete'])->name('backend_guest_delete');
@@ -82,6 +84,7 @@ Route::localized(function () {
             Route::post('/reject/{guest}', [GuestController::class, 'reject'])->name('backend_guest_reject');
             Route::post('/lock/{guest}', [GuestController::class, 'lock'])->name('backend_guest_lock');
             Route::post('/unlock/{guest}', [GuestController::class, 'unlock'])->name('backend_guest_unlock');
+            Route::post('/reset-password/{guest}', [GuestController::class, 'resetPassword'])->name('backend_guest_reset_password');
         });
 
         Route::prefix('post')->group(function () {

@@ -13,6 +13,46 @@ Quản lý Tài khoản Nhà đầu tư
 <hr class="mt-0">
 <section class="content">
     <div class="container-fluid">
+        <!-- Báo cáo thống kê nhanh -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-info">
+                    <div class="inner">
+                        <h3>{{ $report['total'] }}</h3>
+                        <p>Tổng Nhà đầu tư</p>
+                    </div>
+                    <div class="icon"><i class="fas fa-users"></i></div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-success">
+                    <div class="inner">
+                        <h3>{{ $report['active'] }}</h3>
+                        <p>Đang hoạt động</p>
+                    </div>
+                    <div class="icon"><i class="fas fa-user-check"></i></div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-warning">
+                    <div class="inner">
+                        <h3>{{ $report['pending'] }}</h3>
+                        <p>Chờ xác thực</p>
+                    </div>
+                    <div class="icon"><i class="fas fa-user-clock"></i></div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-danger">
+                    <div class="inner">
+                        <h3>{{ $report['locked'] }}</h3>
+                        <p>Tài khoản bị khóa</p>
+                    </div>
+                    <div class="icon"><i class="fas fa-user-lock"></i></div>
+                </div>
+            </div>
+        </div>
+
         <div class="row">
             <div class="col-xl-10">
                 <form action="" method="GET" class="form-filter-top-index">
@@ -69,6 +109,9 @@ Quản lý Tài khoản Nhà đầu tư
             </div>
             <div class="col-xl-2">
                 <div class="float-right mb-3">
+                    <a href="{{ route('backend_guest_export', request()->query()) }}" class="btn btn-success btn-sm mb-1">
+                        <i class="fas fa-file-excel mr-1"></i> Xuất Excel
+                    </a>
                     @can('guest')
                     <x-forms.button-url title="Thêm mới" class="btn-info" icon="fa fa-plus"
                         url="{{ route('backend_guest_create') }}" />
@@ -166,6 +209,11 @@ Quản lý Tài khoản Nhà đầu tư
                                         </td>
                                         <td nowrap>{{ $g->created_at?->format('d-m-Y') }}</td>
                                         <td nowrap>
+                                            {{-- Show --}}
+                                            <a href="{{ route('backend_guest_show', $g->id) }}" class="btn btn-xs btn-info" title="Xem hồ sơ">
+                                                <i class="fa fa-eye"></i>
+                                            </a>
+                                            
                                             {{-- Edit --}}
                                             <a href="{{ route('backend_guest_edit', $g->id) }}" class="btn btn-xs btn-primary" title="Edit">
                                                 <i class="fa fa-edit"></i>
@@ -318,19 +366,30 @@ $(document).ready(function () {
         
         Swal.fire({
             title: 'Khóa tài khoản',
-            text: `Bạn có chắc muốn khóa tài khoản "${name}"?`,
+            text: `Bạn có chắc muốn khóa tài khoản "${name}"? Vui lòng nhập lý do (bắt buộc):`,
+            input: 'textarea',
+            inputPlaceholder: 'Nhập lý do khóa...',
+            inputAttributes: {
+                'aria-label': 'Nhập lý do khóa'
+            },
             icon: 'warning',
-            showHuỷButton: true,
+            showCancelButton: true,
             confirmButtonColor: '#dc3545',
             cancelButtonColor: '#6c757d',
             confirmButtonText: 'Đồng ý khóa',
-            cancelButtonText: 'Hủy'
+            cancelButtonText: 'Hủy',
+            preConfirm: (reason) => {
+                if (!reason) {
+                    Swal.showValidationMessage('Vui lòng nhập lý do khóa tài khoản');
+                }
+                return reason;
+            }
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
                     url: `{{ url('/backend/guest/lock') }}/${id}`,
                     method: 'POST',
-                    data: { _token: '{{ csrf_token() }}' },
+                    data: { _token: '{{ csrf_token() }}', reason: result.value },
                     dataType: 'json',
                     success: function (res) {
                         if (res.success) {
@@ -338,8 +397,12 @@ $(document).ready(function () {
                             setTimeout(() => location.reload(), 1200);
                         }
                     },
-                    error: function () {
-                        toastr.error('An error occurred. Please try again.');
+                    error: function (xhr) {
+                        let msg = 'An error occurred. Please try again.';
+                        if(xhr.responseJSON && xhr.responseJSON.message) {
+                            msg = xhr.responseJSON.message;
+                        }
+                        toastr.error(msg);
                     }
                 });
             }

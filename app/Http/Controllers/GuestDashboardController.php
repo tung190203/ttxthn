@@ -245,4 +245,28 @@ class GuestDashboardController extends Controller
 
         return response()->json(['success' => true]);
     }
+
+    public function exportComparePdf(Request $request, $id)
+    {
+        $guest = auth('guest')->user();
+        if (!$guest) abort(401);
+        
+        $session = \App\Models\CompareSession::where('id', $id)->where('guest_id', $guest->id)->firstOrFail();
+        
+        $projects = \App\Models\Project::with(['industry', 'districts', 'type'])
+            ->whereIn('id', $session->project_ids)
+            ->get();
+            
+        // Map notes
+        $savedNotes = \App\Models\CompareNote::where('session_id', $session->id)->get();
+        $notes = [];
+        foreach ($savedNotes as $n) {
+            $notes[$n->project_id][$n->criterion_key] = $n->note;
+        }
+        
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('frontend.guest.compare_pdf', compact('session', 'projects', 'notes'));
+        // Load custom font or default font config if needed, dompdf supports UTF-8 with correct fonts like DejaVu Sans.
+        
+        return $pdf->download('SoSanhDuAn_' . now()->format('YmdHi') . '.pdf');
+    }
 }

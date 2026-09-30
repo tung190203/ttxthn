@@ -10,7 +10,7 @@
             </div>
             <div>
                 <a href="{{ route('guest.dashboard') }}#project-interest" class="btn btn-outline-secondary me-2"><i class="fal fa-arrow-left me-1"></i>Trở lại Bảng điều khiển</a>
-                <button type="button" class="btn btn-success"><i class="fal fa-file-pdf me-1"></i>Xuất PDF</button>
+                <a href="{{ route('guest.compare.export_pdf', $session->id) }}" class="btn btn-success"><i class="fal fa-file-pdf me-1"></i>Xuất PDF</a>
             </div>
         </div>
 

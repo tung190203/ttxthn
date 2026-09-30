@@ -50,6 +50,7 @@ Route::localized(function () {
         Route::post('/compare', [\App\Http\Controllers\GuestDashboardController::class, 'createCompareSession'])->name('guest.compare.create');
         Route::get('/compare/{id}', [\App\Http\Controllers\GuestDashboardController::class, 'showCompareSession'])->name('guest.compare.show');
         Route::post('/compare/{id}/notes', [\App\Http\Controllers\GuestDashboardController::class, 'saveCompareNotes'])->name('guest.compare.notes.save');
+        Route::get('/compare/{id}/export-pdf', [\App\Http\Controllers\GuestDashboardController::class, 'exportComparePdf'])->name('guest.compare.export_pdf');
         Route::get("/notifications/{id}", [\App\Http\Controllers\GuestNotificationController::class, "read"])->name("guest.notifications.read");
         Route::post("/notifications/read-all", [\App\Http\Controllers\GuestNotificationController::class, "markAllAsRead"])->name("guest.notifications.read_all");
     });

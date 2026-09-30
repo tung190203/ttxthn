@@ -71,6 +71,15 @@ class GuestController extends Controller
 
         $guests = $query->paginate(25);
 
+        // Calculate Report summary
+        $report = [
+            'total' => Guest::count(),
+            'active' => Guest::where('status', 'active')->count(),
+            'locked' => Guest::where('status', 'locked')->count(),
+            'pending' => Guest::where('status', 'pending')->count(),
+            'new_this_month' => Guest::whereMonth('created_at', now()->month)->whereYear('created_at', now()->year)->count(),
+        ];
+
         $clsDataGrid = new DataGrid();
         $clsDataGrid->setLinkEdit('backend_guest_edit');
         $clsDataGrid->addColumnImage("avatar_url", "Avatar", "width=50px height=50px");
@@ -87,13 +96,26 @@ class GuestController extends Controller
         $clsDataGrid->addColumnDate("created_at", "Created At", "width='10%' nowrap", 'd-m-Y');
 
         $option_column_button = [
-            'edit' => ['title' => 'Edit', 'icon' => 'fa fa-edit', 'class' => 'btn-primary', 'route' => 'backend_guest_edit'],
+            'show' => ['title' => 'Xem hồ sơ', 'icon' => 'fa fa-eye', 'class' => 'btn-info', 'route' => 'backend_guest_show'],
+            'edit' => ['title' => 'Chỉnh sửa', 'icon' => 'fa fa-edit', 'class' => 'btn-primary', 'route' => 'backend_guest_edit'],
         ];
         $clsDataGrid->addColumnButton('id', '&nbsp', $option_column_button, "width='5%' nowrap");
 
         $dataGrid = $clsDataGrid->showDataGrid($guests);
 
-        return view('backend.guest.index', compact('guests', 'filter', 'dataGrid'));
+        return view('backend.guest.index', compact('guests', 'filter', 'dataGrid', 'report'));
+    }
+
+    public function export(Request $request)
+    {
+        if (!Gate::allows('guest')) {
+            abort(403, self::MESSAGE_UNAUTHORIZED);
+        }
+
+        $filter = $request->only(['name', 'email', 'phone', 'investor_type', 'status']);
+        $fileName = 'danh_sach_nha_dau_tu_' . now()->format('Ymd_Hi') . '.xlsx';
+
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\GuestsExport($filter), $fileName);
     }
 
     public function saveDataIndex(Request $request)
@@ -103,6 +125,24 @@ class GuestController extends Controller
             $this->guest->where('id', $key)->update($value);
         }
         return redirect()->route('backend_guest')->with('success', 'Updated successfully');
+    }
+
+    public function show(Request $request, Guest $guest)
+    {
+        if (!Gate::allows('guest/edit')) {
+            abort(403, self::MESSAGE_UNAUTHORIZED);
+        }
+        
+        $guest->load(['nation']);
+        $bookmarks = \App\Models\Interest::with('interestable')->where('guest_id', $guest->id)->orderBy('created_at', 'desc')->take(20)->get();
+        
+        $auditLogs = \App\Models\AuditLog::where('model_type', Guest::class)
+            ->where('model_id', $guest->id)
+            ->orderBy('created_at', 'desc')
+            ->take(15)
+            ->get();
+
+        return view('backend.guest.show', compact('guest', 'bookmarks', 'auditLogs'));
     }
 
     public function edit(Request $request, Guest $guest)
@@ -201,6 +241,16 @@ class GuestController extends Controller
             Log::error('Gửi email phê duyệt NĐT thất bại: ' . $e->getMessage());
         }
 
+        \App\Models\AuditLog::create([
+            'user_id'    => auth()->id(),
+            'action'     => 'approve',
+            'model_type' => Guest::class,
+            'model_id'   => $guest->id,
+            'changes'    => ['status' => 'active'],
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent()
+        ]);
+
         if ($request->wantsJson()) {
             return response()->json(['success' => true, 'message' => 'Tài khoản đã được phê duyệt và thông báo gửi tới nhà đầu tư.']);
         }
@@ -229,6 +279,16 @@ class GuestController extends Controller
             Log::error('Gửi email từ chối NĐT thất bại: ' . $e->getMessage());
         }
 
+        \App\Models\AuditLog::create([
+            'user_id'    => auth()->id(),
+            'action'     => 'reject',
+            'model_type' => Guest::class,
+            'model_id'   => $guest->id,
+            'changes'    => ['status' => 'rejected', 'reason' => $reason],
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent()
+        ]);
+
         if ($request->wantsJson()) {
             return response()->json(['success' => true, 'message' => 'Tài khoản đã bị từ chối và thông báo gửi tới nhà đầu tư.']);
         }
@@ -245,10 +305,35 @@ class GuestController extends Controller
             abort(403, self::MESSAGE_UNAUTHORIZED);
         }
 
-        $guest->update([
-            'status'       => 'locked',
-            'locked_until' => now()->addDays(30),
+        $request->validate([
+            'reason' => 'required|string|max:1000'
+        ], [
+            'reason.required' => 'Bắt buộc phải nhập lý do khóa tài khoản.'
         ]);
+
+        $reason = $request->input('reason');
+
+        $guest->update([
+            'status'        => 'locked',
+            'locked_until'  => now()->addDays(30), // Or permanent
+            'locked_reason' => $reason
+        ]);
+
+        \App\Models\AuditLog::create([
+            'user_id'    => auth()->id(),
+            'action'     => 'lock',
+            'model_type' => Guest::class,
+            'model_id'   => $guest->id,
+            'changes'    => ['status' => 'locked', 'reason' => $reason],
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent()
+        ]);
+
+        try {
+            Mail::to($guest->email)->send(new \App\Mail\InvestorLockedMail($guest, $reason));
+        } catch (\Exception $e) {
+            Log::error('Gửi email khóa NĐT thất bại: ' . $e->getMessage());
+        }
 
         if ($request->wantsJson()) {
             return response()->json(['success' => true, 'message' => 'Tài khoản đã bị khóa.']);
@@ -269,7 +354,18 @@ class GuestController extends Controller
         $guest->update([
             'status'                 => 'active',
             'locked_until'           => null,
+            'locked_reason'          => null,
             'failed_login_attempts'  => 0,
+        ]);
+
+        \App\Models\AuditLog::create([
+            'user_id'    => auth()->id(),
+            'action'     => 'unlock',
+            'model_type' => Guest::class,
+            'model_id'   => $guest->id,
+            'changes'    => ['status' => 'active'],
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent()
         ]);
 
         if ($request->wantsJson()) {
@@ -277,5 +373,37 @@ class GuestController extends Controller
         }
 
         return redirect()->back()->with('success', 'Tài khoản nhà đầu tư đã được mở khóa.');
+    }
+
+    /**
+     * Gửi link đặt lại mật khẩu (h-05)
+     */
+    public function resetPassword(Request $request, Guest $guest)
+    {
+        if (!Gate::allows('guest/edit')) {
+            abort(403, self::MESSAGE_UNAUTHORIZED);
+        }
+
+        $token = \Illuminate\Support\Facades\Password::broker('guests')->createToken($guest);
+        $url = route('guest_password_reset', ['token' => $token, 'email' => $guest->email]);
+
+        try {
+            Mail::to($guest->email)->send(new \App\Mail\InvestorResetPasswordMail($guest, $url));
+        } catch (\Exception $e) {
+            Log::error('Gửi email reset password thất bại: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Không thể gửi email. Vui lòng kiểm tra cấu hình Mail.']);
+        }
+
+        \App\Models\AuditLog::create([
+            'user_id'    => auth()->id(),
+            'action'     => 'reset_password_requested',
+            'model_type' => Guest::class,
+            'model_id'   => $guest->id,
+            'changes'    => null,
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent()
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Đã gửi liên kết đặt lại mật khẩu đến email của nhà đầu tư.']);
     }
 }

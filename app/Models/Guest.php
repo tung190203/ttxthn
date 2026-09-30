@@ -37,6 +37,7 @@ class Guest extends Auththenticatable
         'last_login_ip',
         'verification_token',
         'dashboard_layout',
+        'locked_reason',
     ];
 
     protected $casts = [
