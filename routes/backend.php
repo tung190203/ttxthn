@@ -78,6 +78,10 @@ Route::localized(function () {
             Route::post('/save/{guest?}', [GuestController::class, 'save'])->name('backend_guest_save');
             Route::get('/delete/{id}', [GuestController::class, 'delete'])->name('backend_guest_delete');
             Route::post('/bulk_delete', [GuestController::class, 'bulkDelete'])->name('backend_guest_bulk_delete');
+            Route::post('/approve/{guest}', [GuestController::class, 'approve'])->name('backend_guest_approve');
+            Route::post('/reject/{guest}', [GuestController::class, 'reject'])->name('backend_guest_reject');
+            Route::post('/lock/{guest}', [GuestController::class, 'lock'])->name('backend_guest_lock');
+            Route::post('/unlock/{guest}', [GuestController::class, 'unlock'])->name('backend_guest_unlock');
         });
 
         Route::prefix('post')->group(function () {

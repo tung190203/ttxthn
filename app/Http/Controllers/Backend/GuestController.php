@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
+use App\Mail\InvestorApprovedMail;
+use App\Mail\InvestorRejectedMail;
 use App\Models\Guest;
 use Illuminate\Http\Request;
 use App\Libs\DataGrid;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class GuestController extends Controller
 {
@@ -24,13 +28,28 @@ class GuestController extends Controller
         }
     }
 
+    private static array $investorTypeLabels = [
+        'individual'   => 'Cá nhân',
+        'organization' => 'Tổ chức',
+        'fdi'          => 'FDI',
+    ];
+
+    private static array $statusLabels = [
+        'pending'  => '<span class="badge badge-warning">Chờ xác thực</span>',
+        'active'   => '<span class="badge badge-success">Hoạt động</span>',
+        'locked'   => '<span class="badge badge-danger">Đã khóa</span>',
+        'rejected' => '<span class="badge badge-secondary">Từ chối</span>',
+    ];
+
     public function index(Request $request)
     {
         $this->selectedSubMenu('guest');
 
-        $filter['name'] = $request->get('name', '');
-        $filter['email'] = $request->get('email', '');
-        $filter['phone'] = $request->get('phone', '');
+        $filter['name']          = $request->get('name', '');
+        $filter['email']         = $request->get('email', '');
+        $filter['phone']         = $request->get('phone', '');
+        $filter['investor_type'] = $request->get('investor_type', '');
+        $filter['status']        = $request->get('status', '');
 
         $query = $this->guest->with('nation')->orderBy('id', 'desc');
 
@@ -43,6 +62,12 @@ class GuestController extends Controller
         if (!empty($filter['phone'])) {
             $query->where('phone', 'like', '%' . $filter['phone'] . '%');
         }
+        if (!empty($filter['investor_type'])) {
+            $query->where('investor_type', $filter['investor_type']);
+        }
+        if (!empty($filter['status'])) {
+            $query->where('status', $filter['status']);
+        }
 
         $guests = $query->paginate(25);
 
@@ -52,18 +77,19 @@ class GuestController extends Controller
         $clsDataGrid->addColumnLabel("name", "Name", "width='15%' nowrap");
         $clsDataGrid->addColumnLabel("email", "Email", "width='15%' nowrap");
         $clsDataGrid->addColumnLabel("phone", "Phone", "width='10%' nowrap");
-        $clsDataGrid->addColumnLabel("identification_number", "CMND/CCCD", "width='10%' nowrap");
-        $clsDataGrid->addColumnLabel("nation_id", "Quốc gia", "width='10%' nowrap", 1, '', function ($col, $val, $id, $row) {
-            return $row->nation->name ?? 'N/A';
+        $clsDataGrid->addColumnLabel("investor_type", "Investor Type", "width='10%' nowrap", 1, '', function ($col, $val, $id, $row) {
+            return self::$investorTypeLabels[$val] ?? $val;
         });
-        $clsDataGrid->addColumnLabel("address", "Address", "width='20%'");
-        $clsDataGrid->addColumnDate("created_at", "Ngày tạo", "width='10%' nowrap ", 'd-m-Y');
+        $clsDataGrid->addColumnLabel("organization_name", "Organization", "width='15%' nowrap");
+        $clsDataGrid->addColumnLabel("status", "Status", "width='10%' nowrap", 1, '', function ($col, $val, $id, $row) {
+            return self::$statusLabels[$val] ?? $val;
+        });
+        $clsDataGrid->addColumnDate("created_at", "Created At", "width='10%' nowrap", 'd-m-Y');
 
         $option_column_button = [
-            'edit' => ['title' => 'Sửa', 'icon' => 'fa fa-edit', 'class' => 'btn-primary', 'route' => 'backend_guest_edit'],
-            'delete' => ['title' => 'Xóa', 'icon' => 'fa fa-trash', 'class' => 'btn-danger', 'route' => 'backend_guest_delete'],
+            'edit' => ['title' => 'Edit', 'icon' => 'fa fa-edit', 'class' => 'btn-primary', 'route' => 'backend_guest_edit'],
         ];
-        $clsDataGrid->addColumnButton('id', '&nbsp', $option_column_button, "width='10%' nowrap ");
+        $clsDataGrid->addColumnButton('id', '&nbsp', $option_column_button, "width='5%' nowrap");
 
         $dataGrid = $clsDataGrid->showDataGrid($guests);
 
@@ -76,7 +102,7 @@ class GuestController extends Controller
         foreach ($update as $key => $value) {
             $this->guest->where('id', $key)->update($value);
         }
-        return redirect()->route('backend_guest')->with('success', 'Cập nhật thông tin thành công');
+        return redirect()->route('backend_guest')->with('success', 'Updated successfully');
     }
 
     public function edit(Request $request, Guest $guest)
@@ -87,8 +113,9 @@ class GuestController extends Controller
         if (!$guest->exists && !Gate::allows('guest/add')) {
             abort(403, self::MESSAGE_UNAUTHORIZED);
         }
-        $nations = \App\Models\Nation::all();
-        return view('backend.guest.create', compact('guest', 'nations'));
+        $nations    = \App\Models\Nation::all();
+        $industries = \App\Models\ProjectIndustries::all();
+        return view('backend.guest.create', compact('guest', 'nations', 'industries'));
     }
 
     public function save(Guest $guest, Request $request)
@@ -100,25 +127,25 @@ class GuestController extends Controller
             abort(403, self::MESSAGE_UNAUTHORIZED);
         }
         $rules = [
-            'name' => 'required|string|max:255',
-            'phone' => 'nullable|string|max:20',
-            'email' => 'required|email|unique:guests,email,' . ($guest->id ?? 'NULL'),
-            'address' => 'nullable|string',
+            'name'                  => 'required|string|max:255',
+            'phone'                 => 'nullable|string|max:20',
+            'email'                 => 'required|email|unique:guests,email,' . ($guest->id ?? 'NULL'),
+            'address'               => 'nullable|string',
             'identification_number' => 'nullable|string|max:50',
-            'nation_id' => 'nullable|exists:nations,id',
-            'password' => $guest->exists ? 'nullable|min:6' : 'required|min:6',
+            'nation_id'             => 'nullable|exists:nations,id',
+            'investor_type'         => 'nullable|in:individual,organization,fdi',
+            'organization_name'     => 'nullable|string|max:255',
+            'tax_code'              => 'nullable|string|max:50',
+            'status'                => 'nullable|in:pending,active,locked,rejected',
+            'password'              => $guest->exists ? 'nullable|min:6' : 'required|min:6',
         ];
 
         $validated = $request->validate($rules);
 
         $data = $request->only([
-            'name',
-            'avatar',
-            'phone',
-            'email',
-            'address',
-            'identification_number',
-            'nation_id'
+            'name', 'avatar', 'phone', 'email', 'address',
+            'identification_number', 'nation_id', 'investor_type',
+            'organization_name', 'tax_code', 'status',
         ]);
 
         if ($request->filled('password')) {
@@ -128,7 +155,7 @@ class GuestController extends Controller
         $guest->fill($data);
         $guest->save();
 
-        return redirect()->route('backend_guest_edit', $guest->id)->with('success', 'Lưu thông tin thành công');
+        return redirect()->route('backend_guest_edit', $guest->id)->with('success', 'Saved successfully');
     }
 
     public function delete(Request $request, $id)
@@ -137,7 +164,7 @@ class GuestController extends Controller
             abort(403, self::MESSAGE_UNAUTHORIZED);
         }
         $this->guest->destroy($id);
-        return redirect()->route('backend_guest')->with('success', 'Xóa thành công');
+        return redirect()->route('backend_guest')->with('success', 'Deleted successfully');
     }
 
     public function bulkDelete(Request $request)
@@ -152,5 +179,103 @@ class GuestController extends Controller
 
         $this->guest->destroy($ids);
         return $this->responseJsonOk();
+    }
+
+    /**
+     * Phê duyệt tài khoản Tổ chức / FDI (h-05)
+     */
+    public function approve(Request $request, Guest $guest)
+    {
+        if (!Gate::allows('guest/edit')) {
+            abort(403, self::MESSAGE_UNAUTHORIZED);
+        }
+
+        $guest->update([
+            'status'      => 'active',
+            'locked_until' => null,
+        ]);
+
+        try {
+            Mail::to($guest->email)->send(new InvestorApprovedMail($guest));
+        } catch (\Exception $e) {
+            Log::error('Gửi email phê duyệt NĐT thất bại: ' . $e->getMessage());
+        }
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Tài khoản đã được phê duyệt và thông báo gửi tới nhà đầu tư.']);
+        }
+
+        return redirect()->back()->with('success', 'Tài khoản nhà đầu tư đã được phê duyệt thành công.');
+    }
+
+    /**
+     * Từ chối tài khoản Tổ chức / FDI (h-05)
+     */
+    public function reject(Request $request, Guest $guest)
+    {
+        if (!Gate::allows('guest/edit')) {
+            abort(403, self::MESSAGE_UNAUTHORIZED);
+        }
+
+        $reason = $request->input('reason', '');
+
+        $guest->update([
+            'status' => 'rejected',
+        ]);
+
+        try {
+            Mail::to($guest->email)->send(new InvestorRejectedMail($guest, $reason));
+        } catch (\Exception $e) {
+            Log::error('Gửi email từ chối NĐT thất bại: ' . $e->getMessage());
+        }
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Tài khoản đã bị từ chối và thông báo gửi tới nhà đầu tư.']);
+        }
+
+        return redirect()->back()->with('success', 'Đã từ chối tài khoản nhà đầu tư.');
+    }
+
+    /**
+     * Khóa tài khoản (h-05)
+     */
+    public function lock(Request $request, Guest $guest)
+    {
+        if (!Gate::allows('guest/edit')) {
+            abort(403, self::MESSAGE_UNAUTHORIZED);
+        }
+
+        $guest->update([
+            'status'       => 'locked',
+            'locked_until' => now()->addDays(30),
+        ]);
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Tài khoản đã bị khóa.']);
+        }
+
+        return redirect()->back()->with('success', 'Tài khoản nhà đầu tư đã bị khóa.');
+    }
+
+    /**
+     * Mở khóa tài khoản (h-05)
+     */
+    public function unlock(Request $request, Guest $guest)
+    {
+        if (!Gate::allows('guest/edit')) {
+            abort(403, self::MESSAGE_UNAUTHORIZED);
+        }
+
+        $guest->update([
+            'status'                 => 'active',
+            'locked_until'           => null,
+            'failed_login_attempts'  => 0,
+        ]);
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Tài khoản đã được mở khóa.']);
+        }
+
+        return redirect()->back()->with('success', 'Tài khoản nhà đầu tư đã được mở khóa.');
     }
 }

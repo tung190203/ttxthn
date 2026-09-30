@@ -17,6 +17,20 @@ require __DIR__ . '/backend.php';
 Route::post('/ttxt/webhook', TtxtWebhookController::class)->name('ttxt_webhook');
 
 Route::localized(function () {
+    Route::group(['prefix' => 'auth'], function () {
+        Route::post('/register', [AuthController::class, 'register'])->name('auth_register');
+        Route::post('/login', [AuthController::class, 'login'])->name('auth_login');
+        Route::post('/verify-email', [AuthController::class, 'verifyEmailApi'])->name('auth_verify_email_api');
+        Route::get('/verify-email/{id}/{token}', [AuthController::class, 'verifyEmail'])->name('auth_verify_email');
+        Route::post('/resend-verification', [AuthController::class, 'resendVerificationEmail'])->name('auth_resend_verification');
+        Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->name('auth_forgot_password');
+        Route::get('/reset-password/{token}', [AuthController::class, 'showResetPasswordForm'])->name('auth_reset_password_form');
+        Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('auth_reset_password');
+        Route::get('/logout', [AuthController::class, 'logout'])->name('auth_logout');
+        Route::get('/google', [AuthController::class, 'redirectToGoogle'])->name('auth_google');
+        Route::get('/google/callback', [AuthController::class, 'handleGoogleCallback'])->name('auth_google_callback');
+    });
+
     Route::group(['prefix' => 'guest'], function () {
         Route::post('/register', [AuthController::class, 'register'])->name('guest_register');
         Route::post('/login', [AuthController::class, 'login'])->name('guest_login');

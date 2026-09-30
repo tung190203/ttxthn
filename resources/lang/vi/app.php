@@ -121,7 +121,7 @@ return [
     'generic_error' => 'Có lỗi xảy ra, vui lòng thử lại!',
     'reset_password_email_subject' => 'Đặt lại mật khẩu',
     'reset_password_email_intro' => 'Bạn nhận được email này vì chúng tôi đã nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn.',
-    'reset_password_email_expire' => 'Liên kết đặt lại mật khẩu sẽ hết hạn sau 60 phút.',
+    'reset_password_email_expire' => 'Liên kết đặt lại mật khẩu sẽ hết hạn sau 24 giờ.',
     'reset_password_email_ignore' => 'Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.',
     'edit' => 'Chỉnh sửa',
     'no_interested_projects' => 'Chưa có dự án quan tâm',

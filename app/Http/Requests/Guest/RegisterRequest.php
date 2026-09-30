@@ -23,31 +23,35 @@ class RegisterRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'identification_number' => 'required|max:20|min:6|unique:guests,identification_number',
             'email' => 'required|email|unique:guests,email',
-            'nation_id' => 'required|exists:nations,id',
+            'phone' => 'required|string|max:20',
             'password' => 'required|string|min:6',
+            'investor_type' => 'required|in:individual,organization,fdi',
+            'interested_sectors' => 'nullable|array',
+            'organization_name' => 'required_if:investor_type,organization,fdi|nullable|string|max:255',
+            'tax_code' => 'required_if:investor_type,organization,fdi|nullable|string|max:50',
+            'identification_number' => 'nullable|max:20|min:6',
+            'nation_id' => 'nullable|exists:nations,id',
         ];
     }
 
     public function messages()
     {
         return [
-            'name.required' => __('validation.fields.name.required'),
+            'name.required' => __('validation.fields.name.required') ?: 'Vui lòng nhập họ tên.',
             'name.string' => __('validation.fields.name.string'),
             'name.max' => __('validation.fields.name.max'),
-            'identification_number.required' => __('validation.fields.identification_number.required'),
-            'identification_number.string' => __('validation.fields.identification_number.string'),
-            'identification_number.max' => __('validation.fields.identification_number.max'),
-            'identification_number.unique' => __('validation.fields.identification_number.unique'),
-            'email.required' => __('validation.fields.email.required'),
-            'email.email' => __('validation.fields.email.email'),
-            'email.unique' => __('validation.fields.email.unique'),
-            'nation_id.required' => __('validation.fields.nation_id.required'),
-            'nation_id.exists' => __('validation.fields.nation_id.exists'),
-            'password.required' => __('validation.fields.password.required'),
+            'email.required' => __('validation.fields.email.required') ?: 'Vui lòng nhập địa chỉ email.',
+            'email.email' => __('validation.fields.email.email') ?: 'Địa chỉ email không đúng định dạng.',
+            'email.unique' => 'Địa chỉ thư điện tử này đã được đăng ký.',
+            'phone.required' => 'Vui lòng nhập số điện thoại.',
+            'password.required' => __('validation.fields.password.required') ?: 'Vui lòng nhập mật khẩu.',
             'password.string' => __('validation.fields.password.string'),
-            'password.min' => __('validation.fields.password.min'),
+            'password.min' => __('validation.fields.password.min', ['min' => 6]) ?: 'Mật khẩu phải có ít nhất 6 ký tự.',
+            'investor_type.required' => 'Vui lòng chọn loại nhà đầu tư.',
+            'investor_type.in' => 'Loại nhà đầu tư không hợp lệ.',
+            'organization_name.required_if' => 'Vui lòng nhập tên tổ chức/doanh nghiệp.',
+            'tax_code.required_if' => 'Vui lòng nhập mã số thuế.',
         ];
     }
 }

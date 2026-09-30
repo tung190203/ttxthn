@@ -27,6 +27,21 @@ class Guest extends Auththenticatable
         'email_verified_at',
         'remember_token',
         'password',
+        'investor_type',
+        'interested_sectors',
+        'organization_name',
+        'tax_code',
+        'status',
+        'failed_login_attempts',
+        'locked_until',
+        'last_login_ip',
+        'verification_token',
+    ];
+
+    protected $casts = [
+        'interested_sectors' => 'array',
+        'locked_until' => 'datetime',
+        'email_verified_at' => 'datetime',
     ];
 
     /**

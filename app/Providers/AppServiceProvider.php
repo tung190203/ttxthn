@@ -67,6 +67,7 @@ class AppServiceProvider extends ServiceProvider
         // View Composers to prevent memory exhaustion by loading models only when needed
         View::composer(['frontend.index', 'backend.guest.create'], function ($view) {
             $view->with('nations', Nation::all());
+            $view->with('project_industries', ProjectIndustries::orderBy('id', 'asc')->get());
         });
 
         View::composer(['frontend.home.contact'], function ($view) {

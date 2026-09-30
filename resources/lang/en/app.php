@@ -120,7 +120,7 @@ return [
     'generic_error' => 'An error occurred, please try again!',
     'reset_password_email_subject' => 'Reset password',
     'reset_password_email_intro' => 'You are receiving this email because we received a password reset request for your account.',
-    'reset_password_email_expire' => 'This password reset link will expire in 60 minutes.',
+    'reset_password_email_expire' => 'This password reset link will expire in 24 hours.',
     'reset_password_email_ignore' => 'If you did not request a password reset, no further action is required.',
     'edit' => 'Edit',
     'no_interested_projects' => 'No interested projects yet.',
