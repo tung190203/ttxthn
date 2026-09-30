@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Http\Request;
 use Spatie\Translatable\HasTranslations;
-
+use App\Supports\SearchQueryParser;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
@@ -58,61 +58,62 @@ class IndustrialProject extends Model
     {
         return $this->belongsTo(ProductType::class, 'product_type', 'id');
     }
+
+    public function scopeSmartSearch($query, string $search)
+    {
+        $search = trim($search);
+        // Ưu tiên tìm theo TÊN: nếu có dự án trùng tên thì bỏ qua số, không coi là diện tích
+        if (SearchQueryParser::isNameSearch($search)) {
+            $like = '%' . mb_strtolower($search) . '%';
+            $projectIds = Project::whereRaw('LOWER(name) LIKE ?', [$like])->pluck('id');
+            return $query->where(function ($q) use ($like, $projectIds) {
+                $q->whereRaw('LOWER(name) LIKE ?', [$like])
+                    ->orWhereRaw('LOWER(code) LIKE ?', [$like])
+                    ->orWhereIn('project_id', $projectIds); // lấy các lô thuộc dự án trùng tên
+            });
+        }
+
+        $parsed = SearchQueryParser::parse($search);
+        // Mã lô: AND với các điều kiện khác
+        foreach ($parsed['codes'] as $code) {
+            $like = "%{$code}%";
+            $query->where(function ($q) use ($like) {
+                $q->whereRaw('LOWER(code) LIKE ?', [$like])
+                    ->orWhereRaw('LOWER(name) LIKE ?', [$like]);
+            });
+        }
+
+        // Từ khóa: OR giữa các từ đồng nghĩa và các cột
+        if ($parsed['keywords']) {
+            $query->where(function ($q) use ($parsed) {
+                foreach ($parsed['keywords'] as $kw) {
+                    $like = "%{$kw}%";
+                    $q->orWhereRaw('LOWER(name) LIKE ?', [$like])
+                        ->orWhereRaw('LOWER(code) LIKE ?', [$like])
+                        ->orWhereRaw('LOWER(intended_use) LIKE ?', [$like]);
+                }
+            });
+        }
+
+        // Diện tích: quy đổi acreage về ha (unit 0 = ha, 1 = km²), dung sai ±10%
+        if ($parsed['areas_ha']) {
+            $query->where(function ($q) use ($parsed) {
+                foreach ($parsed['areas_ha'] as $ha) {
+                    $q->orWhereRaw(
+                        'acreage * (CASE WHEN unit = 1 THEN 100 ELSE 1 END) BETWEEN ? AND ?',
+                        [$ha * 0.9, $ha * 1.1]
+                    );
+                }
+            });
+        }
+        return $query;
+    }
+
     public static function filterProjectIds(Request $request)
     {
         return self::query()
             ->select('project_id')
-            ->when(
-                $request->filled('search'),
-                fn($q) => $q->where(function ($subQuery) use ($request) {
-                    $search = $request->search;
-
-                    $subQuery->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($search) . '%'])
-                        ->orWhereRaw('LOWER(code) LIKE ?', ['%' . strtolower($search) . '%'])
-                        ->orWhereRaw('LOWER(intended_use) LIKE ?', ['%' . strtolower($search) . '%']);
-
-                    if (is_numeric($search)) {
-                        $value = (float) $search;
-                        $subQuery->orWhereBetween('acreage', [$value - 0.5, $value + 0.5]);
-                    }
-                })
-            )
-            ->when(
-                $request->filled('project_id') && $request->project_id !== 'all',
-                fn($q) => $q->where('project_id', $request->project_id)
-            )
-            ->when(
-                $request->filled('product_type') && $request->product_type !== 'all',
-                fn($q) => $q->where('product_type', $request->product_type)
-            )
-            ->when(
-                $request->has('price') && (int)$request->price > 0,
-                fn($q) => $q->where(function ($sub) use ($request) {
-                    $sub->whereNull('price')
-                        ->orWhere('price', '<=', (int) $request->price);
-                })
-            )
-            ->pluck('project_id');
-    }
-    public function scopeFilterByRequest($query, Request $request)
-    {
-        return $query
-            ->when(
-                $request->filled('search'),
-                function ($q) use ($request) {
-                    $search = strtolower($request->search);
-                    $q->where(function ($subQuery) use ($search) {
-                        $subQuery->whereRaw('LOWER(name) LIKE ?', ["%{$search}%"])
-                        ->orWhereRaw('LOWER(code) LIKE ?', ["%{$search}%"])
-                        ->orWhereRaw('LOWER(intended_use) LIKE ?', ["%{$search}%"]);
-
-                        if (is_numeric($search)) {
-                            $value = (float) $search;
-                            $subQuery->orWhereBetween('acreage', [$value - 5, $value + 5]);
-                        }
-                    });
-                }
-            )
+            ->when($request->filled('search'), fn($q) => $q->smartSearch($request->search))
             ->when(
                 $request->filled('project_id') && $request->project_id !== 'all',
                 fn($q) => $q->where('project_id', $request->project_id)
@@ -123,16 +124,25 @@ class IndustrialProject extends Model
             )
             ->when(
                 $request->has('price') && (int) $request->price > 0,
-                fn($q) => $q->where(function ($sub) use ($request) {
-                    $sub->whereNull('price')
-                        ->orWhere('price', '<=', (int) $request->price);
-                })
+                fn($q) => $q->where(fn($s) => $s->whereNull('price')->orWhere('price', '<=', (int) $request->price))
+            )
+            ->pluck('project_id');
+    }
+    public function scopeFilterByRequest($query, Request $request)
+    {
+        return $query
+            ->when($request->filled('search'), fn($q) => $q->smartSearch($request->search))
+            ->when(
+                $request->filled('project_id') && $request->project_id !== 'all',
+                fn($q) => $q->where('project_id', $request->project_id)
+            )
+            ->when(
+                $request->filled('product_type') && $request->product_type !== 'all',
+                fn($q) => $q->where('product_type', $request->product_type)
+            )
+            ->when(
+                $request->has('price') && (int) $request->price > 0,
+                fn($q) => $q->where(fn($s) => $s->whereNull('price')->orWhere('price', '<=', (int) $request->price))
             );
     }
-    //     public function hotspots()
-    // {
-    //     // dd($this);
-    //     return $this->hasMany(Hotspot::class, 'vrtour_id', 'vrtour_id')
-    //                 ->where('potision', 'like', 'cmss%');
-    // }
 }
