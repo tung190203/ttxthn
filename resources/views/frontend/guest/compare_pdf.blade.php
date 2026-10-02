@@ -53,13 +53,13 @@
             <tr>
                 <td><strong>Lĩnh vực / Ngành nghề</strong></td>
                 @foreach($projects as $project)
-                <td>{{ $project->industry->name ?? 'Đang cập nhật' }}</td>
+                <td>{{ $project->industry->name ?? __('app.updating') }}</td>
                 @endforeach
             </tr>
             <tr>
                 <td><strong>Loại dự án</strong></td>
                 @foreach($projects as $project)
-                <td>{{ $project->type->name ?? 'Đang cập nhật' }}</td>
+                <td>{{ $project->type->name ?? __('app.updating') }}</td>
                 @endforeach
             </tr>
             <tr>
@@ -79,7 +79,7 @@
                 @foreach($projects as $project)
                 <td>
                     @if($project->investment_capital)
-                        {{ number_format($project->investment_capital, 0, ',', '.') }} tỷ VNĐ
+                        {{ formatDecimalByLocale($project->investment_capital, null, 0) }} {{ __('app.billion_vnd') }}
                     @else
                         Thỏa thuận
                     @endif
@@ -94,7 +94,7 @@
                 <td><strong>Hình thức đầu tư</strong></td>
                 @foreach($projects as $project)
                 <td>
-                    {{ $project->investment_form ?? 'Đang cập nhật' }}
+                    {{ $project->investment_form ?? __('app.updating') }}
                     @if(!empty($notes[$project->id]['investment_form']))
                         <div style="margin-top:5px; font-size:11px; font-style:italic;">Ghi chú: {{ $notes[$project->id]['investment_form'] }}</div>
                     @endif
@@ -121,7 +121,7 @@
                 @foreach($projects as $project)
                 <td>
                     @if($project->land_area)
-                        {{ number_format($project->land_area, 2, ',', '.') }} ha
+                        {{ formatDecimalByLocale($project->land_area) }} ha
                     @else
                         Đang cập nhật
                     @endif

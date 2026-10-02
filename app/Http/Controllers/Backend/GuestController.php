@@ -45,22 +45,18 @@ class GuestController extends Controller
     {
         $this->selectedSubMenu('guest');
 
-        $filter['name']          = $request->get('name', '');
-        $filter['email']         = $request->get('email', '');
-        $filter['phone']         = $request->get('phone', '');
+        $filter['keyword']       = $request->get('keyword', '');
         $filter['investor_type'] = $request->get('investor_type', '');
         $filter['status']        = $request->get('status', '');
 
         $query = $this->guest->with('nation')->orderBy('id', 'desc');
 
-        if (!empty($filter['name'])) {
-            $query->where('name', 'like', '%' . $filter['name'] . '%');
-        }
-        if (!empty($filter['email'])) {
-            $query->where('email', 'like', '%' . $filter['email'] . '%');
-        }
-        if (!empty($filter['phone'])) {
-            $query->where('phone', 'like', '%' . $filter['phone'] . '%');
+        if (!empty($filter['keyword'])) {
+            $query->where(function($q) use ($filter) {
+                $q->where('name', 'like', '%' . $filter['keyword'] . '%')
+                  ->orWhere('email', 'like', '%' . $filter['keyword'] . '%')
+                  ->orWhere('phone', 'like', '%' . $filter['keyword'] . '%');
+            });
         }
         if (!empty($filter['investor_type'])) {
             $query->where('investor_type', $filter['investor_type']);
@@ -77,6 +73,7 @@ class GuestController extends Controller
             'active' => Guest::where('status', 'active')->count(),
             'locked' => Guest::where('status', 'locked')->count(),
             'pending' => Guest::where('status', 'pending')->count(),
+            'rejected' => Guest::where('status', 'rejected')->count(),
             'new_this_month' => Guest::whereMonth('created_at', now()->month)->whereYear('created_at', now()->year)->count(),
         ];
 
@@ -142,7 +139,13 @@ class GuestController extends Controller
             ->take(15)
             ->get();
 
-        return view('backend.guest.show', compact('guest', 'bookmarks', 'auditLogs'));
+        $viewHistories = \App\Models\GuestViewHistory::with('project')
+            ->where('guest_id', $guest->id)
+            ->orderBy('viewed_at', 'desc')
+            ->take(50)
+            ->get();
+
+        return view('backend.guest.show', compact('guest', 'bookmarks', 'auditLogs', 'viewHistories'));
     }
 
     public function edit(Request $request, Guest $guest)

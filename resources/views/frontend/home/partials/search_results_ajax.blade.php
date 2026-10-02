@@ -43,7 +43,7 @@
                                     <img class="me-2" src="{{ asset('/images/icon-save-money.svg') }}" alt=""/>
                                     <span>
                                         @if($item->price !== null && $item->price !== '')
-                                            {{ number_format($item->price, 0, ',','.' )}} {{ __('app.billion_vnd') }}
+                                            {{ formatDecimalByLocale($item->price, null, 0)}} {{ __('app.billion_vnd') }}
                                         @else
                                             {{ __('app.updating') }}
                                         @endif

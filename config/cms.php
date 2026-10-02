@@ -52,6 +52,11 @@ return [
                     'route' => 'backend_guest',
                     'title' => 'Người dùng',
                 ],
+                'reports' => [
+                    'icon' => 'fas fa-chart-pie',
+                    'route' => 'backend.reports.investor_behavior',
+                    'title' => 'Phân tích hành vi NĐT',
+                ],
                'vr_tour' => [
                    'icon' => 'fas fa-vr-cardboard',
                    'title' => 'VrTour',

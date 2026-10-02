@@ -20,6 +20,7 @@ use App\Models\Panorama;
 use App\Models\Popup;
 use App\Models\SkinApproval;
 use App\Models\User;
+use App\Observers\ProjectObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -36,6 +37,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(Request $request): void
     {
+        Project::observe(ProjectObserver::class);
+        
         Paginator::useBootstrapFour();
 
         // Chỉ log hành động của người dùng, bỏ qua system (không có causer)

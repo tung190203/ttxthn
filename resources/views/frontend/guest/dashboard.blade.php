@@ -8,19 +8,22 @@
 
     <section class="section">
         <div class="container">
-            <h2 class="section__title mb-4 text-uppercase">Bảng điều khiển cá nhân</h2>
+            <h2 class="section__title mb-4 text-uppercase">{{ __('app.personal_dashboard') }}</h2>
 
             <ul class="nav nav-tabs mb-4" id="dashboardTab" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link active fw-bold" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab" style="font-size: 16px;">TỔNG QUAN</button>
+                    <button class="nav-link active fw-bold" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab" style="font-size: 16px;">{{ __('app.overview') }}</button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link fw-bold" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab" style="font-size: 16px;">LỊCH SỬ TRA CỨU</button>
+                    <button class="nav-link fw-bold" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab" style="font-size: 16px;">{{ __('app.search_history') }}</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold" id="compare-tab" data-bs-toggle="tab" data-bs-target="#compare" type="button" role="tab" style="font-size: 16px;">{{ __('app.compare_session') }}</button>
                 </li>
             </ul>
 
             <div class="tab-content" id="dashboardTabContent">
-                <!-- TỔNG QUAN -->
+                <!-- {{ __('app.overview') }} -->
                 <div class="tab-pane fade show active" id="overview" role="tabpanel">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div class="alert alert-info mb-0 py-2">
@@ -31,14 +34,14 @@
                         </button>
                     </div>
 
-                    <!-- THỐNG KÊ TỔNG QUAN -->
+                    <!-- THỐNG KÊ {{ __('app.overview') }} -->
                     <div class="row mb-4">
                         <div class="col-md-3 mb-3 mb-md-0">
                             <div class="card text-white h-100 rounded shadow-sm border-0" style="background: linear-gradient(45deg, #0d6efd, #0b5ed7);">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
-                                            <h6 class="text-uppercase mb-1" style="font-size: 13px; opacity: 0.9;">Dự án quan tâm</h6>
+                                            <h6 class="text-uppercase mb-1" style="font-size: 13px; opacity: 0.9;">{{ __('app.interested_projects') }}</h6>
                                             <h2 class="mb-0 fw-bold">{{ $list_project_interest->count() }}</h2>
                                         </div>
                                         <div class="fs-1" style="opacity: 0.3;"><i class="fal fa-building"></i></div>
@@ -51,7 +54,7 @@
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
-                                            <h6 class="text-uppercase mb-1" style="font-size: 13px; opacity: 0.9;">Tin tức quan tâm</h6>
+                                            <h6 class="text-uppercase mb-1" style="font-size: 13px; opacity: 0.9;">{{ __('app.interested_news') }}</h6>
                                             <h2 class="mb-0 fw-bold">{{ count($list_post_interest) }}</h2>
                                         </div>
                                         <div class="fs-1" style="opacity: 0.3;"><i class="fal fa-newspaper"></i></div>
@@ -64,7 +67,7 @@
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
-                                            <h6 class="text-uppercase mb-1" style="font-size: 13px; opacity: 0.9;">Dự án cập nhật mới</h6>
+                                            <h6 class="text-uppercase mb-1" style="font-size: 13px; opacity: 0.9;">{{ __('app.new_updated_projects') }}</h6>
                                             <h2 class="mb-0 fw-bold">{{ $updatedBookmarks->count() }}</h2>
                                         </div>
                                         <div class="fs-1" style="opacity: 0.3;"><i class="fal fa-bell"></i></div>
@@ -77,7 +80,7 @@
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
-                                            <h6 class="text-uppercase mb-1" style="font-size: 13px; opacity: 0.9;">Lịch sử tra cứu</h6>
+                                            <h6 class="text-uppercase mb-1" style="font-size: 13px; opacity: 0.9;">{{ __('app.search_history') }}</h6>
                                             <h2 class="mb-0 fw-bold">{{ $viewHistories->count() }}</h2>
                                         </div>
                                         <div class="fs-1" style="opacity: 0.3;"><i class="fal fa-history"></i></div>
@@ -92,13 +95,13 @@
                         <div class="col-lg-6 mb-4 dashboard-widget" data-id="bookmarks">
                             <div class="card h-100 rounded-0">
                                 <div class="card-header bg-light border-bottom cursor-move d-flex justify-content-between align-items-center" style="cursor: grab;">
-                                    <h5 class="m-0 fw-bold text-uppercase" style="font-size: 16px;"><i class="fal fa-bookmark me-2"></i>Mục yêu thích</h5>
+                                    <h5 class="m-0 fw-bold text-uppercase" style="font-size: 16px;"><i class="fal fa-bookmark me-2"></i>{{ __('app.favorites') }}</h5>
                                     <i class="fal fa-arrows-alt text-secondary"></i>
                                 </div>
                                 <div class="card-body p-0" style="max-height: 400px; overflow-y: auto;">
                                     @if($bookmarks->isEmpty())
                                         <div class="p-4 text-center text-secondary">
-                                            Chưa có dữ liệu.
+                                            {{ __('app.no_data') }}
                                         </div>
                                     @else
                                         <div class="list-group list-group-flush">
@@ -121,14 +124,14 @@
                                                         <h6 class="mb-2 fw-bold text-dark">{{ $b->interestable->name ?? $b->interestable->title }}</h6>
                                                         <div class="d-flex align-items-center mb-1">
                                                             <span class="badge {{ $typeClass }} me-2">{{ $typeLabel }}</span>
-                                                            <small class="text-secondary">Ngày lưu: {{ $b->created_at->format('d/m/Y') }}</small>
+                                                            <small class="text-secondary">{{ __('app.saved_date') }} {{ $b->created_at->format('d/m/Y') }}</small>
                                                             @if($b->tag)
                                                                 <span class="badge bg-secondary ms-2">{{ $b->tag }}</span>
                                                             @endif
                                                         </div>
                                                         @if($b->notes)
                                                             <div class="mt-2 text-secondary small fst-italic">
-                                                                - Ghi chú: {{ $b->notes }}
+                                                                - {{ __('app.notes') }} {{ $b->notes }}
                                                             </div>
                                                         @endif
                                                     </a>
@@ -144,7 +147,7 @@
                         <div class="col-lg-6 mb-4 dashboard-widget" data-id="updates">
                             <div class="card h-100 rounded-0">
                                 <div class="card-header bg-light border-bottom cursor-move d-flex justify-content-between align-items-center" style="cursor: grab;">
-                                    <h5 class="m-0 fw-bold text-uppercase" style="font-size: 16px;"><i class="fal fa-bell me-2"></i>Cập nhật mới</h5>
+                                    <h5 class="m-0 fw-bold text-uppercase" style="font-size: 16px;"><i class="fal fa-bell me-2"></i>{{ __('app.new_updates') }}</h5>
                                     <i class="fal fa-arrows-alt text-secondary"></i>
                                 </div>
                                 <div class="card-body p-0" style="max-height: 400px; overflow-y: auto;">
@@ -166,7 +169,7 @@
                                                         <h6 class="mb-0 fw-bold text-dark w-75">{{ $b->interestable->name ?? $b->interestable->title }}</h6>
                                                         <span class="badge bg-danger">MỚI</span>
                                                     </div>
-                                                    <small class="text-secondary mt-2 d-block">Thời gian cập nhật: {{ $b->interestable->updated_at->format('d/m/Y H:i') }}</small>
+                                                    <small class="text-secondary mt-2 d-block">{{ __('app.updated_time') }} {{ $b->interestable->updated_at->format('d/m/Y H:i') }}</small>
                                                 </a>
                                             @endforeach
                                         </div>
@@ -179,7 +182,7 @@
                         <div class="col-12 mb-4 dashboard-widget" data-id="suggestions">
                             <div class="card rounded-0">
                                 <div class="card-header bg-light border-bottom cursor-move d-flex justify-content-between align-items-center" style="cursor: grab;">
-                                    <h5 class="m-0 fw-bold text-uppercase" style="font-size: 16px;"><i class="fal fa-lightbulb-on me-2"></i>Gợi ý dự án đầu tư</h5>
+                                    <h5 class="m-0 fw-bold text-uppercase" style="font-size: 16px;"><i class="fal fa-lightbulb-on me-2"></i>{{ __('app.investment_project_suggestions') }}</h5>
                                     <i class="fal fa-arrows-alt text-secondary"></i>
                                 </div>
                                 <div class="card-body">
@@ -214,7 +217,7 @@
                     </div>
                 </div>
 
-                <!-- LỊCH SỬ TRA CỨU -->
+                <!-- {{ __('app.search_history') }} -->
                 <div class="tab-pane fade" id="history" role="tabpanel">
                     <div class="card rounded-0">
                         <div class="card-body p-0">
@@ -227,9 +230,9 @@
                                     <table class="table table-bordered table-striped mb-0">
                                         <thead class="table-light">
                                             <tr>
-                                                <th class="text-center" width="20%">Thời gian</th>
-                                                <th>Tên dự án</th>
-                                                <th class="text-center" width="15%">Thao tác</th>
+                                                <th class="text-center" width="20%">{{ __('app.time') }}</th>
+                                                <th>{{ __('app.project_name') }}</th>
+                                                <th class="text-center" width="15%">{{ __('app.action') }}</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -253,6 +256,47 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- {{ __('app.compare_session') }} -->
+                <div class="tab-pane fade" id="compare" role="tabpanel">
+                    <div class="card shadow-sm border-0 rounded-3">
+                        <div class="card-body p-0">
+                            @if(isset($compareSessions) && $compareSessions->count() > 0)
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="p-3">{{ __('app.compare_session_name') }}</th>
+                                            <th class="p-3">{{ __('app.number_of_projects') }}</th>
+                                            <th class="p-3">{{ __('app.last_saved') }}</th>
+                                            <th class="p-3 text-end">{{ __('app.action') }}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($compareSessions as $session)
+                                        <tr>
+                                            <td class="p-3 align-middle fw-bold text-primary">{{ $session->name ?: __('app.compare_session') . ' ' . $session->created_at->format('d/m/Y') }}</td>
+                                            <td class="p-3 align-middle"><span class="badge bg-secondary">{{ count($session->project_ids ?? []) }} dự án</span></td>
+                                            <td class="p-3 align-middle text-secondary"><i class="fal fa-clock me-1"></i>{{ $session->updated_at->format('H:i d/m/Y') }}</td>
+                                            <td class="p-3 align-middle text-end">
+                                                <a href="{{ route('guest.compare.show', $session->id) }}" class="btn btn-sm btn-outline-primary"><i class="fal fa-eye"></i> {{ __('app.review') }}</a>
+                                                <a href="{{ route('guest.compare.export_pdf', $session->id) }}" class="btn btn-sm btn-outline-success"><i class="fal fa-file-pdf"></i> {{ __('app.download_pdf') }}</a>
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                            @else
+                            <div class="p-5 text-center text-muted">
+                                <i class="fal fa-balance-scale fs-1 mb-3"></i>
+                                <h5>{{ __('app.no_saved_compare_session') }}</h5>
+                                <p>Bạn có thể chọn nhiều dự án trong mục "{{ __('app.interested_projects') }}" và bấm So sánh, sau đó lưu lại.</p>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -265,7 +309,7 @@
                 <form action="{{ route('guest.compare.create') }}" method="POST" class="d-inline-block ms-3" id="form-compare">
                     @csrf
                     <div id="compare-inputs"></div>
-                    <button type="submit" id="btn-compare" class="btn btn-sm btn-primary shadow-sm" disabled style="display: none;">
+                    <button type="submit" id="btn-compare" class="btn btn-sm btn-primary shadow-sm text-white" disabled style="display: none;">
                         <i class="fal fa-balance-scale me-1"></i> So sánh (<span id="compare-count">0</span>)
                     </button>
                     <small id="compare-error" class="text-danger ms-2 d-none">Chỉ so sánh từ 2-4 dự án</small>
@@ -344,7 +388,7 @@
                                                     @endphp
                                                     <span>{{ $formattedArea }}</span>
                                                 </li>
-                                                <li><img class="me-2" src="{{ asset('/images/icon-save-money.svg') }}" alt="" /><span>{{ $item->price !== null && $item->price !== '' ? number_format($item->price, 0, ',', '.') . ' ' . __('app.billion_vnd') : __('app.updating') }}</span></li>
+                                                <li><img class="me-2" src="{{ asset('/images/icon-save-money.svg') }}" alt="" /><span>{{ $item->price !== null && $item->price !== '' ? formatDecimalByLocale($item->price, null, 0) . ' ' . __('app.billion_vnd') : __('app.updating') }}</span></li>
                                             </ul>
                                             @if($item->interest_tag || $item->interest_notes)
                                                 <div class="mt-2 p-2 bg-light rounded text-start" style="font-size: 13px;">
@@ -524,9 +568,9 @@
                                         <td class="text-center">{{ $stt++ }}</td>
                                         <td>
                                             @if($b->interestable_type == 'App\Models\Project')
-                                                <span class="badge bg-primary">Dự án</span>
+                                                <span class="badge bg-primary">{{ __('app.project') }}</span>
                                             @elseif($b->interestable_type == 'App\Models\Post')
-                                                <span class="badge bg-success">Tin tức</span>
+                                                <span class="badge bg-success">{{ __('app.news') }}</span>
                                             @else
                                                 <span class="badge bg-secondary">Khác</span>
                                             @endif

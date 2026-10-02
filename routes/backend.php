@@ -86,6 +86,11 @@ Route::localized(function () {
             Route::post('/unlock/{guest}', [GuestController::class, 'unlock'])->name('backend_guest_unlock');
             Route::post('/reset-password/{guest}', [GuestController::class, 'resetPassword'])->name('backend_guest_reset_password');
         });
+        
+        // Reports
+        Route::prefix('reports')->group(function () {
+            Route::get('/investor-behavior', [\App\Http\Controllers\Backend\ReportController::class, 'investorBehavior'])->name('backend.reports.investor_behavior');
+        });
 
         Route::prefix('post')->group(function () {
             Route::get('/', [PostController::class, 'index'])->name('backend_post');

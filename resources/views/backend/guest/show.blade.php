@@ -115,6 +115,49 @@
             
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-success">Lịch sử xem dự án (90 ngày)</h6>
+                </div>
+                <div class="card-body">
+                    @if(isset($viewHistories) && $viewHistories->count() > 0)
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-sm">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th>Thời gian xem</th>
+                                        <th>Dự án</th>
+                                        <th>Ngành nghề</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($viewHistories as $vh)
+                                    <tr>
+                                        <td>{{ \Carbon\Carbon::parse($vh->viewed_at)->format('d/m/Y H:i') }}</td>
+                                        <td>
+                                            @if($vh->project)
+                                                <a href="{{ route('project_detail', ['slug' => $vh->project->slug ?? 'untitled']) }}" target="_blank">
+                                                    {{ $vh->project->name }}
+                                                </a>
+                                            @else
+                                                <span class="text-muted">Dự án đã xóa</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if($vh->project && $vh->project->industry)
+                                                {{ $vh->project->industry->name }}
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <p class="text-center text-muted my-5">Chưa có lịch sử tra cứu nào.</p>
+                    @endif
+                </div>
+            </div>
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">Lịch sử hoạt động gần đây (Audit Logs)</h6>
                 </div>
                 <div class="card-body">

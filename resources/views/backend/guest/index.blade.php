@@ -53,96 +53,68 @@ Quản lý Tài khoản Nhà đầu tư
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-xl-10">
-                <form action="" method="GET" class="form-filter-top-index">
-                    <div class="row">
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <input type="text" name="name" class="form-control" value="{{ $filter['name'] }}"
-                                    placeholder="Họ và tên">
-                            </div>
+        <div class="row align-items-center mb-3">
+            <div class="col-xl-9 mb-2 mb-xl-0">
+                <form action="" method="GET" class="form-filter-top-index m-0">
+                    <div class="d-flex flex-wrap align-items-center">
+                        <div class="flex-grow-1 mb-2 mb-md-0 mr-2 form-group m-0" style="min-width: 280px;">
+                            <input type="text" name="keyword" class="form-control w-100" value="{{ $filter['keyword'] ?? '' }}"
+                                placeholder="Họ tên, Email, SĐT...">
                         </div>
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <input type="text" name="email" class="form-control" value="{{ $filter['email'] }}"
-                                    placeholder="Email">
-                            </div>
+                        <div class="mb-2 mb-md-0 mr-2 form-group m-0" style="width: 180px;">
+                            <select name="investor_type" class="form-control w-100">
+                                <option value="">-- Loại nhà đầu tư --</option>
+                                <option value="individual" {{ $filter['investor_type'] === 'individual' ? 'selected' : '' }}>Cá nhân</option>
+                                <option value="organization" {{ $filter['investor_type'] === 'organization' ? 'selected' : '' }}>Tổ chức</option>
+                                <option value="fdi" {{ $filter['investor_type'] === 'fdi' ? 'selected' : '' }}>Doanh nghiệp FDI</option>
+                            </select>
                         </div>
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <input type="text" name="phone" class="form-control" value="{{ $filter['phone'] }}"
-                                    placeholder="Số điện thoại">
-                            </div>
+                        <div class="mb-2 mb-md-0 mr-2 form-group m-0" style="width: 140px;">
+                            <select name="status" class="form-control w-100">
+                                <option value="">-- Trạng thái --</option>
+                                <option value="pending" {{ $filter['status'] === 'pending' ? 'selected' : '' }}>Chờ duyệt</option>
+                                <option value="active" {{ $filter['status'] === 'active' ? 'selected' : '' }}>Hoạt động</option>
+                                <option value="locked" {{ $filter['status'] === 'locked' ? 'selected' : '' }}>Đã khoá</option>
+                                <option value="rejected" {{ $filter['status'] === 'rejected' ? 'selected' : '' }}>Đã từ chối</option>
+                            </select>
                         </div>
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <select name="investor_type" class="form-control">
-                                    <option value="">-- Loại nhà đầu tư --</option>
-                                    <option value="individual" {{ $filter['investor_type'] === 'individual' ? 'selected' : '' }}>Cá nhân</option>
-                                    <option value="organization" {{ $filter['investor_type'] === 'organization' ? 'selected' : '' }}>Tổ chức</option>
-                                    <option value="fdi" {{ $filter['investor_type'] === 'fdi' ? 'selected' : '' }}>Doanh nghiệp FDI</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <select name="status" class="form-control">
-                                    <option value="">-- Trạng thái --</option>
-                                    <option value="pending" {{ $filter['status'] === 'pending' ? 'selected' : '' }}>Chờ duyệt</option>
-                                    <option value="active" {{ $filter['status'] === 'active' ? 'selected' : '' }}>Hoạt động</option>
-                                    <option value="locked" {{ $filter['status'] === 'locked' ? 'selected' : '' }}>Đã khoá</option>
-                                    <option value="rejected" {{ $filter['status'] === 'rejected' ? 'selected' : '' }}>Đã từ chối</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-2 text-left">
-                            <div class="form-group text-nowrap">
-                                <button type="submit" class="btn btn-primary btn-sm mr-1">
-                                    <i class="fa fa-search"></i> Tìm kiếm
-                                </button>
-                                <a href="{{ route('backend_guest') }}" class="btn btn-default btn-sm">Làm mới</a>
-                            </div>
+                        <div class="mb-2 mb-md-0 text-nowrap form-group m-0">
+                            <button type="submit" class="btn btn-primary btn-sm mr-1" style="height: 31px;">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            <a href="{{ route('backend_guest') }}" class="btn btn-default btn-sm" style="height: 31px; line-height: 1.5;">Làm mới</a>
                         </div>
                     </div>
                 </form>
             </div>
-            <div class="col-xl-2">
-                <div class="float-right mb-3">
-                    <a href="{{ route('backend_guest_export', request()->query()) }}" class="btn btn-success btn-sm mb-1">
-                        <i class="fas fa-file-excel mr-1"></i> Xuất Excel
-                    </a>
-                    @can('guest')
-                    <x-forms.button-url title="Thêm mới" class="btn-info" icon="fa fa-plus"
-                        url="{{ route('backend_guest_create') }}" />
-                    @endcan
-                    @can('guest')
-                    <x-forms.button-bulk-delete url="{{ route('backend_guest_bulk_delete')}}" />
-                    @endcan
-                </div>
+            <div class="col-xl-3 text-xl-right text-left text-nowrap">
+                <a href="{{ route('backend_guest_export', request()->query()) }}" class="btn btn-success btn-sm mr-1">
+                    <i class="fas fa-file-excel mr-1"></i> Xuất Excel
+                </a>
+                @can('guest')
+                <x-forms.button-url title="Thêm mới" class="btn-info mr-1" icon="fa fa-plus"
+                    url="{{ route('backend_guest_create') }}" />
+                @endcan
+                @can('guest')
+                <x-forms.button-bulk-delete url="{{ route('backend_guest_bulk_delete')}}" />
+                @endcan
             </div>
         </div>
 
         {{-- Summary badges --}}
         <div class="row mb-3">
             <div class="col-12">
-                @php
-                    $pendingCount  = \App\Models\Guest::where('status', 'pending')->whereNotNull('email_verified_at')->whereIn('investor_type', ['organization', 'fdi'])->count();
-                    $activeCount   = \App\Models\Guest::where('status', 'active')->count();
-                    $lockedCount   = \App\Models\Guest::where('status', 'locked')->count();
-                    $rejectedCount = \App\Models\Guest::where('status', 'rejected')->count();
-                @endphp
                 <a href="{{ route('backend_guest', ['status' => 'pending', 'investor_type' => '']) }}" class="btn btn-sm btn-warning mr-1">
-                    <i class="fa fa-clock"></i> Chờ duyệt <span class="badge badge-light">{{ $pendingCount }}</span>
+                    <i class="fa fa-clock"></i> Chờ duyệt <span class="badge badge-light">{{ $report['pending'] ?? 0 }}</span>
                 </a>
                 <a href="{{ route('backend_guest', ['status' => 'active']) }}" class="btn btn-sm btn-success mr-1">
-                    <i class="fa fa-check-circle"></i> Active <span class="badge badge-light">{{ $activeCount }}</span>
+                    <i class="fa fa-check-circle"></i> Active <span class="badge badge-light">{{ $report['active'] ?? 0 }}</span>
                 </a>
                 <a href="{{ route('backend_guest', ['status' => 'locked']) }}" class="btn btn-sm btn-danger mr-1">
-                    <i class="fa fa-lock"></i> Locked <span class="badge badge-light">{{ $lockedCount }}</span>
+                    <i class="fa fa-lock"></i> Locked <span class="badge badge-light">{{ $report['locked'] ?? 0 }}</span>
                 </a>
                 <a href="{{ route('backend_guest', ['status' => 'rejected']) }}" class="btn btn-sm btn-secondary mr-1">
-                    <i class="fa fa-times-circle"></i> Rejected <span class="badge badge-light">{{ $rejectedCount }}</span>
+                    <i class="fa fa-times-circle"></i> Rejected <span class="badge badge-light">{{ $report['rejected'] ?? 0 }}</span>
                 </a>
             </div>
         </div>

@@ -108,9 +108,13 @@ class GuestDashboardController extends Controller
                 return null;
             })->filter()->values();
 
+        $compareSessions = \App\Models\CompareSession::where('guest_id', $guest->id)
+            ->orderBy('updated_at', 'desc')
+            ->get();
+
         return view('frontend.guest.dashboard', compact(
             'bookmarks', 'updatedBookmarks', 'suggestions', 'viewHistories', 'layout',
-            'list_project_interest', 'list_post_interest', 'industries'
+            'list_project_interest', 'list_post_interest', 'industries', 'compareSessions'
         ));
     }
 
@@ -186,7 +190,7 @@ class GuestDashboardController extends Controller
 
         $session = \App\Models\CompareSession::create([
             'guest_id' => $guest->id,
-            'name' => 'Phiên so sánh ' . now()->format('d/m/Y H:i'),
+            'name' => __('app.compare_session') . ' ' . now()->format('d/m/Y H:i'),
             'project_ids' => $projectIds
         ]);
 

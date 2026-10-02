@@ -42,7 +42,12 @@ class InvestorLockedMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.investor_locked',
+            view: 'emails.account-locked-alert',
+            with: [
+                'guest' => $this->guest,
+                'reason' => $this->reason,
+                'ip' => request()->ip(), // passing IP to template
+            ]
         );
     }
 
