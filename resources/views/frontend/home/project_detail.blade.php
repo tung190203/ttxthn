@@ -753,9 +753,24 @@
                             </div>
                             {{-- Link --}}
                             <div style="margin-top: 20px; margin-left: -24px; margin-right: -24px; margin-bottom: -24px; padding: 14px 24px; background: #EEF3FF; text-align: center;">
+                                @php
+    $isAllowed = false;
+    if (auth('guest')->check()) {
+        $invType = auth('guest')->user()->investor_type;
+        if (in_array($invType, ['organization', 'fdi'])) {
+            $isAllowed = true;
+        }
+    }
+@endphp
+                                @if($isAllowed)
                                 <a href="{{ asset($file) }}" target="_blank" rel="noopener noreferrer" style="color: #1A73E8; font-weight: 600; font-size: 14px; text-decoration: none;">
                                     Xem chi tiết &nbsp;<i class="far fa-arrow-right"></i>
                                 </a>
+                                @else
+                                <a href="#" onclick="Swal.fire('Truy cập bị từ chối', 'Văn bản này thuộc mức Nội bộ. Chỉ tài khoản Tổ chức hoặc FDI mới được phép tải/xem tài liệu này.', 'warning'); return false;" style="color: #999; font-weight: 600; font-size: 14px; text-decoration: none; cursor: not-allowed;">
+                                    <i class="far fa-lock"></i> Xem chi tiết
+                                </a>
+                                @endif
                             </div>
                         </div>
                     </div>

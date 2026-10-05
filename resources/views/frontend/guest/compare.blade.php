@@ -282,6 +282,7 @@ if (!function_exists('formatCriteriaDetail')) {
         attachDiv.innerHTML = ''; // Clear previous
         if (attachmentUrl) {
             let files = attachmentUrl.split(';');
+            let canDownloadInternal = @json(auth('guest')->check() && in_array(auth('guest')->user()->investor_type, ['organization', 'fdi']));
             files.forEach((file, index) => {
                 if (file.trim() === '') return;
                 // Add base URL if it's a relative path starting with /
@@ -289,7 +290,11 @@ if (!function_exists('formatCriteriaDetail')) {
                 if (href.startsWith('/')) {
                     href = window.location.origin + href;
                 }
-                attachDiv.innerHTML += '<a href="' + href + '" class="btn btn-sm btn-outline-success me-2 mb-2" target="_blank"><i class="fal fa-download me-1"></i>{{ __('app.download_doc') }} ' + (index + 1) + '</a>';
+                if (canDownloadInternal) {
+                    attachDiv.innerHTML += '<a href="' + href + '" class="btn btn-sm btn-outline-success me-2 mb-2" target="_blank"><i class="fal fa-download me-1"></i>{{ __('app.download_doc') }} ' + (index + 1) + '</a>';
+                } else {
+                    attachDiv.innerHTML += '<a href="#" onclick="Swal.fire(\'Truy cập bị từ chối\', \'Văn bản này thuộc mức Nội bộ. Chỉ tài khoản Tổ chức hoặc FDI mới được phép tải/xem tài liệu này.\', \'warning\'); return false;" class="btn btn-sm btn-outline-secondary me-2 mb-2"><i class="fal fa-lock me-1"></i>{{ __('app.download_doc') }} ' + (index + 1) + '</a>';
+                }
             });
             attachDiv.style.display = 'block';
         } else {
