@@ -26,11 +26,69 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
 
+        $guest = Auth::guard('guest')->user();
+        $isFdi = $guest && $guest->investor_type === 'fdi';
+
+        $previousUrl = url()->previous() ?: url('/');
+        $redirectUrl = $this->getRedirectUrlForGuest($previousUrl, $guest);
+
         return response()->json([
             'success' => true,
-            'message' => 'Đăng nhập thành công!',
-            'redirect' => url()->previous() ?: url('/'),
+            'message' => $isFdi ? 'Logged in successfully!' : 'Đăng nhập thành công!',
+            'redirect' => $redirectUrl,
         ]);
+    }
+
+    /**
+     * Tự động chuyển URL sang /en nếu NĐT là tài khoản FDI và đang ở trang tiếng Việt
+     */
+    protected function getRedirectUrlForGuest(?string $targetUrl, ?Guest $guest): string
+    {
+        $targetUrl = $targetUrl ?: url('/');
+
+        // Tránh chuyển hướng ngược lại các trang auth/login
+        if (str_contains($targetUrl, '/auth/login') || str_contains($targetUrl, '/guest/login')) {
+            $targetUrl = url('/');
+        }
+
+        if ($guest && $guest->investor_type === 'fdi') {
+            $parsed = parse_url($targetUrl);
+            $path = $parsed['path'] ?? '/';
+            $path = trim($path, '/');
+
+            $availableLocales = config('app.available_locales', ['en', 'vn', 'vi']);
+
+            $segments = $path !== '' ? explode('/', $path) : [];
+            $firstSegment = $segments[0] ?? '';
+
+            // Nếu đã ở tiếng Anh (/en) thì giữ nguyên
+            if ($firstSegment === 'en') {
+                return $targetUrl;
+            }
+
+            // Nếu URL đang có tiền tố ngôn ngữ khác (vn, vi) thì loại bỏ
+            if (in_array($firstSegment, $availableLocales, true)) {
+                array_shift($segments);
+            }
+
+            // Đưa tiền tố 'en' lên đầu
+            array_unshift($segments, 'en');
+            $newPath = '/' . implode('/', $segments);
+
+            $scheme = isset($parsed['scheme']) ? $parsed['scheme'] . '://' : '';
+            $host = $parsed['host'] ?? '';
+            $port = isset($parsed['port']) ? ':' . $parsed['port'] : '';
+            $query = isset($parsed['query']) ? '?' . $parsed['query'] : '';
+            $fragment = isset($parsed['fragment']) ? '#' . $parsed['fragment'] : '';
+
+            if ($host) {
+                return $scheme . $host . $port . $newPath . $query . $fragment;
+            }
+
+            return url($newPath) . $query . $fragment;
+        }
+
+        return $targetUrl;
     }    
 
     public function register(RegisterRequest $request)
@@ -411,7 +469,8 @@ class AuthController extends Controller
     
             Auth::guard('guest')->login($guest, true);
     
-            return redirect()->intended('/');
+            $targetUrl = redirect()->intended('/')->getTargetUrl();
+            return redirect($this->getRedirectUrlForGuest($targetUrl, $guest));
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Google Login Error: ' . $e->getMessage() . ' - File: ' . $e->getFile() . ' - Line: ' . $e->getLine());
             return redirect()->route('home_page')->withErrors(['msg' => 'Đăng nhập Google thất bại.']);

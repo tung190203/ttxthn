@@ -579,7 +579,7 @@
                 success: function (res) {
                     Swal.fire({
                         icon: 'success',
-                        title: 'Đăng nhập thành công!',
+                        title: res.message || 'Đăng nhập thành công!',
                         showConfirmButton: false,
                         timer: 1500
                     }).then(() => {
