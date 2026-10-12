@@ -69,6 +69,10 @@ return [
         ],
         'super_admin_only' => false,
     ],
+    'reports' => [
+        'label' => 'Phân tích hành vi NĐT',
+        'super_admin_only' => false,
+    ],
     'menu' => [
         'label' => 'Menu',
         'items' => [

@@ -9,6 +9,7 @@ use App\Models\Interest;
 use App\Models\Project;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 class ReportController extends Controller
 {
@@ -16,6 +17,10 @@ class ReportController extends Controller
     {
         $this->selectedMainMenu = 'reports';
         parent::__construct();
+
+        if (!Gate::allows('reports')) {
+            abort(403, self::MESSAGE_UNAUTHORIZED);
+        }
     }
     public function investorBehavior(Request $request)
     {
