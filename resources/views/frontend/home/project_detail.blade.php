@@ -738,8 +738,28 @@
                     
                     @if(count($legal_files) > 0)
                     @foreach ($legal_files as $index => $file)
+                    @php
+                        $access = $project->checkLegalFileAccess($index);
+                    @endphp
                     <div class="swiper-slide" style="height: auto;">
-                        <div class="legal-card" style="height: 100%; background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); overflow: hidden; display: flex; flex-direction: column; padding: 24px;">
+                        <div class="legal-card" style="height: 100%; background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); overflow: hidden; display: flex; flex-direction: column; padding: 24px; position: relative;">
+                            {{-- Access Level Badge --}}
+                            <div style="margin-bottom: 12px;">
+                                @if($access['level'] === 'public')
+                                    <span class="badge" style="background: #E6F4EA; color: #137333; font-weight: 600; padding: 4px 10px; border-radius: 20px; font-size: 11px;">
+                                        <i class="fas fa-globe-americas me-1"></i>{{ __('app.access_public') }}
+                                    </span>
+                                @elseif($access['level'] === 'login_required')
+                                    <span class="badge" style="background: #FEF7E0; color: #B06000; font-weight: 600; padding: 4px 10px; border-radius: 20px; font-size: 11px;">
+                                        <i class="fas fa-user-lock me-1"></i>{{ __('app.access_login_required') }}
+                                    </span>
+                                @else
+                                    <span class="badge" style="background: #FCE8E6; color: #C5221F; font-weight: 600; padding: 4px 10px; border-radius: 20px; font-size: 11px;">
+                                        <i class="fas fa-shield-alt me-1"></i>{{ __('app.access_internal') }}
+                                    </span>
+                                @endif
+                            </div>
+
                             {{-- Icon + Title --}}
                             <div style="display: flex; align-items: flex-start; gap: 14px; flex: 1;">
                                 <div style="flex-shrink: 0;">
@@ -751,25 +771,20 @@
                                     {{ $legal_descs[$index] ?? '' }}
                                 </div>
                             </div>
-                            {{-- Link --}}
+                            {{-- Link / Action --}}
                             <div style="margin-top: 20px; margin-left: -24px; margin-right: -24px; margin-bottom: -24px; padding: 14px 24px; background: #EEF3FF; text-align: center;">
-                                @php
-    $isAllowed = false;
-    if (auth('guest')->check()) {
-        $invType = auth('guest')->user()->investor_type;
-        if (in_array($invType, ['organization', 'fdi'])) {
-            $isAllowed = true;
-        }
-    }
-@endphp
-                                @if($isAllowed)
-                                <a href="{{ asset($file) }}" target="_blank" rel="noopener noreferrer" style="color: #1A73E8; font-weight: 600; font-size: 14px; text-decoration: none;">
-                                    Xem chi tiết &nbsp;<i class="far fa-arrow-right"></i>
-                                </a>
+                                @if($access['can_access'])
+                                    <a href="{{ asset($file) }}" target="_blank" rel="noopener noreferrer" style="color: #1A73E8; font-weight: 600; font-size: 14px; text-decoration: none;">
+                                        {{ __('app.view_detail') }} &nbsp;<i class="far fa-arrow-right"></i>
+                                    </a>
+                                @elseif($access['reason'] === 'login')
+                                    <a href="#" onclick="promptLoginForDoc(); return false;" style="color: #B06000; font-weight: 600; font-size: 14px; text-decoration: none;">
+                                        <i class="far fa-lock me-1"></i>{{ __('app.sign_in_to_view') }}
+                                    </a>
                                 @else
-                                <a href="#" onclick="Swal.fire('Truy cập bị từ chối', 'Văn bản này thuộc mức Nội bộ. Chỉ tài khoản Tổ chức hoặc FDI mới được phép tải/xem tài liệu này.', 'warning'); return false;" style="color: #999; font-weight: 600; font-size: 14px; text-decoration: none; cursor: not-allowed;">
-                                    <i class="far fa-lock"></i> Xem chi tiết
-                                </a>
+                                    <a href="#" onclick="Swal.fire('{{ __('app.access_denied') }}', '{{ __('app.internal_doc_warning') }}', 'warning'); return false;" style="color: #999; font-weight: 600; font-size: 14px; text-decoration: none; cursor: not-allowed;">
+                                        <i class="far fa-lock me-1"></i>{{ __('app.access_internal') }}
+                                    </a>
                                 @endif
                             </div>
                         </div>
@@ -1242,6 +1257,26 @@
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') closeDesignLightbox();
     });
+
+    function promptLoginForDoc() {
+        Swal.fire({
+            title: '{{ __('app.access_login_required') }}',
+            text: '{{ __('app.login_to_view_doc') }}',
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonText: '{{ __('app.login') }}',
+            cancelButtonText: '{{ __('app.cancel') }}'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                    var myModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('md-sign-in'));
+                    if (myModal) myModal.show();
+                } else {
+                    $('#md-sign-in').modal('show');
+                }
+            }
+        });
+    }
 
     $(document).on('click', '.btn-bookmark', function(e) {
         e.preventDefault();

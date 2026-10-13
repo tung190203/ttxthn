@@ -90,7 +90,7 @@ if (!function_exists('formatCriteriaDetail')) {
                                 <i class="fal fa-file-contract me-2"></i>3. {{ __('app.criteria_3') }}
                             <button class="btn btn-sm text-muted float-end" title="Ẩn tiêu chí này" onclick="hideCriteria(this)"><i class="fal fa-eye-slash"></i></button></td>
                             @foreach($projects as $p)
-                            <td class="p-3 cursor-pointer" onclick="showCriteriaDetail('{{ __('app.criteria_3') }}', '{{ rawurlencode($p->name) }}', '{{ rawurlencode(formatCriteriaDetail($p->legal_description)) }}', '{{ $p->legal_file ? $p->legal_file : '' }}')">{{ $p->legal_short_desc ?: __('app.updating') }} <i class="fal fa-info-circle text-muted ms-1"></i></td>
+                            <td class="p-3 cursor-pointer" onclick="showCriteriaDetail('{{ __('app.criteria_3') }}', '{{ rawurlencode($p->name) }}', '{{ rawurlencode(formatCriteriaDetail($p->legal_description)) }}', '{{ $p->legal_file ? $p->legal_file : '' }}', '{{ $p->legal_access_levels ? $p->legal_access_levels : '' }}')">{{ $p->legal_short_desc ?: __('app.updating') }} <i class="fal fa-info-circle text-muted ms-1"></i></td>
                             @endforeach
                         </tr>
 
@@ -273,7 +273,27 @@ if (!function_exists('formatCriteriaDetail')) {
         document.getElementById('btn-show-all').style.display = 'none';
     }
 
-        function showCriteriaDetail(title, projectName, content, attachmentUrl) {
+    function promptLoginForDoc() {
+        Swal.fire({
+            title: '{{ __('app.access_login_required') }}',
+            text: '{{ __('app.login_to_view_doc') }}',
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonText: '{{ __('app.login') }}',
+            cancelButtonText: '{{ __('app.cancel') }}'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                    var myModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('md-sign-in'));
+                    if (myModal) myModal.show();
+                } else {
+                    $('#md-sign-in').modal('show');
+                }
+            }
+        });
+    }
+
+    function showCriteriaDetail(title, projectName, content, attachmentUrl, attachmentAccessLevels = '') {
         document.getElementById('modalCriteriaTitle').innerText = title;
         document.getElementById('modalProjectName').innerText = decodeURIComponent(projectName);
         document.getElementById('modalCriteriaContent').innerHTML = content ? decodeURIComponent(content) : 'Không có thông tin chi tiết.';
@@ -282,19 +302,42 @@ if (!function_exists('formatCriteriaDetail')) {
         attachDiv.innerHTML = ''; // Clear previous
         if (attachmentUrl) {
             let files = attachmentUrl.split(';');
-            let canDownloadInternal = @json(auth('guest')->check() && in_array(auth('guest')->user()->investor_type, ['organization', 'fdi']));
+            let accessLevels = attachmentAccessLevels ? attachmentAccessLevels.split(';') : [];
+            let isGuestLoggedIn = @json(auth('guest')->check());
+            let investorType = @json(auth('guest')->check() ? auth('guest')->user()->investor_type : null);
+            let isOrgOrFdi = isGuestLoggedIn && (investorType === 'organization' || investorType === 'fdi');
+
             files.forEach((file, index) => {
                 if (file.trim() === '') return;
-                // Add base URL if it's a relative path starting with /
                 let href = file.trim();
                 if (href.startsWith('/')) {
                     href = window.location.origin + href;
                 }
-                if (canDownloadInternal) {
-                    attachDiv.innerHTML += '<a href="' + href + '" class="btn btn-sm btn-outline-success me-2 mb-2" target="_blank"><i class="fal fa-download me-1"></i>{{ __('app.download_doc') }} ' + (index + 1) + '</a>';
+                let level = (accessLevels[index] || 'public').trim();
+
+                let badgeHtml = '';
+                let btnHtml = '';
+
+                if (level === 'public') {
+                    badgeHtml = '<span class="badge bg-success ms-1">{{ __('app.access_public') }}</span>';
+                    btnHtml = '<a href="' + href + '" class="btn btn-sm btn-outline-success me-2 mb-2" target="_blank"><i class="fal fa-globe-americas me-1"></i>{{ __('app.download_doc') }} ' + (index + 1) + ' ' + badgeHtml + '</a>';
+                } else if (level === 'login_required') {
+                    badgeHtml = '<span class="badge bg-warning text-dark ms-1">{{ __('app.access_login_required') }}</span>';
+                    if (isGuestLoggedIn) {
+                        btnHtml = '<a href="' + href + '" class="btn btn-sm btn-outline-success me-2 mb-2" target="_blank"><i class="fal fa-download me-1"></i>{{ __('app.download_doc') }} ' + (index + 1) + ' ' + badgeHtml + '</a>';
+                    } else {
+                        btnHtml = '<a href="#" onclick="promptLoginForDoc(); return false;" class="btn btn-sm btn-outline-warning text-dark me-2 mb-2"><i class="fal fa-lock me-1"></i>{{ __('app.download_doc') }} ' + (index + 1) + ' ' + badgeHtml + '</a>';
+                    }
                 } else {
-                    attachDiv.innerHTML += '<a href="#" onclick="Swal.fire(\'Truy cập bị từ chối\', \'Văn bản này thuộc mức Nội bộ. Chỉ tài khoản Tổ chức hoặc FDI mới được phép tải/xem tài liệu này.\', \'warning\'); return false;" class="btn btn-sm btn-outline-secondary me-2 mb-2"><i class="fal fa-lock me-1"></i>{{ __('app.download_doc') }} ' + (index + 1) + '</a>';
+                    badgeHtml = '<span class="badge bg-danger ms-1">{{ __('app.access_internal') }}</span>';
+                    if (isOrgOrFdi) {
+                        btnHtml = '<a href="' + href + '" class="btn btn-sm btn-outline-success me-2 mb-2" target="_blank"><i class="fal fa-download me-1"></i>{{ __('app.download_doc') }} ' + (index + 1) + ' ' + badgeHtml + '</a>';
+                    } else {
+                        btnHtml = '<a href="#" onclick="Swal.fire(\'{{ __('app.access_denied') }}\', \'{{ __('app.internal_doc_warning') }}\', \'warning\'); return false;" class="btn btn-sm btn-outline-secondary me-2 mb-2"><i class="fal fa-lock me-1"></i>{{ __('app.download_doc') }} ' + (index + 1) + ' ' + badgeHtml + '</a>';
+                    }
                 }
+
+                attachDiv.innerHTML += btnHtml;
             });
             attachDiv.style.display = 'block';
         } else {
