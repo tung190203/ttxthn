@@ -224,6 +224,8 @@ Route::localized(function () {
                 Route::post('save/{id}', [HotspotController::class, 'store'])->name('backend_vrtour_hotspot_store');
                 Route::post('approve/{hotspot}', [HotspotController::class, 'approve'])->name('backend_vrtour_hotspot_approve');
                 Route::post('reject/{hotspot}', [HotspotController::class, 'reject'])->name('backend_vrtour_hotspot_reject');
+                Route::post('bulk-status', [HotspotController::class, 'bulkUpdateStatus'])->name('backend_vrtour_hotspot_bulk_status');
+                Route::post('export', [HotspotController::class, 'exportExcel'])->name('backend_vrtour_hotspot_export');
             });
             Route::prefix('content')->group(function () {
                 Route::get('index', [ContentController::class, 'index'])->name('backend_vrtour_content_index');

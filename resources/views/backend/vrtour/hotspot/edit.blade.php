@@ -21,31 +21,49 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
-                    <div class="float-right mb-3">
-                        @can('vr_tour/hotspot')
-                            <x-forms.button-save />
-                        @endcan
-                        @if ($hotspot->is_draft && (auth()->user()->is_super_admin || auth()->user()->is_approve))
-                        @include('backend.partials._diff_viewer')    
-                        <form action="{{ route('backend_vrtour_hotspot_approve', $hotspot->id) }}" method="POST"
-                                style="display:inline-block">
-                                @csrf
-                                <input type="hidden" name="type" value="{{ request('type') }}">
-                                <button type="submit" class="btn btn-success btn-sm">
-                                    Duyệt
-                                </button>
-                            </form>
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
 
-                            <form action="{{ route('backend_vrtour_hotspot_reject', $hotspot->id) }}" method="POST"
-                                style="display:inline-block"
-                                onsubmit="return confirm('Bạn có chắc muốn từ chối bản chỉnh sửa này?')">
-                                @csrf
-                                <input type="hidden" name="type" value="{{ request('type') }}">
-                                <button type="submit" class="btn btn-danger btn-sm">
-                                    Từ chối
-                                </button>
-                            </form>
-                        @endif
+                        {{-- Bên trái: chú thích lô đất --}}
+                        <div class="d-flex flex-wrap align-items-center">
+                            <span class="font-weight-bold mr-3">
+                                <i class="fas fa-info-circle text-info"></i> Chú thích lô đất:
+                            </span>
+                            @foreach ($investmentStatuses as $status)
+                                <span class="d-inline-flex align-items-center mr-4">
+                                    <span class="d-inline-block mr-2"
+                                        style="width:16px;height:16px;border-radius:3px;background-color: {{ $status->color_code }}"></span>
+                                    {{ $status->name }}
+                                </span>
+                            @endforeach
+                        </div>
+
+                        {{-- Bên phải: các nút thao tác --}}
+                        <div class="d-flex flex-wrap align-items-center ml-auto">
+                            @can('vr_tour/hotspot')
+                                <x-forms.button-save />
+                            @endcan
+                            @if ($hotspot->is_draft && (auth()->user()->is_super_admin || auth()->user()->is_approve))
+                                @include('backend.partials._diff_viewer')
+                                <form action="{{ route('backend_vrtour_hotspot_approve', $hotspot->id) }}" method="POST"
+                                    class="d-inline-block ml-1">
+                                    @csrf
+                                    <input type="hidden" name="type" value="{{ request('type') }}">
+                                    <button type="submit" class="btn btn-success btn-sm">
+                                        Duyệt
+                                    </button>
+                                </form>
+
+                                <form action="{{ route('backend_vrtour_hotspot_reject', $hotspot->id) }}" method="POST"
+                                    class="d-inline-block ml-1"
+                                    onsubmit="return confirm('Bạn có chắc muốn từ chối bản chỉnh sửa này?')">
+                                    @csrf
+                                    <input type="hidden" name="type" value="{{ request('type') }}">
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        Từ chối
+                                    </button>
+                                </form>
+                            @endif
+                        </div>
                     </div>
                 </div>
             </div>
@@ -77,7 +95,7 @@
                             <label class="col-sm-3 col-form-label">Ảnh VN</label>
 
                             <div class="col-sm-9">
-                                <input type="text" name="hp_url"  class="form-control" value="{{ $hotspot->url }}" readonly>
+                                <input type="text" name="hp_url" class="form-control" value="{{ $hotspot->url }}" readonly>
 
                                 @if($hotspot->url)
                                     @php
@@ -109,12 +127,27 @@
                         @if (\Illuminate\Support\Str::startsWith($hotspot->potision, 'cmss'))
                             <x-forms.input name="acreage" value="{{ old('acreage') ?: $hotspot->acreage }}" label="Diện tích"
                                 type="text" :messages="$errors->get('acreage')" />
+                            <x-forms.select name="unit" label="Đơn vị tính" :options="$hotspot_unit"
+                                :messages="$errors->get('unit')" />
                             <x-forms.select name="product_type" label="Loại sản phẩm" :options="$option_product_types"
                                 :messages="$errors->get('product_type')" />
                             <x-forms.input name="intended_use" value="{{ old('intended_use') ?: $hotspot->intended_use }}"
                                 label="Chức năng" type="text" :messages="$errors->get('intended_use')" />
-                            <x-forms.select name="unit" label="Đơn vị tính" :options="$hotspot_unit"
-                                :messages="$errors->get('unit')" />
+                            <x-forms.select name="investment_product_statuses_id" label="Trạng thái lô đất"
+                                :options="$option_investment_product_statuses"
+                                :messages="$errors->get('investment_product_statuses_id')" />
+                            <x-forms.input name="price" value="{{ old('price') ?? $hotspot->price }}" label="Giá gốc (VND)"
+                                type="number" :messages="$errors->get('price')" />
+                            <x-forms.input name="lease_price" value="{{ old('lease_price') ?? $hotspot->lease_price }}"
+                                label="Giá thuê (VND)" type="number" :messages="$errors->get('lease_price')" />
+                            <x-forms.input name="sale_price" value="{{ old('sale_price') ?? $hotspot->sale_price }}"
+                                label="Giá bán (VND)" type="number" :messages="$errors->get('sale_price')" />
+                            <x-forms.textarea name="transaction_note" :value="old('transaction_note') ?? $hotspot->transaction_note" label="Ghi chú giao dịch"
+                                :messages="$errors->get('transaction_note')" />
+                            <x-forms.textarea name="available_amenities" :value="old('available_amenities') ?? $hotspot->available_amenities" label="Tiện ích sẵn có"
+                                :messages="$errors->get('available_amenities')" />
+                            <x-forms.textarea name="contact_info" :value="old('contact_info') ?? $hotspot->contact_info"
+                                label="Thông tin liên hệ" :messages="$errors->get('contact_info')" />
                         @endif
                         <x-forms.switch name="hp_opacity" label="Hiển thị" value="{{ $hotspot->opacity }}"
                             :messages="$errors->get('hp_opacity')" />

@@ -65,7 +65,7 @@ return [
                            'route' => 'backend_vrtour_skin_index',
                        ],
                        'hotspot' => [
-                           'title' => 'Hotspot(Nội dung lô đất)',
+                           'title' => 'Sản phẩm đầu tư(Lô đất)',
                            'route' => 'backend_vrtour_hotspot_index',
                        ],
                        'content' => [
