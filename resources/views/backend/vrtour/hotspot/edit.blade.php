@@ -92,7 +92,7 @@
                     @endif
                     <div class="card-body">
                         <div class="form-group row">
-                            <label class="col-sm-3 col-form-label">Ảnh VN</label>
+                            <label class="col-sm-3 col-form-label">Ảnh</label>
 
                             <div class="col-sm-9">
                                 <input type="text" name="hp_url" class="form-control" value="{{ $hotspot->url }}" readonly>
@@ -120,10 +120,10 @@
                         <x-forms.input name="hp_potision_display" :value="$displayPotision" label="Vị trí" type="text"
                             readonly />
                         <input type="hidden" name="hp_potision" value="{{ $realPotision }}">
-                        <x-forms.textarea name="hp_tooltip" :value="old('hp_tooltip') ?: $hotspot->tooltip" label="Mô tả VN"
+                        <x-forms.textarea name="hp_tooltip" :value="old('hp_tooltip') ?: $hotspot->tooltip" label="Thông tin hiển thị trên vrtour VN"
                             :messages="$errors->get('hp_tooltip')" />
                         <x-forms.textarea name="hp_tooltip_en" value="{{ old('hp_tooltip_en') ?: $hotspot->tooltip_en }}"
-                            label="Mô tả EN" :messages="$errors->get('hp_tooltip_en')" />
+                            label="Thông tin hiển thị trên vrtour EN" :messages="$errors->get('hp_tooltip_en')" />
                         @if (\Illuminate\Support\Str::startsWith($hotspot->potision, 'cmss'))
                             <x-forms.input name="acreage" value="{{ old('acreage') ?: $hotspot->acreage }}" label="Diện tích"
                                 type="text" :messages="$errors->get('acreage')" />
