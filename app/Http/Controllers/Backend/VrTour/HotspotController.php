@@ -13,6 +13,7 @@ use App\Models\ProductType;
 use Auth;
 use Illuminate\Support\Facades\DB;
 use App\Exports\HotspotExport;
+use App\Supports\HotspotImageColorizer;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
@@ -175,7 +176,7 @@ class HotspotController extends Controller
         if (!Gate::allows('vr_tour/hotspot')) {
             abort(403, self::MESSAGE_UNAUTHORIZED);
         }
-        $hotspot = Hotspot::with(['draft','parent','user',])->findOrFail($hotspot_id);
+        $hotspot = Hotspot::with(['draft', 'parent', 'user',])->findOrFail($hotspot_id);
         $industrialProject = IndustrialProject::with('productType')->where('code', $hotspot->potision)->where('project_id', $hotspot->vrtour_id)->first();
         $productType = ProductType::latest('id')->get();
 
@@ -324,6 +325,7 @@ class HotspotController extends Controller
             }
 
             Hotspot::where('parent_id', $main->id)->delete();
+            HotspotImageColorizer::apply($main);
             $this->writeHotspotJs(Project::find($main->vrtour_id));
 
             return redirect()
@@ -367,7 +369,7 @@ class HotspotController extends Controller
         $draft->user_id       = $user->id;
 
         $draft->save();
-
+        HotspotImageColorizer::apply($draft);
         return redirect()
             ->to(route('backend_vrtour_hotspot_index') .
                 '?vrtour=' . $draft->vrtour_id .
@@ -385,6 +387,9 @@ class HotspotController extends Controller
         $user = auth('web')->user();
         if (!($user->is_super_admin || $user->is_approve)) {
             abort(403, 'Bạn không có quyền từ chối hotspot.');
+        }
+        if ($hotspot->is_draft) {
+            HotspotImageColorizer::discardPending($hotspot);
         }
         $hotspot->delete();
         return redirect()->route('backend_vrtour_hotspot_index', [
@@ -422,6 +427,8 @@ class HotspotController extends Controller
                         $parent->status = 'approved';
                         $parent->approval_level = $parent->max_approval;
                         $parent->save();
+                        HotspotImageColorizer::apply($parent);
+                        HotspotImageColorizer::discardPending($hotspot);
                         $translations = [
                             'vi' => $parent->tooltip,
                             'en' => $parent->tooltip_en,
@@ -510,9 +517,10 @@ class HotspotController extends Controller
         $direct   = 0;   // đã ghi thẳng vào bản gốc (super admin)
         $queued   = 0;   // đã tạo/cập nhật bản nháp chờ duyệt
         $skipped  = [];
+        $changed  = [];
 
         try {
-            DB::transaction(function () use ($data, $project, $user, $statusId, &$direct, &$queued, &$skipped) {
+            DB::transaction(function () use ($data, $project, $user, $statusId, &$direct, &$queued, &$skipped, &$changed) {
                 $ids = collect($data['ids'])->map(fn($i) => (int) $i)->unique();
 
                 // Quy về bản gốc: id nào là bản nháp thì lấy parent_id
@@ -564,14 +572,13 @@ class HotspotController extends Controller
                             $industrial->save();
                         }
 
+                        $changed[] = $hotspot;   // gom lại để đổi màu ảnh sau khi commit
                         $direct++;
                         continue;
                     }
 
                     // ---- Người khác: đi qua bản nháp chờ duyệt ----
-                    $current = $draft
-                        ? $draft->investment_product_statuses_id
-                        : $hotspot->investment_product_statuses_id;
+                    $current = $draft ? $draft->investment_product_statuses_id : $hotspot->investment_product_statuses_id;
 
                     if ((int) $current === $statusId) {
                         $skipped[] = [
@@ -592,6 +599,7 @@ class HotspotController extends Controller
                     $draft->user_id        = $user->id;
                     $draft->save();
 
+                    $changed[] = $draft;   // gom lại để đổi màu ảnh sau khi commit
                     $queued++;
                 }
             });
@@ -601,6 +609,17 @@ class HotspotController extends Controller
                 'success' => false,
                 'message' => 'Có lỗi xảy ra, không có lô nào bị thay đổi',
             ], 500);
+        }
+
+        $imageFailed = 0;
+        if (!empty($changed)) {
+            try {
+                $imageResults = HotspotImageColorizer::apply($changed);
+                $imageFailed  = collect($imageResults)->where('ok', false)->count();
+            } catch (\Throwable $e) {
+                report($e);
+                $imageFailed = count($changed);
+            }
         }
 
         // Sinh lại hotspot.js đúng một lần, chỉ khi có bản gốc bị đổi
@@ -615,6 +634,9 @@ class HotspotController extends Controller
         }
 
         $parts = [];
+        if ($imageFailed > 0) {
+            $parts[] = "Có {$imageFailed} lô chưa đổi được màu ảnh hotspot, hãy báo kỹ thuật";
+        }
         if ($direct > 0) {
             $parts[] = "Đã cập nhật {$direct} lô sang \"{$status->name}\"";
         }

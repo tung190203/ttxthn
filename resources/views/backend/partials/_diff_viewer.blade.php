@@ -115,6 +115,21 @@
                         return imgHtml;
                     }
 
+                    function escapeAttr(s) {
+                        return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+                            .replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                    }
+
+                    // Trường "Ảnh" chứa đúng một URL: hiện thẳng ảnh đó
+                    function renderMainImage(url) {
+                        url = (url || '').trim();
+                        if (!/^(https?:\/\/|\/)/i.test(url)) return '';
+                        return `<div class="mt-2 text-center">
+                                <img src="${escapeAttr(url)}" class="img-fluid rounded border shadow-sm mb-2"
+                                     style="max-height:250px" onerror="this.style.display='none'">
+                            </div>`;
+                    }
+
                     function renderFilesFromText(rawText) {
                         let paths = extractPathsFromRawText(rawText);
                         let files = paths.filter(p => !p.match(/\.(jpg|jpeg|png|gif|webp|svg|bmp)$/i));
@@ -133,8 +148,8 @@
                             else if (src.toLowerCase().match(/\.(xls|xlsx)$/)) icon = 'fa-file-excel text-success';
 
                             html += `<a href="${src}" target="_blank" class="btn btn-light border shadow-sm mb-2 text-left" style="white-space: normal; word-break: break-all;" title="${fileName}">
-                                            <i class="fas ${icon} mr-2"></i> <strong>${fileName}</strong>
-                                         </a>`;
+                                                            <i class="fas ${icon} mr-2"></i> <strong>${fileName}</strong>
+                                                         </a>`;
                         });
                         html += '</div>';
                         return html;
@@ -209,8 +224,9 @@
                             }
                         });
 
-                        let leftImagesHtml = renderImagesFromText(oldRawText);
-                        let rightImagesHtml = renderImagesFromText(newRawText);
+                        // Trường "Ảnh": hiện thẳng ảnh bản gốc và ảnh bản nháp; các trường khác: tìm đường dẫn trong nội dung
+                        let leftImagesHtml = key === 'Ảnh' ? renderMainImage(oldRawText) : renderImagesFromText(oldRawText);
+                        let rightImagesHtml = key === 'Ảnh' ? renderMainImage(newRawText) : renderImagesFromText(newRawText);
                         let leftFilesHtml = renderFilesFromText(oldRawText);
                         let rightFilesHtml = renderFilesFromText(newRawText);
                         let hasAttachments = leftImagesHtml !== '' || rightImagesHtml !== '' || leftFilesHtml !== '' || rightFilesHtml !== '';
@@ -218,33 +234,33 @@
                         let attachmentRowHtml = '';
                         if (hasAttachments) {
                             attachmentRowHtml = `
-                                    <div class="p-3 border-right diff-col bg-light">
-                                        ${leftImagesHtml}
-                                        ${leftFilesHtml}
-                                    </div>
-                                    <div class="p-3 diff-col">
-                                        ${rightImagesHtml}
-                                        ${rightFilesHtml}
-                                    </div>
-                                `;
+                    <div class="p-3 border-right diff-col bg-light">
+                        ${leftImagesHtml}
+                        ${leftFilesHtml}
+                    </div>
+                    <div class="p-3 diff-col">
+                        ${rightImagesHtml}
+                        ${rightFilesHtml}
+                    </div>
+                        `;
                         }
 
                         html += `
-                                <div class="diff-container">
-                                    <div class="diff-header">${key}</div>
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr;">
-                                        <div class="p-3 border-right diff-col bg-light ${hasAttachments ? 'border-bottom' : ''}">
-                                            <div class="text-muted mb-2 border-bottom pb-1"><strong><i class="fas fa-file-alt"></i> Bản gốc</strong></div>
-                                            <div>${leftTextHtml}</div>
-                                        </div>
-                                        <div class="p-3 diff-col ${hasAttachments ? 'border-bottom' : ''}">
-                                            <div class="text-primary mb-2 border-bottom pb-1"><strong><i class="fas fa-edit"></i> Bản nháp (Đang sửa)</strong></div>
-                                            <div>${rightTextHtml}</div>
-                                        </div>
-                                        ${attachmentRowHtml}
-                                    </div>
-                                </div>
-                            `;
+                <div class="diff-container">
+                    <div class="diff-header">${key}</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr;">
+                        <div class="p-3 border-right diff-col bg-light ${hasAttachments ? 'border-bottom' : ''}">
+                            <div class="text-muted mb-2 border-bottom pb-1"><strong><i class="fas fa-file-alt"></i> Bản gốc</strong></div>
+                            <div>${leftTextHtml}</div>
+                        </div>
+                        <div class="p-3 diff-col ${hasAttachments ? 'border-bottom' : ''}">
+                            <div class="text-primary mb-2 border-bottom pb-1"><strong><i class="fas fa-edit"></i> Bản nháp (Đang sửa)</strong></div>
+                            <div>${rightTextHtml}</div>
+                        </div>
+                        ${attachmentRowHtml}
+                    </div>
+                </div>
+            `;
                     }
 
                     if (html === '') {
