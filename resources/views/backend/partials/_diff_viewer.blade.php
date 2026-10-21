@@ -14,32 +14,34 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    @if ($hotspot->is_draft)
-                        <div class="alert alert-warning mb-3">
-                            <div><strong>Người sửa:</strong> {{ optional($hotspot->user)->name ?? 'Không xác định' }}</div>
-                            <div><strong>Ngày sửa:</strong> {{ optional($hotspot->created_at)->format('d/m/Y H:i') }}</div>
-                            <div><strong>Cập nhật lần cuối:</strong> {{ optional($hotspot->updated_at)->format('d/m/Y H:i') }}
+                    @if (!empty($allDataVrtour))
+                        @if ($allDataVrtour->is_draft)
+                            <div class="alert alert-warning mb-3">
+                                <div><strong>Người sửa:</strong> {{ optional($allDataVrtour->user)->name ?? 'Không xác định' }}</div>
+                                <div><strong>Ngày sửa:</strong> {{ optional($allDataVrtour->created_at)->format('d/m/Y H:i') }}</div>
+                                <div><strong>Cập nhật lần cuối:</strong> {{ optional($allDataVrtour->updated_at)->format('d/m/Y H:i') }}
+                                </div>
+                                <div>
+                                    <strong>Cấp duyệt:</strong>
+                                    @if ($allDataVrtour->status === 'rejected')
+                                        Đã bị từ chối
+                                    @elseif ($allDataVrtour->approval_level < $allDataVrtour->max_approval)
+                                        Đang chờ duyệt cấp {{ $allDataVrtour->approval_level + 1 }}
+                                        <span class="text-muted">(tổng {{ $allDataVrtour->max_approval }} cấp)</span>
+                                    @else
+                                        Đã qua đủ {{ $allDataVrtour->max_approval }} cấp duyệt
+                                    @endif
+                                </div>
                             </div>
-                            <div>
-                                <strong>Cấp duyệt:</strong>
-                                @if ($hotspot->status === 'rejected')
-                                    Đã bị từ chối
-                                @elseif ($hotspot->approval_level < $hotspot->max_approval)
-                                    Đang chờ duyệt cấp {{ $hotspot->approval_level + 1 }}
-                                    <span class="text-muted">(tổng {{ $hotspot->max_approval }} cấp)</span>
-                                @else
-                                    Đã qua đủ {{ $hotspot->max_approval }} cấp duyệt
-                                @endif
+                        @elseif($allDataVrtour->status == 'approved')
+                            <div class="alert alert-success">
+                                Đã duyệt
                             </div>
-                        </div>
-                    @elseif($hotspot->status == 'approved')
-                        <div class="alert alert-success">
-                            Đã duyệt
-                        </div>
-                    @elseif($hotspot->status == 'rejected')
-                        <div class="alert alert-danger">
-                            Đã từ chối
-                        </div>
+                        @elseif($allDataVrtour->status == 'rejected')
+                            <div class="alert alert-danger">
+                                Đã từ chối
+                            </div>
+                        @endif
                     @endif
                     <div id="diffViewer"></div>
                 </div>

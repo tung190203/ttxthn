@@ -5,9 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Spatie\Translatable\HasTranslations;
 
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -455,5 +455,28 @@ class Project extends Model
     public function panoramas()
     {
         return $this->hasMany(Panorama::class, 'vrtour_id', 'id');
+    }
+
+    /**
+     * Ghi lại vrtour/<vrtour_code>/pano.js theo panorama đã xuất bản.
+     * Trả về danh sách panorama vừa ghi để nơi gọi dùng lại, không phải query lần 2.
+     */
+    public function syncPanoFile(): \Illuminate\Database\Eloquent\Collection
+    {
+        $panoramas = Panorama::query()->where('vrtour_id', $this->getKey())->where('is_draft', 0)->get();
+        $dir = 'vrtour/' . $this->vrtour_code;
+        try {
+            createFile($dir, 'pano.js');
+            file_put_contents($dir . '/pano.js', $panoramas);
+        } catch (\Throwable $e) {
+            // Không để lỗi ghi file làm hỏng luồng chính (DB thường đã commit)
+            Log::error('VRTour: ghi pano.js thất bại', [
+                'vrtour_id' => $this->getKey(),
+                'dir'       => $dir,
+                'error'     => $e->getMessage(),
+            ]);
+        }
+
+        return $panoramas;
     }
 }

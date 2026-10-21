@@ -228,6 +228,7 @@ class HotspotController extends Controller
             $parentData['Trạng thái sản phẩm'] = (string) ($statusNames[$parent->investment_product_statuses_id] ?? '');
             $draftData['Trạng thái sản phẩm']  = (string) ($statusNames[$hotspot->investment_product_statuses_id] ?? '');
         }
+        $allDataVrtour = $hotspot;
 
         return view(
             'backend.vrtour.hotspot.edit',
@@ -239,6 +240,7 @@ class HotspotController extends Controller
                 'draftData',
                 'option_investment_product_statuses',
                 'investmentStatuses',
+                'allDataVrtour'
             )
         );
     }

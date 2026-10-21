@@ -20,6 +20,7 @@ use App\Http\Controllers\Backend\VrTour\ContentController;
 use App\Http\Controllers\Backend\ProfileController;
 use App\Http\Controllers\Backend\AIChatMonitorController;
 use App\Http\Controllers\Backend\VrTour\ApprovalController;
+use App\Http\Controllers\Backend\VrTour\VersionHistoryController;
 use Illuminate\Support\Facades\Route;
 
 Route::localized(function () {
@@ -238,6 +239,12 @@ Route::localized(function () {
             Route::prefix('approval')->group(function () {
                 Route::get('index',[ApprovalController::class, 'index'])->name('backend_vrtour_approval_index');
                 Route::get('get-pending-count', [ApprovalController::class, 'getPendingCount'])->name('backend_vrtour_approval_get_pending_count');
+            });
+            Route::prefix('history')->group(function () {
+                Route::get('/', [VersionHistoryController::class, 'index'])->name('backend_vrtour_history_index');
+                Route::get('compare', [VersionHistoryController::class, 'compare'])->name('backend_vrtour_history_compare');
+                Route::post('restore/prepare', [VersionHistoryController::class, 'restorePrepare'])->name('backend_vrtour_history_restore_prepare');
+                Route::post('restore/confirm', [VersionHistoryController::class, 'restoreConfirm'])->name('backend_vrtour_history_restore_confirm');
             });
 
         });
