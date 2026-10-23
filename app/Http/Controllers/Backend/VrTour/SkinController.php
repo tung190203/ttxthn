@@ -10,7 +10,6 @@ use App\Models\ConnectMap;
 use App\Models\Investor;
 use App\Models\WelcomeScreen;
 use App\Models\Plan;
-use App\Models\LegalDocument;
 use App\Models\SkinApproval;
 use App\Services\SkinApprovalService;
 use Illuminate\Support\Facades\DB;
@@ -51,7 +50,6 @@ class SkinController extends Controller
             'plan'        => $this->getSkinData(Plan::class, $vrtour_id),
             'investor'    => $this->getSkinData(Investor::class, $vrtour_id),
             'location'    => $this->getSkinData(Project::class, $vrtour_id, 'id'),
-            'document'    => $this->getDocumentData($vrtour_id),
         ];
 
         return response()->json([
@@ -142,46 +140,6 @@ class SkinController extends Controller
                             'vrtour/' . $vrtour->vrtour_code . '/connectmap.js', $result['model']
                         );
                     }
-                }
-            }
-
-            //document
-            if (in_array($request->type, [0, 4])) {
-                $payload = [];
-                if (!empty($request->document)) {
-                    foreach ($request->document as $doc) {
-                        $payload[] = [
-                            'vrtour_id'          => $vrtour_id,
-                            'name'               => $doc['document_name'],
-                            'name_en'            => $doc['document_name_en'],
-                            'download'           => $doc['download'],
-                            'extracted_text'     => $doc['extracted_text'] ?? null,
-                            'extracted_summary'  => $doc['extracted_summary'] ?? null,
-                            'extracted_language' => $doc['extracted_language'] ?? null,
-                            'extracted_at'       => $doc['extracted_at'] ?? null,
-                        ];
-                    }
-                }
-
-                $result = $this->skinApprovalService->save(
-                    new LegalDocument(),
-                    $payload,
-                    SkinApproval::TYPE_DOCUMENT,
-                    $vrtour_id
-                );
-
-                // Chỉ Super Admin mới cập nhật DB thật
-                if ($result['status'] === 'approved') {
-                    LegalDocument::where('vrtour_id', $vrtour_id)->delete();
-                    foreach ($result['model'] as $item) {
-                        $document = new LegalDocument();
-                        $document->fill($item);
-                        $document->user_id = Auth::id();
-                        $document->save();
-                    }
-                    $allDocument = LegalDocument::where('vrtour_id', $vrtour_id)->get();
-                    createFile('vrtour/' . $vrtour->vrtour_code,'document.js');
-                    file_put_contents('vrtour/' . $vrtour->vrtour_code . '/document.js',$allDocument);
                 }
             }
 
@@ -361,11 +319,7 @@ class SkinController extends Controller
             'message' => 'Duyệt thành công.'
         ]);
     }
-    private function getSkinData(
-        string $modelClass,
-        int $id,
-        string $column = 'vrtour_id'
-    ) {
+    private function getSkinData(string $modelClass,int $id, string $column = 'vrtour_id') {
         $model = $modelClass::with([
             'pendingSkinApproval',
             'pendingSkinApproval.user'
@@ -380,26 +334,6 @@ class SkinController extends Controller
         return $model;
     }
 
-    private function getDocumentData(int $vrtourId)
-    {
-        $documents = LegalDocument::where('vrtour_id', $vrtourId)->get();
-
-        $approval = SkinApproval::with('user')
-            ->where('vrtour_id', $vrtourId)
-            ->where('type', SkinApproval::TYPE_DOCUMENT)
-            ->where('status', 'pending')->first();
-
-        if ($approval) {
-            return [
-                'items' => $approval->payload,
-                'pending_skin_approval' => $approval,
-            ];
-        }
-        return [
-            'items' => $documents,
-            'pending_skin_approval' => null,
-        ];
-    }
     public function getDiff(Request $request)
     {
         $request->validate([

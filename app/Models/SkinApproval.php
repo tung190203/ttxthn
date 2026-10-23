@@ -27,7 +27,6 @@ class SkinApproval extends Model
     public const TYPE_ALL = 0;
     public const TYPE_WELCOME = 1;
     public const TYPE_CONNECT_MAP = 3;
-    public const TYPE_DOCUMENT = 4;
     public const TYPE_PLAN = 5;
     public const TYPE_INVESTOR = 6;
     public const TYPE_LOCATION = 7;
@@ -66,9 +65,5 @@ class SkinApproval extends Model
     public function location()
     {
         return $this->belongsTo(Project::class, 'record_id');
-    }
-    public function legalDocument()
-    {
-        return $this->belongsTo(LegalDocument::class, 'record_id');
     }
 }
