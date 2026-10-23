@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\ConnectMap;
 use App\Models\Investor;
-use App\Models\LegalDocument;
 use App\Models\Plan;
 use App\Models\Project;
 use App\Models\SkinApproval;
@@ -85,11 +84,6 @@ class SkinApprovalService
     'location_in_tour' => 'Vị trí',
     ];
 
-    private const DOCUMENT_FIELDS = [
-        'name'               => 'Tên văn bản',
-        'name_en'            => 'Tên văn bản EN',
-        'download'           => 'Tệp đính kèm',
-    ];
     private const DIFF_CONFIG = [
 
         SkinApproval::TYPE_WELCOME => [
@@ -120,32 +114,24 @@ class SkinApprovalService
             'title'  => 'Vị trí',
             'model'  => Project::class,
             'fields' => self::LOCATION_FIELDS,
-        ],
-
-        SkinApproval::TYPE_DOCUMENT => [
-            'title'  => 'Văn bản pháp quy',
-            'model'  => LegalDocument::class,
-            'fields' => self::DOCUMENT_FIELDS,
-        ],
+        ]
     ];
     public function save(Model $model, array $payload, int $type, int $vrtourId): array
     {
         $user = Auth::user();
-        // payload là danh sách (Document)
-        $isCollection = isset($payload[0]) && is_array($payload[0]);
         // Super Admin cập nhật trực tiếp
         if ($user->is_super_admin) {
-            if (!$isCollection) {
-                $model->fill($payload);
-                if (Schema::hasColumn($model->getTable(), 'user_id')) {
-                    $model->user_id = $user->id;
-                }
-                $model->save();
+            $model->fill($payload);
+            if (Schema::hasColumn($model->getTable(), 'user_id')) {
+                $model->user_id = $user->id;
             }
+            $model->save();
+
             SkinApproval::where(['vrtour_id' => $vrtourId, 'type' => $type, 'status' => 'pending'])->delete();
+
             return [
                 'status' => 'approved',
-                'model'  => $isCollection ? $payload : $model,
+                'model'  => $model,
             ];
         }
 
@@ -155,7 +141,7 @@ class SkinApprovalService
             $draft = new SkinApproval();
             $draft->vrtour_id = $vrtourId;
             $draft->type = $type;
-            $draft->record_id = $isCollection ? 0 : $model->id;
+            $draft->record_id = $model->id;
             $draft->max_approval = 2;
             $draft->is_draft = true;
         }
@@ -165,6 +151,7 @@ class SkinApprovalService
         $draft->approval_level = $user->is_approve ? 1 : 0;
         $draft->status = 'pending';
         $draft->save();
+
         return [
             'status' => 'pending',
             'model'  => $draft,
@@ -242,10 +229,6 @@ class SkinApprovalService
             case SkinApproval::TYPE_LOCATION:
                 $this->approveLocation($approval);
                 break;
-
-            case SkinApproval::TYPE_DOCUMENT:
-                $this->approveDocument($approval);
-                break;
         }
     }
     private function approveModel(
@@ -294,24 +277,6 @@ class SkinApprovalService
                 'general'  => $project->link,
             ])
         );
-    }
-    private function approveDocument(SkinApproval $approval)
-    {
-        $project = Project::find($approval->vrtour_id);
-        if (!$project) {
-            return;
-        }
-        LegalDocument::where('vrtour_id', $approval->vrtour_id)->delete();
-        foreach ($approval->payload as $item) {
-
-            $document = new LegalDocument();
-            $document->fill($item);
-            $document->user_id = $approval->user_id; // hoặc Auth::id()
-            $document->save();
-        }
-        $documents = LegalDocument::where('vrtour_id', $approval->vrtour_id)->get();
-        createFile('vrtour/' . $project->vrtour_code, 'document.js');
-        file_put_contents('vrtour/' . $project->vrtour_code . '/document.js', $documents);
     }
 
     public function getDiff(int $vrtourId, int $type): array
@@ -369,12 +334,6 @@ class SkinApprovalService
                 'draftData'  => [],
             ];
         }
-        if ($type === SkinApproval::TYPE_DOCUMENT) {
-            return $this->buildDocumentDiff(
-                $vrtourId,
-                $approval->payload ?? []
-            );
-        }
         $config = self::DIFF_CONFIG[$type];
         $model = $type === SkinApproval::TYPE_LOCATION ? Project::find($vrtourId) : $config['model']::where('vrtour_id', $vrtourId)->first();
         if (!$model) {
@@ -393,27 +352,6 @@ class SkinApprovalService
         ];
     }
 
-    private function buildDocumentDiff(int $vrtourId, array $payload): array
-    {
-        $documents = LegalDocument::where('vrtour_id', $vrtourId)->get()->values();
-        $parentData = [];
-        $draftData  = [];
-        $max = max($documents->count(), count($payload));
-        for ($i = 0; $i < $max; $i++) {
-            $parentData[] = $this->convertFields(
-                $documents[$i] ?? [],
-                self::DOCUMENT_FIELDS
-            );
-            $draftData[] = $this->convertFields(
-                $payload[$i] ?? [],
-                self::DOCUMENT_FIELDS
-            );
-        }
-        return [
-            'parentData' => $parentData,
-            'draftData'  => $draftData,
-        ];
-    }
 
     private function convertFields($source, array $fields): array
     {

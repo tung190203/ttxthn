@@ -505,6 +505,9 @@ class ProjectController extends Controller
                 $project->link = $request->input('link') ?? url("/project-detail/$firstLocaleSlug");
                 $project->save();
 
+                if ($project->status === 'approved') {
+                    $this->writeDocumentFile($project);
+                }
                 if ($request->filled('districts')) {
                     $project->districts()->sync($request->input('districts'));
                 }
@@ -548,7 +551,8 @@ class ProjectController extends Controller
                     $firstLocaleSlug = $mainProjectSlugTranslations[$firstLocale];
                     $mainProject->link = $request->input('link') ?? url("/project-detail/$firstLocaleSlug");
                     $mainProject->save();
-
+                    $this->writeDocumentFile($mainProject);
+    
                     // Đồng bộ districts
                     if (isset($validated['districts'])) {
                         $mainProject->districts()->sync($validated['districts']);
@@ -750,7 +754,9 @@ class ProjectController extends Controller
         }
     
         $project->save();
-
+        if ($user->is_super_admin && $project->status === 'approved') {
+            $this->writeDocumentFile($project);
+        }
         return redirect()
             ->route('backend_project_edit', $project->id)
             ->with('success', 'Duyệt dự án thành công ' . ($user->is_super_admin ? '(Đã duyệt)' : '(Chờ duyệt cấp 2)'));
@@ -918,5 +924,26 @@ class ProjectController extends Controller
 
     public function exportCsv() {
         return Excel::download(new ProjectsExport, 'projects.xlsx', ExcelType::XLSX);
+    }
+
+    private function writeDocumentFile(Project $project): void
+    {
+        // $project phải là BẢN CHÍNH đã duyệt (không phải bản nháp)
+        $files  = array_values(array_filter(array_map('trim', explode(';', (string) $project->legal_file))));
+        $descVi = json_decode($project->getTranslation('legal_description', 'vi', false) ?: '[]', true) ?: [];
+        $descEn = json_decode($project->getTranslation('legal_description', 'en', false) ?: '[]', true) ?: [];
+
+        $documents = [];
+        foreach ($files as $i => $path) {
+            $documents[] = [
+                'vrtour_id' => $project->id,
+                'name'      => $descVi[$i] ?? '',
+                'name_en'   => $descEn[$i] ?? '',
+                'download'  => $path,
+            ];
+        }
+
+        createFile('vrtour/' . $project->vrtour_code, 'document.js');
+        file_put_contents('vrtour/' . $project->vrtour_code . '/document.js',json_encode($documents));
     }
 }
