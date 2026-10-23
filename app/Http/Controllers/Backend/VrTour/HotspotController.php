@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Backend\VrTour;
 
 use App\Http\Controllers\Controller;
+use App\Models\VrtourVersion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use App\Models\Project;
 use App\Models\Hotspot;
 use App\Models\IndustrialProject;
 use App\Models\InvestmentProductStatus;
+use App\Models\VrtourVersionItem;
 use App\Models\ProductType;
 use Auth;
 use Illuminate\Support\Facades\DB;
@@ -20,11 +22,8 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class HotspotController extends Controller
 {
-    public $hotspot;
-
-    public function __construct(Hotspot $hotspot)
+    public function __construct()
     {
-        $this->hotspot = $hotspot;
         $this->selectedMainMenu = 'vr_tour';
         $this->selectedSubMenu('hotspot');
         parent::__construct();
@@ -57,6 +56,7 @@ class HotspotController extends Controller
             $vrtour = Project::find($vrtour_id);
             $link_vrtour = $vrtour->link_vrtour;
             $media_index = $vrtour->media_index;
+            $notice = null;
             //get hotspot from db
             $typeFilter = match ((int) $request->type) {
                 0 => [1, 2],
@@ -75,6 +75,7 @@ class HotspotController extends Controller
                         'data' => ''
                     ]);
                 }
+                $beforeState = VrtourVersionItem::hotspotStates($vrtour_id);   // trước khi đồng bộ và xóa
                 $hotspotsJson = json_decode($response['data'], true);
                 $media_index = $response['media_index'];
                 $vrtour->media_index = $media_index;
@@ -130,7 +131,16 @@ class HotspotController extends Controller
                 }
                 Hotspot::where('vrtour_id', $vrtour_id)->whereNotIn('potision', $positionsFromJson)->delete();
                 IndustrialProject::where('project_id', $vrtour_id)->whereNotIn('code', $positionsFromJson)->delete();
-                createFile('vrtour/' . $vrtour->vrtour_code, 'hotspot.js');
+                $afterState = VrtourVersionItem::hotspotStates($vrtour_id);
+                $pairs = [];
+                foreach (array_unique(array_merge(array_keys($beforeState), array_keys($afterState))) as $k) {
+                    $pairs[] = [$k, $beforeState[$k] ?? null, $afterState[$k] ?? null];
+                }
+                $version = VrtourVersion::recordHotspot($vrtour_id, $user->id, $pairs, [
+                    'version_type'   => VrtourVersion::TYPE_RESET,
+                    'change_summary' => 'Reset dữ liệu Hotspot',
+                ]);
+                $notice = $version?->pruneNotice();
                 $this->writeHotspotJs($vrtour);
             }
             $hotspots = Hotspot::with(['draft', 'parent', 'investmentProductStatus'])
@@ -159,6 +169,7 @@ class HotspotController extends Controller
                 'success' => true,
                 'data' => view('backend.vrtour.hotspot._rows', compact('hotspots'))->render(),
                 'pagination' => $hotspots->links('pagination::bootstrap-4')->render(),
+                'notice' => $notice,
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -171,7 +182,7 @@ class HotspotController extends Controller
             ]);
         }
     }
-    public function edit(Request $request, $hotspot_id)
+    public function edit($hotspot_id)
     {
         if (!Gate::allows('vr_tour/hotspot')) {
             abort(403, self::MESSAGE_UNAUTHORIZED);
@@ -275,6 +286,7 @@ class HotspotController extends Controller
 
         if ($user->is_super_admin) {
             $main = $hotspot->parent_id ? Hotspot::findOrFail($hotspot->parent_id) : $hotspot;
+            $before = VrtourVersionItem::hotspotData($main);
 
             $main->potision      = $request->hp_potision;
             $main->url           = $request->hp_url;
@@ -330,11 +342,15 @@ class HotspotController extends Controller
             HotspotImageColorizer::apply($main);
             $this->writeHotspotJs(Project::find($main->vrtour_id));
 
+            $main->refresh();   // lấy url sau khi đổi màu
+            $version = VrtourVersion::recordHotspot($main->vrtour_id, $user->id, [
+                [$main->getKey(), $before, VrtourVersionItem::hotspotData($main)],
+            ]);
+
             return redirect()
-                ->to(route('backend_vrtour_hotspot_index') .
-                    '?vrtour=' . $main->vrtour_id .
-                    '&type=' . ($main->type))
-                ->with('success', 'Đã duyệt và cập nhật Hotspot');
+                ->to(route('backend_vrtour_hotspot_index') . '?vrtour=' . $main->vrtour_id . '&type=' . $main->type)
+                ->with('success', 'Đã duyệt và cập nhật Hotspot')
+                ->with('warning', $version?->pruneNotice());
         }
 
         if (!$hotspot->is_draft) {
@@ -412,21 +428,16 @@ class HotspotController extends Controller
             if ($hotspot->parent_id) {
                 $parent = Hotspot::find($hotspot->parent_id);
                 if ($parent) {
-                    DB::transaction(function () use (
-                        $hotspot,
-                        $parent
-                    ) {
-                        $draftData = $hotspot->toArray();
-                        unset(
-                            $draftData['id'],
-                            $draftData['parent_id'],
-                            $draftData['created_at'],
-                            $draftData['updated_at']
-                        );
+                    $version = DB::transaction(function () use ($hotspot, $parent, $user) {
+                        $before = VrtourVersionItem::hotspotData($parent);
+
+                        $draftData = $hotspot->getAttributes();   // không bị $hidden che mất trường giá
+                        unset($draftData['id'], $draftData['parent_id'], $draftData['created_at'], $draftData['updated_at']);
+
                         $parent->fill($draftData);
-                        $parent->parent_id = null;
-                        $parent->is_draft = 0;
-                        $parent->status = 'approved';
+                        $parent->parent_id      = null;
+                        $parent->is_draft       = 0;
+                        $parent->status         = 'approved';
                         $parent->approval_level = $parent->max_approval;
                         $parent->save();
                         HotspotImageColorizer::apply($parent);
@@ -459,19 +470,20 @@ class HotspotController extends Controller
                                 ]
                             );
                         }
-                        $project = Project::find($parent->vrtour_id);
-                        $this->writeHotspotJs($project);
-
+                        $this->writeHotspotJs(Project::find($parent->vrtour_id));
                         $hotspot->delete();
+
+                        $parent->refresh();
+                        return VrtourVersion::recordHotspot($parent->vrtour_id, $user->id, [
+                            [$parent->getKey(), $before, VrtourVersionItem::hotspotData($parent)],
+                        ]);
                     });
 
                     return redirect()->route('backend_vrtour_hotspot_index', [
-                        "vrtour" => $hotspot->vrtour_id,
-                        "type" => $request->type
-                    ])->with(
-                        'success',
-                        'Duyệt hotspot thành công (Đã duyệt)'
-                    );
+                        'vrtour' => $hotspot->vrtour_id,
+                        'type'   => $request->type,
+                    ])->with('success', 'Duyệt hotspot thành công (Đã duyệt)')
+                        ->with('warning', $version?->pruneNotice());
                 }
             }
         }
@@ -520,9 +532,11 @@ class HotspotController extends Controller
         $queued   = 0;   // đã tạo/cập nhật bản nháp chờ duyệt
         $skipped  = [];
         $changed  = [];
+        $links        = IndustrialProject::where('project_id', $project->id)->pluck('link', 'code');
+        $directBefore = [];
 
         try {
-            DB::transaction(function () use ($data, $project, $user, $statusId, &$direct, &$queued, &$skipped, &$changed) {
+            DB::transaction(function () use ($data, $project, $user, $statusId, $links, &$directBefore, &$direct, &$queued, &$skipped, &$changed) {
                 $ids = collect($data['ids'])->map(fn($i) => (int) $i)->unique();
 
                 // Quy về bản gốc: id nào là bản nháp thì lấy parent_id
@@ -561,7 +575,7 @@ class HotspotController extends Controller
                         if ($draft) {
                             $draft->delete(); // bản nháp đã bị từ chối, dọn giống hàm store
                         }
-
+                        $directBefore[$hotspot->id] = VrtourVersionItem::hotspotData($hotspot, $links);
                         $hotspot->investment_product_statuses_id = $statusId;
                         $hotspot->user_id = $user->id;
                         $hotspot->save();
@@ -635,6 +649,24 @@ class HotspotController extends Controller
             }
         }
 
+        // Ghi 1 version, mỗi lô đổi là 1 item (after lấy sau khi đã đổi màu ảnh)
+        $notice = null;
+        if ($direct > 0) {
+            try {
+                $pairs = [];
+                foreach (Hotspot::whereIn('id', array_keys($directBefore))->get() as $h) {
+                    $pairs[] = [$h->id, $directBefore[$h->id], VrtourVersionItem::hotspotData($h, $links)];
+                }
+
+                $v = VrtourVersion::recordHotspot($project->id, $user->id, $pairs, [
+                    'change_summary' => "Cập nhật hàng loạt trạng thái {$direct} lô",
+                ]);
+                $notice = $v?->pruneNotice();
+            } catch (\Throwable $e) {
+                report($e); // dữ liệu đã lưu, lỗi ghi version không làm hỏng thao tác
+            }
+        }
+
         $parts = [];
         if ($imageFailed > 0) {
             $parts[] = "Có {$imageFailed} lô chưa đổi được màu ảnh hotspot, hãy báo kỹ thuật";
@@ -662,6 +694,7 @@ class HotspotController extends Controller
             'applied' => $direct,
             'queued'  => $queued,
             'skipped' => $skipped,
+            'notice' => $notice,
         ]);
     }
 
@@ -670,19 +703,9 @@ class HotspotController extends Controller
         return str_starts_with($hotspot->potision, 'cmss_') ? substr($hotspot->potision, 5) : $hotspot->potision;
     }
 
-    private function writeHotspotJs(Project $project): void
+    private function writeHotspotJs(Project $project)
     {
-        $data = Hotspot::with('investmentProductStatus')
-            ->where('vrtour_id', $project->id)
-            ->where('is_draft', 0)
-            ->get()
-            ->map(function ($h) {
-                $arr = $h->toArray();
-                $arr['status_color'] = optional($h->investmentProductStatus)->color_code;
-                return $arr;
-            });
-
-        file_put_contents('vrtour/' . $project->vrtour_code . '/hotspot.js', $data->toJson());
+        $project->syncHotspotFile();
     }
 
     public function exportExcel(Request $request)

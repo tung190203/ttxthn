@@ -3,6 +3,9 @@
 namespace App\Services;
 
 use App\Models\VrtourVersion;
+use App\Models\Panorama;
+use App\Models\VrtourVersionItem;
+use Illuminate\Support\Str;
 
 // sự khác giữa 2 phiên bản VrtourVersion, trả về dạng mảng để hiển thị trong bảng
 class VrtourVersionDiffService
@@ -12,9 +15,6 @@ class VrtourVersionDiffService
     public const STATUS_MODIFIED  = 'modified';
     public const STATUS_UNCHANGED = 'unchanged';
     public const HTML_FIELDS = ['content', 'content_en'];
-
-
-    /** Field không tính là thay đổi nội dung (chỉnh theo nghiệp vụ) */
     public const IGNORED_FIELDS = ['vrtour_id'];
 
     public const PANORAMA_LABELS = [
@@ -34,12 +34,43 @@ class VrtourVersionDiffService
         'is_draft'       => 'Bản nháp',
     ];
 
+    public const HOTSPOT_LABELS = [
+        'potision'                       => 'Mã lô',
+        'investment_product_statuses_id' => 'Trạng thái đầu tư',
+        'tooltip'                        => 'Tooltip (VI)',
+        'tooltip_en'                     => 'Tooltip (EN)',
+        'acreage'                        => 'Diện tích',
+        'unit'                           => 'Đơn vị',
+        'intended_use'                   => 'Mục đích sử dụng',
+        'product_type'                   => 'Loại sản phẩm',
+        'price'                          => 'Giá gốc',
+        'lease_price'                    => 'Giá thuê',
+        'sale_price'                     => 'Giá bán',
+        'transaction_note'               => 'Ghi chú giao dịch',
+        'available_amenities'            => 'Tiện ích sẵn có',
+        'contact_info'                   => 'Thông tin liên hệ',
+        'url'                            => 'Ảnh',
+        'opacity'                        => 'Hiển thị',
+        'status'                         => 'Trạng thái duyệt',
+        'user_id'                        => 'Người cập nhật',
+        'ip_link'                        => 'Link lô đất',
+    ];
+
+    public static function labelsFor(string $scope): array
+    {
+        return $scope === VrtourVersion::SCOPE_HOTSPOT ? self::HOTSPOT_LABELS : self::PANORAMA_LABELS;
+    }
+
     public function diff(VrtourVersion $old, VrtourVersion $new, string $entityType = 'panorama'): array
     {
-        $load = fn(VrtourVersion $v) => $v->items()->where('entity_type', $entityType)->get(['entity_key', 'content_hash', 'data'])->keyBy('entity_key');
-        $oldItems = $load($old);
-        $newItems = $load($new);
-        $keys = $oldItems->keys()->merge($newItems->keys())->unique()->sortBy(fn($k) => (int) $k)->values();
+        return $this->diffStates($this->stateAt($old, $entityType),$this->stateAt($new, $entityType));
+    }
+
+    /** So sánh hai trạng thái dạng [key => data] */
+    public function diffStates(array $from, array $to): array
+    {
+        $keys = collect(array_merge(array_keys($from), array_keys($to)))->unique()->sort()->values();
+
         $rows = [];
         $summary = [
             self::STATUS_ADDED => 0,
@@ -48,35 +79,111 @@ class VrtourVersionDiffService
             self::STATUS_UNCHANGED => 0,
         ];
 
-        foreach ($keys as $key) {
-            $o = $oldItems->get($key);
-            $n = $newItems->get($key);
+        foreach ($keys as $k) {
+            $o = $from[$k] ?? null;
+            $n = $to[$k] ?? null;
             $changed = [];
 
-            if (!$o) {
+            if ($o === null && $n === null) {
+                continue;
+            } elseif ($o === null) {
                 $status = self::STATUS_ADDED;
-            } elseif (!$n) {
+            } elseif ($n === null) {
                 $status = self::STATUS_REMOVED;
             } else {
-                // Hash giống nhau thì chắc chắn không đổi. Hash khác thì so lại từng field
-                // để tránh báo "sửa" oan khi hash bị lệch do đổi cách tính.
-                if ($o->content_hash !== $n->content_hash) {
-                    $changed = $this->changedFields($o->data ?? [], $n->data ?? []);
-                }
-                $status = $changed ? self::STATUS_MODIFIED : self::STATUS_UNCHANGED;
+                $changed = $this->changedFields($o, $n);
+                $status  = $changed ? self::STATUS_MODIFIED : self::STATUS_UNCHANGED;
             }
 
             $summary[$status]++;
             $rows[] = [
-                'key'    => $key,
-                'status' => $status,
-                'old'    => $o?->data,
-                'new'    => $n?->data,
+                'key'            => (string) $k,
+                'status'         => $status,
+                'old'            => $o,
+                'new'            => $n,
                 'changed_fields' => $changed,
             ];
         }
 
         return ['rows' => $rows, 'summary' => $summary];
+    }
+
+    /**
+     * Trạng thái đầy đủ của một scope tại thời điểm $version: [entity_key => data].
+     * Lấy trạng thái hiện tại, rồi lùi về bằng before_data của item sớm nhất sau $version.
+     */
+    public function stateAt(VrtourVersion $version, string $entityType): array
+    {
+        $state = $this->liveState($version->scope, $version->vrtour_id, $entityType);
+
+        $later = VrtourVersionItem::query()
+            ->join('vrtour_versions as v', 'v.id', '=', 'vrtour_version_items.version_id')
+            ->where('v.vrtour_id', $version->vrtour_id)
+            ->where('v.scope', $version->scope)
+            ->where('v.version_number', '>', $version->version_number)
+            ->where('vrtour_version_items.entity_type', $entityType)
+            ->orderBy('v.version_number')
+            ->orderBy('vrtour_version_items.id')
+            ->select('vrtour_version_items.*')
+            ->get()
+            ->unique('entity_key');   // giữ item sớm nhất của mỗi bản ghi
+
+        foreach ($later as $it) {
+            if ($it->before_data === null) {
+                unset($state[$it->entity_key]);            // lúc đó chưa tồn tại
+            } else {
+                $state[$it->entity_key] = $it->before_data; // giá trị trước khi bị đổi
+            }
+        }
+
+        return $state;
+    }
+
+    /** Dữ liệu hiện tại trong DB, đã chuẩn hóa. Hotspot và skin sẽ thêm ở bước sau. */
+    public function liveState(string $scope, int $vrtourId, string $entityType): array
+    {
+        return match ($scope) {
+            VrtourVersion::SCOPE_PANORAMA => Panorama::where('vrtour_id', $vrtourId)
+                ->where('is_draft', 0)->get()
+                ->mapWithKeys(fn($p) => [
+                    (string) $p->getKey() => VrtourVersionItem::normalize($p->only(VrtourVersionItem::PANORAMA_FIELDS)),
+                ])->all(),
+            VrtourVersion::SCOPE_HOTSPOT => array_map(
+                fn($d) => VrtourVersionItem::normalize($d),
+                VrtourVersionItem::hotspotStates($vrtourId)
+            ),
+            default => [],
+        };
+    }
+
+    /** Mô tả một item cho báo cáo PDF */
+    public function describeItem(VrtourVersionItem $it, array $labels, array $lookups = [], $users = [], bool $withValues = false): array
+    {
+        $data  = $it->after_data ?? $it->before_data ?? [];
+        $title = $data['title']
+            ?? (isset($data['potision']) ? Str::after($data['potision'], 'cmss_') : '#' . $it->entity_key);
+
+        $fields = [];
+        if ($it->action === VrtourVersionItem::ACTION_MODIFIED) {
+            $before = $it->before_data ?? [];
+            $after  = $it->after_data ?? [];
+
+            foreach ($this->changedFields($before, $after) as $f) {
+                $label = $labels[$f] ?? $f;
+
+                // Đường dẫn ảnh/link dài, chỉ ghi nhận có đổi
+                if (!$withValues || in_array($f, ['url', 'ip_link'], true)) {
+                    $fields[] = $label;
+                    continue;
+                }
+
+                $from = Str::limit($this->toText($f, $before[$f] ?? null, $users, $lookups), 60);
+                $to   = Str::limit($this->toText($f, $after[$f] ?? null, $users, $lookups), 60);
+                $fields[] = "{$label}: {$from} → {$to}";
+            }
+        }
+
+        return ['action' => $it->action, 'key' => $it->entity_key, 'title' => $title, 'fields' => $fields];
     }
 
     private function changedFields(array $old, array $new): array
@@ -85,10 +192,18 @@ class VrtourVersionDiffService
 
         return array_values(array_filter(
             $fields,
-            fn($f) => ($old[$f] ?? null) !== ($new[$f] ?? null)
+            fn($f) => $this->norm($old[$f] ?? null) !== $this->norm($new[$f] ?? null)
         ));
     }
 
+    private function norm($v): string
+    {
+        if (is_array($v)) {
+            return json_encode($v, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        }
+
+        return is_bool($v) ? (string) (int) $v : (string) ($v ?? '');
+    }
     /**
      * So sánh 2 chuỗi theo từng từ.
      * Trả về [html_cũ, html_mới], đã escape, phần khác nhau được bọc <del>/<ins>.
@@ -217,17 +332,17 @@ class VrtourVersionDiffService
     }
 
     /** Thêm cho mỗi dòng: 'show' (field cần hiện) và 'cells' (HTML đã escape + highlight) */
-    public function buildCells(array $rows, $users): array
+    public function buildCells(array $rows, $users, string $scope = 'panorama', array $lookups = []): array
     {
-        $allFields = array_keys(self::PANORAMA_LABELS);
+        $allFields = array_keys(self::labelsFor($scope));
 
-        return array_map(function ($row) use ($allFields, $users) {
+        return array_map(function ($row) use ($allFields, $users, $lookups) {
             $show  = $row['status'] === self::STATUS_MODIFIED ? $row['changed_fields'] : $allFields;
             $cells = ['old' => [], 'new' => []];
 
             foreach ($show as $f) {
-                $o = $row['old'] ? $this->toText($f, $row['old'][$f] ?? null, $users) : null;
-                $n = $row['new'] ? $this->toText($f, $row['new'][$f] ?? null, $users) : null;
+                $o = $row['old'] ? $this->toText($f, $row['old'][$f] ?? null, $users, $lookups) : null;
+                $n = $row['new'] ? $this->toText($f, $row['new'][$f] ?? null, $users, $lookups) : null;
 
                 if ($row['status'] === self::STATUS_MODIFIED && $o !== null && $n !== null) {
                     [$oh, $nh] = $this->highlight($o, $n);
@@ -247,7 +362,7 @@ class VrtourVersionDiffService
         }, $rows);
     }
 
-    private function toText(string $field, $val, $users): string
+    private function toText(string $field, $val, $users, array $lookups = []): string
     {
         if (is_null($val) || $val === '') {
             return '—';
@@ -257,6 +372,15 @@ class VrtourVersionDiffService
         }
         if ($field === 'user_id') {
             return $users[$val] ?? ('User #' . $val);
+        }
+        if ($field === 'investment_product_statuses_id') {
+            return $lookups['status'][$val] ?? ('#' . $val);
+        }
+        if ($field === 'product_type') {
+            return $lookups['product_type'][$val] ?? ('#' . $val);
+        }
+        if ($field === 'unit') {
+            return (string) $val === '1' ? 'km' : 'ha';
         }
 
         $text = (string) $val;

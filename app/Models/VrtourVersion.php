@@ -11,8 +11,11 @@ use Illuminate\Support\Facades\Log;
 
 class VrtourVersion extends Model
 {
+    public const SCOPE_HOTSPOT = 'hotspot';
+    public const SCOPE_PANORAMA = 'panorama';
     public const TYPE_PUBLISH = 'publish';
     public const TYPE_RESTORE = 'restore';
+    public const TYPE_RESET = 'reset';
 
     public $timestamps = false;
 
@@ -27,6 +30,11 @@ class VrtourVersion extends Model
         'restore_reason',
         'confirmed_by',
         'confirmed_at',
+        'scope',
+        'item_count',
+        'added_count',
+        'removed_count',
+        'modified_count',
     ];
 
     protected $casts = [
@@ -54,87 +62,120 @@ class VrtourVersion extends Model
         return $this->belongsTo(User::class, 'confirmed_by');
     }
 
+    /** Ghi version cho panorama. $pairs = [[id, before|null, after|null], ...] */
+    public static function recordPanorama(int $vrtourId, int $userId, array $pairs, array $attributes = [], bool $allowEmpty = false): ?self
+    {
+        $changes = array_map(fn($p) => [
+            'type'   => VrtourVersionItem::ENTITY_PANORAMA,
+            'key'    => (string) $p[0],
+            'before' => $p[1],
+            'after'  => $p[2],
+        ], $pairs);
+
+        return self::record(self::SCOPE_PANORAMA, $vrtourId, $userId, $changes, $attributes, $allowEmpty);
+    }
+
+    public static function recordHotspot(int $vrtourId, int $userId, array $pairs, array $attributes = [], bool $allowEmpty = false): ?self
+    {
+        $changes = array_map(fn($p) => [
+            'type'   => VrtourVersionItem::ENTITY_HOTSPOT,
+            'key'    => (string) $p[0],
+            'before' => $p[1],
+            'after'  => $p[2],
+        ], $pairs);
+
+        return self::record(self::SCOPE_HOTSPOT, $vrtourId, $userId, $changes, $attributes, $allowEmpty);
+    }
+
     /**
-     * Tạo snapshot panorama.
-     * - Không có thay đổi so với bản mới nhất: trả về bản mới nhất, kèm cờ snapshot_skipped.
-     * - Vượt trần: tạo bản mới rồi xóa các bản cũ nhất, kèm danh sách pruned.
-     * Hai cờ này chỉ gắn tạm lên object, không lưu DB.
+     * Hàm dùng chung cho mọi scope.
+     * $changes = [['type'=>, 'key'=>, 'before'=>array|null, 'after'=>array|null], ...]
+     * Trả null nếu không có thay đổi thật (và không $allowEmpty).
      */
-    public static function createPanoramaSnapshot(
-        int $vrtourId,
-        int $userId,
-        array $attributes = [],
-        bool $skipIfUnchanged = true
-    ): self {
-        return DB::transaction(function () use ($vrtourId, $userId, $attributes, $skipIfUnchanged) {
-            // Khóa dòng cha: mọi kiểm tra bên dưới đều tuần tự theo từng tour
-            Project::whereKey($vrtourId)->lockForUpdate()->firstOrFail();
-
-            // Dữ liệu hiện tại: entity_key => [json, hash]
-            $current = [];
-            Panorama::where('vrtour_id', $vrtourId)
-                ->where('is_draft', false)->orderBy('id')
-                ->each(function ($p) use (&$current) {
-                    $data = $p->only(VrtourVersionItem::PANORAMA_FIELDS);
-                    $current[(string) $p->getKey()] = [
-                        'json' => json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-                        'hash' => VrtourVersionItem::hashData($data),
-                    ];
-                });
-
-            $latest = self::where('vrtour_id', $vrtourId)->orderByDesc('version_number')->first();
-
-            // Bỏ qua nếu không có thay đổi
-            if ($skipIfUnchanged && $latest) {
-                $latestHashes = $latest->items()->where('entity_type', 'panorama')->pluck('content_hash', 'entity_key')->all();
-                $currentHashes = array_map(fn($r) => $r['hash'], $current);
-                ksort($latestHashes);
-                ksort($currentHashes);
-
-                if ($latestHashes === $currentHashes) {
-                    $latest->setAttribute('snapshot_skipped', true);
-                    return $latest;
-                }
+    public static function record(string $scope, int $vrtourId, int $userId, array $changes, array $attributes = [], bool $allowEmpty = false): ?self
+    {
+        // Gộp trùng (cùng type+key): giữ before đầu, after cuối; bỏ mục before == after
+        $merged = [];
+        foreach ($changes as $c) {
+            $k = $c['type'] . '|' . $c['key'];
+            if (isset($merged[$k])) {
+                $merged[$k]['after'] = $c['after'];
+            } else {
+                $merged[$k] = $c;
             }
+        }
+
+        $rows = [];
+        $count = ['added' => 0, 'removed' => 0, 'modified' => 0];
+        foreach ($merged as $c) {
+            $c['before'] = VrtourVersionItem::normalize($c['before']);
+            $c['after']  = VrtourVersionItem::normalize($c['after']);
+            $bh = $c['before'] !== null ? VrtourVersionItem::hashData($c['before']) : null;
+            $ah = $c['after']  !== null ? VrtourVersionItem::hashData($c['after'])  : null;
+
+            if ($bh === null && $ah === null) continue;
+            if ($bh !== null && $bh === $ah) continue;   // không đổi thì không lưu
+
+            $action = $bh === null ? VrtourVersionItem::ACTION_ADDED
+                : ($ah === null ? VrtourVersionItem::ACTION_REMOVED : VrtourVersionItem::ACTION_MODIFIED);
+            $count[$action]++;
+
+            $rows[] = [
+                'entity_type' => $c['type'],
+                'entity_key'  => (string) $c['key'],
+                'action'      => $action,
+                'before_data' => $c['before'] !== null ? json_encode($c['before'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : null,
+                'after_data'  => $c['after']  !== null ? json_encode($c['after'],  JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : null,
+                'before_hash' => $bh,
+                'after_hash'  => $ah,
+            ];
+        }
+
+        if (empty($rows) && !$allowEmpty) {
+            return null;
+        }
+
+        return DB::transaction(function () use ($scope, $vrtourId, $userId, $attributes, $rows, $count) {
+            Project::whereKey($vrtourId)->lockForUpdate()->firstOrFail();
 
             $version = self::create(array_merge([
                 'vrtour_id'      => $vrtourId,
-                'version_number' => (int) self::where('vrtour_id', $vrtourId)->max('version_number') + 1,
                 'version_type'   => self::TYPE_PUBLISH,
                 'created_by'     => $userId,
                 'created_at'     => now(),
-                'change_summary' => 'Lưu phiên bản dữ liệu Panorama',
-            ], $attributes));
+                'change_summary' => 'Cập nhật ' . $scope,
+            ], $attributes, [
+                'scope'          => $scope,
+                'version_number' => (int) self::where('vrtour_id', $vrtourId)->where('scope', $scope)->max('version_number') + 1,
+                'item_count'     => count($rows),
+                'added_count'    => $count['added'],
+                'removed_count'  => $count['removed'],
+                'modified_count' => $count['modified'],
+            ]));
 
-            $now  = now();
-            $rows = [];
-            foreach ($current as $key => $r) {
-                $rows[] = [
-                    'version_id'   => $version->id,
-                    'entity_type'  => 'panorama',
-                    'entity_key'   => (string) $key,
-                    'data'         => $r['json'],
-                    'content_hash' => $r['hash'],
-                    'created_at'   => $now,
-                ];
+            $now = now();
+            foreach ($rows as &$r) {
+                $r['version_id'] = $version->id;
+                $r['created_at'] = $now;
             }
-            foreach (array_chunk($rows, 500) as $chunk) {
+            unset($r);
+            foreach (array_chunk($rows, 200) as $chunk) {
                 VrtourVersionItem::insert($chunk);
             }
 
-            // Vượt trần thì xóa các bản cũ nhất (tạo bản mới trước nên không bao giờ tụt dưới sàn)
-            $excess = self::where('vrtour_id', $vrtourId)->count() - VrtourVersionRetentionService::max();
+            // Vượt trần: xóa bản cũ nhất của CHÍNH scope này
+            $excess = self::where('vrtour_id', $vrtourId)->where('scope', $scope)->count()
+                - VrtourVersionRetentionService::max();
             $pruned = [];
 
             if ($excess > 0) {
-                $old = self::where('vrtour_id', $vrtourId)
+                $old = self::where('vrtour_id', $vrtourId)->where('scope', $scope)
                     ->where('id', '!=', $version->id)
                     ->when(
-                        !empty($attributes['source_version_id']),   // giữ bản nguồn của lần khôi phục
+                        !empty($attributes['source_version_id']),
                         fn($q) => $q->where('id', '!=', $attributes['source_version_id'])
                     )
-                    ->orderBy('version_number')
-                    ->limit($excess)
+                    ->orderBy('version_number')->limit($excess)
                     ->get(['id', 'version_number', 'created_at']);
 
                 $pruned = $old->map(fn($v) => [
@@ -142,12 +183,13 @@ class VrtourVersion extends Model
                     'at'     => $v->created_at?->format('d/m/Y H:i'),
                 ])->all();
 
-                self::whereIn('id', $old->pluck('id'))->delete(); // item xóa theo cascade ở DB
+                self::whereIn('id', $old->pluck('id'))->delete();   // item xóa theo cascade
 
                 Log::info('VRTour: xóa phiên bản cũ do vượt giới hạn lưu trữ', [
                     'vrtour_id' => $vrtourId,
-                    'by_user'   => $userId,
-                    'deleted'   => $pruned,
+                    'scope'   => $scope,
+                    'by_user' => $userId,
+                    'deleted' => $pruned,
                 ]);
             }
 
@@ -155,5 +197,15 @@ class VrtourVersion extends Model
 
             return $version;
         });
+    }
+
+    public function pruneNotice(): ?string
+    {
+        $pruned = $this->getAttribute('pruned');
+        if (empty($pruned)) return null;
+
+        $list = collect($pruned)->pluck('number')->map(fn($n) => 'v' . $n)->implode(', ');
+
+        return "Đã đạt giới hạn lưu trữ, phiên bản cũ nhất ({$list}) đã bị xóa.";
     }
 }

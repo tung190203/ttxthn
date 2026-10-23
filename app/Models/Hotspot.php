@@ -103,7 +103,7 @@ class Hotspot extends Model
 
     public function IndustrialProject()
     {
-        return $this->hasOne(IndustrialProject::class, 'code', 'potision');
+        return $this->hasOne(IndustrialProject::class, 'code', 'potision')->where('industrial_projects.project_id', $this->vrtour_id);
     }
 
     public static function makeUnitOptions($selected = null)

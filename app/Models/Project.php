@@ -461,7 +461,7 @@ class Project extends Model
      * Ghi lại vrtour/<vrtour_code>/pano.js theo panorama đã xuất bản.
      * Trả về danh sách panorama vừa ghi để nơi gọi dùng lại, không phải query lần 2.
      */
-    public function syncPanoFile(): \Illuminate\Database\Eloquent\Collection
+    public function syncPanoFile()
     {
         $panoramas = Panorama::query()->where('vrtour_id', $this->getKey())->where('is_draft', 0)->get();
         $dir = 'vrtour/' . $this->vrtour_code;
@@ -478,5 +478,19 @@ class Project extends Model
         }
 
         return $panoramas;
+    }
+
+    public function syncHotspotFile()
+    {
+        $data = Hotspot::with('investmentProductStatus')->where('vrtour_id', $this->getKey())->where('is_draft', 0)->get()
+            ->map(function ($h) {
+                $arr = $h->toArray();
+                $arr['status_color'] = optional($h->investmentProductStatus)->color_code;
+                return $arr;
+            });
+
+        $dir = 'vrtour/' . $this->vrtour_code;
+        createFile($dir, 'hotspot.js');
+        file_put_contents($dir . '/hotspot.js', $data->toJson());
     }
 }

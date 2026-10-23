@@ -245,6 +245,7 @@ Route::localized(function () {
                 Route::get('compare', [VersionHistoryController::class, 'compare'])->name('backend_vrtour_history_compare');
                 Route::post('restore/prepare', [VersionHistoryController::class, 'restorePrepare'])->name('backend_vrtour_history_restore_prepare');
                 Route::post('restore/confirm', [VersionHistoryController::class, 'restoreConfirm'])->name('backend_vrtour_history_restore_confirm');
+                Route::get('export-pdf', [VersionHistoryController::class, 'exportPdf'])->name('backend_vrtour_history_export_pdf');
             });
 
         });

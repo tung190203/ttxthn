@@ -41,8 +41,6 @@
             'unchanged' => ['label' => 'Không đổi', 'badge' => 'secondary'],
         ];
 
-        $labels = \App\Services\VrtourVersionDiffService::PANORAMA_LABELS;
-
         $tabs = [
             'changed' => [
                 'label' => 'Thay đổi',
@@ -60,7 +58,7 @@
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="mb-0">So sánh phiên bản: {{ $selectedVrtour->name }}</h5>
+                        <h5 class="mb-0">So sánh phiên bản {{ $scope === 'hotspot' ? 'Hotspot' : 'Panorama' }}: {{ $selectedVrtour->name }}</h5>
                         <a href="{{ $backUrl }}" class="btn btn-outline-secondary btn-sm">
                             <i class="fas fa-arrow-left mr-1"></i> Quay lại
                         </a>
@@ -115,7 +113,13 @@
                                                 {{ $statusMeta[$row['status']]['label'] }}
                                             </span>
                                         </td>
-                                        <td>{{ $row['key'] }}</td>
+                                        <td>
+                                            {{ $row['key'] }}
+                                            @if ($scope === 'hotspot')
+                                                <br><small
+                                                    class="text-muted">{{ $row['new']['potision'] ?? ($row['old']['potision'] ?? '') }}</small>
+                                            @endif
+                                        </td>
 
                                         @foreach (['old', 'new'] as $side)
                                             <td>

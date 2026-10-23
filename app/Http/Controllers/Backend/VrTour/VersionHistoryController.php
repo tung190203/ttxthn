@@ -11,6 +11,10 @@ use App\Services\VrtourVersionRestoreService;
 use App\Services\VrtourVersionRetentionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\ProductType;
+use App\Models\InvestmentProductStatus;
+use Illuminate\Support\Str;
 
 class VersionHistoryController extends Controller
 {
@@ -50,25 +54,18 @@ class VersionHistoryController extends Controller
 
         $versions = VrtourVersion::query()->whereRaw('1 = 0')->paginate(10)->withQueryString();
 
-        if ($selectedVrtour && $tab === 'panorama') {
-            $versions = VrtourVersion::query()
-                ->where('vrtour_id', $selectedVrtour->id)
-                ->when($request->filled('from_date'), fn($q) =>
-                $q->whereDate('created_at', '>=', $request->input('from_date')))
-                ->when($request->filled('to_date'), fn($q) =>
-                $q->whereDate('created_at', '<=', $request->input('to_date')))
-                ->with('creator')
-                ->withCount([
-                    'items as panorama_count' => fn($q) => $q->where('entity_type', 'panorama'),
-                ])
+        if ($selectedVrtour && in_array($tab, [VrtourVersion::SCOPE_PANORAMA, VrtourVersion::SCOPE_HOTSPOT], true)) {
+            $versions = $this->versionsQuery($selectedVrtour->id, $tab, $request)
+                ->with('items:id,version_id,entity_key,action,before_data,after_data') // để hiện mã lô đã đổi
                 ->orderByDesc('version_number')
                 ->paginate(10)
                 ->withQueryString();
         }
-        $canRestore = $this->canRestore($user);
+
         $retention = $selectedVrtour
-            ? app(VrtourVersionRetentionService::class)->status($selectedVrtour->id)
+            ? app(VrtourVersionRetentionService::class)->status($selectedVrtour->id, $tab)
             : null;
+        $canRestore = $this->canRestore($user);
         return view('backend.vrtour.history.index', compact(
             'vrtour',
             'selectedVrtour',
@@ -83,43 +80,46 @@ class VersionHistoryController extends Controller
     {
         $data = $request->validate([
             'vrtour_id' => 'required|integer',
+            'scope'     => 'nullable|in:panorama,hotspot',
             'a'         => 'required|integer|different:b',
             'b'         => 'required|integer',
         ]);
+        $scope = $data['scope'] ?? VrtourVersion::SCOPE_PANORAMA;
 
-        // Tour phải nằm trong scope của user
         $selectedVrtour = $this->accessibleProjects(auth('web')->user())->firstWhere('id', $data['vrtour_id']);
         abort_if(!$selectedVrtour, 404);
 
-        // Cả hai version phải thuộc đúng tour này
         $versions = VrtourVersion::with('creator')
             ->where('vrtour_id', $selectedVrtour->id)
+            ->where('scope', $scope)
             ->whereIn('id', [$data['a'], $data['b']])
             ->get();
         abort_if($versions->count() !== 2, 404);
 
-        // Bản nhỏ hơn là cũ (trái), bản lớn hơn là mới (phải), bất kể thứ tự user tick
         [$old, $new] = $versions->sortBy('version_number')->values()->all();
 
-        $result = $diffService->diff($old, $new, 'panorama');
-        // Tra tên user cho các field user_id trong snapshot
+        $result = $diffService->diff($old, $new, $scope);
         $userIds = collect($result['rows'])
             ->flatMap(fn($r) => [$r['old']['user_id'] ?? null, $r['new']['user_id'] ?? null])
-            ->filter()
-            ->unique()
-            ->values();
-
+            ->filter()->unique()->values();
         $users = User::whereIn('id', $userIds)->pluck('name', 'id');
+
+        $lookups = [
+            'status'       => InvestmentProductStatus::pluck('name', 'id'),
+            'product_type' => ProductType::pluck('name', 'id'),
+        ];
 
         return view('backend.vrtour.history.compare', [
             'selectedVrtour' => $selectedVrtour,
+            'scope'          => $scope,
             'old'            => $old,
             'new'            => $new,
-            'rows'           => $diffService->buildCells($result['rows'], $users),
+            'labels'         => VrtourVersionDiffService::labelsFor($scope),
+            'rows'           => $diffService->buildCells($result['rows'], $users, $scope, $lookups),
             'summary'        => $result['summary'],
             'backUrl'        => route('backend_vrtour_history_index', [
                 'slt_vrtour' => $selectedVrtour->id,
-                'tab'        => 'panorama',
+                'tab'        => $scope,
             ]),
         ]);
     }
@@ -152,7 +152,7 @@ class VersionHistoryController extends Controller
         $source = VrtourVersion::findOrFail($data['version_id']);
 
         // Tour của version phải nằm trong scope của user
-        abort_unless($this->accessibleProjects(auth('web')->user())->contains('id', $source->vrtour_id), 404);
+        abort_unless(in_array($source->scope, [VrtourVersion::SCOPE_PANORAMA, VrtourVersion::SCOPE_HOTSPOT], true), 404);
 
         return response()->json($service->prepare($source, auth('web')->user(), trim($data['reason'])));
     }
@@ -165,11 +165,16 @@ class VersionHistoryController extends Controller
 
         $version = $service->execute($data['token'], auth('web')->user());
 
+        // Flash cho trang lịch sử sau khi redirect (layout đã hiển thị session('warning'))
+        if ($notice = $version->pruneNotice()) {
+            session()->flash('warning', $notice);
+        }
+
         return response()->json([
             'message'  => 'Đã khôi phục. Phiên bản mới: v' . $version->version_number,
             'redirect' => route('backend_vrtour_history_index', [
                 'slt_vrtour' => $version->vrtour_id,
-                'tab'        => 'panorama',
+                'tab'        => $version->scope,   // panorama | hotspot
             ]),
         ]);
     }
@@ -178,5 +183,78 @@ class VersionHistoryController extends Controller
     private function canRestore($user): bool
     {
         return (bool) $user->is_super_admin;
+    }
+
+    private function versionsQuery(int $projectId, string $scope, Request $request)
+    {
+        return VrtourVersion::query()
+            ->where('vrtour_id', $projectId)
+            ->where('scope', $scope)
+            ->when($request->filled('from_date'), fn($q) => $q->whereDate('created_at', '>=', $request->input('from_date')))
+            ->when($request->filled('to_date'), fn($q) => $q->whereDate('created_at', '<=', $request->input('to_date')))
+            ->with(['creator', 'sourceVersion']);
+    }
+
+    public function exportPdf(Request $request, VrtourVersionDiffService $diffService)
+    {
+        $request->validate([
+            'slt_vrtour' => 'required|integer',
+            'tab'        => 'required|in:' . implode(',', self::TABS),
+            'from_date'  => 'nullable|date',
+            'to_date'    => 'nullable|date|after_or_equal:from_date',
+        ]);
+
+        $user    = auth('web')->user();
+        $project = $this->accessibleProjects($user)->firstWhere('id', $request->input('slt_vrtour'));
+        abort_if(!$project, 404);
+
+        $tab = $request->input('tab');
+        if (!in_array($tab, [VrtourVersion::SCOPE_PANORAMA, VrtourVersion::SCOPE_HOTSPOT], true)) {
+            return back()->with('error', 'Tab này chưa có dữ liệu để xuất báo cáo.');
+        }
+
+        $versions = $this->versionsQuery($project->id, $tab, $request)
+            ->with('items')
+            ->orderByDesc('version_number')
+            ->get();
+
+        if ($versions->isEmpty()) {
+            return back()->with('error', 'Không có phiên bản nào trong khoảng thời gian đã chọn để xuất.');
+        }
+
+        $labels     = VrtourVersionDiffService::labelsFor($tab);
+        $withValues = $tab === VrtourVersion::SCOPE_HOTSPOT;   // hotspot hiển thị "giá trị cũ → mới"
+
+        $userIds = $versions->pluck('items')->flatten()
+            ->flatMap(fn($it) => [$it->before_data['user_id'] ?? null, $it->after_data['user_id'] ?? null])
+            ->filter()->unique()->values();
+        $users   = User::whereIn('id', $userIds)->pluck('name', 'id');
+        $lookups = [
+            'status'       => InvestmentProductStatus::pluck('name', 'id'),
+            'product_type' => ProductType::pluck('name', 'id'),
+        ];
+
+        foreach ($versions as $v) {
+            $v->details = $v->items
+                ->map(fn($it) => $diffService->describeItem($it, $labels, $lookups, $users, $withValues))
+                ->all();
+        }
+
+        $pdf = Pdf::loadView('backend.vrtour.history.pdf.report', [
+            'project'    => $project,
+            'tab'        => $tab,
+            'tabLabel'   => $tab === VrtourVersion::SCOPE_HOTSPOT ? 'Hotspot' : 'Panorama',
+            'versions'   => $versions,
+            'from'       => $request->input('from_date'),
+            'to'         => $request->input('to_date'),
+            'exporter'   => $user,
+            'exportedAt' => now(),
+            'retention'  => app(VrtourVersionRetentionService::class)->status($project->id, $tab),
+        ])->setPaper('a4', 'landscape');
+
+        $file = 'lich-su-phien-ban-' . Str::slug($project->vrtour_code ?: $project->id)
+            . '-' . $tab . '-' . now()->format('Ymd_His') . '.pdf';
+
+        return $pdf->download($file);
     }
 }

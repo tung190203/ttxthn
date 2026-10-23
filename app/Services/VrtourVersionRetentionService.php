@@ -13,20 +13,19 @@ class VrtourVersionRetentionService
     }
 
     /** Trạng thái lưu trữ của một tour, dùng cho banner và modal cảnh báo */
-    public function status(int $vrtourId): array
+    public function status(int $vrtourId, string $scope = 'panorama')
     {
-        $count = VrtourVersion::where('vrtour_id', $vrtourId)->count();
+        $base  = VrtourVersion::where('vrtour_id', $vrtourId)->where('scope', $scope);
+        $count = (clone $base)->count();
         $max   = self::max();
 
-        $oldest = $count >= $max
-            ? VrtourVersion::where('vrtour_id', $vrtourId)->orderBy('version_number')->first()
-            : null;
+        $oldest = $count >= $max ? (clone $base)->orderBy('version_number')->first() : null;
 
         return [
-            'count'   => $count,
-            'max'     => $max,
-            'at_cap'  => $count >= $max,
-            'oldest'  => $oldest ? [
+            'count'  => $count,
+            'max'    => $max,
+            'at_cap' => $count >= $max,
+            'oldest' => $oldest ? [
                 'number' => $oldest->version_number,
                 'at'     => $oldest->created_at?->format('d/m/Y H:i'),
             ] : null,

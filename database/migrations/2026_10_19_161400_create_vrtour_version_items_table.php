@@ -6,23 +6,25 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('vrtour_version_items', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('version_id')->comment('ID phiên bản');
+            // panorama | hotspot | welcome | connect_map | plan | investor | location | document
             $table->string('entity_type', 50)->comment('Loại dữ liệu');
-            $table->string('entity_key', 191)->comment('ID đối tượng gốc');
-            $table->string('parent_entity_key', 191)->nullable()->comment('ID đối tượng cha');
-            $table->json('data')->comment('Dữ liệu đầy đủ của đối tượng');
-            $table->string('content_hash', 64)->nullable()->comment('Mã kiểm tra thay đổi');
+            $table->string('entity_key', 191)->comment('Khóa đối tượng: id, hoặc mã ổn định (vd: hash link của document)');
+            $table->string('action', 10)->comment('added | modified | removed');
+            $table->json('before_data')->nullable()->comment('Giá trị trước khi đổi (null khi added)');
+            $table->json('after_data')->nullable()->comment('Giá trị sau khi đổi (null khi removed)');
+            $table->string('before_hash', 64)->nullable();
+            $table->string('after_hash', 64)->nullable();
             $table->dateTime('created_at')->useCurrent()->comment('Thời điểm lưu');
 
+            // Trong một version, một bản ghi chỉ xuất hiện một lần
             $table->unique(['version_id', 'entity_type', 'entity_key']);
-            $table->index(['version_id', 'entity_type']);
+            // Tra lịch sử của một bản ghi
+            $table->index(['entity_type', 'entity_key', 'version_id']);
 
             $table->foreign('version_id')->references('id')->on('vrtour_versions')->cascadeOnDelete();
         });

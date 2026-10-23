@@ -210,6 +210,7 @@
                         if (notify) {
                             toastr["success"]('Lấy dữ liệu thành công', 'Success');
                         }
+                        if (response.notice) toastr.warning(response.notice);
                     } else {
                         $('#listCard').hide();
                         $('#tableHeader').hide();
@@ -326,6 +327,7 @@
                     var clean = res.success && (!res.skipped || !res.skipped.length);
                     toastr[clean ? 'success' : 'warning'](res.message, clean ? 'Success' : 'Warning');
                     showBulkResult(res);
+                    if (res.notice) toastr.warning(res.notice);
                     if (res.success) {
                         if (lastUrl) {
                             fetchHotspots(lastUrl.replace('reset=true', 'reset=false'), false);

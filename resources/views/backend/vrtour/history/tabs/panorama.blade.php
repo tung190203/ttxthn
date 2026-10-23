@@ -29,8 +29,8 @@
         <thead class="thead-light">
             <tr>
                 <th style="width:40px"></th>
-                <th style="width:100px">Phiên bản</th>
-                <th>Thời gian lưu</th>
+                <th style="width:200px">Phiên bản</th>
+                <th style="width:200px">Thời gian lưu</th>
                 <th>Người thực hiện</th>
                 <th style="width:200px">Nội dung</th>
                 <th style="width:200px" class="text-center">Số Panorama</th>
@@ -54,7 +54,9 @@
                     <td>{{ $version->creator?->name ?: 'Không xác định' }}</td>
                     <td>{{ $version->change_summary ?: 'Lưu phiên bản Panorama' }}</td>
                     <td class="text-center">
-                        <span class="badge badge-secondary">{{ $version->panorama_count }}</span>
+                        <span class="text-success">+{{ $version->added_count }}</span>
+                        <span class="text-danger">-{{ $version->removed_count }}</span>
+                        <span class="text-warning">~{{ $version->modified_count }}</span>
                     </td>
                     @if ($canRestore)
                         <td class="text-center">

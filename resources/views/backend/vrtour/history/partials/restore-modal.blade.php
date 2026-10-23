@@ -20,9 +20,9 @@
                 </div>
                 <div class="alert alert-danger d-none" id="restore-prune-warning"></div>
                 <ul class="mb-2">
-                    <li>Panorama được thêm lại: <strong id="sum-add">0</strong></li>
-                    <li>Panorama bị xóa (không có ở bản này): <strong id="sum-del">0</strong></li>
-                    <li>Panorama bị đưa về nội dung cũ: <strong id="sum-mod">0</strong></li>
+                    <li>Bản ghi được thêm lại: <strong id="sum-add">0</strong></li>
+                    <li>Bản ghi bị xóa (không có ở bản này): <strong id="sum-del">0</strong></li>
+                    <li>Bản ghi bị đưa về nội dung cũ: <strong id="sum-mod">0</strong></li>
                 </ul>
                 <div class="small text-muted">Lý do: <em id="restore-reason-view"></em></div>
                 <div class="text-danger small mt-2 d-none" id="restore-error2"></div>
