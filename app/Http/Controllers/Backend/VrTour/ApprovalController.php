@@ -93,7 +93,7 @@ class ApprovalController extends Controller
     }
     public function getPendingCount()
     {
-        $count = Project::where(function ($query) {
+        $count = Project::query()->where(function ($query) {
             $query->whereHas('panoramas', function ($q) {
                 $q->where('status', 'pending');
             })

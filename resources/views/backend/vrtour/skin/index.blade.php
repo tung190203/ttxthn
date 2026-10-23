@@ -39,7 +39,6 @@
                                         <option value="0">Toàn bộ</option>
                                         <option value="1">Màn hình chào mừng</option>
                                         <option value="3">Sơ đồ liên kết vùng</option>
-                                        <option value="4">Văn bản pháp quy</option>
                                         <option value="5">Kế hoạch triển khai</option>
                                         <option value="6">Thông tin chủ đầu tư</option>
                                         <option value="7">Vị trí dự án</option>
@@ -206,68 +205,6 @@
                                 <x-forms.textarea name="content" editor="true" value="" label="Nội dung chi tiết VN"/>
                                 <x-forms.textarea name="content_en" editor="true" value="" label="Nội dung chi tiết EN"/>
                                 <input hidden id="connectmap_id">
-                            </div>
-                        </form>
-                    </div>
-                </div>
-                <div class="col-12 skin_div" id="skin_document" data-id="4">
-                    <div class="card">
-                        <form action="" method="GET" class="form-horizontal">
-                            <div class="card-body table-responsive p-4">
-                                <div class="row">
-                                    <div class="col-6">
-                                        <div class="d-flex align-items-center">
-                                            @if(auth()->user()->is_super_admin || auth()->user()->is_approve)
-                                            <input type="checkbox" class="skin-checkbox mr-2" id="documentCheckbox"
-                                                value="{{ \App\Models\SkinApproval::TYPE_DOCUMENT }}" disabled>
-                                            @endif
-                                            <h3 class="mb-0">
-                                                Văn bản pháp quy
-                                            </h3>
-
-                                        </div>
-                                    </div>
-                                    <div class="col-6 text-right">
-                                        <button type="button" class="btn btn-sm fw-bold btn-primary btn-info"
-                                            id="add_detail" role="button">
-                                            <i class="fa fa-plus" aria-hidden="true"></i> Thêm văn bản
-                                        </button>
-                                    </div>
-                                    <div class="col-12 mt-2" id="documentApprovalBox" style="display:none;">
-                                        <div class="alert alert-warning mb-3">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <div>
-                                                    <h5 class="mb-2">
-                                                        <i class="fas fa-clock"></i>
-                                                        Có nội dung đang chờ duyệt
-                                                    </h5>
-
-                                                    <div>
-                                                        <strong>Người sửa:</strong>
-                                                        <span id="documentApprovalUser"></span>
-                                                    </div>
-
-                                                    <div>
-                                                        <strong>Thời gian:</strong>
-                                                        <span id="documentApprovalCreatedAt"></span>
-                                                    </div>
-
-                                                    <div>
-                                                        <strong>Cấp duyệt:</strong>
-                                                        <span id="documentApprovalLevel"></span>
-                                                    </div>
-
-                                                </div>
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <div class="col-lg-12" id="multiple_document">
-
-                                    </div>
-                                </div>
                             </div>
                         </form>
                     </div>
@@ -465,9 +402,6 @@
         </div>
     @include('backend.vrtour.skin.partials._diff_viewer')
     </section>
-    <div id="document_detail" style="display:none">
-        @include('backend.vrtour.skin.row')
-    </div>
 @endsection
 
 @section('script')
@@ -483,15 +417,7 @@
         $('#skin_screen #investor').bootstrapSwitch();
         $('#skin_plan #status').bootstrapSwitch();
         $("#approvalToolbar").hide();
-        var count_detail = 0;
         let currentSkinType = 0; // 0 = Tất cả
-
-        function replaceHtml(count_detail){
-            var html    = $('#document_detail').html();
-            html        = html.replaceAll('document_name-', 'document_name-'+count_detail).replaceAll('document_name_en-', 'document_name_en-'+count_detail).replaceAll('download-', 'download-'+count_detail).replaceAll('download_img-', 'download_img-'+count_detail).replaceAll('document_id-', 'document_id-'+count_detail);
-            $('#multiple_document').append('<hr>' + html);
-            return html;
-        }
 
         $.ajaxSetup({
             headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
@@ -559,7 +485,7 @@
             var vrtour  = $('#slt_vrtour').val();
             var type    = $('#slt_vrtour_type').val();
             currentSkinType = type;
-            if (vrtour != 'all') {
+            if (vrtour && vrtour != 'all' && type !== '' && type !== null) {
                 $.ajax({
                     url: assetUrl+'vrtour/skin/get-data/'+vrtour+'/'+type,
                     type: "GET",
@@ -673,32 +599,6 @@
                         CKEDITOR.instances['pcontent3'].setData(plan != null ? plan['content3'] : '');
                         CKEDITOR.instances['pcontent3_en'].setData(plan != null ? plan['content3_en'] : '');
 
-                        //document
-                        var document    = response.data.document;
-                        hasPending = renderApprovalBox({
-                            data: document,
-                            checkbox: "#documentCheckbox",
-                            box: "#documentApprovalBox",
-                            user: "#documentApprovalUser",
-                            createdAt: "#documentApprovalCreatedAt",
-                            level: "#documentApprovalLevel"
-                        }) || hasPending;
-                        count_detail    = 0;
-                        var html        = $('#document_detail').html();
-                        $('#multiple_document').html('');
-                        if (document != null) {
-                            $.each(document.items, function(_key, _value){
-                                count_detail += 1;
-                                replaceHtml(count_detail);
-                                $('#multiple_document .row_detail #document_id-'+(_key+1)).val(_value['id']);
-                                $('#multiple_document .row_detail #document_name-'+(_key+1)).val(_value['name']);
-                                $('#multiple_document .row_detail #document_name_en-'+(_key+1)).val(_value['name_en']);
-                                $('#multiple_document .row_detail #download-'+(_key+1)+'_input').val(_value['download']);
-                            });
-                        } else {
-                            $('#multiple_document').html('');
-                        }
-
                         if (hasPending) {
                             enableApprovalToolbar();
                         } else {
@@ -718,14 +618,16 @@
                     },
                     error: function(response) {
                         $('#update_all').hide();
-                        toastr["error"](response.message,'Error')
+                        toastr["error"](xhr.responseJSON?.message ?? 'Có lỗi xảy ra, vui lòng thử lại', 'Error');
                     }
                 });
             } else {
                 $('#update_all').hide();
                 $('.skin_div').hide();
                 $("#approvalToolbar").hide();
-                toastr["error"]('Vui lòng chọn dự án', 'Error')
+                if ((!vrtour || vrtour == 'all') && type) {
+                    toastr["error"]('Vui lòng chọn dự án', 'Error');
+                }
             }
         }
 
@@ -742,20 +644,6 @@
         $(document).on('click', '#update_all', function(){
             var vrtour      = $('#slt_vrtour').val();
             var type        = $('#slt_vrtour_type').val();
-            const result    = [];
-            $.each(document.querySelectorAll('#multiple_document .row_detail'), function(key, block) {
-                const document_id   = $('#document_id-'+(key+1)).val();
-                const name          = $('#document_name-'+(key+1)).val();
-                const nameEn        = $('#document_name_en-'+(key+1)).val();
-                const download      = $('#download-'+(key+1)+'_input').val();
-
-                result.push({
-                    id                  : document_id,
-                    document_name       : name,
-                    document_name_en    : nameEn,
-                    download            : download,
-                });
-            });
 
             var data    = {
                 connect_data: {
@@ -813,8 +701,7 @@
                     title3_en           :  $('#skin_plan #title3_en').val(),
                     content3            :  CKEDITOR.instances['pcontent3'].getData(),
                     content3_en         :  CKEDITOR.instances['pcontent3_en'].getData(),
-                },
-                document : result
+                }
             };
 
             $.ajax({
@@ -832,18 +719,6 @@
                     toastr["error"]('Có lỗi xảy ra! Vui lòng thử lại', 'Error')
                 }
             });
-        });
-
-
-        $(document).on('click', '#add_detail', function(){
-            count_detail += 1;
-            replaceHtml(count_detail);
-        });
-
-        $(document).on('click', '.delete_detail', function(){
-            $(this).parent().parent().prev().remove();
-            $(this).parent().parent().remove();
-            count_detail -= 1;
         });
 
         $(document).on('click','.remove-btn', function(){
