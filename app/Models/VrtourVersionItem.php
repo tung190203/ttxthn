@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class VrtourVersionItem extends Model
 {
@@ -59,6 +58,18 @@ class VrtourVersionItem extends Model
         'contact_info',
     ];
 
+    public const SKIN_FIELDS = [
+        'welcome' => ['title', 'description', 'voice', 'show_investor', 'investor_img','investor_desc1', 'investor_desc2', 'investor_desc3'],
+        'connect_map' => ['image', 'image_en', 'content', 'content_en'],
+        'plan' => ['show',
+            'image1', 'title1', 'title1_en', 'content1', 'content1_en',
+            'image2', 'title2', 'title2_en', 'content2', 'content2_en',
+            'image3', 'title3', 'title3_en', 'content3', 'content3_en'],
+        'investor' => ['name', 'name_en', 'image', 'content1', 'content1_en', 'content2', 'content2_en',
+                    'content3', 'content3_en', 'website', 'sologan', 'sologan_en', 'status'],
+        'location' => ['location_in_tour'],
+    ];
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -87,6 +98,11 @@ class VrtourVersionItem extends Model
     {
         ksort($data);
         return hash('sha256', json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+    }
+
+    public static function skinData(string $entityType, Model $m)
+    {
+        return $m ? $m->only(self::SKIN_FIELDS[$entityType]) : null;
     }
 
     protected static function booted(): void

@@ -54,17 +54,19 @@ class VersionHistoryController extends Controller
 
         $versions = VrtourVersion::query()->whereRaw('1 = 0')->paginate(10)->withQueryString();
 
-        if ($selectedVrtour && in_array($tab, [VrtourVersion::SCOPE_PANORAMA, VrtourVersion::SCOPE_HOTSPOT], true)) {
+        if ($selectedVrtour) {
+            $itemColumns = $tab === VrtourVersion::SCOPE_HOTSPOT
+                ? 'items:id,version_id,entity_type,entity_key,action,before_data,after_data'
+                : 'items:id,version_id,entity_type,entity_key,action';
+
             $versions = $this->versionsQuery($selectedVrtour->id, $tab, $request)
-                ->with('items:id,version_id,entity_key,action,before_data,after_data') // để hiện mã lô đã đổi
+                ->with($itemColumns)
                 ->orderByDesc('version_number')
                 ->paginate(10)
                 ->withQueryString();
         }
 
-        $retention = $selectedVrtour
-            ? app(VrtourVersionRetentionService::class)->status($selectedVrtour->id, $tab)
-            : null;
+        $retention = $selectedVrtour ? app(VrtourVersionRetentionService::class)->status($selectedVrtour->id, $tab) : null;
         $canRestore = $this->canRestore($user);
         return view('backend.vrtour.history.index', compact(
             'vrtour',
@@ -80,7 +82,7 @@ class VersionHistoryController extends Controller
     {
         $data = $request->validate([
             'vrtour_id' => 'required|integer',
-            'scope'     => 'nullable|in:panorama,hotspot',
+            'scope'     => 'nullable|in:panorama,hotspot,skin',
             'a'         => 'required|integer|different:b',
             'b'         => 'required|integer',
         ]);
@@ -152,7 +154,7 @@ class VersionHistoryController extends Controller
         $source = VrtourVersion::findOrFail($data['version_id']);
 
         // Tour của version phải nằm trong scope của user
-        abort_unless(in_array($source->scope, [VrtourVersion::SCOPE_PANORAMA, VrtourVersion::SCOPE_HOTSPOT], true), 404);
+        abort_unless(in_array($source->scope, self::TABS, true), 404);
 
         return response()->json($service->prepare($source, auth('web')->user(), trim($data['reason'])));
     }
@@ -209,7 +211,7 @@ class VersionHistoryController extends Controller
         abort_if(!$project, 404);
 
         $tab = $request->input('tab');
-        if (!in_array($tab, [VrtourVersion::SCOPE_PANORAMA, VrtourVersion::SCOPE_HOTSPOT], true)) {
+        if (!in_array($tab, self::TABS, true)) {
             return back()->with('error', 'Tab này chưa có dữ liệu để xuất báo cáo.');
         }
 
@@ -223,7 +225,7 @@ class VersionHistoryController extends Controller
         }
 
         $labels     = VrtourVersionDiffService::labelsFor($tab);
-        $withValues = $tab === VrtourVersion::SCOPE_HOTSPOT;   // hotspot hiển thị "giá trị cũ → mới"
+        $withValues = $tab !== VrtourVersion::SCOPE_PANORAMA;
 
         $userIds = $versions->pluck('items')->flatten()
             ->flatMap(fn($it) => [$it->before_data['user_id'] ?? null, $it->after_data['user_id'] ?? null])
@@ -243,7 +245,7 @@ class VersionHistoryController extends Controller
         $pdf = Pdf::loadView('backend.vrtour.history.pdf.report', [
             'project'    => $project,
             'tab'        => $tab,
-            'tabLabel'   => $tab === VrtourVersion::SCOPE_HOTSPOT ? 'Hotspot' : 'Panorama',
+            'tabLabel'   => ['hotspot' => 'Hotspot', 'skin' => 'Skin'][$tab] ?? 'Panorama',
             'versions'   => $versions,
             'from'       => $request->input('from_date'),
             'to'         => $request->input('to_date'),

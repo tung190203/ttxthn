@@ -41,7 +41,7 @@
         </div>
     </section>
 
-    @if ($canRestore && $selectedVrtour && in_array($tab, ['panorama', 'hotspot']))
+    @if ($canRestore && $selectedVrtour && in_array($tab, ['panorama', 'hotspot', 'skin']))
         @include('backend.vrtour.history.partials.restore-modal')
     @endif
 @endsection
@@ -52,7 +52,7 @@
     @if ($selectedVrtour)
         @include('backend.vrtour.history.scripts.date-filter')
 
-        @if (in_array($tab, ['panorama', 'hotspot']))
+        @if (in_array($tab, ['panorama', 'hotspot', 'skin']))
             @include('backend.vrtour.history.scripts.compare')
             @if ($canRestore)
                 @include('backend.vrtour.history.scripts.restore')

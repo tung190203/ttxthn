@@ -2,13 +2,18 @@
 
 namespace App\Services;
 
+use App\Models\ConnectMap;
 use App\Models\Hotspot;
 use App\Models\IndustrialProject;
+use App\Models\Investor;
 use App\Models\Panorama;
+use App\Models\Plan;
 use App\Models\Project;
+use App\Models\SkinApproval;
 use App\Models\User;
 use App\Models\VrtourVersion;
 use App\Models\VrtourVersionItem;
+use App\Models\WelcomeScreen;
 use App\Supports\HotspotImageColorizer;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -19,6 +24,12 @@ use Illuminate\Validation\ValidationException;
 class VrtourVersionRestoreService
 {
     private const TOKEN_TTL = 300;
+    private const SKIN_MODELS = [
+        'welcome'     => [WelcomeScreen::class, 'welcome_screen.js'],
+        'connect_map' => [ConnectMap::class,    'connectmap.js'],
+        'plan'        => [Plan::class,          'plan.js'],
+        'investor'    => [Investor::class,      'investor.js'],
+    ];
 
     public function __construct(private VrtourVersionDiffService $diffService)
     {
@@ -74,6 +85,7 @@ class VrtourVersionRestoreService
                 'unchanged'     => $summary[VrtourVersionDiffService::STATUS_UNCHANGED],
             ],
             'retention' => app(VrtourVersionRetentionService::class)->status($source->vrtour_id, $source->scope),
+            'pending' => $source->scope === VrtourVersion::SCOPE_SKIN ? SkinApproval::where('vrtour_id', $source->vrtour_id)->where('status', 'pending')->count() : 0,
         ];
     }
 
@@ -89,24 +101,16 @@ class VrtourVersionRestoreService
         }
 
         $vrtourId = (int) $payload['vrtour_id'];
-        $version = DB::transaction(function () use ($payload, $user, $vrtourId) {
+        $touched = [];
+
+        $version = DB::transaction(function () use ($payload, $user, $vrtourId, &$touched) {
             Project::whereKey($vrtourId)->lockForUpdate()->firstOrFail();
 
             $source = VrtourVersion::where('vrtour_id', $vrtourId)->findOrFail($payload['version_id']);
             $type   = $source->scope;
-            $isHot  = $type === VrtourVersion::SCOPE_HOTSPOT;
+
             $target = $this->diffService->stateAt($source, $type);
             $live   = $this->diffService->liveState($type, $vrtourId, $type);
-
-            // Ghi lại dữ liệu, trả về trạng thái THỰC TẾ sau khi ghi (hotspot: sau khi đổi màu ảnh)
-            $after = $isHot
-                ? $this->restoreHotspots($vrtourId, $live, $target)
-                : $this->restorePanoramas($vrtourId, $live, $target);
-
-            $pairs = [];
-            foreach (array_unique(array_merge(array_keys($live), array_keys($after))) as $k) {
-                $pairs[] = [$k, $live[$k] ?? null, $after[$k] ?? null];
-            }
 
             $attrs = [
                 'version_type'      => VrtourVersion::TYPE_RESTORE,
@@ -117,6 +121,28 @@ class VrtourVersionRestoreService
                 'change_summary'    => 'Khôi phục từ phiên bản v' . $source->version_number,
             ];
 
+            if ($type === VrtourVersion::SCOPE_SKIN) {
+                $touched = $this->restoreSkin($vrtourId, $user->id, $live, $target);
+
+                $changes = [];
+                foreach (array_unique(array_merge(array_keys($live), array_keys($target))) as $k) {
+                    [$t, $id] = explode('|', $k, 2);
+                    $changes[] = ['type' => $t, 'key' => $id, 'before' => $live[$k] ?? null, 'after' => $target[$k] ?? null];
+                }
+
+                return VrtourVersion::recordSkin($vrtourId, $user->id, $changes, 'Khôi phục Skin', $attrs);
+            }
+
+            $isHot = $type === VrtourVersion::SCOPE_HOTSPOT;
+            $after = $isHot
+                ? $this->restoreHotspots($vrtourId, $live, $target)
+                : $this->restorePanoramas($vrtourId, $live, $target);
+
+            $pairs = [];
+            foreach (array_unique(array_merge(array_keys($live), array_keys($after))) as $k) {
+                $pairs[] = [$k, $live[$k] ?? null, $after[$k] ?? null];
+            }
+
             return $isHot
                 ? VrtourVersion::recordHotspot($vrtourId, $user->id, $pairs, $attrs, true)
                 : VrtourVersion::recordPanorama($vrtourId, $user->id, $pairs, $attrs, true);
@@ -125,16 +151,82 @@ class VrtourVersionRestoreService
         // Ghi file sau khi DB đã commit
         try {
             $project = Project::find($vrtourId);
-            $version->scope === VrtourVersion::SCOPE_HOTSPOT
-                ? $project?->syncHotspotFile()
-                : $project?->syncPanoFile();
+            match ($version->scope) {
+                VrtourVersion::SCOPE_HOTSPOT => $project?->syncHotspotFile(),
+                VrtourVersion::SCOPE_SKIN    => $project ? $this->writeSkinFiles($project, array_keys($touched)) : null,
+                default                      => $project?->syncPanoFile(),
+            };
         } catch (\Throwable $e) {
             Log::error('VRTour: ghi file sau khôi phục thất bại', [
-                'vrtour_id' => $vrtourId, 'scope' => $version->scope, 'error' => $e->getMessage(),
+                'vrtour_id' => $vrtourId,
+                'scope' => $version->scope,
+                'error' => $e->getMessage(),
             ]);
         }
 
         return $version;
+    }
+
+    private function restoreSkin(int $vrtourId, int $userId, array $live, array $target): array
+    {
+        $touched = [];
+
+        foreach (array_unique(array_merge(array_keys($live), array_keys($target))) as $k) {
+            $before = $live[$k] ?? null;
+            $after  = $target[$k] ?? null;
+            if ($before === $after) {
+                continue;
+            }
+
+            [$type, $id] = explode('|', $k, 2);
+            $touched[$type] = true;
+
+            // Vị trí là cột của Project: chỉ ghi lại đúng cột này
+            if ($type === 'location') {
+                if ($after !== null) {
+                    Project::findOrFail($vrtourId)->forceFill($after)->save();
+                }
+                continue;
+            }
+
+            [$class] = self::SKIN_MODELS[$type];
+
+            // Bản nguồn chưa có phần này (tạo sau đó): xóa
+            if ($after === null) {
+                $class::find((int) $id)?->delete();
+                continue;
+            }
+
+            $m = $class::find((int) $id) ?? new $class();
+            $m->forceFill($after);
+            $m->id        = (int) $id;
+            $m->vrtour_id = $vrtourId;
+            if (!$m->exists) {
+                $m->user_id = $userId;
+            }
+            $m->save();
+        }
+
+        return $touched;
+    }
+
+    /** Ghi lại các file .js của những phần vừa khôi phục */
+    private function writeSkinFiles(Project $project, array $types): void
+    {
+        $dir = 'vrtour/' . $project->vrtour_code;
+
+        foreach ($types as $type) {
+            if ($type === 'location') {
+                $file    = 'location.js';
+                $content = json_encode(['location' => $project->location_in_tour, 'general' => $project->link]);
+            } else {
+                [$class, $file] = self::SKIN_MODELS[$type];
+                $content = $class::where('vrtour_id', $project->id)->first()?->toJson() ?? 'null';
+            }
+
+            createFile($dir, $file);
+            file_put_contents($dir . '/' . $file, $content);
+        }
     }
 
     private function restorePanoramas(int $vrtourId, array $live, array $target): array

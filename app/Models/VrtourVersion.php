@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Log;
 class VrtourVersion extends Model
 {
     public const SCOPE_HOTSPOT = 'hotspot';
+    public const SCOPE_SKIN    = 'skin';
     public const SCOPE_PANORAMA = 'panorama';
     public const TYPE_PUBLISH = 'publish';
     public const TYPE_RESTORE = 'restore';
@@ -85,6 +86,39 @@ class VrtourVersion extends Model
         ], $pairs);
 
         return self::record(self::SCOPE_HOTSPOT, $vrtourId, $userId, $changes, $attributes, $allowEmpty);
+    }
+
+    public static function recordSkin(int $vrtourId, int $userId, array $changes, string $summaryPrefix = 'Cập nhật Skin', array $attributes = []): ?self
+    {
+        // Bỏ các phần thật sự không đổi
+        $changes = array_values(array_filter($changes, function ($c) {
+            $b = VrtourVersionItem::normalize($c['before']);
+            $a = VrtourVersionItem::normalize($c['after']);
+
+            return $b !== $a;
+        }));
+
+        if (empty($changes)) {
+            return null;
+        }
+
+        $names = [
+            'welcome'     => 'Màn hình chào mừng',
+            'connect_map' => 'Sơ đồ liên kết vùng',
+            'plan'        => 'Kế hoạch triển khai',
+            'investor'    => 'Chủ đầu tư',
+            'location'    => 'Vị trí',
+        ];
+        $list = collect($changes)->pluck('type')->unique()
+            ->map(fn($t) => $names[$t] ?? $t)->implode(', ');
+
+        return self::record(
+            self::SCOPE_SKIN,
+            $vrtourId,
+            $userId,
+            $changes,
+            array_merge(['change_summary' => "{$summaryPrefix}: {$list}"], $attributes)
+        );
     }
 
     /**

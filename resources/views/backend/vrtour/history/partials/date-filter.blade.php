@@ -22,7 +22,7 @@
                 class="btn btn-outline-secondary">
                 <i class="fas fa-redo mr-1"></i> Đặt lại bộ lọc
             </a>
-            @if (in_array($tab, ['panorama', 'hotspot']))
+            @if (in_array($tab, ['panorama', 'hotspot', 'skin']))
                 <button type="submit" formaction="{{ route('backend_vrtour_history_export_pdf') }}"
                     class="btn btn-danger">
                     <i class="fas fa-file-pdf mr-1"></i> Xuất PDF

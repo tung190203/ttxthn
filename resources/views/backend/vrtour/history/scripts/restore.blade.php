@@ -19,7 +19,8 @@
             });
             const json = await res.json().catch(() => ({}));
             if (!res.ok) {
-                const err = json.errors ? Object.values(json.errors)[0][0] : (json.message || 'Có lỗi xảy ra.');
+                const err = json.errors ? Object.values(json.errors)[0][0] : (json.message ||
+                    'Có lỗi xảy ra.');
                 throw new Error(err);
             }
             return json;
@@ -63,6 +64,15 @@
                         .removeClass('d-none');
                 } else {
                     $('#restore-prune-warning').addClass('d-none');
+                }
+                if (r.pending > 0) {
+                    $('#restore-pending-warning')
+                        .text('Đang có ' + r.pending +
+                            ' phần Skin chờ duyệt. Các bản chờ này được giữ nguyên, khi duyệt sẽ ghi đè lên dữ liệu vừa khôi phục.'
+                            )
+                        .removeClass('d-none');
+                } else {
+                    $('#restore-pending-warning').addClass('d-none');
                 }
 
                 $('#restore-step1, #restore-next').addClass('d-none');

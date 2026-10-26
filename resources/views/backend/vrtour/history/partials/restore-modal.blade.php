@@ -19,6 +19,7 @@
                     Lịch sử cũ được giữ nguyên.
                 </div>
                 <div class="alert alert-danger d-none" id="restore-prune-warning"></div>
+                <div class="alert alert-info d-none" id="restore-pending-warning"></div>
                 <ul class="mb-2">
                     <li>Bản ghi được thêm lại: <strong id="sum-add">0</strong></li>
                     <li>Bản ghi bị xóa (không có ở bản này): <strong id="sum-del">0</strong></li>

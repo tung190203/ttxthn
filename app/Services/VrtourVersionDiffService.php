@@ -5,6 +5,11 @@ namespace App\Services;
 use App\Models\VrtourVersion;
 use App\Models\Panorama;
 use App\Models\VrtourVersionItem;
+use App\Models\ConnectMap;
+use App\Models\Investor;
+use App\Models\Plan;
+use App\Models\Project;
+use App\Models\WelcomeScreen;
 use Illuminate\Support\Str;
 
 // sự khác giữa 2 phiên bản VrtourVersion, trả về dạng mảng để hiển thị trong bảng
@@ -14,7 +19,10 @@ class VrtourVersionDiffService
     public const STATUS_REMOVED   = 'removed';
     public const STATUS_MODIFIED  = 'modified';
     public const STATUS_UNCHANGED = 'unchanged';
-    public const HTML_FIELDS = ['content', 'content_en'];
+    public const HTML_FIELDS = [
+    'content', 'content_en', 'description',
+    'content1', 'content2', 'content3', 'content1_en', 'content2_en', 'content3_en',
+    ];
     public const IGNORED_FIELDS = ['vrtour_id'];
 
     public const PANORAMA_LABELS = [
@@ -56,9 +64,53 @@ class VrtourVersionDiffService
         'ip_link'                        => 'Link lô đất',
     ];
 
+    public const SKIN_TYPES = ['welcome', 'connect_map', 'plan', 'investor', 'location'];
+
+    public const SKIN_NAMES = [
+        'welcome'     => 'Màn hình chào mừng',
+        'connect_map' => 'Sơ đồ liên kết vùng',
+        'plan'        => 'Kế hoạch triển khai',
+        'investor'    => 'Thông tin chủ đầu tư',
+        'location'    => 'Vị trí',
+    ];
+
+    public const SKIN_LABELS = [
+        'welcome' => [
+            'title' => 'Tên dự án', 'description' => 'Mô tả dự án', 'voice' => 'Voice',
+            'show_investor' => 'Hiển thị chủ đầu tư', 'investor_img' => 'Logo chủ đầu tư',
+            'investor_desc1' => 'Thông tin chủ đầu tư 1', 'investor_desc2' => 'Thông tin chủ đầu tư 2',
+            'investor_desc3' => 'Thông tin chủ đầu tư 3',
+        ],
+        'connect_map' => [
+            'image' => 'Ảnh VN', 'image_en' => 'Ảnh EN',
+            'content' => 'Nội dung chi tiết VN', 'content_en' => 'Nội dung chi tiết EN',
+        ],
+        'plan' => [
+            'show' => 'Hiển thị',
+            'image1' => 'Ảnh giai đoạn 1', 'title1' => 'Giai đoạn 1', 'title1_en' => 'Giai đoạn 1 EN',
+            'content1' => 'Nội dung giai đoạn 1 VN', 'content1_en' => 'Nội dung giai đoạn 1 EN',
+            'image2' => 'Ảnh giai đoạn 2', 'title2' => 'Giai đoạn 2', 'title2_en' => 'Giai đoạn 2 EN',
+            'content2' => 'Nội dung giai đoạn 2 VN', 'content2_en' => 'Nội dung giai đoạn 2 EN',
+            'image3' => 'Ảnh giai đoạn 3', 'title3' => 'Giai đoạn 3', 'title3_en' => 'Giai đoạn 3 EN',
+            'content3' => 'Nội dung giai đoạn 3 VN', 'content3_en' => 'Nội dung giai đoạn 3 EN',
+        ],
+        'investor' => [
+            'name' => 'Tên', 'name_en' => 'Tên EN', 'image' => 'Ảnh',
+            'content1' => 'Nội dung 1 VN', 'content1_en' => 'Nội dung 1 EN',
+            'content2' => 'Nội dung 2 VN', 'content2_en' => 'Nội dung 2 EN',
+            'content3' => 'Nội dung 3 VN', 'content3_en' => 'Nội dung 3 EN',
+            'website' => 'Website', 'sologan' => 'Tên khác', 'sologan_en' => 'Tên khác EN', 'status' => 'Hiển thị',
+        ],
+        'location' => ['location_in_tour' => 'Vị trí'],
+    ];
+
     public static function labelsFor(string $scope): array
     {
-        return $scope === VrtourVersion::SCOPE_HOTSPOT ? self::HOTSPOT_LABELS : self::PANORAMA_LABELS;
+        return match ($scope) {
+            VrtourVersion::SCOPE_HOTSPOT => self::HOTSPOT_LABELS,
+            VrtourVersion::SCOPE_SKIN    => [],   // Skin có nhãn riêng theo từng loại, xem buildCells
+            default                      => self::PANORAMA_LABELS,
+        };
     }
 
     public function diff(VrtourVersion $old, VrtourVersion $new, string $entityType = 'panorama'): array
@@ -114,6 +166,9 @@ class VrtourVersionDiffService
      */
     public function stateAt(VrtourVersion $version, string $entityType): array
     {
+        $multi = $version->scope === VrtourVersion::SCOPE_SKIN;
+        $types = $multi ? self::SKIN_TYPES : [$entityType];
+
         $state = $this->liveState($version->scope, $version->vrtour_id, $entityType);
 
         $later = VrtourVersionItem::query()
@@ -121,18 +176,19 @@ class VrtourVersionDiffService
             ->where('v.vrtour_id', $version->vrtour_id)
             ->where('v.scope', $version->scope)
             ->where('v.version_number', '>', $version->version_number)
-            ->where('vrtour_version_items.entity_type', $entityType)
+            ->whereIn('vrtour_version_items.entity_type', $types)
             ->orderBy('v.version_number')
             ->orderBy('vrtour_version_items.id')
             ->select('vrtour_version_items.*')
             ->get()
-            ->unique('entity_key');   // giữ item sớm nhất của mỗi bản ghi
+            ->unique(fn($it) => $it->entity_type . '|' . $it->entity_key);
 
         foreach ($later as $it) {
+            $k = $multi ? $it->entity_type . '|' . $it->entity_key : $it->entity_key;
             if ($it->before_data === null) {
-                unset($state[$it->entity_key]);            // lúc đó chưa tồn tại
+                unset($state[$k]);
             } else {
-                $state[$it->entity_key] = $it->before_data; // giá trị trước khi bị đổi
+                $state[$k] = $it->before_data;
             }
         }
 
@@ -148,20 +204,43 @@ class VrtourVersionDiffService
                 ->mapWithKeys(fn($p) => [
                     (string) $p->getKey() => VrtourVersionItem::normalize($p->only(VrtourVersionItem::PANORAMA_FIELDS)),
                 ])->all(),
-            VrtourVersion::SCOPE_HOTSPOT => array_map(
-                fn($d) => VrtourVersionItem::normalize($d),
-                VrtourVersionItem::hotspotStates($vrtourId)
-            ),
+            VrtourVersion::SCOPE_HOTSPOT => array_map(fn($d) => VrtourVersionItem::normalize($d),VrtourVersionItem::hotspotStates($vrtourId)),
+            VrtourVersion::SCOPE_SKIN => $this->skinLive($vrtourId),
             default => [],
         };
+    }
+
+    private function skinLive(int $vrtourId): array
+    {
+        $models = ['welcome' => WelcomeScreen::class,'connect_map' => ConnectMap::class,'plan' => Plan::class,'investor' => Investor::class,];
+
+        $out = [];
+        foreach ($models as $type => $class) {
+            if ($m = $class::where('vrtour_id', $vrtourId)->first()) {
+                $out[$type . '|' . $m->getKey()] = VrtourVersionItem::normalize(VrtourVersionItem::skinData($type, $m));
+            }
+        }
+        if ($p = Project::query()->find($vrtourId)) {
+            $out['location|' . $vrtourId] = VrtourVersionItem::normalize(VrtourVersionItem::skinData('location', $p));
+        }
+
+        return $out;
     }
 
     /** Mô tả một item cho báo cáo PDF */
     public function describeItem(VrtourVersionItem $it, array $labels, array $lookups = [], $users = [], bool $withValues = false): array
     {
+        $isSkin = isset(self::SKIN_LABELS[$it->entity_type]);
+        if ($isSkin) {
+            $labels = self::SKIN_LABELS[$it->entity_type];
+        }
+
         $data  = $it->after_data ?? $it->before_data ?? [];
-        $title = $data['title']
-            ?? (isset($data['potision']) ? Str::after($data['potision'], 'cmss_') : '#' . $it->entity_key);
+        $title = $isSkin
+            ? self::SKIN_NAMES[$it->entity_type]
+            : ($data['title'] ?? (isset($data['potision']) ? Str::after($data['potision'], 'cmss_') : '#' . $it->entity_key));
+
+        $noValue = ['url', 'ip_link', 'image', 'image_en', 'investor_img', 'image1', 'image2', 'image3'];
 
         $fields = [];
         if ($it->action === VrtourVersionItem::ACTION_MODIFIED) {
@@ -172,7 +251,7 @@ class VrtourVersionDiffService
                 $label = $labels[$f] ?? $f;
 
                 // Đường dẫn ảnh/link dài, chỉ ghi nhận có đổi
-                if (!$withValues || in_array($f, ['url', 'ip_link'], true)) {
+                if (!$withValues || in_array($f, $noValue, true)) {
                     $fields[] = $label;
                     continue;
                 }
@@ -334,10 +413,16 @@ class VrtourVersionDiffService
     /** Thêm cho mỗi dòng: 'show' (field cần hiện) và 'cells' (HTML đã escape + highlight) */
     public function buildCells(array $rows, $users, string $scope = 'panorama', array $lookups = []): array
     {
-        $allFields = array_keys(self::labelsFor($scope));
+        return array_map(function ($row) use ($scope, $users, $lookups) {
+            $labels = self::labelsFor($scope);
 
-        return array_map(function ($row) use ($allFields, $users, $lookups) {
-            $show  = $row['status'] === self::STATUS_MODIFIED ? $row['changed_fields'] : $allFields;
+            if ($scope === VrtourVersion::SCOPE_SKIN) {
+                $entity = explode('|', $row['key'])[0];
+                $labels = self::SKIN_LABELS[$entity] ?? [];
+                $row['section'] = self::SKIN_NAMES[$entity] ?? $entity;
+            }
+
+            $show  = $row['status'] === self::STATUS_MODIFIED ? $row['changed_fields'] : array_keys($labels);
             $cells = ['old' => [], 'new' => []];
 
             foreach ($show as $f) {
@@ -355,8 +440,9 @@ class VrtourVersionDiffService
                 $cells['new'][$f] = $nh;
             }
 
-            $row['show']  = $show;
-            $row['cells'] = $cells;
+            $row['show']   = $show;
+            $row['cells']  = $cells;
+            $row['labels'] = $labels;
 
             return $row;
         }, $rows);
@@ -367,7 +453,7 @@ class VrtourVersionDiffService
         if (is_null($val) || $val === '') {
             return '—';
         }
-        if (is_bool($val) || $field === 'is_draft') {
+        if (is_bool($val) || in_array($field, ['is_draft', 'show', 'show_investor'], true)) {
             return $val ? 'Có' : 'Không';
         }
         if ($field === 'user_id') {

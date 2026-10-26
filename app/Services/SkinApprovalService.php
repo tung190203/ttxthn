@@ -7,6 +7,7 @@ use App\Models\Investor;
 use App\Models\Plan;
 use App\Models\Project;
 use App\Models\SkinApproval;
+use App\Models\VrtourVersionItem;
 use App\Models\WelcomeScreen;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -81,7 +82,7 @@ class SkinApprovalService
         'status'       => 'Hiển thị',
     ];
     private const LOCATION_FIELDS = [
-    'location_in_tour' => 'Vị trí',
+        'location_in_tour' => 'Vị trí',
     ];
 
     private const DIFF_CONFIG = [
@@ -116,11 +117,33 @@ class SkinApprovalService
             'fields' => self::LOCATION_FIELDS,
         ]
     ];
+
+    private const ENTITY = [
+        SkinApproval::TYPE_WELCOME     => 'welcome',
+        SkinApproval::TYPE_CONNECT_MAP => 'connect_map',
+        SkinApproval::TYPE_PLAN        => 'plan',
+        SkinApproval::TYPE_INVESTOR    => 'investor',
+        SkinApproval::TYPE_LOCATION    => 'location',
+    ];
+
+    private function change(int $type, int $vrtourId, Model $model, ?array $before): array
+    {
+        $entity = self::ENTITY[$type];
+
+        return [
+            'type'   => $entity,
+            'key'    => $type === SkinApproval::TYPE_LOCATION ? $vrtourId : $model->getKey(),
+            'before' => $before,
+            'after'  => VrtourVersionItem::skinData($entity, $model),
+        ];
+    }
     public function save(Model $model, array $payload, int $type, int $vrtourId): array
     {
         $user = Auth::user();
         // Super Admin cập nhật trực tiếp
         if ($user->is_super_admin) {
+            $before = VrtourVersionItem::skinData(self::ENTITY[$type], $model);   // trước khi gán
+
             $model->fill($payload);
             if (Schema::hasColumn($model->getTable(), 'user_id')) {
                 $model->user_id = $user->id;
@@ -132,6 +155,7 @@ class SkinApprovalService
             return [
                 'status' => 'approved',
                 'model'  => $model,
+                'change' => $this->change($type, $vrtourId, $model, $before),
             ];
         }
 
@@ -164,119 +188,81 @@ class SkinApprovalService
             SkinApproval::where('vrtour_id', $vrtourId)->where('type', $type)->where('status', 'pending')->delete();
         }
     }
-    public function approve(int $vrtourId, array $types): void
+    public function approve(int $vrtourId, array $types)
     {
-        $user = Auth::user();
+        $user    = Auth::user();
+        $changes = [];
 
         foreach ($types as $type) {
-
-            $approval = SkinApproval::where('vrtour_id', $vrtourId)->where('type', $type)->where('status', 'pending')->first();
+            $approval = SkinApproval::query()->where('vrtour_id', $vrtourId)->where('type', $type)->where('status', 'pending')->first();
             if (!$approval) {
                 continue;
             }
             if ($user->is_super_admin) {
-                $this->approveSkin($approval);
+                if ($c = $this->approveSkin($approval)) {
+                    $changes[] = $c;
+                }
                 $approval->delete();
                 continue;
             }
-
-            if ($user->is_approve) {
-                if ($approval->approval_level == 0) {
-                    $approval->approval_level = 1;
-                    $approval->save();
-                }
-                continue;
+            if ($user->is_approve && $approval->approval_level == 0) {
+                $approval->approval_level = 1;
+                $approval->save();
             }
         }
+
+        return $changes;
     }
 
-    private function approveSkin(SkinApproval $approval): void
+    private function approveSkin(SkinApproval $approval): ?array
     {
-        switch ($approval->type) {
-
-            case SkinApproval::TYPE_WELCOME:
-                $this->approveModel(
-                    $approval,
-                    WelcomeScreen::class,
-                    'welcome_screen.js'
-                );
-                break;
-
-            case SkinApproval::TYPE_CONNECT_MAP:
-                $this->approveModel(
-                    $approval,
-                    ConnectMap::class,
-                    'connectmap.js'
-                );
-                break;
-
-            case SkinApproval::TYPE_PLAN:
-                $this->approveModel(
-                    $approval,
-                    Plan::class,
-                    'plan.js'
-                );
-                break;
-
-            case SkinApproval::TYPE_INVESTOR:
-                $this->approveModel(
-                    $approval,
-                    Investor::class,
-                    'investor.js'
-                );
-                break;
-
-            case SkinApproval::TYPE_LOCATION:
-                $this->approveLocation($approval);
-                break;
-        }
+        return match ($approval->type) {
+            SkinApproval::TYPE_WELCOME     => $this->approveModel($approval, WelcomeScreen::class, 'welcome_screen.js'),
+            SkinApproval::TYPE_CONNECT_MAP => $this->approveModel($approval, ConnectMap::class, 'connectmap.js'),
+            SkinApproval::TYPE_PLAN        => $this->approveModel($approval, Plan::class, 'plan.js'),
+            SkinApproval::TYPE_INVESTOR    => $this->approveModel($approval, Investor::class, 'investor.js'),
+            SkinApproval::TYPE_LOCATION    => $this->approveLocation($approval),
+            default => null,
+        };
     }
-    private function approveModel(
-        SkinApproval $approval,
-        string $modelClass,
-        string $fileName
-    ): void {
-        $model = $modelClass::find($approval->record_id);
 
+    private function approveModel(SkinApproval $approval, string $modelClass, string $fileName): ?array
+    {
+        $model = $modelClass::find($approval->record_id);
         if (!$model) {
-            return;
+            return null;
         }
 
+        $before = VrtourVersionItem::skinData(self::ENTITY[$approval->type], $model);
         $model->fill($approval->payload);
         $model->save();
 
-        $project = Project::find($approval->vrtour_id);
-
-        if (!$project) {
-            return;
+        if ($project = Project::find($approval->vrtour_id)) {
+            createFile('vrtour/' . $project->vrtour_code, $fileName);
+            file_put_contents('vrtour/' . $project->vrtour_code . '/' . $fileName, $model);
         }
 
-        createFile(
-            'vrtour/' . $project->vrtour_code,
-            $fileName
-        );
-
-        file_put_contents(
-            'vrtour/' . $project->vrtour_code . '/' . $fileName,
-            $model
-        );
+        return $this->change($approval->type, $approval->vrtour_id, $model, $before);
     }
-    private function approveLocation(SkinApproval $approval)
+
+    private function approveLocation(SkinApproval $approval): ?array
     {
         $project = Project::find($approval->vrtour_id);
         if (!$project) {
-            return;
+            return null;
         }
+
+        $before = VrtourVersionItem::skinData('location', $project);
         $project->fill($approval->payload);
         $project->save();
+
         createFile('vrtour/' . $project->vrtour_code, 'location.js');
-        file_put_contents(
-            'vrtour/' . $project->vrtour_code . '/location.js',
-            json_encode([
-                'location' => $project->location_in_tour,
-                'general'  => $project->link,
-            ])
-        );
+        file_put_contents('vrtour/' . $project->vrtour_code . '/location.js', json_encode([
+            'location' => $project->location_in_tour,
+            'general'  => $project->link,
+        ]));
+
+        return $this->change($approval->type, $approval->vrtour_id, $project, $before);
     }
 
     public function getDiff(int $vrtourId, int $type): array
@@ -327,7 +313,7 @@ class SkinApprovalService
                 'draftData'  => [],
             ];
         }
-        $approval = SkinApproval::where(['vrtour_id' => $vrtourId,'type' => $type,'status' => 'pending',])->first();
+        $approval = SkinApproval::where(['vrtour_id' => $vrtourId, 'type' => $type, 'status' => 'pending',])->first();
         if (!$approval) {
             return [
                 'parentData' => [],

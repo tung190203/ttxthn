@@ -58,7 +58,9 @@
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="mb-0">So sánh phiên bản {{ $scope === 'hotspot' ? 'Hotspot' : 'Panorama' }}: {{ $selectedVrtour->name }}</h5>
+                        <h5 class="mb-0">So sánh phiên bản
+                            {{ ['hotspot' => 'Hotspot', 'skin' => 'Skin'][$scope] ?? 'Panorama' }}:
+                            {{ $selectedVrtour->name }}</h5>
                         <a href="{{ $backUrl }}" class="btn btn-outline-secondary btn-sm">
                             <i class="fas fa-arrow-left mr-1"></i> Quay lại
                         </a>
@@ -114,10 +116,14 @@
                                             </span>
                                         </td>
                                         <td>
-                                            {{ $row['key'] }}
-                                            @if ($scope === 'hotspot')
-                                                <br><small
-                                                    class="text-muted">{{ $row['new']['potision'] ?? ($row['old']['potision'] ?? '') }}</small>
+                                            @if ($scope === 'skin')
+                                                <strong>{{ $row['section'] ?? '' }}</strong>
+                                            @else
+                                                {{ $row['key'] }}
+                                                @if ($scope === 'hotspot')
+                                                    <br><small
+                                                        class="text-muted">{{ $row['new']['potision'] ?? ($row['old']['potision'] ?? '') }}</small>
+                                                @endif
                                             @endif
                                         </td>
 
@@ -129,7 +135,7 @@
                                                     @foreach ($row['show'] as $f)
                                                         <div class="mb-2">
                                                             <small
-                                                                class="text-muted d-block">{{ $labels[$f] ?? $f }}</small>
+                                                                class="text-muted d-block">{{ ($row['labels'][$f] ?? $labels[$f] ?? $f) }}</small>
                                                             <div class="diff-text">{!! $row['cells'][$side][$f] !!}</div>
                                                         </div>
                                                     @endforeach
