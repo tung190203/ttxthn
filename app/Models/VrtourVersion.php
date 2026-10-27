@@ -108,6 +108,7 @@ class VrtourVersion extends Model
             'plan'        => 'Kế hoạch triển khai',
             'investor'    => 'Chủ đầu tư',
             'location'    => 'Vị trí',
+            'model3d'     =>"Mô hình 3d"
         ];
         $list = collect($changes)->pluck('type')->unique()
             ->map(fn($t) => $names[$t] ?? $t)->implode(', ');

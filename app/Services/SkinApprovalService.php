@@ -7,6 +7,7 @@ use App\Models\Investor;
 use App\Models\Plan;
 use App\Models\Project;
 use App\Models\SkinApproval;
+use App\Models\Vrtour3dmodel;
 use App\Models\VrtourVersionItem;
 use App\Models\WelcomeScreen;
 use Illuminate\Database\Eloquent\Model;
@@ -85,6 +86,13 @@ class SkinApprovalService
         'location_in_tour' => 'Vị trí',
     ];
 
+    private const MODEL3D_FIELDS = [
+        'title_3d'    => 'Tiêu đề',
+        'title_3d_en' => 'Tiêu đề EN',
+        'file_3d'     => 'Link mô hình 3d',
+        'show'        => 'Hiển thị',
+    ];
+
     private const DIFF_CONFIG = [
 
         SkinApproval::TYPE_WELCOME => [
@@ -115,7 +123,12 @@ class SkinApprovalService
             'title'  => 'Vị trí',
             'model'  => Project::class,
             'fields' => self::LOCATION_FIELDS,
-        ]
+        ],
+        SkinApproval::TYPE_MODEL3D => [
+            'title'  => 'Mô hình 3d',
+            'model'  => Vrtour3dmodel::class,
+            'fields' => self::MODEL3D_FIELDS,
+        ],
     ];
 
     private const ENTITY = [
@@ -124,6 +137,7 @@ class SkinApprovalService
         SkinApproval::TYPE_PLAN        => 'plan',
         SkinApproval::TYPE_INVESTOR    => 'investor',
         SkinApproval::TYPE_LOCATION    => 'location',
+        SkinApproval::TYPE_MODEL3D     => 'model3d',
     ];
 
     private function change(int $type, int $vrtourId, Model $model, ?array $before): array
@@ -161,6 +175,13 @@ class SkinApprovalService
 
         // Tìm draft đang pending
         $draft = SkinApproval::where('type', $type)->where('vrtour_id', $vrtourId)->where('status', 'pending')->first();
+
+        // Không khác gì so với bản đang có (bản nháp nếu đã có, không thì bản thật) -> không ghi gì
+        $baseline = $draft ? ($draft->payload ?? []) : $model;
+        if ($this->samePayload($baseline, $payload)) {
+            return ['status' => 'unchanged', 'model' => $model];
+        }
+
         if (!$draft) {
             $draft = new SkinApproval();
             $draft->vrtour_id = $vrtourId;
@@ -222,6 +243,7 @@ class SkinApprovalService
             SkinApproval::TYPE_PLAN        => $this->approveModel($approval, Plan::class, 'plan.js'),
             SkinApproval::TYPE_INVESTOR    => $this->approveModel($approval, Investor::class, 'investor.js'),
             SkinApproval::TYPE_LOCATION    => $this->approveLocation($approval),
+            SkinApproval::TYPE_MODEL3D     => $this->approveModel($approval, Vrtour3dmodel::class, 'model3d.js'),
             default => null,
         };
     }
@@ -353,5 +375,32 @@ class SkinApprovalService
             $result[$label] = (string) $value;
         }
         return $result;
+    }
+
+    /** So sánh payload với dữ liệu hiện có ($current là Model hoặc mảng) */
+    private function samePayload($current, array $payload): bool
+    {
+        foreach ($payload as $key => $value) {
+            if ($this->normalizeValue(data_get($current, $key)) !== $this->normalizeValue($value)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private function normalizeValue($value): string
+    {
+        if (is_bool($value)) {
+            return $value ? '1' : '0';
+        }
+        if ($value === null) {
+            return '';
+        }
+        if (is_array($value)) {
+            return json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        }
+
+        return trim(str_replace("\r\n", "\n", (string) $value));
     }
 }

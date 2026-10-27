@@ -68,6 +68,7 @@ class VrtourVersionItem extends Model
         'investor' => ['name', 'name_en', 'image', 'content1', 'content1_en', 'content2', 'content2_en',
                     'content3', 'content3_en', 'website', 'sologan', 'sologan_en', 'status'],
         'location' => ['location_in_tour'],
+        'model3d'  => ['title_3d', 'title_3d_en', 'file_3d', 'show'],
     ];
 
     public $timestamps = false;

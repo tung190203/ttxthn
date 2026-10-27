@@ -16,6 +16,7 @@ use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use App\Models\Vrtour3dmodel;
 
 class SkinController extends Controller
 {
@@ -29,6 +30,7 @@ class SkinController extends Controller
         SkinApproval::TYPE_PLAN        => ['entity' => 'plan',        'request' => 'plan',         'model' => Plan::class,          'file' => 'plan.js'],
         SkinApproval::TYPE_INVESTOR    => ['entity' => 'investor',    'request' => 'investor',     'model' => Investor::class,      'file' => 'investor.js'],
         SkinApproval::TYPE_LOCATION    => ['entity' => 'location',    'request' => 'location',     'model' => Project::class,       'file' => 'location.js'],
+        SkinApproval::TYPE_MODEL3D     => ['entity' => 'model3d',     'request' => 'model3d',      'model' => Vrtour3dmodel::class, 'file' => 'model3d.js']
     ];
 
     protected SkinApprovalService $skinApprovalService;
@@ -65,6 +67,7 @@ class SkinController extends Controller
             'plan'        => $this->getSkinData(Plan::class, $vrtour_id),
             'investor'    => $this->getSkinData(Investor::class, $vrtour_id),
             'location'    => $this->getSkinData(Project::class, $vrtour_id, 'id'),
+            'model3d'     => $this->getSkinData(Vrtour3dmodel::class, $vrtour_id),
         ];
 
         return response()->json([
@@ -203,12 +206,47 @@ class SkinController extends Controller
             SkinApproval::TYPE_INVESTOR => $base
                 + ['status' => !empty($d['status']) ? 1 : 0]
                 + $this->pick($d, [
-                    'name', 'name_en', 'image',
-                    'content1', 'content2', 'content3',
-                    'content1_en', 'content2_en', 'content3_en',
-                    'website', 'sologan', 'sologan_en',
+                    'name','name_en','image',
+                    'content1','content2','content3',
+                    'content1_en','content2_en','content3_en',
+                    'website','sologan','sologan_en',
                 ]),
+            SkinApproval::TYPE_MODEL3D => $base + [
+                'title_3d'    => $d['title_3d'] ?? null,
+                'title_3d_en' => !empty($d['title_3d_en']) ? $d['title_3d_en'] : '3d model',
+                'file_3d'     => $this->embedLink($d['file_3d'] ?? null),
+                'show'        => !empty($d['show']) ? 1 : 0,
+            ],
         };
+    }
+
+    /** File 3d chỉ nhận .glb, rỗng thì trả null */
+    /** Chỉ nhận link Sketchfab, chuẩn hóa về dạng https://sketchfab.com/models/{id}/embed */
+    private function embedLink(?string $input): ?string
+    {
+        $input = trim((string) $input);
+        if ($input === '') {
+            return null;
+        }
+
+        // Cho phép dán cả mã <iframe ... src="...">
+        if (preg_match('/src=["\']([^"\']+)["\']/i', $input, $m)) {
+            $input = html_entity_decode($m[1]);
+        }
+
+        $parts = parse_url($input);
+        $host  = strtolower($parts['host'] ?? '');
+
+        if (($parts['scheme'] ?? '') !== 'https' || !in_array($host, ['sketchfab.com', 'www.sketchfab.com'], true)) {
+            throw new \Exception('Chỉ chấp nhận link https của sketchfab.com');
+        }
+
+        // ID model là chuỗi 32 ký tự hex trong đường dẫn
+        if (!preg_match('/([0-9a-f]{32})/i', $parts['path'] ?? '', $m)) {
+            throw new \Exception('Không tìm thấy ID mô hình trong link Sketchfab');
+        }
+
+        return 'https://sketchfab.com/models/' . strtolower($m[1]) . '/embed';
     }
 
     /** Lấy các key cần dùng, thiếu thì null */
