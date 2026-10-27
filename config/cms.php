@@ -56,6 +56,10 @@ return [
                    'icon' => 'fas fa-vr-cardboard',
                    'title' => 'VrTour',
                    'items' => [
+                        'history' => [
+                            'title' => 'Lịch sử phiên bản',
+                            'route' => 'backend_vrtour_history_index',
+                        ],
                         'approval' => [
                             'title' => 'Quản lý duyệt vrtour',
                             'route' => 'backend_vrtour_approval_index',
@@ -65,7 +69,7 @@ return [
                            'route' => 'backend_vrtour_skin_index',
                        ],
                        'hotspot' => [
-                           'title' => 'Hotspot(Nội dung lô đất)',
+                           'title' => 'Sản phẩm đầu tư(Lô đất)',
                            'route' => 'backend_vrtour_hotspot_index',
                        ],
                        'content' => [

@@ -7,9 +7,11 @@ use App\Mail\ContactAutoReplyMail;
 use App\Models\Category;
 use App\Models\Contact;
 use App\Models\District;
+use App\Models\Hotspot;
 use App\Models\IndustrialProject;
 use App\Models\Post;
 use App\Models\InvestmentGuide;
+use App\Models\InvestmentProductStatus;
 use App\Models\Popup;
 use App\Models\ProductType;
 use App\Models\Project;
@@ -20,6 +22,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
 class HomeController extends Controller
@@ -279,33 +282,75 @@ class HomeController extends Controller
     {
         $setting = Setting::getAllSetting();
         $setting['menu_active'] = __('app.investment_products_link');
-        $industrialProjects = IndustrialProject::with([
-            'project:id,name',
-            'hotspots',
-        ])
-            ->when($request->keyword, function ($query) use ($request) {
-                $keyword = '%' . $request->keyword . '%';
-                $query->where(function ($q) use ($keyword) {
-                    $q->where('name', 'like', $keyword)
-                        ->orWhere('code', 'like', $keyword)
-                        ->orWhereHas('project', function ($sub) use ($keyword) {
-                            $sub->where('name', 'like', $keyword);
-                        });
-                });
-            })
+        $keyword = is_string($request->input('keyword')) ? mb_substr(trim($request->input('keyword')), 0, 100) : '';
+        // Trạng thái được tick: id số hoặc 'none' (chưa có trạng thái). Bỏ mọi giá trị lạ
+        $selectedStatuses = collect((array) $request->input('status', []))
+            ->map(fn($v) => (string) $v)
+            ->filter(fn($v) => $v === 'none' || ctype_digit($v))
+            ->unique()
+            ->values()
+            ->all();
+
+        $industrialProjects = IndustrialProject::with(['project:id,name'])
+            ->when($keyword !== '', fn($query) => $query->smartSearch($keyword))
             ->when($request->project_id, function ($query) use ($request) {
                 $query->where('project_id', $request->project_id);
+            })
+            ->when(!empty($selectedStatuses), function ($query) use ($selectedStatuses) {
+                $ids         = array_values(array_filter($selectedStatuses, 'ctype_digit'));
+                $includeNone = in_array('none', $selectedStatuses, true);
+
+                // Hotspot bản gốc ứng với lô đất (khớp cả dự án lẫn mã lô)
+                $hotspotOf = function ($sub) {
+                    $sub->select(DB::raw(1))
+                        ->from('hotspot')
+                        ->whereColumn('hotspot.vrtour_id', 'industrial_projects.project_id')
+                        ->whereColumn('hotspot.potision', 'industrial_projects.code')
+                        ->where('hotspot.is_draft', 0);
+                };
+
+                $query->where(function ($q) use ($ids, $includeNone, $hotspotOf) {
+                    if (!empty($ids)) {
+                        $q->whereExists(function ($sub) use ($ids, $hotspotOf) {
+                            $hotspotOf($sub);
+                            $sub->whereIn('hotspot.investment_product_statuses_id', $ids);
+                        });
+                    }
+                    if ($includeNone) {
+                        // Chưa có trạng thái: không có hotspot bản gốc nào mang trạng thái
+                        $method = !empty($ids) ? 'orWhereNotExists' : 'whereNotExists';
+                        $q->{$method}(function ($sub) use ($hotspotOf) {
+                            $hotspotOf($sub);
+                            $sub->whereNotNull('hotspot.investment_product_statuses_id');
+                        });
+                    }
+                });
             })
             ->orderByDesc('id')
             ->paginate(IndustrialProject::INDUSTRIAL_PROJECT_PER_PAGE)
             ->appends($request->all());
 
-        $projects = Project::pluck('name', 'id')->toArray();
+        // Nạp hotspot (bản gốc đã duyệt) cho cả trang bằng 1 câu truy vấn,
+        // ghép theo cặp (vrtour_id, potision) để không nhầm giữa các dự án trùng mã lô
+        $hotspots = Hotspot::with('investmentProductStatus')
+            ->where('is_draft', 0)
+            ->whereIn('vrtour_id', $industrialProjects->pluck('project_id')->unique())
+            ->whereIn('potision', $industrialProjects->pluck('code')->unique())
+            ->get()
+            ->keyBy(fn($h) => $h->vrtour_id . '|' . $h->potision);
 
+        $industrialProjects->getCollection()->each(function ($item) use ($hotspots) {
+            $item->setRelation('hotspots', $hotspots->get($item->project_id . '|' . $item->code));
+        });
+
+        $projects = Project::whereIn('id', IndustrialProject::select('project_id'))->orderBy('name')->pluck('name', 'id')->toArray();
+        $investmentStatuses = InvestmentProductStatus::orderBy('id')->get();
         return view('frontend.home.industrial_project', compact(
             'setting',
             'industrialProjects',
-            'projects'
+            'projects',
+            'investmentStatuses',
+            'selectedStatuses'
         ));
     }
 

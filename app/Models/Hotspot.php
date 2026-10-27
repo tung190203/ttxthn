@@ -12,6 +12,7 @@ class Hotspot extends Model
     protected $table = "hotspot";
     protected $fillable = [
         'vrtour_id',
+        'investment_product_statuses_id',
         'potision',
         'acreage',
         'unit',
@@ -28,6 +29,18 @@ class Hotspot extends Model
         'is_draft',
         'parent_id',
         'status',
+        'price',
+        'lease_price',
+        'sale_price',
+        'transaction_note',
+        'available_amenities',
+        'contact_info',
+    ];
+    protected $hidden = [
+        'price',
+        'lease_price',
+        'sale_price',
+        'transaction_note',
     ];
      public function getActivitylogOptions(): LogOptions
     {
@@ -42,6 +55,11 @@ class Hotspot extends Model
     public function parent()
     {
         return $this->belongsTo(Hotspot::class, 'parent_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function scopeVisibleFor($query, $user)
@@ -78,9 +96,14 @@ class Hotspot extends Model
         return $this->belongsTo(Project::class, 'vrtour_id', 'id');
     }
 
+    public function investmentProductStatus()
+    {
+        return $this->belongsTo(InvestmentProductStatus::class, 'investment_product_statuses_id');
+    }
+
     public function IndustrialProject()
     {
-        return $this->hasOne(IndustrialProject::class, 'code', 'potision');
+        return $this->hasOne(IndustrialProject::class, 'code', 'potision')->where('industrial_projects.project_id', $this->vrtour_id);
     }
 
     public static function makeUnitOptions($selected = null)

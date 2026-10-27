@@ -7,8 +7,10 @@ use Illuminate\Http\Request;
 use Auth;
 use App\Models\Project;
 use App\Models\Panorama;
+use App\Models\VrtourVersion;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use App\Models\VrtourVersionItem;
 
 class ContentController extends Controller
 {
@@ -25,7 +27,7 @@ class ContentController extends Controller
 
     public function index()
     {
-         $user = auth('web')->user();
+        $user = auth('web')->user();
         $query = Project::query()->visibleFor($user);
         $scope = $user->getScope('project');
         if (!empty($scope)) {
@@ -38,52 +40,77 @@ class ContentController extends Controller
     public function getDataAll(Request $request, $vrtour_id)
     {
         $vrtour      = Project::find($vrtour_id);
-        $user = auth()->user();
+        $user        = auth()->user();
         $link_vrtour = $vrtour->link_vrtour;
         $panorama    = Panorama::visibleFor($user)->where('vrtour_id', $vrtour_id)->orderByDesc('id')->get();
-
+        $notice = null;
         if ($request->reset == 'true' || $panorama->isEmpty()) {
             $pano = getDataVrtour($link_vrtour . 'vista3d/pano.json');
             if (empty($pano)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Hiện tại data pano không tồn tại',
-                    'data' => ''
+                    'data'    => ''
                 ]);
             }
-            $dbPanoramas = $panorama->keyBy('title');
-            $jsonTitles  = [];
-            foreach ($pano as $pn) {
-                $title = $pn['title'];
-                $jsonTitles[] = $title;
 
-                if (isset($dbPanoramas[$title])) {
-                    $dbPanoramas[$title]->update([
-                        'ids' => json_encode($pn['ids']),
-                        'label_audio'=> $pn['label_audio'] ?? null,
-                    ]);
-                } else {
-                    Panorama::create([
-                        'vrtour_id' => $vrtour_id,
-                        'label_audio'=> $pn['label_audio'] ?? null,
-                        'ids'       => json_encode($pn['ids']),
-                        'title'     => $title,
-                        'user_id'   => $user->id
-                    ]);
+            DB::transaction(function () use ($request, $pano, $vrtour_id, $user, &$notice) {
+                $isReset = $request->reset == 'true';
+                $F       = VrtourVersionItem::PANORAMA_FIELDS;
+                $pairs   = [];
+
+                $existing = Panorama::where('vrtour_id', $vrtour_id)->where('is_draft', 0)->get();
+                $byLabel = $existing->filter(fn($p) => !empty($p->label_audio))->keyBy('label_audio');
+                $byTitle = $existing->keyBy('title');
+                $byIds   = $existing->keyBy(fn($p) => $this->normalizeIds($p->ids));
+                $keepIds = [];
+
+                foreach ($pano as $pn) {
+                    $label = $pn['label_audio'] ?? null;
+                    $ids   = $this->normalizeIds($pn['ids'] ?? []);
+                    $model = ($label ? $byLabel->get($label) : null) ?? $byTitle->get($pn['title']) ?? $byIds->get($ids);
+
+                    if ($model) {
+                        $before = $model->only($F);
+                        $model->update(['ids' => json_encode($pn['ids']), 'label_audio' => $label]);
+                        $pairs[] = [$model->id, $before, $model->only($F)];
+                    } else {
+                        $model = Panorama::create([
+                            'vrtour_id'   => $vrtour_id,
+                            'label_audio' => $label,
+                            'ids'         => json_encode($pn['ids']),
+                            'title'       => $pn['title'],
+                            'user_id'     => $user->id,
+                        ]);
+                        $model->refresh();
+                        $pairs[] = [$model->id, null, $model->only($F)];
+                    }
+                    $keepIds[] = $model->id;
                 }
-            }
 
-            if ($request->reset == 'true') {
-                Panorama::where('vrtour_id', $vrtour_id)->whereNotIn('title', $jsonTitles)->delete();
-            }
+                if ($isReset) {
+                    $remove = Panorama::where('vrtour_id', $vrtour_id)->where('is_draft', 0)->whereNotIn('id', $keepIds)->get();
+                    foreach ($remove as $r) {
+                        $pairs[] = [$r->id, $r->only($F), null];   // ghi before TRƯỚC khi xóa
+                    }
+                    $removeIds = $remove->pluck('id');
+                    Panorama::where('vrtour_id', $vrtour_id)
+                        ->where(fn($q) => $q->whereIn('id', $removeIds)->orWhereIn('parent_id', $removeIds))
+                        ->delete();
 
-            $panorama = Panorama::where('vrtour_id', $vrtour_id)->where('is_draft', 0)->get();
-            createFile('vrtour/' . $vrtour->vrtour_code, 'pano.js');
-            file_put_contents('vrtour/' . $vrtour->vrtour_code . '/pano.js',$panorama);
+                    $version = VrtourVersion::recordPanorama($vrtour_id, $user->id, $pairs, [
+                        'version_type'   => VrtourVersion::TYPE_RESET,
+                        'change_summary' => 'Reset dữ liệu Panorama',
+                    ]);
+                    $notice = $this->versionNotice($version);
+                }
+            });
+
+            $panorama = $vrtour->syncPanoFile();
         }
         $html = '';
         foreach ($panorama as $key => $pn) {
-             $statusHtml = '';
+            $statusHtml = '';
             if ($pn->is_draft) {
                 $statusHtml .= "<span class='badge bg-warning'>Bản chỉnh sửa</span> ";
             }
@@ -119,7 +146,8 @@ class ContentController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $html
+            'data' => $html,
+            'notice' => $notice ?? null,
         ]);
     }
 
@@ -128,7 +156,7 @@ class ContentController extends Controller
         if (!Gate::allows('vr_tour/content')) {
             abort(403, self::MESSAGE_UNAUTHORIZED);
         }
-        $pano = Panorama::findOrFail($id);
+        $pano = Panorama::query()->with('user')->findOrFail($id);
         $parentData = [];
         $draftData = [];
         if ($pano->is_draft && $pano->parent_id) {
@@ -148,7 +176,8 @@ class ContentController extends Controller
                 }
             }
         }
-        return view('backend.vrtour.content.edit',compact('pano','parentData','draftData'));
+        $allDataVrtour = $pano;
+        return view('backend.vrtour.content.edit', compact('pano', 'parentData', 'draftData', 'allDataVrtour'));
     }
 
     public function store(Request $request, $id)
@@ -173,36 +202,35 @@ class ContentController extends Controller
                 ? Panorama::findOrFail($panorama->parent_id)
                 : $panorama;
 
-            $main->title      = $request->ct_title;
-            $main->title_en   = $request->ct_title_en;
-            $main->content    = $request->ct_content;
-            $main->content_en = $request->ct_content_en;
-            $main->audio      = $request->ct_audio;
-            $main->audio_en   = $request->ct_audio_en;
-            $main->user_id    = $user->id;
+            $version = DB::transaction(function () use ($main, $request, $user) {
+                $before = $main->only(VrtourVersionItem::PANORAMA_FIELDS);
+                $main->title      = $request->ct_title;
+                $main->title_en   = $request->ct_title_en;
+                $main->content    = $request->ct_content;
+                $main->content_en = $request->ct_content_en;
+                $main->audio      = $request->ct_audio;
+                $main->audio_en   = $request->ct_audio_en;
+                $main->user_id    = $user->id;
 
-            $main->approval_level = $main->max_approval;
-            $main->status         = 'approved';
-            $main->is_draft       = 0;
-            $main->parent_id      = null;
+                $main->approval_level = $main->max_approval;
+                $main->status         = 'approved';
+                $main->is_draft       = 0;
+                $main->parent_id      = null;
+                $main->save();
 
-            $main->save();
+                Panorama::where('parent_id', $main->id)->delete();
 
-            Panorama::where('parent_id', $main->id)->delete();
+                return VrtourVersion::recordPanorama($main->vrtour_id, $user->id, [
+                    [$main->getKey(), $before, $main->only(VrtourVersionItem::PANORAMA_FIELDS)],
+                ]);
+            });
 
-            file_put_contents(
-                'vrtour/' . Project::find($main->vrtour_id)->vrtour_code . '/pano.js',
-                Panorama::where('vrtour_id', $main->vrtour_id)
-                    ->where('is_draft', 0)
-                    ->get()
-            );
+            Project::findOrFail($main->vrtour_id)->syncPanoFile();
 
             return redirect()
-                ->to(
-                    route('backend_vrtour_content_index')
-                        . '?vrtour=' . $main->vrtour_id
-                )
-                ->with('success', 'Đã duyệt và cập nhật nội dung');
+                ->to(route('backend_vrtour_content_index') . '?vrtour=' . $main->vrtour_id)
+                ->with('success', 'Đã duyệt và cập nhật nội dung')
+                ->with('warning', $this->versionNotice($version));
         }
 
         // User thường hoặc user duyệt cấp 1
@@ -230,17 +258,8 @@ class ContentController extends Controller
 
         $draft->save();
 
-        return redirect()
-            ->to(
-                route('backend_vrtour_content_index')
-                    . '?vrtour=' . $draft->vrtour_id
-            )
-            ->with(
-                'success',
-                $user->is_approve
-                    ? 'Đã gửi duyệt cấp 2'
-                    : 'Đã gửi duyệt cấp 1'
-            );
+        return redirect()->to(route('backend_vrtour_content_index') . '?vrtour=' . $draft->vrtour_id)
+            ->with('success', $user->is_approve ? 'Đã gửi duyệt cấp 2' : 'Đã gửi duyệt cấp 1');
     }
     public function reject(Panorama $content)
     {
@@ -264,43 +283,36 @@ class ContentController extends Controller
             abort(403, 'Bạn không có quyền duyệt nội dung.');
         }
         // Duyệt cấp 2 (Super Admin)
-        if ($user->is_super_admin) {
-            if ($content->parent_id) {
-                $parent = Panorama::find($content->parent_id);
-                if ($parent) {
-                    DB::transaction(function () use ($content, $parent) {
-                        $draftData = $content->toArray();
-                        unset(
-                            $draftData['id'],
-                            $draftData['parent_id'],
-                            $draftData['created_at'],
-                            $draftData['updated_at']
-                        );
+        if ($user->is_super_admin && $content->parent_id) {
+            $parent = Panorama::find($content->parent_id);
+            if ($parent) {
+                $version = DB::transaction(function () use ($content, $parent, $user) {
+                    $before = $parent->only(VrtourVersionItem::PANORAMA_FIELDS);
 
-                        $parent->fill($draftData);
-                        $parent->parent_id = null;
-                        $parent->is_draft = 0;
-                        $parent->status = 'approved';
-                        $parent->approval_level = $parent->max_approval;
+                    $draftData = $content->toArray();
+                    unset($draftData['id'], $draftData['parent_id'], $draftData['created_at'], $draftData['updated_at']);
 
-                        $parent->save();
-                        $project = Project::find($parent->vrtour_id);
-                        file_put_contents(
-                            'vrtour/' . $project->vrtour_code . '/pano.js',
-                            Panorama::where('vrtour_id', $parent->vrtour_id)
-                                ->where('is_draft', 0)
-                                ->get()
-                        );
-                        // Xóa bản draft
-                        $content->delete();
-                    });
+                    $parent->fill($draftData);
+                    $parent->parent_id      = null;
+                    $parent->is_draft       = 0;
+                    $parent->status         = 'approved';
+                    $parent->approval_level = $parent->max_approval;
+                    $parent->save();
 
-                    return redirect()
-                        ->route('backend_vrtour_content_index', [
-                            'vrtour' => $parent->vrtour_id
-                        ])
-                        ->with('success', 'Duyệt nội dung thành công.');
-                }
+                    $content->delete();
+
+                    return VrtourVersion::recordPanorama($parent->vrtour_id, $user->id, [
+                        [$parent->getKey(), $before, $parent->only(VrtourVersionItem::PANORAMA_FIELDS)],
+                    ]);
+                });
+
+                // Ghi file ngoài transaction: lỗi ghi file không làm rollback DB
+                Project::findOrFail($parent->vrtour_id)->syncPanoFile();
+
+                return redirect()
+                    ->route('backend_vrtour_content_index', ['vrtour' => $parent->vrtour_id])
+                    ->with('success', 'Duyệt nội dung thành công.')
+                    ->with('warning', $this->versionNotice($version));
             }
         }
 
@@ -315,5 +327,18 @@ class ContentController extends Controller
                 'vrtour' => $content->vrtour_id
             ])->with('success', 'Đã duyệt cấp 1, chờ duyệt cấp 2.');
         }
+    }
+
+    private function normalizeIds($ids): string
+    {
+        $arr = is_string($ids) ? (json_decode($ids, true) ?? []) : (array) $ids;
+        $arr = array_map('intval', $arr);
+        sort($arr);
+        return implode(',', $arr);
+    }
+    /** Tạo thông báo nếu snapshot vừa xóa bản cũ do vượt giới hạn lưu trữ */
+    private function versionNotice(?VrtourVersion $version): ?string
+    {
+        return $version?->pruneNotice();
     }
 }

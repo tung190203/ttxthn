@@ -113,6 +113,7 @@
                                     'Success'
                                 );
                             }
+                            if (response.notice) toastr.warning(response.notice);
                         } else {
                             $('#tableHeader').hide();
                             $('#dataGrid').html('');

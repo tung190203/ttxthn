@@ -1,4 +1,4 @@
-@props(['success', 'error'])
+@props(['success', 'error', 'warning' => null])
 
 
 <script type="text/javascript">
@@ -22,6 +22,10 @@
 
     @if($success ?? '')
         toastr["success"]("{{ $success }}", "Success!")
+    @endif
+
+    @if($warning ?? '')
+        toastr["warning"]("{{ $warning }}", "Cảnh báo!")
     @endif
 
     @if($error ?? '')
