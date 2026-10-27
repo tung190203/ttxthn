@@ -65,4 +65,13 @@ Route::localized(function () {
     Route::get('{slug}-p{id}.html', [InvestMentGuideController::class, 'detail'])->where(['slug' => '[a-z0-9\-]+', 'id' => '[0-9]+'])->name('investment_guide_detail');
 
     Route::get('{slug}', [CategoryController::class, 'index'])->where(['slug' => '[a-zA-Z0-9\-]+'])->name('category');
+
+    Route::get('hotspot-image/{code}/{lot}/{file}', function (string $code, string $lot, string $file) {
+        $path = public_path("vrtour/{$code}/image/{$lot}/{$file}");
+        abort_unless(is_file($path), 404);
+
+        return response()->file($path, [
+            'Content-Type' => 'image/png','Access-Control-Allow-Origin' => '*','Cache-Control' => 'public, max-age=31536000, immutable',
+        ]);
+    })->where(['code' => '[A-Za-z0-9._-]+','lot'  => '[A-Za-z0-9._-]+','file' => '(current|pending|original|[0-9a-f]{6})\.png',])->name('hotspot_image');
 });

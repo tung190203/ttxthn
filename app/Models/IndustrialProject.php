@@ -27,6 +27,7 @@ class IndustrialProject extends Model
 
     protected $fillable = [
         'project_id',
+        'investment_product_statuses_id',
         'code',
         'name',
         'link',
@@ -36,6 +37,18 @@ class IndustrialProject extends Model
         'intended_use',
         'unit',
         'price',
+        'lease_price',
+        'sale_price',
+        'transaction_note',
+        'available_amenities',
+        'contact_info',
+    ];
+
+    protected $hidden = [
+        'price',
+        'lease_price',
+        'sale_price',
+        'transaction_note',
     ];
 
     public $translatable = [
@@ -47,12 +60,15 @@ class IndustrialProject extends Model
         return $this->belongsTo(Project::class, 'project_id', 'id');
     }
 
+    public function investmentProductStatus()
+    {
+        return $this->belongsTo(InvestmentProductStatus::class, 'investment_product_statuses_id');
+    }
+
     public function hotspots()
     {
-        return $this->hasOne(Hotspot::class, 'potision', 'code')->whereColumn(
-            'hotspot.vrtour_id',
-            'industrial_projects.project_id'
-        );
+        // Chỉ dùng cho lazy load từng dòng, KHÔNG dùng với with() vì khóa nối chỉ có code
+        return $this->hasOne(Hotspot::class, 'potision', 'code')->where('is_draft', 0)->whereColumn('hotspot.vrtour_id', 'industrial_projects.project_id');
     }
     public function productType()
     {
@@ -69,7 +85,9 @@ class IndustrialProject extends Model
             return $query->where(function ($q) use ($like, $projectIds) {
                 $q->whereRaw('LOWER(name) LIKE ?', [$like])
                     ->orWhereRaw('LOWER(code) LIKE ?', [$like])
-                    ->orWhereIn('project_id', $projectIds); // lấy các lô thuộc dự án trùng tên
+                    ->orWhereRaw('LOWER(intended_use) LIKE ?', [$like])
+                    ->orWhereRaw('LOWER(description) LIKE ?', [$like])
+                    ->orWhereIn('project_id', $projectIds);
             });
         }
 
@@ -90,7 +108,8 @@ class IndustrialProject extends Model
                     $like = "%{$kw}%";
                     $q->orWhereRaw('LOWER(name) LIKE ?', [$like])
                         ->orWhereRaw('LOWER(code) LIKE ?', [$like])
-                        ->orWhereRaw('LOWER(intended_use) LIKE ?', [$like]);
+                        ->orWhereRaw('LOWER(intended_use) LIKE ?', [$like])
+                        ->orWhereRaw('LOWER(description) LIKE ?', [$like]);
                 }
             });
         }

@@ -100,7 +100,7 @@
 
     <script src="{{ asset('backend_assets/js/app.js') }}"></script>
 
-    <x-forms.notification success="{{ session('success') }}" error="{{ session('error') }}" />
+    <x-forms.notification success="{{ session('success') }}" error="{{ session('error') }}" warning="{{ session('warning') }}"/>
 
     @yield('script')
     @yield('bottom')
