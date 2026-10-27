@@ -30,6 +30,7 @@ class SkinApproval extends Model
     public const TYPE_PLAN = 5;
     public const TYPE_INVESTOR = 6;
     public const TYPE_LOCATION = 7;
+    public const TYPE_MODEL3D = 8;
 
     protected $casts = [
         'payload' => 'array',

@@ -58,6 +58,8 @@ $pano       = load_js('pano');
 $screen     = load_js('welcome_screen');
 $plan       = load_js('plan');
 $document   = load_js('document');
+$model3d    = load_js('model3d');
+
 
 // ========== PROCESS INVESTOR HTML ==========
 
@@ -105,6 +107,7 @@ echo json_encode([
     'pano'         => $pano,
     'screen'       => $screen,
     'plan'         => $plan,
-    'document'     => $document
+    'document'     => $document,
+    'model3d'      => $model3d,
 ], JSON_UNESCAPED_UNICODE);
 
