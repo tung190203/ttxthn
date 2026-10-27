@@ -9,6 +9,7 @@ use App\Models\ConnectMap;
 use App\Models\Investor;
 use App\Models\Plan;
 use App\Models\Project;
+use App\Models\Vrtour3dmodel;
 use App\Models\WelcomeScreen;
 use Illuminate\Support\Str;
 
@@ -64,7 +65,7 @@ class VrtourVersionDiffService
         'ip_link'                        => 'Link lô đất',
     ];
 
-    public const SKIN_TYPES = ['welcome', 'connect_map', 'plan', 'investor', 'location'];
+    public const SKIN_TYPES = ['welcome', 'connect_map', 'plan', 'investor', 'location', 'model3d'];
 
     public const SKIN_NAMES = [
         'welcome'     => 'Màn hình chào mừng',
@@ -72,6 +73,7 @@ class VrtourVersionDiffService
         'plan'        => 'Kế hoạch triển khai',
         'investor'    => 'Thông tin chủ đầu tư',
         'location'    => 'Vị trí',
+        'model3d'     => 'Mô hình 3d',
     ];
 
     public const SKIN_LABELS = [
@@ -102,6 +104,7 @@ class VrtourVersionDiffService
             'website' => 'Website', 'sologan' => 'Tên khác', 'sologan_en' => 'Tên khác EN', 'status' => 'Hiển thị',
         ],
         'location' => ['location_in_tour' => 'Vị trí'],
+        'model3d'  => ['title_3d'    => 'Tiêu đề', 'title_3d_en' => 'Tiêu đề EN', 'file_3d' => 'Link mô hình 3d', 'show' => 'Hiển thị'],
     ];
 
     public static function labelsFor(string $scope): array
@@ -212,7 +215,7 @@ class VrtourVersionDiffService
 
     private function skinLive(int $vrtourId): array
     {
-        $models = ['welcome' => WelcomeScreen::class,'connect_map' => ConnectMap::class,'plan' => Plan::class,'investor' => Investor::class,];
+        $models = ['welcome' => WelcomeScreen::class,'connect_map' => ConnectMap::class,'plan' => Plan::class,'investor' => Investor::class,'model3d' => Vrtour3dmodel::class];
 
         $out = [];
         foreach ($models as $type => $class) {
@@ -240,7 +243,7 @@ class VrtourVersionDiffService
             ? self::SKIN_NAMES[$it->entity_type]
             : ($data['title'] ?? (isset($data['potision']) ? Str::after($data['potision'], 'cmss_') : '#' . $it->entity_key));
 
-        $noValue = ['url', 'ip_link', 'image', 'image_en', 'investor_img', 'image1', 'image2', 'image3'];
+        $noValue = ['url', 'ip_link', 'image', 'image_en', 'investor_img', 'image1', 'image2', 'image3','file_3d'];
 
         $fields = [];
         if ($it->action === VrtourVersionItem::ACTION_MODIFIED) {
