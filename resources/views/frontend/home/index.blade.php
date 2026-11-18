@@ -3517,6 +3517,128 @@ const map = L.map('map', {
     keyboard: false // Disable default keyboard panning to allow custom 3D rotation
 });
 
+window.map = map;
+
+let _portalTargetMarker = null;
+let _portalTargetBoundary = null;
+
+window.portalFlyToProject = function(item) {
+    if (!item || !item.lat || !item.lng) return;
+
+    // 1. Mở khóa bản đồ ngay lập tức
+    if (typeof unlockMap === 'function') unlockMap();
+    const introLayer = document.getElementById('mapIntroLayer');
+    if (introLayer) {
+        introLayer.classList.add('is-hidden');
+        introLayer.style.display = 'none';
+    }
+    const homePage = document.querySelector('.home-page');
+    if (homePage) homePage.classList.remove('home-map-locked');
+    const vContainer = document.getElementById('video-loader-container');
+    if (vContainer) {
+        vContainer.style.display = 'none';
+        vContainer.classList.remove('is-playing', 'video-fade-out');
+    }
+    const lVideo = document.getElementById('loader-video');
+    if (lVideo) {
+        try { lVideo.pause(); lVideo.currentTime = 0; } catch(e){}
+    }
+
+    const pjSearchFull = document.getElementById('pjSearchFull');
+    const pjSearchMini = document.getElementById('pjSearchMini');
+    if (pjSearchFull) pjSearchFull.style.visibility = '';
+    if (pjSearchMini) pjSearchMini.style.visibility = '';
+
+    if (typeof window.loadDefaultMap === 'function') {
+        window.loadDefaultMap();
+    }
+    map.invalidateSize();
+
+    // 2. Cuộn mượt màn hình lên vị trí bản đồ
+    const mapEl = document.getElementById('map');
+    if (mapEl) {
+        mapEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // 3. Chuẩn hóa dữ liệu dự án thành đối tượng loc chuẩn của bản đồ
+    const loc = {
+        id: item.project_id || item.id,
+        name: item.name,
+        lat: parseFloat(item.lat),
+        lng: parseFloat(item.lng),
+        link: item.detail_url || item.url,
+        link_vrtour: item.vr_url || item.link_vrtour,
+        districts: item.districts || (item.district ? [item.district] : ['TP. Hà Nội']),
+        district: item.district,
+        price: item.price || 0,
+        detail_image: item.detail_image || item.image,
+        image: item.image,
+        type_number: item.type_number || 1,
+        industry_number: item.industry_number || 1,
+        area: item.area || null,
+        unit: item.unit || 'ha',
+        has_occupancy_rate: item.has_occupancy_rate || false,
+        occupancy_rate: item.occupancy_rate || 0,
+        is_invest: (item.is_invest !== undefined) ? item.is_invest : 0,
+        boundary: item.boundary || null
+    };
+
+    // 4. Tìm xem Marker dự án này đã có trên map (trong markersLayer) chưa
+    let activeMarker = null;
+    if (typeof markersLayer !== 'undefined' && markersLayer) {
+        markersLayer.eachLayer(function(layer) {
+            if (layer.getLatLng) {
+                const ll = layer.getLatLng();
+                if (Math.abs(ll.lat - loc.lat) < 0.0001 && Math.abs(ll.lng - loc.lng) < 0.0001) {
+                    activeMarker = layer;
+                }
+            }
+        });
+    }
+
+    // Xóa marker tạm của lần click trước nếu có
+    if (_portalTargetMarker) {
+        try { map.removeLayer(_portalTargetMarker); } catch(e){}
+        _portalTargetMarker = null;
+    }
+
+    // Nếu chưa có trên markersLayer, tạo đúng Marker chuẩn bằng createMarker(loc)
+    if (!activeMarker) {
+        activeMarker = createMarker(loc);
+        activeMarker.addTo(map);
+        _portalTargetMarker = activeMarker;
+    }
+
+    // 5. Vẽ đúng đường ranh giới boundary polygon của dự án
+    if (typeof showProjectBoundary === 'function') {
+        showProjectBoundary(loc);
+    }
+
+    // 6. Bay camera đến đúng vị trí dự án
+    map.flyTo([loc.lat, loc.lng], 16, { animate: true, duration: 1.0 });
+
+    // 7. Active mở đúng cái popup chuẩn cũ của dự án
+    setTimeout(function() {
+        if (activeMarker) {
+            activeMarker.openPopup();
+        }
+    }, 600);
+};
+
+// Kiểm tra nếu có dự án chờ focus từ trang khác chuyển sang
+try {
+    const pendingFocus = sessionStorage.getItem('pending_focus_project');
+    if (pendingFocus) {
+        sessionStorage.removeItem('pending_focus_project');
+        const pItem = JSON.parse(pendingFocus);
+        setTimeout(function() {
+            if (typeof window.portalFlyToProject === 'function') {
+                window.portalFlyToProject(pItem);
+            }
+        }, 800);
+    }
+} catch(e){}
+
 // Bảo vệ chống can thiệp hoặc điều hướng bản đồ ra ngoài phạm vi Hà Nội
 const _originalSetView = map.setView.bind(map);
 const _originalFlyTo = map.flyTo.bind(map);

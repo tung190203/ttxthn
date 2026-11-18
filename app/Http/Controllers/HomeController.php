@@ -967,7 +967,10 @@ class HomeController extends Controller
         $items = collect();
         $addedProjectIds = [];
 
-        // 1. NẾU ĐÃ ĐĂNG NHẬP: Lấy thông báo theo các dự án người đó đã bấm quan tâm
+        // Chỉ lấy các dữ liệu thực sự có biến động trong vòng 30 ngày gần đây
+        $since = now()->subDays(30);
+
+        // 1. NẾU ĐÃ ĐĂNG NHẬP: Lấy thông báo theo các dự án người đó đã bấm quan tâm CÓ CẬP NHẬT TRONG 30 NGÀY
         if ($guest) {
             $interestedProjectIds = $guest->interests()
                 ->where('interestable_type', Project::class)
@@ -978,6 +981,7 @@ class HomeController extends Controller
                     ->whereIn('id', $interestedProjectIds)
                     ->where('status', 'approved')
                     ->where('is_hidden', 0)
+                    ->where('updated_at', '>=', $since)
                     ->orderBy('updated_at', 'desc')
                     ->take(3)
                     ->get();
@@ -986,9 +990,15 @@ class HomeController extends Controller
                     $addedProjectIds[] = $p->id;
                     $district = $p->districts->pluck('name')->first() ?? 'TP. Hà Nội';
                     $info = $this->resolveProjectEventInfo($p, true);
+                    $hasVr = (!empty($p->link_vrtour) && empty($p->hide_vrtour));
+                    $vrUrl = $hasVr ? route('show_Vrtour', ['slug' => $p->slug]) : null;
+                    $detailUrl = url('/project-detail/' . ($p->slug ?? 'untitled'));
+                    $mapUrl = ($p->lat && $p->lng) ? (url('/') . '?lat=' . $p->lat . '&lng=' . $p->lng . '&zoom=16') : null;
+                    $isVrType = str_contains(mb_strtolower($info['badge'] ?? ''), 'vr');
 
                     $items->push([
                         'id' => 'interested_' . $p->id,
+                        'project_id' => $p->id,
                         'type' => 'interested_project',
                         'badge_text' => $info['badge'],
                         'badge_icon' => $info['icon'],
@@ -998,33 +1008,55 @@ class HomeController extends Controller
                         'summary' => $info['summary'],
                         'time_ago' => $info['time_ago'],
                         'image' => $p->banner_image ? asset($p->banner_image) : ($p->detail_image ? asset($p->detail_image) : asset('images/project-1.jpg')),
+                        'detail_image' => $p->detail_image,
                         'lat' => $p->lat ? (float) $p->lat : null,
                         'lng' => $p->lng ? (float) $p->lng : null,
-                        'url' => url('/project-detail/' . ($p->slug ?? 'untitled')),
-                        'btn_action_text' => 'Xem trên bản đồ',
-                        'btn_detail_text' => 'Chi tiết dự án',
+                        'price' => $p->price,
+                        'area' => $p->area,
+                        'unit' => $p->unit == 2 ? 'ha' : ($p->unit == 1 ? 'm2' : ($p->unit ?: 'ha')),
+                        'is_invest' => (int)$p->is_invest,
+                        'industry_number' => (int)($p->industry_number ?? $p->industry_id ?? 1),
+                        'type_number' => (int)($p->type_number ?? $p->type_id ?? 1),
+                        'districts' => $p->districts->pluck('name')->toArray(),
+                        'has_occupancy_rate' => (bool)($p->has_occupancy_rate ?? false),
+                        'occupancy_rate' => $p->occupancy_rate ?? 0,
+                        'boundary' => $p->boundary,
+                        'link_vrtour' => $p->link_vrtour,
+                        'vr_url' => $vrUrl,
+                        'detail_url' => $detailUrl,
+                        'map_url' => $mapUrl,
+                        'url' => ($isVrType && $vrUrl) ? $vrUrl : $detailUrl,
+                        'btn_action_text' => ($p->lat && $p->lng) ? 'Xem trên bản đồ' : null,
+                        'btn_detail_text' => ($isVrType && $vrUrl) ? 'Xem VR Tour' : 'Chi tiết dự án',
                     ]);
                 }
             }
         }
 
-        // 2. Dự án có cập nhật thực tế gần đây (dựa vào ActivityLog / updated_at)
+        // 2. Dự án có cập nhật thực tế trong vòng 30 ngày gần đây
         $recentProjects = Project::with(['industry', 'districts'])
             ->whereNull('parent_id')
             ->where('status', 'approved')
             ->where('is_hidden', 0)
+            ->where('updated_at', '>=', $since)
             ->whereNotIn('id', $addedProjectIds)
             ->orderBy('updated_at', 'desc')
-            ->take(3)
+            ->take(4)
             ->get();
 
         foreach ($recentProjects as $p) {
             $addedProjectIds[] = $p->id;
             $district = $p->districts->pluck('name')->first() ?? 'TP. Hà Nội';
             $info = $this->resolveProjectEventInfo($p, false);
+            $hasVr = (!empty($p->link_vrtour) && empty($p->hide_vrtour));
+            $vrUrl = $hasVr ? route('show_Vrtour', ['slug' => $p->slug]) : null;
+            $detailUrl = url('/project-detail/' . ($p->slug ?? 'untitled'));
+            $mapUrl = ($p->lat && $p->lng) ? (url('/') . '?lat=' . $p->lat . '&lng=' . $p->lng . '&zoom=16') : null;
+            $isVrType = str_contains(mb_strtolower($info['badge'] ?? ''), 'vr');
 
             $items->push([
                 'id' => 'pj_' . $p->id,
+                'project_id' => $p->id,
                 'type' => 'project_info',
                 'badge_text' => $info['badge'],
                 'badge_icon' => $info['icon'],
@@ -1034,15 +1066,30 @@ class HomeController extends Controller
                 'summary' => $info['summary'],
                 'time_ago' => $info['time_ago'],
                 'image' => $p->banner_image ? asset($p->banner_image) : ($p->detail_image ? asset($p->detail_image) : asset('images/project-1.jpg')),
+                'detail_image' => $p->detail_image,
                 'lat' => $p->lat ? (float) $p->lat : null,
                 'lng' => $p->lng ? (float) $p->lng : null,
-                'url' => url('/project-detail/' . ($p->slug ?? 'untitled')),
-                'btn_action_text' => 'Xem trên bản đồ',
-                'btn_detail_text' => 'Chi tiết dự án',
+                'price' => $p->price,
+                'area' => $p->area,
+                'unit' => $p->unit == 2 ? 'ha' : ($p->unit == 1 ? 'm2' : ($p->unit ?: 'ha')),
+                'is_invest' => (int)$p->is_invest,
+                'industry_number' => (int)($p->industry_number ?? $p->industry_id ?? 1),
+                'type_number' => (int)($p->type_number ?? $p->type_id ?? 1),
+                'districts' => $p->districts->pluck('name')->toArray(),
+                'has_occupancy_rate' => (bool)($p->has_occupancy_rate ?? false),
+                'occupancy_rate' => $p->occupancy_rate ?? 0,
+                'boundary' => $p->boundary,
+                'link_vrtour' => $p->link_vrtour,
+                'vr_url' => $vrUrl,
+                'detail_url' => $detailUrl,
+                'map_url' => $mapUrl,
+                'url' => ($isVrType && $vrUrl) ? $vrUrl : $detailUrl,
+                'btn_action_text' => ($p->lat && $p->lng) ? 'Xem trên bản đồ' : null,
+                'btn_detail_text' => ($isVrType && $vrUrl) ? 'Xem VR Tour' : 'Chi tiết dự án',
             ]);
         }
 
-        // 3. Dự án tiêu biểu có VR Tour 360°
+        // 3. Dự án có VR Tour 360° có cập nhật trong 30 ngày gần đây
         $vrProjects = Project::with(['industry', 'districts'])
             ->whereNull('parent_id')
             ->where('status', 'approved')
@@ -1050,6 +1097,7 @@ class HomeController extends Controller
             ->whereNotNull('link_vrtour')
             ->where('link_vrtour', '!=', '')
             ->where('hide_vrtour', 0)
+            ->where('updated_at', '>=', $since)
             ->whereNotIn('id', $addedProjectIds)
             ->orderBy('updated_at', 'desc')
             ->take(2)
@@ -1058,9 +1106,13 @@ class HomeController extends Controller
         foreach ($vrProjects as $p) {
             $addedProjectIds[] = $p->id;
             $district = $p->districts->pluck('name')->first() ?? 'TP. Hà Nội';
+            $vrUrl = route('show_Vrtour', ['slug' => $p->slug]);
+            $detailUrl = url('/project-detail/' . ($p->slug ?? 'untitled'));
+            $mapUrl = ($p->lat && $p->lng) ? (url('/') . '?lat=' . $p->lat . '&lng=' . $p->lng . '&zoom=16') : null;
 
             $items->push([
                 'id' => 'vr_' . $p->id,
+                'project_id' => $p->id,
                 'type' => 'project_vrtour',
                 'badge_text' => 'Khám phá VR Tour 360°',
                 'badge_icon' => 'fa-vr-cardboard',
@@ -1070,21 +1122,37 @@ class HomeController extends Controller
                 'summary' => 'Trải nghiệm không gian thực tế ảo 360° sinh động của dự án',
                 'time_ago' => $p->updated_at ? $p->updated_at->diffForHumans() : 'Mới cập nhật',
                 'image' => $p->banner_image ? asset($p->banner_image) : ($p->detail_image ? asset($p->detail_image) : asset('images/project-1.jpg')),
+                'detail_image' => $p->detail_image,
                 'lat' => $p->lat ? (float) $p->lat : null,
                 'lng' => $p->lng ? (float) $p->lng : null,
-                'url' => url('/project-detail/' . ($p->slug ?? 'untitled')),
-                'btn_action_text' => 'Xem trên bản đồ',
-                'btn_detail_text' => 'Khám phá VR Tour',
+                'price' => $p->price,
+                'area' => $p->area,
+                'unit' => $p->unit == 2 ? 'ha' : ($p->unit == 1 ? 'm2' : ($p->unit ?: 'ha')),
+                'is_invest' => (int)$p->is_invest,
+                'industry_number' => (int)($p->industry_number ?? $p->industry_id ?? 1),
+                'type_number' => (int)($p->type_number ?? $p->type_id ?? 1),
+                'districts' => $p->districts->pluck('name')->toArray(),
+                'has_occupancy_rate' => (bool)($p->has_occupancy_rate ?? false),
+                'occupancy_rate' => $p->occupancy_rate ?? 0,
+                'boundary' => $p->boundary,
+                'link_vrtour' => $p->link_vrtour,
+                'vr_url' => $vrUrl,
+                'detail_url' => $detailUrl,
+                'map_url' => $mapUrl,
+                'url' => $vrUrl,
+                'btn_action_text' => ($p->lat && $p->lng) ? 'Xem trên bản đồ' : null,
+                'btn_detail_text' => 'Xem VR Tour',
             ]);
         }
 
-        // 4. Có Cẩm nang đầu tư mới đăng tải
+        // 4. Có Cẩm nang đầu tư mới đăng tải trong vòng 30 ngày gần đây
         try {
             $guides = InvestmentGuide::where(function($q) {
                     $q->where('status_approve', 'approved')
                       ->orWhere('status', 1);
                 })
                 ->whereNull('parent_id')
+                ->where('created_at', '>=', $since)
                 ->orderBy('created_at', 'desc')
                 ->take(2)
                 ->get();
