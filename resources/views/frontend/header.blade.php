@@ -107,9 +107,6 @@
                     <button class="h-btn d-none d-xl-flex ms-1 js-search-btn" type="button"><i
                             class="fal fa-fw fa-lg fa-search"></i></button>
                     @if(Auth::guard('guest')->check())
-                    <button class="h-btn ms-1 d-none d-md-inline-flex" type="button" onclick="document.getElementById('btnPortalFeedLauncher') && document.getElementById('btnPortalFeedLauncher').click();" title="Xem Bảng tin cập nhật (New Feed)">
-                        <i class="fal fa-fw fa-lg fa-newspaper"></i>
-                    </button>
                     <div class="h-dropdown">
                         <div class="h-dropdown__toggle position-relative">
                             <button class="h-btn ms-1" type="button"><i class="fal fa-fw fa-lg fa-bell"></i></button>
@@ -119,9 +116,9 @@
                                 </span>
                             @endif
                         </div>
-                        <div class="h-dropdown__menu" style="min-width: 380px; max-height: 440px; overflow-y: auto; right: 0; left: auto;">
+                        <div class="h-dropdown__menu" style="min-width: 380px; max-height: 400px; overflow-y: auto; right: 0; left: auto;">
                             <div class="dropdown-header d-flex justify-content-between align-items-center" style="padding: 10px 15px; background: #f8f9fa; border-bottom: 1px solid #eee;">
-                                <h6 class="text-uppercase fw-bold mb-0" style="font-size: 13px;">Thông báo của bạn</h6>
+                                <h6 class="text-uppercase fw-bold mb-0">Thông báo của bạn</h6>
                                 @if(Auth::guard('guest')->user()->unreadNotifications->count() > 0)
                                     <form action="{{ route('guest.notifications.read_all') }}" method="POST" class="m-0 p-0">
                                         @csrf
@@ -135,13 +132,8 @@
                                     <div class="text-secondary fw-normal" style="font-size: 12px;"><i class="fal fa-clock me-1"></i>{{ $notification->created_at->diffForHumans() }}</div>
                                 </a>
                             @empty
-                                <div class="p-3 text-center text-muted">Không có thông báo mới.</div>
+                                <div class="p-3 text-center text-muted">Không có thông báo nào.</div>
                             @endforelse
-                            <div class="p-2 bg-light border-top text-center">
-                                <button type="button" class="btn btn-sm btn-outline-primary w-100 fw-bold" onclick="document.getElementById('btnPortalFeedLauncher') && document.getElementById('btnPortalFeedLauncher').click();" style="font-size: 12px;">
-                                    <i class="fas fa-newspaper me-1"></i> Mở Bảng tin cập nhật đầy đủ (New Feed)
-                                </button>
-                            </div>
                         </div>
                     </div>
                     @endif
