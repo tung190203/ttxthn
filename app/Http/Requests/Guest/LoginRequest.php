@@ -53,19 +53,92 @@ class LoginRequest extends FormRequest
      */
     public function authenticate(): void
     {
-        $this->ensureIsNotRateLimited();
+        $guest = \App\Models\Guest::where('email', $this->email)->first();
 
-        if (! Auth::guard('guest')->attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey());
+        if ($guest) {
+            // Check if locked
+            if ($guest->status === 'locked' || ($guest->locked_until && $guest->locked_until->isFuture())) {
+                throw ValidationException::withMessages([
+                    'email' => 'Tài khoản tạm khóa do phát hiện đăng nhập bất thường. Liên hệ quản trị viên.',
+                ]);
+            }
+        }
+
+        if (! Auth::guard('guest')->validate($this->only('email', 'password'))) {
+            if ($guest) {
+                $guest->increment('failed_login_attempts');
+                if ($guest->failed_login_attempts >= 5) {
+                    $guest->update([
+                        'status' => 'locked',
+                        'locked_until' => now()->addDays(7),
+                    ]);
+
+                    $this->sendAlertToAdmin($guest, 'Nhập sai mật khẩu liên tiếp từ 5 lần trở lên');
+
+                    throw ValidationException::withMessages([
+                        'email' => 'Tài khoản tạm khóa do phát hiện đăng nhập bất thường. Liên hệ quản trị viên.',
+                    ]);
+                }
+            }
+
+            $remaining = $guest ? max(0, 5 - $guest->failed_login_attempts) : 0;
+            $msg = 'Thông tin đăng nhập không chính xác.';
+            if ($guest && $remaining > 0) {
+                $msg .= " Còn {$remaining} lần thử trước khi tài khoản bị khóa.";
+            }
 
             throw ValidationException::withMessages([
-                'email' => __('auth.failed_with_attempts', [
-                    'attempts' => max(0, self::MAX_ATTEMPTS - RateLimiter::attempts($this->throttleKey())),
-                ]),
+                'password' => $msg,
             ]);
         }
 
-        RateLimiter::clear($this->throttleKey());
+        // Password matched! Check email verification
+        if (! $guest->email_verified_at) {
+            throw ValidationException::withMessages([
+                'email' => 'Địa chỉ email này chưa được xác thực. Vui lòng kiểm tra hộp thư để kích hoạt tài khoản.',
+            ]);
+        }
+
+        // Check status for Organization and FDI
+        if ($guest->status === 'pending') {
+            throw ValidationException::withMessages([
+                'email' => 'Tài khoản của bạn đang ở trạng thái "Chờ xác thực". Vui lòng chờ Quản trị hệ thống phê duyệt.',
+            ]);
+        }
+
+        // Check strange IP
+        $currentIp = $this->ip();
+        if ($guest->last_login_ip && $guest->last_login_ip !== $currentIp) {
+            $guest->update([
+                'status' => 'locked',
+                'locked_until' => now()->addDays(7),
+            ]);
+
+            $this->sendAlertToAdmin($guest, "Phát hiện đăng nhập từ địa chỉ IP lạ: {$currentIp} (Địa chỉ IP trước đó: {$guest->last_login_ip})");
+
+            throw ValidationException::withMessages([
+                'email' => 'Tài khoản tạm khóa do phát hiện đăng nhập bất thường. Liên hệ quản trị viên.',
+            ]);
+        }
+
+        // Successful login
+        $guest->update([
+            'failed_login_attempts' => 0,
+            'last_login_ip' => $currentIp,
+            'locked_until' => null,
+        ]);
+
+        Auth::guard('guest')->login($guest, $this->boolean('remember'));
+    }
+
+    protected function sendAlertToAdmin(\App\Models\Guest $guest, string $reason): void
+    {
+        try {
+            $adminEmail = env('ADMIN_NOTIFICATION_EMAIL', 'ducnh241@gmail.com');
+            \Illuminate\Support\Facades\Mail::to($adminEmail)->send(new \App\Mail\AccountLockedAlertMail($guest, $reason, $this->ip()));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Gửi email cảnh báo khóa tài khoản lỗi: ' . $e->getMessage());
+        }
     }
 
     /**

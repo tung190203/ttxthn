@@ -21,6 +21,20 @@ class AIChatController extends Controller
 
     public function chat(Request $request)
     {
+        if (!auth('guest')->check() && !auth('web')->check()) {
+            $ip = request()->ip();
+            $cacheKey = 'ai_chat_limit_' . $ip;
+            $attempts = cache()->get($cacheKey, 0);
+            $limit = 5; 
+            if ($attempts >= $limit) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Bạn đã hết lượt hỏi miễn phí ('.$limit.' lượt/ngày). Vui lòng đăng nhập để tiếp tục sử dụng Trợ lý ảo AI không giới hạn.',
+                    'limit_reached' => true
+                ], 403);
+            }
+            cache()->put($cacheKey, $attempts + 1, now()->endOfDay());
+        }
         $payload = [
             'language' => "auto",
             'message' => $request->message,

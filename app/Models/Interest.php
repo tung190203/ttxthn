@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Interest extends Model
 {
-    protected $fillable = ['guest_id', 'interestable_id', 'interestable_type'];
+    protected $fillable = ['guest_id', 'interestable_id', 'interestable_type', 'notes', 'tag'];
 
     public function interestable()
     {

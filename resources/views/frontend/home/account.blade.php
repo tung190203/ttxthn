@@ -14,7 +14,7 @@
             <article class="banner d-block px-0">
                 <img class="banner__bg" src="{{ asset('images/banner-project.jpg') }}" alt="">
             </article>
-            <section class="acc-info">
+            <section class="acc-info mb-60" style="padding-bottom: 60px;">
                 <div class="container">
                     <div class="acc-info__header">
                         <div class="acc-info__left">
@@ -77,13 +77,75 @@
                                     value="{{ old('phone', $user->phone ?? '') }}">
                             </div>
                             <div class="col-md-6 col-xl-4">
+                                <label class="form-label">CCCD / Hộ chiếu</label>
+                                <input class="form-control" type="text" name="identification_number"
+                                    value="{{ old('identification_number', $user->identification_number ?? '') }}">
+                            </div>
+                            <div class="col-md-6 col-xl-4">
+                                <label class="form-label">{{ __('app.nationality') }}</label>
+                                <select class="form-control" name="nation_id">
+                                    <option value="">{{ __('app.choice_nationality') }}</option>
+                                    @if(isset($nations))
+                                        @foreach ($nations as $n)
+                                            <option value="{{ $n->id }}" {{ old('nation_id', $user->nation_id) == $n->id ? 'selected' : '' }}>{{ $n->name }}</option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </div>
+                            <div class="col-md-6 col-xl-4">
                                 <label class="form-label">{{ __('app.address') }}</label>
                                 <input class="form-control" type="text" name="address"
                                     value="{{ old('address', $user->address ?? '') }}">
                             </div>
                             <div class="col-md-6 col-xl-4">
+                                <label class="form-label">Tên tổ chức / Doanh nghiệp</label>
+                                <input class="form-control" type="text" name="organization_name"
+                                    value="{{ old('organization_name', $user->organization_name ?? '') }}">
+                            </div>
+                            <div class="col-md-6 col-xl-4">
+                                <label class="form-label">Mã số thuế</label>
+                                <input class="form-control" type="text" name="tax_code"
+                                    value="{{ old('tax_code', $user->tax_code ?? '') }}">
+                            </div>
+                            <div class="col-md-6 col-xl-4">
                                 <label class="form-label">{{ __('app.password') }}</label>
-                                <input class="form-control" type="password" name="password">
+                                <input class="form-control" type="password" name="password" placeholder="Bỏ trống nếu không đổi">
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label mb-1">Lĩnh vực quan tâm</label>
+                                <div class="position-relative">
+                                    <div id="selected-tags-interested_sectors"
+                                        class="form-control d-flex flex-wrap align-items-center px-2 py-2 mb-1 bg-white"
+                                        onclick="toggleDropdown_interested_sectors()"
+                                        style="min-height: 45px; cursor: pointer; gap: 5px;">
+                                        <span class="text-muted small">Tìm kiếm và chọn lĩnh vực quan tâm...</span>
+                                    </div>
+                                    <div id="dropdown_interested_sectors" class="border rounded shadow bg-white position-absolute w-100"
+                                        style="z-index: 9999; display: none; max-height: 220px; overflow-y: auto;">
+                                        <div class="mb-2 px-2 pt-2">
+                                            <input type="text" class="form-control form-control-sm" placeholder="Tìm kiếm..."
+                                                oninput="filterOptions_interested_sectors(this.value)">
+                                        </div>
+                                        <div id="dropdown-options-interested_sectors" class="px-2 pb-2 text-start">
+                                            @php
+                                                $selectedSectors = old('interested_sectors', $user->interested_sectors ?? []);
+                                                if (!is_array($selectedSectors)) $selectedSectors = [];
+                                            @endphp
+                                            @if(isset($industries) && count($industries) > 0)
+                                                @foreach ($industries as $industry)
+                                                    <div class="form-check text-start d-flex align-items-center mb-1">
+                                                        <input type="checkbox" class="form-check-input custom-large me-2 flex-shrink-0" name="interested_sectors[]"
+                                                            value="{{ $industry['id'] }}" id="industry_{{ $industry['id'] }}"
+                                                            onchange="updateTags_interested_sectors()" style="margin-top: 0;"
+                                                            {{ in_array($industry['id'], $selectedSectors) ? 'checked' : '' }}>
+                                                        <label class="form-check-label"
+                                                            for="industry_{{ $industry['id'] }}">{{ $industry['name'] }}</label>
+                                                    </div>
+                                                @endforeach
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="text-center mt-30">
@@ -92,103 +154,7 @@
                     </form>
                 </div>
             </section>
-            <section class="section" id="project-interest">
-                <div class="container">
-                    <h2 class="section__title mb-3 text-uppercase">{{ __('app.interested_projects') }}</h2>
-                    <div class="project-nav-wrapper mb-60">
-                        <!-- "Tất cả" cố định -->
-                        <div class="project-nav-fixed">
-                          <a class="{{ request('industry') ? '' : 'active' }}"
-                             href="{{ route('account', ['keyword' => request('keyword')]) }}#project-interest">
-                            {{ __('app.all') }}
-                          </a>
-                        </div>
-                    
-                        <!-- Các ngành scroll ngang -->
-                        <div class="project-nav-scroll swiper-container">
-                            <ul class="project-nav__list_custom swiper-wrapper">
-                              @foreach($industries as $industry)
-                                <li class="swiper-slide" data-tippy-content="{{ $industry['name'] }}">
-                                  <a class="{{ request('industry') == $industry['id'] ? 'active' : '' }}"
-                                     href="{{ route('account', ['industry' => $industry['id']]) }}#project-interest">
-                                    {{ $industry['name'] }}
-                                  </a>
-                                </li>
-                              @endforeach
-                            </ul>
-                          </div>
-                    </div>
-                    
 
-                    <form class="pj-search mb-60" action="{{ route('account') }}#project-interest" method="GET" style="padding: 0; background: 0;">
-                        <div class="input-group">
-                            <input name="keyword" value="{{ request('keyword') }}" class="form-control" type="text" placeholder="{{ __('app.search') }}" />
-                            <div class="input-group-text">
-                                <button type="submit" class="btn p-0"><i class="fal fa-lg fa-search"></i></button>
-                            </div>
-                        </div>
-                        @if(request('industry'))
-                            <input type="hidden" name="industry" value="{{ request('industry') }}">
-                        @endif
-                    </form>                    
-                    @if(count($list_project_interest) === 0)
-                    <p class="text-center">{{ __('app.no_interested_projects') }}</p>
-                @else                 
-                    <div class="news-slider">
-                        <div class="news-slider__nav">
-                            <div class="news-slider__prev"><i class="fal fa-fw fa-lg fa-angle-left"></i></div>
-                            <div class="news-slider__next"><i class="fal fa-fw fa-lg fa-angle-right"></i></div>
-                        </div>
-                        <div class="news-slider__container swiper-container">
-                            <div class="swiper-wrapper">
-                                @foreach($list_project_interest as $item)
-                                    <div class="swiper-slide project-slide" data-name="{{ strtolower($item['name']) }}">
-                                        <div>
-                                            <div class="project"><a class="project__frame" href="{{ route('project_detail',['slug' => $item['slug'], 'ref' => 'Dự án kêu gọi đầu tư']) }}"><img src="{{$item['detail_image'] ?? './images/project-1.jpg' }}"
-                                                        alt="" /></a>
-                                                <div class="project__body">
-                                                    <h3 class="project__title"><a href="{{ route('project_detail',['slug' => $item['slug'], 'ref' => 'Dự án kêu gọi đầu tư']) }}" data-tippy-content="{{$item['name']}}">{{$item['name']}}</a></h3>
-                                                    @if($item['is_invest'] == 0)
-                                                    <div class="project__overlay"><span>{{ __('app.projects_calling_for_investment') }}</span>
-                                                        <a class="project__like" href="javascript:void(0)" data-id="{{ $item['id'] }}" data-type="App\Models\Project"><i class="fas fa-fw fa-lg fa-heart {{ $item['is_interested'] ? 'text-danger' : '' }}"></i></a>
-                                                    </div>
-                                                @elseif($item['is_invest'] == 1)
-                                                    <div class="project__overlay"><span>{{ __('app.projects_with_investors') }}</span>
-                                                        <a class="project__like" href="javascript:void(0)" data-id="{{ $item['id'] }}" data-type="App\Models\Project"><i class="fas fa-fw fa-lg fa-heart {{ $item['is_interested'] ? 'text-danger' : '' }}"></i></a>
-                                                    </div>
-                                                @elseif($item['is_invest'] == 2)
-                                                    <div class="project__overlay"><span>{{ __('app.projects_proposed') }}</span>
-                                                        <a class="project__like" href="javascript:void(0)" data-id="{{ $item['id'] }}" data-type="App\Models\Project"><i class="fas fa-fw fa-lg fa-heart {{ $item['is_interested'] ? 'text-danger' : '' }}"></i></a>
-                                                    </div>
-                                                @endif
-                                                    <ul class="project__info">
-                                                        <li><img class="me-2" src="{{ asset('/images/icon-map-marker.svg') }}"
-                                                                alt="" /><span data-tippy-content="{{ __('app.project_under') }} {{ $item->districts->pluck('name')->join(', ') }}, {{ __('app.hanoi_city') }}">{{ __('app.project_under') }} {{ $item->districts->pluck('name')->join(', ') }}, {{ __('app.hanoi_city') }}</span></li>
-                                                        <li>
-                                                            <img class="me-2" src="{{ asset('/images/icon-dimension.svg') }}" alt="" />
-                                                            @php
-                                                                $hasArea = $item->area !== null && $item->area !== '';
-                                                                $formattedArea = $hasArea ? formatDecimalByLocale($item->area) . ' ' . ($item->unit_type_text ?? '') : __('app.updating');
-                                                            @endphp
-                                                            <span>{{ $formattedArea }}</span>
-                                                        </li>
-                                                        <li><img class="me-2" src="{{ asset('/images/icon-save-money.svg') }}" alt="" /><span>{{ $item->price !== null && $item->price !== '' ? number_format($item->price, 0, ',', '.') . ' ' . __('app.billion_vnd') : __('app.updating') }}</span></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-                    </div>
-                    @php
-                        $locale = app()->getLocale() === 'vi' ? 'vn' : app()->getLocale();
-                    @endphp
-                    <nav class="d-flex justify-content-center mt-40 mt-lg-60"><a class="button" href="{{ url($locale . '/' . __('app.projects_link')) }}" style="text-transform: capitalize;">{{ __('app.view_more') }}</a></nav>
-                    @endif
-                </div>
-            </section>
             <section class="section section--bg-pattern">
                 <div class="container">
                     <div class="features-slider">
@@ -217,65 +183,105 @@
                       </div>
                 </div>
             </section>
-            <section class="section" id="post-interest">
-                <div class="container">
-                    <h2 class="section__title">{{ __('app.interested_news') }}</h2>
-                
-                    @if(count($list_post_interest) === 0)
-                        <p class="text-center">{{ __('app.no_interested_news') }}</p>
-                    @else
-                        <div class="news-slider">
-                            <div class="news-slider__nav">
-                                <div class="news-slider__prev"><i class="fal fa-fw fa-lg fa-angle-left"></i></div>
-                                <div class="news-slider__next"><i class="fal fa-fw fa-lg fa-angle-right"></i></div>
-                            </div>
-                            <div class="news-slider__container swiper-container">
-                                <div class="swiper-wrapper">
-                                    @foreach($list_post_interest as $item)
-                                        <div class="swiper-slide">
-                                            <div class="news">
-                                                <a class="news__frame" href="{{ route('post_detail',['id' => $item['id'], 'slug' => $item['slug'], 'ref' => 'app.news']) }}">
-                                                    <img src="{{ $item['image'] }}" alt="" />
-                                                </a>
-                                                <div class="news__body">
-                                                    <div class="news__info">
-                                                        <div class="news__time">
-                                                            <i class="fal fa-clock me-2"></i>
-                                                            <span>{{ \Carbon\Carbon::parse($item['published_at'])->format('d/m/Y') }}</span>
-                                                        </div>
-                                                        <a class="news__like" href="javascript:void(0)"
-                                                           data-id="{{ $item['id'] }}" data-type="App\Models\Post">
-                                                            <i class="fas fa-fw fa-heart {{ $item['is_interested'] ? 'text-danger' : '' }}"></i>
-                                                        </a>
-                                                    </div>
-                                                    <h3 class="news__title custom-desc">
-                                                        <a href="{{ route('post_detail',['id' => $item['id'], 'slug' => $item['slug'], 'ref' => 'app.news']) }}"
-                                                           data-tippy-content="{{ $item['name'] }}">
-                                                            {{ $item['name'] }}
-                                                        </a>
-                                                    </h3>
-                                                    <div class="news__desc">{{ $item['description'] }}</div>
-                                                </div>
-                                            </div>
-                                        </div>                                    
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div>
-                        @php
-                            $locale = app()->getLocale() === 'vi' ? 'vn' : app()->getLocale();
-                        @endphp
-                        <nav class="d-flex justify-content-center mt-40 mt-lg-60">
-                            <a class="button" href="{{ url($locale . '/' . __('app.news_link')) }}" style="text-transform: capitalize;">{{ __('app.view_more') }}</a>
-                        </nav>
-                    @endif
-                </div>
-                
-            </section>
+
         @endauth
     </div>
 @endsection
 
 @push('bottom')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const avatarInput = document.getElementById('avatarInput');
+        const avatarPreview = document.getElementById('avatarPreview');
+        const avatarHidden = document.getElementById('avatarHidden');
 
+        if (avatarInput) {
+            avatarInput.addEventListener('change', function (e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const result = e.target.result;
+                        avatarPreview.src = result;
+                        avatarHidden.value = result;
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+        
+        // Khởi tạo hiển thị tags lĩnh vực quan tâm ngay khi load trang
+        if (typeof updateTags_interested_sectors === 'function') {
+            updateTags_interested_sectors();
+        }
+    });
+
+    window.toggleDropdown_interested_sectors = function() {
+        const el = document.getElementById('dropdown_interested_sectors');
+        el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    }
+
+    window.updateTags_interested_sectors = function() {
+        const checkboxes = document.querySelectorAll('#dropdown-options-interested_sectors .form-check input[type="checkbox"]');
+        const container = document.getElementById('selected-tags-interested_sectors');
+        if (!container) return;
+        container.innerHTML = '';
+
+        let selectedCount = 0;
+        const selectedLabels = [];
+
+        checkboxes.forEach((checkbox) => {
+            if (checkbox.checked) {
+                selectedCount++;
+                const label = document.querySelector('label[for="' + checkbox.id + '"]').innerText;
+                selectedLabels.push({ value: checkbox.value, label: label });
+            }
+        });
+
+        if (selectedCount === 0) {
+            container.innerHTML = '<span class="text-muted small">Tìm kiếm và chọn lĩnh vực quan tâm...</span>';
+        } else {
+            selectedLabels.forEach(item => {
+                const span = document.createElement('span');
+                span.className = 'badge bg-primary text-white d-flex align-items-center px-2 py-2 rounded-pill';
+                span.style.maxWidth = '100%';
+                span.innerHTML = `
+                    <span class="text-truncate" style="max-width: 100%;">${item.label}</span>
+                    <button type="button" class="ms-2 flex-shrink-0 bg-transparent border-0 text-white" style="font-size: 1rem; line-height: 1;"
+                        onclick="removeTag_interested_sectors('${item.value}', event)">
+                        &times;
+                    </button>
+                `;
+                container.appendChild(span);
+            });
+        }
+    }
+
+    window.removeTag_interested_sectors = function(value, event) {
+        event.stopPropagation();
+        const checkbox = Array.from(document.querySelectorAll('#dropdown-options-interested_sectors .form-check input[type="checkbox"]'))
+            .find(cb => cb.value === value);
+        if (checkbox) {
+            checkbox.checked = false;
+            updateTags_interested_sectors();
+        }
+    }
+
+    document.addEventListener('click', function(e) {
+        const dropdown = document.getElementById('dropdown_interested_sectors');
+        const tags = document.getElementById('selected-tags-interested_sectors');
+        if (dropdown && tags && !dropdown.contains(e.target) && !tags.contains(e.target)) {
+            dropdown.style.display = 'none';
+        }
+    });
+
+    window.filterOptions_interested_sectors = function(keyword) {
+        const lowerKeyword = keyword.toLowerCase();
+        const options = document.querySelectorAll('#dropdown-options-interested_sectors .form-check');
+        options.forEach(option => {
+            const label = option.querySelector('label').innerText.toLowerCase();
+            option.style.display = label.includes(lowerKeyword) ? 'block' : 'none';
+        });
+    }
+</script>
 @endpush

@@ -39,10 +39,86 @@
                         <span class="badge badge-{{ $badgeClass }}">{{ ucfirst($description) }}</span>
                     </td>
                     <td>
+                        @php
+                            $rawType = class_basename($activity->subject_type ?? '');
+                            $subjectName = null;
+                            $subject = $activity->subject;
+                            $props = is_array($activity->properties) ? $activity->properties : (is_object($activity->properties) ? $activity->properties->toArray() : []);
+                            $isDeleted = ($activity->event == 'deleted' || $description == 'deleted');
+
+                            // 1. Lấy tên từ subject nếu còn trong DB
+                            if ($subject) {
+                                if ($rawType === 'Project') {
+                                    $subjectName = $subject->name;
+                                } elseif ($rawType === 'Vrtour3dmodel') {
+                                    $subjectName = $subject->title_3d ?: ($subject->project->name ?? null);
+                                } else {
+                                    $subjectName = $subject->name ?? $subject->title ?? null;
+                                }
+                            }
+
+                            // 2. Nếu không có (hoặc đã bị xóa), lấy tên từ properties log (old hoặc attributes)
+                            if (!$subjectName && !empty($props)) {
+                                $subjectName = $props['attributes']['name'] 
+                                    ?? $props['old']['name'] 
+                                    ?? $props['attributes']['title_3d'] 
+                                    ?? $props['old']['title_3d'] 
+                                    ?? $props['attributes']['title'] 
+                                    ?? $props['old']['title'] 
+                                    ?? null;
+                            }
+
+                            // 3. Dự phòng cho Project nếu properties không lưu name
+                            if (!$subjectName && $rawType === 'Project' && $activity->subject_id) {
+                                $fallbackPj = \App\Models\Project::find($activity->subject_id);
+                                if ($fallbackPj) {
+                                    $subjectName = $fallbackPj->name;
+                                }
+                            }
+
+                            // Xử lý đa ngôn ngữ nếu là mảng JSON
+                            if (is_array($subjectName)) {
+                                $subjectName = $subjectName['vi'] ?? reset($subjectName) ?? null;
+                            }
+
+                            $typeLabels = [
+                                'Project' => 'Dự án',
+                                'Vrtour3dmodel' => 'Mô hình VR 3D',
+                                'Post' => 'Bài viết',
+                                'InvestmentGuide' => 'Cẩm nang',
+                                'User' => 'Tài khoản',
+                                'District' => 'Quận/Huyện',
+                                'Category' => 'Danh mục',
+                            ];
+                            $typeLabel = $typeLabels[$rawType] ?? $rawType;
+                        @endphp
+
                         @if ($activity->subject_type)
-                            {{ class_basename($activity->subject_type) }} (ID: {{ $activity->subject_id }})
+                            @if ($subjectName)
+                                @if ($rawType === 'Project' && !$isDeleted && Route::has('backend_project_edit'))
+                                    <a href="{{ route('backend_project_edit', $activity->subject_id) }}" 
+                                       class="font-weight-bold text-primary" 
+                                       title="{{ $subjectName }}"
+                                       style="max-width: 320px; display: inline-block; white-space: normal; line-height: 1.3;">
+                                        {{ $subjectName }}
+                                    </a>
+                                @else
+                                    <span class="font-weight-bold text-dark" 
+                                          title="{{ $subjectName }}"
+                                          style="max-width: 320px; display: inline-block; white-space: normal; line-height: 1.3;">
+                                        {{ $subjectName }}
+                                    </span>
+                                @endif
+                                <div class="text-muted small mt-1">
+                                    <span class="badge badge-light border">{{ $typeLabel }}</span>
+                                    <span>ID: {{ $activity->subject_id }}</span>
+                                </div>
+                            @else
+                                <span class="font-weight-bold text-dark">{{ $typeLabel }}</span>
+                                <span class="text-muted small">(ID: {{ $activity->subject_id }})</span>
+                            @endif
                         @else
-                            -
+                            <span class="text-muted">-</span>
                         @endif
                     </td>
                     <td>
@@ -56,7 +132,9 @@
                                 <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header bg-warning text-dark">
-                                            <h5 class="modal-title">So sánh thay đổi</h5>
+                                            <h5 class="modal-title">
+                                                So sánh thay đổi: {{ $subjectName ? $subjectName : ($typeLabel . ' #' . $activity->subject_id) }}
+                                            </h5>
                                             <button type="button" class="close" data-dismiss="modal"
                                                 aria-label="Close">
                                                 <span aria-hidden="true">&times;</span>

@@ -52,6 +52,25 @@ return [
                     'route' => 'backend_guest',
                     'title' => 'Người dùng',
                 ],
+                'reports' => [
+                    'icon' => 'fas fa-chart-pie',
+                    'route' => 'backend.reports.investor_behavior',
+                    'title' => 'Phân tích hành vi NĐT',
+                ],
+                'map' => [
+                    'icon' => 'fas fa-map-marked-alt',
+                    'title' => 'Bản đồ số',
+                    'items' => [
+                        'map_layer' => [
+                            'title' => 'Quản lý Layer',
+                            'route' => 'backend_map_layer',
+                        ],
+                        'map_monitor' => [
+                            'title' => 'Giám sát Layer',
+                            'route' => 'backend_map_monitor',
+                        ],
+                    ],
+                ],
                'vr_tour' => [
                    'icon' => 'fas fa-vr-cardboard',
                    'title' => 'VrTour',

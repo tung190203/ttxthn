@@ -280,12 +280,15 @@
                                         @php
                                             $rawFilesDescs = old('files_descs.'.$locale) ?: $project->getTranslation('legal_description', $locale, false);
                                             $filesDescs = is_string($rawFilesDescs) ? json_decode($rawFilesDescs, true) : (is_array($rawFilesDescs) ? $rawFilesDescs : []);
+                                            $filesAccessLevels = old('files_access_levels') ?: $project->getLegalAccessLevels();
                                         @endphp
                                         <x-forms.upload-multi-combo name="files" :locale="$locale"
                                             :value="[
                                                 'images' => explode(';', $project->legal_file ?? ''), 
                                                 'descs' => $filesDescs, 
+                                                'access_levels' => $filesAccessLevels,
                                             ]" label="Tệp đính kèm văn bản pháp quy"
+                                            :hasAccessLevel="true"
                                             :messages="$errors->get('files_descs.'.$locale)" />
 
                                     </div>
