@@ -24,7 +24,7 @@ class ActivityLogExport implements FromCollection, WithHeadings, WithMapping, Sh
 
     public function collection()
     {
-        $query = Activity::with('causer')->whereNotNull('causer_id');
+        $query = Activity::with(['causer', 'subject'])->whereNotNull('causer_id');
         
         if ($this->months != 0 && $this->months !== null) {
             $cutoffDate = now()->subMonths($this->months);
@@ -87,7 +87,48 @@ class ActivityLogExport implements FromCollection, WithHeadings, WithMapping, Sh
     {
         $performer = $log->causer ? $log->causer->name : 'System';
         $action = ucfirst($log->description);
-        $subject = $log->subject_type ? class_basename($log->subject_type) . " (ID: {$log->subject_id})" : '-';
+        
+        $rawType = class_basename($log->subject_type ?? '');
+        $subjectName = null;
+        if ($log->subject) {
+            if ($rawType === 'Project') {
+                $subjectName = $log->subject->name;
+            } elseif ($rawType === 'Vrtour3dmodel') {
+                $subjectName = $log->subject->title_3d ?: ($log->subject->project->name ?? null);
+            } else {
+                $subjectName = $log->subject->name ?? $log->subject->title ?? null;
+            }
+        }
+
+        if (!$subjectName && !empty($log->properties)) {
+            $props = is_array($log->properties) ? $log->properties : (is_object($log->properties) ? $log->properties->toArray() : []);
+            $subjectName = $props['attributes']['name'] 
+                ?? $props['old']['name'] 
+                ?? $props['attributes']['title_3d'] 
+                ?? $props['old']['title_3d'] 
+                ?? $props['attributes']['title'] 
+                ?? $props['old']['title'] 
+                ?? null;
+        }
+
+        if (is_array($subjectName)) {
+            $subjectName = $subjectName['vi'] ?? reset($subjectName) ?? null;
+        }
+
+        $typeLabels = [
+            'Project' => 'Dự án',
+            'Vrtour3dmodel' => 'Mô hình VR 3D',
+            'Post' => 'Bài viết',
+            'InvestmentGuide' => 'Cẩm nang',
+            'User' => 'Tài khoản',
+        ];
+        $typeLabel = $typeLabels[$rawType] ?? $rawType;
+
+        if ($log->subject_type) {
+            $subject = $subjectName ? "{$subjectName} - {$typeLabel} (ID: {$log->subject_id})" : "{$typeLabel} (ID: {$log->subject_id})";
+        } else {
+            $subject = '-';
+        }
         
         $details = [];
         if ($log->properties && count($log->properties) > 0) {

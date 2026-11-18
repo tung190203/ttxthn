@@ -20,6 +20,8 @@ use App\Http\Controllers\Backend\VrTour\ContentController;
 use App\Http\Controllers\Backend\ProfileController;
 use App\Http\Controllers\Backend\AIChatMonitorController;
 use App\Http\Controllers\Backend\VrTour\ApprovalController;
+use App\Http\Controllers\Backend\MapLayerController;
+use App\Http\Controllers\Backend\MapSourceMonitorController;
 use App\Http\Controllers\Backend\VrTour\VersionHistoryController;
 use Illuminate\Support\Facades\Route;
 
@@ -267,6 +269,25 @@ Route::localized(function () {
             Route::get('/status', [AIChatMonitorController::class, 'getApiStatus'])->name('backend_ai_monitor_status');
             Route::get('/advanced-stats', [AIChatMonitorController::class, 'getAdvancedStats'])->name('backend_ai_monitor_advanced_stats');
             Route::get('/extra-stats', [AIChatMonitorController::class, 'getExtraStats'])->name('backend_ai_monitor_extra_stats');
+        });
+
+        Route::prefix('map-layers')->group(function () {
+            Route::get('/', [MapLayerController::class, 'index'])->name('backend_map_layer');
+            Route::get('/create', [MapLayerController::class, 'create'])->name('backend_map_layer_create');
+            Route::get('/edit/{layer}', [MapLayerController::class, 'edit'])->name('backend_map_layer_edit');
+            Route::post('/save/{layer?}', [MapLayerController::class, 'save'])->name('backend_map_layer_save');
+            Route::post('/delete/{id}', [MapLayerController::class, 'delete'])->name('backend_map_layer_delete');
+            Route::post('/toggle-status', [MapLayerController::class, 'toggleStatus'])->name('backend_map_layer_toggle_status');
+            Route::post('/reorder', [MapLayerController::class, 'reorder'])->name('backend_map_layer_reorder');
+            Route::post('/test-connection', [MapLayerController::class, 'testConnection'])->name('backend_map_layer_test_connection');
+        });
+
+        Route::prefix('map-monitor')->group(function () {
+            Route::get('/', [MapSourceMonitorController::class, 'index'])->name('backend_map_monitor');
+            Route::get('/detail/{id}', [MapSourceMonitorController::class, 'detail'])->name('backend_map_monitor_detail');
+            Route::post('/check-now/{id}', [MapSourceMonitorController::class, 'checkNow'])->name('backend_map_monitor_check_now');
+            Route::post('/check-all', [MapSourceMonitorController::class, 'checkAllNow'])->name('backend_map_monitor_check_all');
+            Route::post('/threshold/{id}', [MapSourceMonitorController::class, 'updateThreshold'])->name('backend_map_monitor_threshold');
         });
     });
 });

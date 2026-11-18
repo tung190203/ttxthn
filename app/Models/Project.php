@@ -211,6 +211,11 @@ class Project extends Model
         return $this->belongsTo(Project::class, 'parent_id');
     }
 
+    public function mapLayers()
+    {
+        return $this->belongsToMany(MapLayer::class, 'project_map_layer', 'project_id', 'map_layer_id');
+    }
+
     public static function makeListProject($selected_id = '')
     {
         $query = Project::select('id', 'name')->get();

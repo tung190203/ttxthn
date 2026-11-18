@@ -57,6 +57,20 @@ return [
                     'route' => 'backend.reports.investor_behavior',
                     'title' => 'Phân tích hành vi NĐT',
                 ],
+                'map' => [
+                    'icon' => 'fas fa-map-marked-alt',
+                    'title' => 'Bản đồ số',
+                    'items' => [
+                        'map_layer' => [
+                            'title' => 'Quản lý Layer',
+                            'route' => 'backend_map_layer',
+                        ],
+                        'map_monitor' => [
+                            'title' => 'Giám sát Layer',
+                            'route' => 'backend_map_monitor',
+                        ],
+                    ],
+                ],
                'vr_tour' => [
                    'icon' => 'fas fa-vr-cardboard',
                    'title' => 'VrTour',

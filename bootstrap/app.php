@@ -19,7 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'ckCsrfToken',
         ]);
         $middleware->validateCsrfTokens(
-            except: ['ckfinder/*', 'ttxt/webhook']
+            except: ['ckfinder/*', 'ttxt/webhook', 'layers/test-connection', 'api/layers/*', '*/api/layers/*']
         );
     })
     ->withExceptions(function (Exceptions $exceptions) {

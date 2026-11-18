@@ -73,6 +73,14 @@ return [
         'label' => 'Phân tích hành vi NĐT',
         'super_admin_only' => false,
     ],
+    'map' => [
+        'label' => 'Bản đồ số',
+        'items' => [
+            'map_layer' => 'Quản lý Layer',
+            'map_monitor' => 'Giám sát Layer',
+        ],
+        'super_admin_only' => false,
+    ],
     'menu' => [
         'label' => 'Menu',
         'items' => [

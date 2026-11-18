@@ -148,7 +148,12 @@
                             <div class="card h-100 rounded-0">
                                 <div class="card-header bg-light border-bottom cursor-move d-flex justify-content-between align-items-center" style="cursor: grab;">
                                     <h5 class="m-0 fw-bold text-uppercase" style="font-size: 16px;"><i class="fal fa-bell me-2"></i>{{ __('app.new_updates') }}</h5>
-                                    <i class="fal fa-arrows-alt text-secondary"></i>
+                                    <div class="d-flex align-items-center">
+                                        <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2 me-2" onclick="document.getElementById('btnPortalFeedLauncher') && document.getElementById('btnPortalFeedLauncher').click();" style="font-size: 11px;">
+                                            <i class="fas fa-newspaper me-1"></i> Bảng tin New Feed
+                                        </button>
+                                        <i class="fal fa-arrows-alt text-secondary"></i>
+                                    </div>
                                 </div>
                                 <div class="card-body p-0" style="max-height: 400px; overflow-y: auto;">
                                     @if($updatedBookmarks->isEmpty())

@@ -153,6 +153,8 @@
             @include('frontend.footer')
         @endif
     </div>
+
+
     <button class="btn-movetop" type="button" data-target="body"><i class="fa fa-arrow-up"></i></button>
     <!-- ================== LOGIN POPUP ================== -->
     <div class="md-form modal fade" id="md-sign-in" tabindex="-1">
@@ -411,6 +413,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     {!! $setting['tracking_code_bottom'] !!}
     
+    @include('frontend.partials.guest_project_notification')
     @include('frontend.partials.chatbot-ui')
 </body>
 

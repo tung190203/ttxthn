@@ -9,6 +9,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\InvestMentGuideController;
 use App\Http\Controllers\TtxtWebhookController;
+use App\Http\Controllers\Api\MapLayerApiController;
 use Illuminate\Support\Facades\Route;
 
 require __DIR__ . '/auth.php';
@@ -16,7 +17,22 @@ require __DIR__ . '/backend.php';
 
 Route::post('/ttxt/webhook', TtxtWebhookController::class)->name('ttxt_webhook');
 
+// Public Layers API (Dynamic Map Layers - Module g)
+Route::get('/api/layers', [MapLayerApiController::class, 'index'])->name('api_layers');
+Route::get('/layers', [MapLayerApiController::class, 'index']);
+Route::get('/api/layers/data/boundary', [MapLayerApiController::class, 'getBoundaryGeoJson'])->name('api_layers_data_boundary');
+Route::get('/api/layers/data/railway', [MapLayerApiController::class, 'getRailwayGeoJson'])->name('api_layers_data_railway');
+Route::post('/layers/test-connection', [MapLayerApiController::class, 'testConnection'])->name('api_layers_test_connection');
+Route::post('/api/layers/test-connection', [MapLayerApiController::class, 'testConnection']);
+Route::get('/api/public/recent-updates', [HomeController::class, 'getRecentProjectUpdates'])->name('api_public_recent_updates_direct');
+
 Route::localized(function () {
+    Route::get('/api/layers', [MapLayerApiController::class, 'index']);
+    Route::get('/layers', [MapLayerApiController::class, 'index']);
+    Route::get('/api/layers/data/boundary', [MapLayerApiController::class, 'getBoundaryGeoJson']);
+    Route::get('/api/layers/data/railway', [MapLayerApiController::class, 'getRailwayGeoJson']);
+    Route::post('/layers/test-connection', [MapLayerApiController::class, 'testConnection']);
+    Route::post('/api/layers/test-connection', [MapLayerApiController::class, 'testConnection']);
     Route::group(['prefix' => 'auth'], function () {
         Route::post('/register', [AuthController::class, 'register'])->name('auth_register');
         Route::post('/login', [AuthController::class, 'login'])->name('auth_login');
@@ -59,8 +75,11 @@ Route::localized(function () {
     Route::get('/home', [HomeController::class, 'index']);
     Route::get('/map/filter', [MapController::class, 'filter']);
     Route::get('/map/bounds', [MapController::class, 'getProjectsInBounds']);
+    Route::get('/api/map/export', [MapController::class, 'export'])->name('api_map_export');
+    Route::get('/public/map/export', [MapController::class, 'export'])->name('public_map_export');
     Route::get('/api/districts', [MapController::class, 'getDistricts'])->name('api_districts');
     Route::get('/api/railway-projects', [MapController::class, 'getRailwayProjects'])->name('api_railway_projects');
+    Route::get('/api/public/recent-updates', [HomeController::class, 'getRecentProjectUpdates'])->name('api_public_recent_updates');
     Route::get('/projects', [HomeController::class, 'projects'])->name('projects');
     Route::get('/industrial-projects', [HomeController::class, 'industrialProjects'])->name('industrial_projects');
     Route::get('/project-detail/{slug}', [HomeController::class, 'projectDetail'])->name('project_detail');

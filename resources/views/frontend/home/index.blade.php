@@ -25,7 +25,7 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                                 <span>{{__('app.map')}}</span>
                             @endif
                         </h1>
-                        <button class="home-map-intro__cta" id="startProjectIntro" type="button">
+                        <button class="home-map-intro__cta" id="startProjectIntro" onclick="window.handleStartProjectIntro(event)" type="button" style="cursor: pointer; position: relative; z-index: 2005; pointer-events: auto;">
                             {{ __('app.explore_projects') }}
                         </button>
                     </div>
@@ -50,13 +50,14 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
             </div>
             @else
             <div id="video-loader-container" class="home-video-intro">
-                <picture id="intro-poster" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; transition: opacity 0.5s ease, visibility 0.5s ease; display: block;">
+                <picture id="intro-poster" onclick="window.handleStartProjectIntro(event)" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; transition: opacity 0.5s ease, visibility 0.5s ease; display: block; cursor: pointer;">
                     <source media="(max-width: 576px)" srcset="{{ asset('images/KV-phone.jpg') }}">
                     <source media="(max-width: 992px)" srcset="{{ asset('images/KV-ipad.jpg') }}">
-                    <img src="{{ asset('images/intro.png') }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                    <img src="{{ asset('images/intro.png') }}" alt="" onclick="window.handleStartProjectIntro(event)" style="width: 100%; height: 100%; object-fit: cover; cursor: pointer;">
                 </picture>
-                <video id="loader-video" muted playsinline preload="auto">
-                    <source src="/videos/intro.mov" type="video/mp4">
+                <video id="loader-video" muted playsinline preload="auto" onended="window.unlockMap && window.unlockMap()">
+                    <source src="{{ asset('videos/intro.mp4') }}" type="video/mp4">
+                    <source src="{{ asset('videos/intro.mov') }}" type="video/quicktime">
                     Trình duyệt của bạn không hỗ trợ video.
                 </video>
                 <div class="home-video-intro__overlay">
@@ -74,7 +75,7 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                                 <span>{{__('app.map')}}</span>
                             @endif
                             </h1>
-                            <button class="home-video-intro__cta" id="startProjectIntro" type="button">
+                            <button class="home-video-intro__cta" id="startProjectIntro" onclick="window.handleStartProjectIntro(event)" type="button" style="cursor: pointer; position: relative; z-index: 2005; pointer-events: auto;">
                                 {{ __('app.explore_projects') }}
                             </button>
                         </div>
@@ -89,11 +90,111 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                         </div>
                     </div>
                 </div>
-                <button id="skip-video-btn" class="btn-skip-video">
+                <button id="skip-video-btn" class="btn-skip-video" type="button" onclick="window.unlockMap && window.unlockMap()" style="cursor: pointer;">
                     {{__('app.skip_video')}} <i class="fas fa-forward ms-2"></i>
                 </button>
             </div>
             @endif
+
+            <script>
+            // Khởi tạo ngay lập tức hàm kích hoạt phát video intro & mở bản đồ
+            window.handleStartProjectIntro = function(e) {
+                if (e) {
+                    if (typeof e.preventDefault === 'function') e.preventDefault();
+                    if (typeof e.stopPropagation === 'function') e.stopPropagation();
+                }
+                
+                var vContainer = document.getElementById('video-loader-container');
+                var lVideo = document.getElementById('loader-video');
+
+                if (!lVideo) {
+                    if (typeof window.unlockMap === 'function') window.unlockMap();
+                    return;
+                }
+
+                if (vContainer) {
+                    vContainer.classList.add('is-playing');
+                }
+
+                try {
+                    var playPromise = lVideo.play();
+                    if (playPromise !== undefined) {
+                        playPromise.catch(function(error) {
+                            console.warn('Video intro play error, unlocking map directly:', error);
+                            if (typeof window.unlockMap === 'function') window.unlockMap();
+                        });
+                    }
+                } catch(err) {
+                    console.warn('Direct video play error:', err);
+                    if (typeof window.unlockMap === 'function') window.unlockMap();
+                }
+            };
+
+            window.unlockMap = function() {
+                var lVideo = document.getElementById('loader-video');
+                var vContainer = document.getElementById('video-loader-container');
+                var introLayer = document.getElementById('mapIntroLayer');
+                var homePage = document.querySelector('.home-page');
+
+                if (lVideo) {
+                    try { lVideo.pause(); lVideo.currentTime = 0; } catch(e){}
+                }
+                if (vContainer) {
+                    vContainer.classList.add('video-fade-out');
+                }
+                if (introLayer) {
+                    introLayer.classList.add('is-hidden');
+                }
+                if (homePage) {
+                    homePage.classList.remove('home-map-locked');
+                }
+
+                var pjSearchFull = document.getElementById('pjSearchFull');
+                var pjSearchMini = document.getElementById('pjSearchMini');
+                if (pjSearchFull) pjSearchFull.style.visibility = '';
+                if (pjSearchMini) pjSearchMini.style.visibility = '';
+
+                var header = document.querySelector('.header');
+                if (header) {
+                    header.classList.add('map-header-active');
+                    if (!header.classList.contains('is-sticky')) {
+                        var headerWrapper = document.querySelector('.header__wrapper');
+                        if (headerWrapper) {
+                            header.style.minHeight = headerWrapper.offsetHeight + 'px';
+                        }
+                        header.classList.add('is-sticky');
+                    }
+                }
+
+                setTimeout(function() {
+                    if (vContainer) {
+                        vContainer.style.display = 'none';
+                        vContainer.classList.remove('is-playing', 'video-fade-out');
+                    }
+                    if (introLayer) {
+                        introLayer.style.display = 'none';
+                    }
+                    if (typeof map !== 'undefined' && map) {
+                        map.invalidateSize();
+                    }
+
+                    var urlParamsCheck = new URLSearchParams(window.location.search);
+                    var isShared = urlParamsCheck.has('lat') && urlParamsCheck.has('lng');
+
+                    if (isShared) {
+                        if (typeof restoreLayersAndFilterState === 'function') {
+                            isInitialStateRestored = false;
+                            restoreLayersAndFilterState();
+                        }
+                    } else {
+                        if (typeof window.loadDefaultMap === 'function') {
+                            window.loadDefaultMap();
+                        }
+                        window.dispatchEvent(new Event('resize'));
+                    }
+                }, 650);
+            };
+            </script>
             <div class="w-full">
                 <div id="map">
                     <!-- Railway Legend -->
@@ -512,6 +613,173 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                     <nav>
                         <ul id="pagination" class="pagination justify-content-center mt-3"></ul>
                     </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CHIA SẺ BẢN ĐỒ (MODULE G-04) -->
+    <div class="modal fade" id="shareMapModal" tabindex="-1" aria-labelledby="shareMapModalLabel" aria-hidden="true" style="z-index: 100050;">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 540px;">
+            <div class="modal-content shadow-lg border-0" style="border-radius: 14px; overflow: hidden;">
+                <div class="modal-header text-white" style="background: linear-gradient(135deg, #1d4ed8, #2563eb); padding: 14px 20px;">
+                    <h5 class="modal-title font-weight-bold d-flex align-items-center" id="shareMapModalLabel" style="font-size: 16px; margin: 0; color: #fff;">
+                        <i class="fas fa-share-alt me-2 mr-2"></i> Chia sẻ liên kết bản đồ
+                    </h5>
+                    <button type="button" class="btn-close text-white" data-bs-dismiss="modal" data-dismiss="modal" aria-label="Close" style="background: none; border: none; font-size: 24px; color: #fff; line-height: 1; cursor: pointer; padding: 0; opacity: 0.9;">&times;</button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-muted mb-3" style="font-size: 13.5px; line-height: 1.5;">
+                        Đường dẫn này lưu giữ chính xác toạ độ góc nhìn, mức độ phóng to, bản đồ nền, các lớp dữ liệu đang bật và bộ lọc tìm kiếm hiện tại của bạn:
+                    </p>
+
+                    <div class="input-group mb-3" style="box-shadow: 0 1px 3px rgba(0,0,0,0.08); border-radius: 8px; overflow: hidden;">
+                        <input type="text" id="shareMapUrlInput" class="form-control" readonly style="background-color: #f8fafc; font-size: 13px; font-weight: 500; color: #0f172a; border: 1px solid #cbd5e1; padding: 10px 12px;" onclick="this.select();">
+                        <button class="btn btn-primary px-3 font-weight-bold" type="button" id="btnCopyShareUrl" style="white-space: nowrap; border-radius: 0 8px 8px 0; color: #ffffff !important; background-color: #1169ff !important; border-color: #1169ff !important;">
+                            <i class="fas fa-copy me-1 mr-1" style="color: #ffffff !important;"></i> <span id="btnCopyShareUrlText" style="color: #ffffff !important;">Sao chép</span>
+                        </button>
+                    </div>
+                    <div class="p-3 rounded" style="background: #f8fafc; border: 1px solid #e2e8f0; font-size: 12.5px; color: #475569;">
+                        <div class="font-weight-bold text-dark mb-1" style="font-size: 13px;">
+                            <i class="fas fa-info-circle text-primary me-1 mr-1"></i> Thông tin trạng thái đang chia sẻ:
+                        </div>
+                        <div id="shareStateSummary" style="line-height: 1.6;">
+                            <!-- Sẽ được điền bằng Javascript -->
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer py-2 px-4 bg-light d-flex justify-content-between align-items-center" style="border-top: 1px solid #e2e8f0;">
+                    <small class="text-muted"><i class="fas fa-link me-1 mr-1"></i> Liên kết có hiệu lực vĩnh viễn</small>
+                    <button type="button" class="btn btn-primary btn-sm px-4" data-bs-dismiss="modal" data-dismiss="modal" style="color: #ffffff !important; background-color: #1169ff !important; border-color: #1169ff !important; font-weight: 600;">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL XUẤT DỮ LIỆU BẢN ĐỒ (MODULE G-05) -->
+    <div class="modal fade" id="exportMapModal" tabindex="-1" aria-labelledby="exportMapModalLabel" aria-hidden="true" style="z-index: 100050;">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 530px;">
+            <div class="modal-content shadow-lg border-0" style="border-radius: 14px; overflow: hidden;">
+                <div class="modal-header text-white" style="background: linear-gradient(135deg, #1d4ed8, #2563eb); padding: 14px 20px;">
+                    <h5 class="modal-title font-weight-bold d-flex align-items-center" id="exportMapModalLabel" style="font-size: 16px; margin: 0; color: #fff;">
+                        <i class="fas fa-file-export me-2 mr-2"></i> Xuất dữ liệu không gian bản đồ
+                    </h5>
+                    <button type="button" class="btn-close text-white" data-bs-dismiss="modal" data-dismiss="modal" aria-label="Close" style="background: none; border: none; font-size: 24px; color: #fff; line-height: 1; cursor: pointer; padding: 0; opacity: 0.9;">&times;</button>
+                </div>
+                <div class="modal-body p-4" style="background: #ffffff;">
+                    <p class="text-muted mb-3" style="font-size: 13.5px; line-height: 1.5;">
+                        Tải dữ liệu dự án đầu tư theo đúng bộ lọc và phạm vi hiển thị hiện tại để mở trong phần mềm GIS (Google Earth, QGIS, ArcGIS) hoặc Microsoft Excel:
+                    </p>
+
+                    <div class="p-3 mb-3 rounded" style="background: #f8fafc; border: 1px solid #e2e8f0; font-size: 12.5px; color: #475569;">
+                        <div class="font-weight-bold text-dark mb-1" style="font-size: 13px;">
+                            <i class="fas fa-filter text-primary me-1 mr-1"></i> Phạm vi & Bộ lọc áp dụng:
+                        </div>
+                        <div id="exportFilterSummary" style="line-height: 1.6;">
+                            <!-- Sẽ được điền bằng Javascript -->
+                        </div>
+                    </div>
+
+                    <style>
+                        .export-option-card {
+                            background: #ffffff;
+                            border: 1px solid #e2e8f0;
+                            border-radius: 10px;
+                            padding: 12px 14px;
+                            transition: all 0.2s ease;
+                            text-decoration: none !important;
+                            display: flex;
+                            align-items: center;
+                            justify-content: space-between;
+                        }
+                        .export-option-card:hover {
+                            background: #f8fafc;
+                            border-color: #cbd5e1;
+                            transform: translateY(-1px);
+                            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+                        }
+                        .export-option-card .export-icon {
+                            width: 40px;
+                            height: 40px;
+                            border-radius: 8px;
+                            background: #f1f5f9;
+                            color: #1e40af;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 17px;
+                            margin-right: 12px;
+                            flex-shrink: 0;
+                            transition: all 0.2s ease;
+                        }
+                        .export-option-card:hover .export-icon {
+                            background: #eff6ff;
+                            color: #1d4ed8;
+                        }
+                    </style>
+
+                    <div class="d-flex flex-column gap-2" style="display: flex; flex-direction: column; gap: 10px;">
+                        <!-- Định dạng KML -->
+                        <a href="#" id="btnDownloadKml" class="export-option-card">
+                            <div class="d-flex align-items-center" style="display: flex; align-items: center; min-width: 0;">
+                                <div class="export-icon">
+                                    <i class="fas fa-globe-americas"></i>
+                                </div>
+                                <div style="min-width: 0;">
+                                    <div class="d-flex align-items-center" style="display: flex; align-items: center; gap: 6px;">
+                                        <strong style="font-size: 13.5px; color: #0f172a; font-weight: 600;">Google Earth KML</strong>
+                                        <span class="badge" style="font-size: 10.5px; background: #e2e8f0; color: #475569; font-weight: 500; padding: 2px 6px; border-radius: 4px;">.kml</span>
+                                    </div>
+                                    <span class="text-muted" style="font-size: 12px; display: block; line-height: 1.4; margin-top: 2px;">Ghim 3D, nhãn tên, popup chi tiết &amp; thư mục trạng thái trên Google Earth</span>
+                                </div>
+                            </div>
+                            <span class="btn btn-sm px-3 ms-2" style="font-size: 12px; font-weight: 600; color: #1e40af; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; white-space: nowrap;">
+                                <i class="fas fa-download me-1 mr-1"></i> Tải về
+                            </span>
+                        </a>
+
+                        <!-- Định dạng GeoJSON -->
+                        <a href="#" id="btnDownloadGeoJson" class="export-option-card">
+                            <div class="d-flex align-items-center" style="display: flex; align-items: center; min-width: 0;">
+                                <div class="export-icon">
+                                    <i class="fas fa-layer-group"></i>
+                                </div>
+                                <div style="min-width: 0;">
+                                    <div class="d-flex align-items-center" style="display: flex; align-items: center; gap: 6px;">
+                                        <strong style="font-size: 13.5px; color: #0f172a; font-weight: 600;">Định dạng GeoJSON</strong>
+                                        <span class="badge" style="font-size: 10.5px; background: #e2e8f0; color: #475569; font-weight: 500; padding: 2px 6px; border-radius: 4px;">.geojson</span>
+                                    </div>
+                                    <span class="text-muted" style="font-size: 12px; display: block; line-height: 1.4; margin-top: 2px;">Chuẩn GIS không gian (WGS84), tương thích QGIS, ArcGIS, Mapbox, geojson.io</span>
+                                </div>
+                            </div>
+                            <span class="btn btn-sm px-3 ms-2" style="font-size: 12px; font-weight: 600; color: #1e40af; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; white-space: nowrap;">
+                                <i class="fas fa-download me-1 mr-1"></i> Tải về
+                            </span>
+                        </a>
+
+                        <!-- Định dạng CSV -->
+                        <a href="#" id="btnDownloadCsv" class="export-option-card">
+                            <div class="d-flex align-items-center" style="display: flex; align-items: center; min-width: 0;">
+                                <div class="export-icon">
+                                    <i class="fas fa-table"></i>
+                                </div>
+                                <div style="min-width: 0;">
+                                    <div class="d-flex align-items-center" style="display: flex; align-items: center; gap: 6px;">
+                                        <strong style="font-size: 13.5px; color: #0f172a; font-weight: 600;">Bảng tính CSV</strong>
+                                        <span class="badge" style="font-size: 10.5px; background: #e2e8f0; color: #475569; font-weight: 500; padding: 2px 6px; border-radius: 4px;">.csv</span>
+                                    </div>
+                                    <span class="text-muted" style="font-size: 12px; display: block; line-height: 1.4; margin-top: 2px;">Tọa độ Lat/Long chuẩn, mã hóa tiếng Việt UTF-8 BOM hiển thị trên Microsoft Excel</span>
+                                </div>
+                            </div>
+                            <span class="btn btn-sm px-3 ms-2" style="font-size: 12px; font-weight: 600; color: #1e40af; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; white-space: nowrap;">
+                                <i class="fas fa-download me-1 mr-1"></i> Tải về
+                            </span>
+                        </a>
+                    </div>
+                </div>
+                <div class="modal-footer py-2 px-4 bg-light d-flex justify-content-between align-items-center" style="border-top: 1px solid #e2e8f0;">
+                    <small class="text-muted"><i class="fas fa-check-circle text-primary me-1 mr-1"></i> Tương thích Google Earth, QGIS &amp; Excel</small>
+                    <button type="button" class="btn btn-primary btn-sm px-4" data-bs-dismiss="modal" data-dismiss="modal" style="color: #ffffff !important; background-color: #1169ff !important; border-color: #1169ff !important; font-weight: 600;">Đóng</button>
                 </div>
             </div>
         </div>
@@ -2169,6 +2437,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const videoContainer = document.getElementById('video-loader-container');
     const loaderVideo = document.getElementById('loader-video');
     const skipBtn = document.getElementById('skip-video-btn');
+    const introPoster = document.getElementById('intro-poster');
+    const videoOverlay = document.querySelector('.home-video-intro__overlay');
+
+    const _urlParamsCheck = new URLSearchParams(window.location.search);
+    const _isSharedMapDetected = _urlParamsCheck.has('lat') && _urlParamsCheck.has('lng');
 
     if (loaderVideo) {
         loaderVideo.pause();
@@ -2176,19 +2449,21 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function unlockMap() {
-        if (typeof window.loadDefaultMap === 'function') {
-            window.loadDefaultMap();
-        }
         if (loaderVideo) {
             loaderVideo.pause();
             loaderVideo.currentTime = 0;
         }
 
-        videoContainer.classList.add('video-fade-out');
-        if (introLayer) introLayer.classList.add('is-hidden');
-        document.querySelector('.home-page').classList.remove('home-map-locked');
+        if (videoContainer) {
+            videoContainer.classList.add('video-fade-out');
+        }
+        if (introLayer) {
+            introLayer.classList.add('is-hidden');
+        }
+        const homePage = document.querySelector('.home-page');
+        if (homePage) homePage.classList.remove('home-map-locked');
 
-        // Xoá inline visibility:hidden đã đặt sẵn để tránh flash khi load
+        // Xoá inline visibility:hidden đã đặt sẵn để hiển thị các cụm tìm kiếm
         const pjSearchFull = document.getElementById('pjSearchFull');
         const pjSearchMini = document.getElementById('pjSearchMini');
         if (pjSearchFull) pjSearchFull.style.visibility = '';
@@ -2198,7 +2473,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const $header = document.querySelector('.header');
         if ($header) {
             $header.classList.add('map-header-active');
-            // Đồng thời đảm bảo header wrapper được position fixed nếu chưa sticky
             if (!$header.classList.contains('is-sticky')) {
                 const $headerWrapper = document.querySelector('.header__wrapper');
                 if ($headerWrapper) {
@@ -2209,32 +2483,72 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         setTimeout(() => {
-            videoContainer.style.display = 'none';
-            videoContainer.classList.remove('is-playing', 'video-fade-out');
-            window.dispatchEvent(new Event('resize'));
+            if (videoContainer) {
+                videoContainer.style.display = 'none';
+                videoContainer.classList.remove('is-playing', 'video-fade-out');
+            }
+            if (typeof map !== 'undefined' && map) {
+                map.invalidateSize();
+            }
+
+            // Nếu đang mở link chia sẻ: khôi phục chính xác toạ độ, zoom, layer và filter
+            if (_isSharedMapDetected) {
+                if (typeof restoreLayersAndFilterState === 'function') {
+                    isInitialStateRestored = false;
+                    restoreLayersAndFilterState();
+                }
+            } else {
+                // Link thông thường: nạp bản đồ vệ tinh và ranh giới mặc định
+                if (typeof window.loadDefaultMap === 'function') {
+                    window.loadDefaultMap();
+                }
+                window.dispatchEvent(new Event('resize'));
+            }
         }, 650);
     }
 
-    if (startBtn) {
-        startBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            if (!loaderVideo) {
+    // Hàm kích hoạt phát video intro khi bấm nút Tìm hiểu dự án hoặc bấm Poster
+    function handleStartProjectIntro(e) {
+        if (e) {
+            if (e.preventDefault) e.preventDefault();
+            if (e.stopPropagation) e.stopPropagation();
+        }
+        
+        const vContainer = document.getElementById('video-loader-container');
+        const lVideo = document.getElementById('loader-video');
+
+        if (!lVideo) {
+            unlockMap();
+            return;
+        }
+
+        if (vContainer) {
+            vContainer.classList.add('is-playing');
+        }
+
+        const playPromise = lVideo.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(error => {
+                console.warn('Video intro play error, unlocking map directly:', error);
                 unlockMap();
-                return;
-            }
-
-            videoContainer.classList.add('is-playing');
-
-            if (typeof L !== 'undefined' && L.DomEvent) {
-                L.DomEvent.disableClickPropagation(videoContainer);
-                L.DomEvent.disableScrollPropagation(videoContainer);
-            }
-
-            loaderVideo.play().catch(error => {
             });
+        }
+    }
+    window.handleStartProjectIntro = handleStartProjectIntro;
+
+    if (startBtn) {
+        startBtn.addEventListener('click', handleStartProjectIntro);
+    }
+
+    if (introPoster) {
+        introPoster.addEventListener('click', function(e) {
+            handleStartProjectIntro(e);
         });
     }
+
+    $(document).on('click', '#startProjectIntro, .home-video-intro__cta, .home-map-intro__cta, #intro-poster', function(e) {
+        handleStartProjectIntro(e);
+    });
 
     if (loaderVideo) {
         loaderVideo.onended = unlockMap;
@@ -3172,21 +3486,24 @@ renderBoundaryLayers();
 renderRailwayLayers();
 // renderRailwayStations(); // Hidden by default, shown on click
 
-const overlayLayers = {
-    "{{ __('app.boundary_map') }}": boundaryOverlayGroup,
-    "{{ __('app.railway_map') }}": railwayOverlayGroup
-};
+const overlayLayers = {};
 
 const defaultCenter = [21.0285, 105.8542];
 const defaultZoom = 12;
+
+// Kiểm tra tham số chia sẻ từ URL ngay từ đầu
+const _sharedParams = new URLSearchParams(window.location.search);
+const _hasSharedLoc = _sharedParams.has('lat') && _sharedParams.has('lng');
+const _initialCenter = _hasSharedLoc ? [parseFloat(_sharedParams.get('lat')), parseFloat(_sharedParams.get('lng'))] : defaultCenter;
+const _initialZoom = _hasSharedLoc ? (parseInt(_sharedParams.get('zoom')) || 12) : defaultZoom;
 
 // Sử dụng hanoiBounds đã được định nghĩa ở trên (tại phần Tile layers)
 const bounds = hanoiBounds;
 
 // Tạo bản đồ và giới hạn vùng
 const map = L.map('map', {
-    center: defaultCenter, // Khởi tạo vị trí ban đầu để tránh lỗi
-    zoom: defaultZoom,
+    center: _initialCenter, // Khởi tạo vị trí ban đầu theo link chia sẻ (nếu có)
+    zoom: _initialZoom,
     layers: [], // Lazy load: không nạp tile ngay lúc mở trang mà đợi sau khi xem/bỏ qua video
     maxBounds: bounds, // Giới hạn không cho pan ra khỏi vùng này
     maxBoundsViscosity: 1.0, // 1.0 = không bao giờ cho kéo ra ngoài
@@ -3257,6 +3574,9 @@ map.setMaxBounds = function() {
 };
 
 function lockMapToBounds(isInit = false) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const hasSharedParams = urlParams.has('lat') && urlParams.has('lng');
+
     // Tạm mở khóa zoom
     _currentMinAllowedZoom = 0;
     map.setMinZoom(0);
@@ -3271,10 +3591,15 @@ function lockMapToBounds(isInit = false) {
     }
     
     // Thiết lập giới hạn: Không cho zoom out ra ngoài targetZoom, nhưng VẪN cho zoom in (max 21)
-    _currentMinAllowedZoom = targetZoom;
-    map.setMinZoom(targetZoom);
+    _currentMinAllowedZoom = hasSharedParams ? Math.min(targetZoom, 8) : targetZoom;
+    map.setMinZoom(_currentMinAllowedZoom);
     map.setMaxZoom(21);
     
+    // ĐẶC BIỆT: Nếu là link chia sẻ đã có toạ độ chỉ định, TUYỆT ĐỐI KHÔNG reset view về trung tâm Hà Nội!
+    if (hasSharedParams) {
+        return;
+    }
+
     // Đặt lại mức zoom về targetZoom nếu:
     // 1. Là lần load bản đồ đầu tiên (isInit = true)
     // 2. Hoặc mức zoom hiện tại đang nhỏ hơn targetZoom (bị lòi ra ngoài do resize)
@@ -3295,7 +3620,7 @@ window.addEventListener('resize', function() {
     lockMapToBounds(false);
 });
 
-// Đồng bộ ô tích (checkbox) Ranh giới trong menu chọn lớp bản đồ (Layer Control)
+// Đồng bộ ô tích (checkbox) trong menu chọn lớp bản đồ (Layer Control)
 function syncLayerControlCheckboxes() {
     if (!layerControl) return;
 
@@ -3308,22 +3633,36 @@ function syncLayerControlCheckboxes() {
 
     const overlaysList = container.querySelectorAll('.leaflet-control-layers-overlays label');
     overlaysList.forEach(label => {
-        if (label.textContent.includes("{{ __('app.boundary_map') }}") || label.textContent.includes('Ranh giới') || label.textContent.includes('Boundaries')) {
-            const checkbox = label.querySelector('input[type="checkbox"]');
-            if (checkbox && typeof boundaryOverlayGroup !== 'undefined') {
+        const text = (label.textContent || '').trim();
+        const checkbox = label.querySelector('input[type="checkbox"]');
+        if (!checkbox) return;
+
+        if (text.includes("{{ __('app.boundary_map') }}") || text.includes('Ranh giới') || (window.boundaryLayerName && text.includes(window.boundaryLayerName))) {
+            if (typeof boundaryOverlayGroup !== 'undefined') {
                 checkbox.checked = map.hasLayer(boundaryOverlayGroup);
+            }
+        } else if (text.includes("{{ __('app.railway_map') }}") || text.includes('đường sắt') || (window.railwayLayerName && text.includes(window.railwayLayerName))) {
+            if (typeof railwayOverlayGroup !== 'undefined') {
+                checkbox.checked = map.hasLayer(railwayOverlayGroup);
             }
         }
     });
 }
 
-// Hàm lazy load bản đồ mặc định – mặc định nạp bản đồ Vệ tinh và tự động bật ranh giới
+// Hàm lazy load bản đồ mặc định – mặc định nạp bản đồ Vệ tinh và tự động bật ranh giới (nếu layer đang Hiện)
 window.loadDefaultMap = function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('lat') && urlParams.has('lng')) {
+        return; // Không nạp mặc định đè lên link chia sẻ
+    }
+
     if (typeof map !== 'undefined' && typeof satellite !== 'undefined') {
         if (!map.hasLayer(defaults) && !map.hasLayer(satellite) && !map.hasLayer(topo) && (!map3d || !map.hasLayer(map3d))) {
             satellite.addTo(map);
             if (typeof boundaryOverlayGroup !== 'undefined' && !map.hasLayer(boundaryOverlayGroup)) {
-                boundaryOverlayGroup.addTo(map);
+                if (window.isBoundaryLayerActive) {
+                    boundaryOverlayGroup.addTo(map);
+                }
             }
             syncLayerControlCheckboxes();
             setTimeout(function() {
@@ -3343,8 +3682,8 @@ if (!checkIntro || checkIntro.classList.contains('is-hidden') || checkIntro.styl
 // vì Leaflet có thể tự reset minZoom/maxZoom khi đổi base layer
 map.on('baselayerchange', function(e) {
     if (e && e.layer === satellite) {
-        // Chỉ mặc định bật ranh giới khi ở bản đồ Vệ tinh
-        if (typeof boundaryOverlayGroup !== 'undefined' && !map.hasLayer(boundaryOverlayGroup)) {
+        // Chỉ mặc định bật ranh giới khi ở bản đồ Vệ tinh VÀ layer đang được kích hoạt (Hiện)
+        if (typeof boundaryOverlayGroup !== 'undefined' && !map.hasLayer(boundaryOverlayGroup) && window.isBoundaryLayerActive) {
             boundaryOverlayGroup.addTo(map);
         }
     } else {
@@ -3365,6 +3704,10 @@ map.on('baselayerchange', function(e) {
         map.removeLayer(map3d);
     }
     lockMapToBounds(false);
+
+    if (e && e.name && typeof saveBaseLayerToSession === 'function') {
+        saveBaseLayerToSession(e.name);
+    }
 });
 
 // Click ra ngoài bản đồ để bỏ chọn (reset focus)
@@ -3460,6 +3803,12 @@ const currentLocation = L.control({
 const fullScreenControl = L.control({
     position: window.innerWidth <= 1024 ? 'topright' : 'bottomright'
 });
+const shareControl = L.control({
+    position: window.innerWidth <= 1024 ? 'topright' : 'bottomright'
+});
+const exportControl = L.control({
+    position: window.innerWidth <= 1024 ? 'topright' : 'bottomright'
+});
 
 window.addEventListener('resize', () => {
     const newPosition = window.innerWidth <= 1024 ? 'topright' : 'bottomright';
@@ -3467,9 +3816,13 @@ window.addEventListener('resize', () => {
     if (!isUserOutsideHanoi) {
         currentLocation.setPosition(newPosition);
     }
+    shareControl.setPosition(newPosition);
+    exportControl.setPosition(newPosition);
     fullScreenControl.setPosition(newPosition);
 
     resetControl.remove();
+    shareControl.remove();
+    exportControl.remove();
     currentLocation.remove();
     fullScreenControl.remove();
 
@@ -3479,10 +3832,14 @@ window.addEventListener('resize', () => {
         if (!isUserOutsideHanoi) {
             currentLocation.addTo(map);
         }
+        exportControl.addTo(map);
+        shareControl.addTo(map);
         resetControl.addTo(map);
     } else {
         // Muốn A -> B -> C trên web
         resetControl.addTo(map);
+        shareControl.addTo(map);
+        exportControl.addTo(map);
         if (!isUserOutsideHanoi) {
             currentLocation.addTo(map);
         }
@@ -3521,7 +3878,7 @@ function showMapToast(message, type = 'info') {
     if (!container) {
         container = document.createElement('div');
         container.id = 'mapToastContainer';
-        container.style.cssText = 'position:fixed;top:90px;left:50%;transform:translateX(-50%);z-index:10000;pointer-events:none;display:flex;flex-direction:column;gap:8px;align-items:center;width:max-content;max-width:90vw;';
+        container.style.cssText = 'position:fixed;top:90px;left:50%;transform:translateX(-50%);z-index:999999;pointer-events:none;display:flex;flex-direction:column;gap:8px;align-items:center;width:max-content;max-width:90vw;';
         document.body.appendChild(container);
     }
 
@@ -3757,6 +4114,81 @@ fullScreenControl.onAdd = function(map) {
 
 fullScreenControl.addTo(map);
 
+shareControl.onAdd = function(map) {
+    const btn = L.DomUtil.create('button', 'leaflet-bar leaflet-control leaflet-control-custom');
+    btn.innerHTML = '<i class="fas fa-share-alt"></i>';
+    btn.title = 'Chia sẻ bản đồ kèm bộ lọc';
+    btn.id = 'mapShareBtn';
+    btn.setAttribute('type', 'button');
+    btn.setAttribute('aria-label', 'Chia sẻ bản đồ kèm bộ lọc');
+
+    btn.style.backgroundColor = 'white';
+    btn.style.width = '48px';
+    btn.style.height = '48px';
+    btn.style.cursor = 'pointer';
+    btn.style.fontSize = '18px';
+    btn.style.lineHeight = '30px';
+    btn.style.textAlign = 'center';
+    btn.style.margin = '10px';
+    btn.style.marginBottom = '0';
+    btn.style.borderRadius = '4px';
+
+    L.DomEvent.disableClickPropagation(btn);
+    L.DomEvent.disableScrollPropagation(btn);
+
+    L.DomEvent.on(btn, 'click', function(e) {
+        L.DomEvent.stop(e);
+        shareCurrentMapState();
+    });
+
+    btn.onclick = function(e) {
+        if (e && e.stopPropagation) e.stopPropagation();
+        shareCurrentMapState();
+    };
+
+    return btn;
+};
+
+shareControl.addTo(map);
+
+// MODULE G-05: NÚT XUẤT DỮ LIỆU KHÔNG GIAN BẢN ĐỒ
+exportControl.onAdd = function(map) {
+    const btn = L.DomUtil.create('button', 'leaflet-bar leaflet-control leaflet-control-custom');
+    btn.innerHTML = '<i class="fas fa-file-export"></i>';
+    btn.title = 'Xuất dữ liệu không gian (GeoJSON / CSV)';
+    btn.id = 'mapExportBtn';
+    btn.setAttribute('type', 'button');
+    btn.setAttribute('aria-label', 'Xuất dữ liệu không gian');
+
+    btn.style.backgroundColor = 'white';
+    btn.style.width = '48px';
+    btn.style.height = '48px';
+    btn.style.cursor = 'pointer';
+    btn.style.fontSize = '18px';
+    btn.style.lineHeight = '30px';
+    btn.style.textAlign = 'center';
+    btn.style.margin = '10px';
+    btn.style.marginBottom = '0';
+    btn.style.borderRadius = '4px';
+
+    L.DomEvent.disableClickPropagation(btn);
+    L.DomEvent.disableScrollPropagation(btn);
+
+    L.DomEvent.on(btn, 'click', function(e) {
+        L.DomEvent.stop(e);
+        openExportModal();
+    });
+
+    btn.onclick = function(e) {
+        if (e && e.stopPropagation) e.stopPropagation();
+        openExportModal();
+    };
+
+    return btn;
+};
+
+exportControl.addTo(map);
+
 function resetMap() {
     resetProjectTab();
     resetIndustrialTab();
@@ -3827,15 +4259,646 @@ layerControl.forceCollapse = function() {
 // railwayOverlayGroup.addTo(map); 
 // stationOverlayGroup.addTo(map); // Optional: if you want stations to persist toggle separately
 map.on('overlayadd', function(e) {
-    if (e.name === "{{ __('app.railway_map') }}") {
+    if (e.layer === railwayOverlayGroup || (window.railwayLayerName && e.name === window.railwayLayerName) || e.name === "{{ __('app.railway_map') }}") {
         showRailwayLegend();
+    }
+
+    // Nạp dữ liệu tự động cho các Dynamic Layers từ CMS khi người dùng tích chọn
+    if (e.layer && e.layer._layerConfig && !e.layer._isLoaded) {
+        const config = e.layer._layerConfig;
+        const group = e.layer;
+        const opts = config.layer_options || {};
+
+        if (config.type === 'WMS') {
+            if (!map.getPane('wmsPane')) {
+                const wp = map.createPane('wmsPane');
+                wp.style.zIndex = 350;
+            }
+
+            const wmsLayerName = opts.wms_layers || (config.url_endpoint.includes('terrestris') ? 'OSM-WMS' : '');
+            const wmsLayer = L.tileLayer.wms(config.url_endpoint, {
+                layers: wmsLayerName,
+                format: 'image/png',
+                transparent: true,
+                opacity: parseFloat(opts.opacity || 0.8),
+                pane: 'wmsPane',
+                maxZoom: 21
+            });
+            group.addLayer(wmsLayer);
+            group._isLoaded = true;
+        } else if (config.type === 'GeoJSON' || config.type === 'WFS') {
+            fetch(config.url_endpoint)
+                .then(r => r.json())
+                .then(geoJsonData => {
+                    const geoLayer = L.geoJSON(geoJsonData, {
+                        style: function(feat) {
+                            return {
+                                color: opts.color || '#1a6fc4',
+                                fillColor: opts.fillColor || '#4a9ede',
+                                fillOpacity: parseFloat(opts.opacity || 0.2),
+                                weight: 2
+                            };
+                        },
+                        onEachFeature: function(feat, layer) {
+                            if (feat.properties && (feat.properties.name || feat.properties.title)) {
+                                layer.bindTooltip(feat.properties.name || feat.properties.title, {
+                                    sticky: true,
+                                    direction: 'top',
+                                    className: 'boundary-tooltip'
+                                });
+                            }
+                        }
+                    });
+                    group.addLayer(geoLayer);
+                    group._isLoaded = true;
+                })
+                .catch(err => {
+                    console.error('Không thể nạp dữ liệu layer ' + config.name, err);
+                });
+        }
+    }
+
+    if (typeof saveOverlaysToSession === 'function') {
+        saveOverlaysToSession();
     }
 });
 map.on('overlayremove', function(e) {
-    if (e.name === "{{ __('app.railway_map') }}") {
+    if (e.layer === railwayOverlayGroup || (window.railwayLayerName && e.name === window.railwayLayerName) || e.name === "{{ __('app.railway_map') }}") {
         hideRailwayLegend();
     }
+
+    if (typeof saveOverlaysToSession === 'function') {
+        saveOverlaysToSession();
+    }
 });
+
+// Quản lý các Layer động từ Module g
+window.dynamicMapOverlays = [];
+window.isBoundaryLayerActive = false;
+window.isRailwayLayerActive = false;
+window.boundaryLayerName = '';
+window.railwayLayerName = '';
+
+// ========================================================
+// MODULE G-04: GHI NHỚ TRẠNG THÁI LAYER VÀ NÚT CHIA SẺ BẢN ĐỒ
+// ========================================================
+let isInitialStateRestored = false;
+
+// Helper kiểm tra an toàn một Layer có đang bật trên bản đồ hay không
+function isLayerActive(layer) {
+    try {
+        return !!layer && typeof map !== 'undefined' && !!map && map.hasLayer(layer);
+    } catch (e) {
+        return false;
+    }
+}
+
+// 1. Ghi nhớ các overlay layer đang bật vào sessionStorage
+function saveOverlaysToSession() {
+    if (!isInitialStateRestored) return;
+    const activeNames = [];
+    if (isLayerActive(boundaryOverlayGroup)) {
+        activeNames.push(window.boundaryLayerName || 'Ranh giới hành chính');
+    }
+    if (isLayerActive(railwayOverlayGroup)) {
+        activeNames.push(window.railwayLayerName || 'Tuyến đường sắt đô thị');
+    }
+    if (window.dynamicMapOverlays && window.dynamicMapOverlays.length > 0) {
+        window.dynamicMapOverlays.forEach(item => {
+            if (item && isLayerActive(item.layer)) {
+                activeNames.push(item.name);
+            }
+        });
+    }
+    try {
+        sessionStorage.setItem('map_active_overlays', JSON.stringify(activeNames));
+    } catch (e) {}
+}
+
+// 2. Ghi nhớ base map đang chọn vào sessionStorage
+function saveBaseLayerToSession(name) {
+    if (!isInitialStateRestored) return;
+    try {
+        let baseKey = 'satellite';
+        if (name) {
+            const n = name.toLowerCase();
+            if (n.includes('vệ tinh') || n === 'satellite') baseKey = 'satellite';
+            else if (n.includes('tiêu chuẩn') || n === 'defaults' || n === 'standard') baseKey = 'defaults';
+            else if (n.includes('địa hình') || n === 'topo') baseKey = 'topo';
+            else if (n.includes('3d') || n === 'map3d') baseKey = 'map3d';
+        }
+        sessionStorage.setItem('map_active_basemap', baseKey);
+    } catch (e) {}
+}
+
+// 3. Khôi phục Base Layer theo tên
+function applyBaseLayerByName(name) {
+    if (!name) return;
+    const norm = name.toLowerCase();
+    let target = null;
+    if (norm.includes('vệ tinh') || norm === 'satellite') {
+        target = satellite;
+    } else if (norm.includes('tiêu chuẩn') || norm === 'defaults' || norm === 'standard') {
+        target = defaults;
+    } else if (norm.includes('địa hình') || norm === 'topo') {
+        target = topo;
+    } else if (norm.includes('3d') || norm === 'map3d') {
+        target = (typeof map3dPlaceholder !== 'undefined') ? map3dPlaceholder : null;
+    }
+
+    if (target) {
+        [satellite, defaults, topo].forEach(l => {
+            if (isLayerActive(l) && l !== target) map.removeLayer(l);
+        });
+        if (map3d && isLayerActive(map3d) && target !== map3dPlaceholder) {
+            map.removeLayer(map3d);
+        }
+        if (!isLayerActive(target)) {
+            map.addLayer(target);
+        }
+        syncLayerControlCheckboxes();
+    }
+}
+
+// 4. Khôi phục danh sách Overlay Layers theo mảng tên
+function applyActiveOverlays(targetNamesLower) {
+    if (!Array.isArray(targetNamesLower)) return;
+
+    // Ranh giới
+    if (typeof boundaryOverlayGroup !== 'undefined') {
+        const isMatch = targetNamesLower.some(n => n.includes('ranh giới') || n === 'boundary' || (window.boundaryLayerName && n.includes(window.boundaryLayerName.toLowerCase())));
+        if (isMatch && window.isBoundaryLayerActive) {
+            if (!map.hasLayer(boundaryOverlayGroup)) map.addLayer(boundaryOverlayGroup);
+        } else {
+            if (map.hasLayer(boundaryOverlayGroup)) map.removeLayer(boundaryOverlayGroup);
+        }
+    }
+
+    // Tuyến đường sắt
+    if (typeof railwayOverlayGroup !== 'undefined') {
+        const isMatch = targetNamesLower.some(n => n.includes('đường sắt') || n === 'railway' || (window.railwayLayerName && n.includes(window.railwayLayerName.toLowerCase())));
+        if (isMatch && window.isRailwayLayerActive) {
+            if (!map.hasLayer(railwayOverlayGroup)) {
+                map.addLayer(railwayOverlayGroup);
+                showRailwayLegend();
+            }
+        } else {
+            if (map.hasLayer(railwayOverlayGroup)) {
+                map.removeLayer(railwayOverlayGroup);
+                hideRailwayLegend();
+            }
+        }
+    }
+
+    // Dynamic CMS layers
+    if (window.dynamicMapOverlays && window.dynamicMapOverlays.length > 0) {
+        window.dynamicMapOverlays.forEach(item => {
+            const isMatch = targetNamesLower.some(n => n === item.name.toLowerCase() || item.name.toLowerCase().includes(n) || n.includes(item.name.toLowerCase()));
+            if (isMatch) {
+                if (!map.hasLayer(item.layer)) map.addLayer(item.layer);
+            } else {
+                if (map.hasLayer(item.layer)) map.removeLayer(item.layer);
+            }
+        });
+    }
+
+    syncLayerControlCheckboxes();
+}
+
+// 5. Khôi phục trạng thái từ URL parameters hoặc sessionStorage
+function restoreLayersAndFilterState() {
+    if (isInitialStateRestored) return;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const hasSharedParams = urlParams.has('lat') && urlParams.has('lng');
+
+    // --- A. Vị trí bản đồ & Base Map ---
+    if (hasSharedParams) {
+        const urlLat = parseFloat(urlParams.get('lat'));
+        const urlLng = parseFloat(urlParams.get('lng'));
+        const urlZoom = parseInt(urlParams.get('zoom')) || 12;
+
+        if (!isNaN(urlLat) && !isNaN(urlLng)) {
+            map.invalidateSize();
+            map.setView([urlLat, urlLng], urlZoom);
+            setTimeout(() => {
+                map.invalidateSize();
+                map.setView([urlLat, urlLng], urlZoom);
+            }, 250);
+            setTimeout(() => {
+                map.invalidateSize();
+                map.setView([urlLat, urlLng], urlZoom);
+            }, 750);
+        }
+
+        const sharedBasemap = urlParams.get('basemap');
+        if (sharedBasemap) {
+            applyBaseLayerByName(sharedBasemap);
+        }
+    } else {
+        try {
+            const savedBasemap = sessionStorage.getItem('map_active_basemap');
+            if (savedBasemap) {
+                applyBaseLayerByName(savedBasemap);
+            }
+        } catch (e) {}
+    }
+
+    // --- B. Danh sách Overlays ---
+    let targetOverlayNames = null;
+
+    if (hasSharedParams && urlParams.has('layers')) {
+        const layersParam = urlParams.get('layers');
+        targetOverlayNames = layersParam ? layersParam.split(',').map(s => s.trim().toLowerCase()) : [];
+    } else {
+        try {
+            const savedOverlays = sessionStorage.getItem('map_active_overlays');
+            if (savedOverlays) {
+                targetOverlayNames = JSON.parse(savedOverlays).map(s => (s || '').toLowerCase());
+            }
+        } catch (e) {}
+    }
+
+    if (targetOverlayNames !== null) {
+        applyActiveOverlays(targetOverlayNames);
+    }
+
+    // --- C. Khôi phục Bộ lọc tìm kiếm từ URL ---
+    if (hasSharedParams) {
+        const sharedSearch = urlParams.get('search');
+        const sharedDistrict = urlParams.get('district');
+        const sharedIndustry = urlParams.get('industry');
+        const sharedPrice = urlParams.get('price');
+        const sharedTab = urlParams.get('tab');
+        const sharedType = urlParams.get('type');
+
+        if (sharedTab === 'industrial') {
+            const industrialTabBtn = document.querySelector('a[href="#industrialTabContent"]') || document.getElementById('tab-industrial-btn');
+            if (industrialTabBtn) industrialTabBtn.click();
+
+            if (sharedSearch) $('#searchInputSp').val(sharedSearch);
+            if (sharedDistrict) $('#districtFilterSp').val(sharedDistrict);
+            if (sharedPrice) {
+                $('#priceRangeSp').val(sharedPrice).trigger('input');
+            }
+        } else {
+            if (sharedSearch) $('#searchInput').val(sharedSearch);
+            if (sharedDistrict) $('#districtFilter').val(sharedDistrict);
+            if (sharedIndustry) $('#industryFilter').val(sharedIndustry);
+            if (sharedType) $('#typeFilter').val(sharedType);
+            if (sharedPrice) {
+                $('#priceRange').val(sharedPrice).trigger('input');
+            }
+        }
+
+        setTimeout(() => {
+            isMapTriggered = true;
+            if (typeof applyFiltersWithBounds === 'function') {
+                applyFiltersWithBounds();
+            }
+        }, 500);
+    }
+
+    isInitialStateRestored = true;
+}
+
+// 6. Hàm chia sẻ trạng thái bản đồ hiện tại (Module G-04)
+function shareCurrentMapState() {
+    try {
+        const center = map.getCenter();
+        const zoom = map.getZoom();
+
+        // 1. Base map
+        let basemap = 'satellite';
+        let basemapLabel = 'Bản đồ vệ tinh';
+        if (isLayerActive(defaults)) {
+            basemap = 'defaults';
+            basemapLabel = 'Bản đồ tiêu chuẩn';
+        } else if (isLayerActive(topo)) {
+            basemap = 'topo';
+            basemapLabel = 'Bản đồ địa hình';
+        } else if (isLayerActive(map3d)) {
+            basemap = 'map3d';
+            basemapLabel = 'Bản đồ 3D';
+        }
+
+        // 2. Active Overlays (loại bỏ trùng lặp)
+        const overlaySet = new Set();
+        if (isLayerActive(boundaryOverlayGroup)) {
+            overlaySet.add(window.boundaryLayerName || 'Ranh giới hành chính Thủ đô Hà Nội');
+        }
+        if (isLayerActive(railwayOverlayGroup)) {
+            overlaySet.add(window.railwayLayerName || 'Bản đồ tuyến đường sắt đô thị');
+        }
+        if (window.dynamicMapOverlays && window.dynamicMapOverlays.length > 0) {
+            window.dynamicMapOverlays.forEach(item => {
+                if (item && item.name && isLayerActive(item.layer)) {
+                    overlaySet.add(item.name);
+                }
+            });
+        }
+        const activeOverlays = Array.from(overlaySet);
+
+        // 3. Active Filters (an toàn tuyệt đối tránh TypeError)
+        const isIndustrial = $('#projectTabContent').length > 0 && $('#projectTabContent').css('display') === 'none';
+        const activeTab = isIndustrial ? 'industrial' : 'project';
+        const search = String((isIndustrial ? $('#searchInputSp').val() : $('#searchInput').val()) || '').trim();
+        const district = String((isIndustrial ? $('#districtFilterSp').val() : $('#districtFilter').val()) || '').trim();
+        const industry = String($('#industryFilter').val() || '').trim();
+        const price = String((isIndustrial ? $('#priceRangeSp').val() : $('#priceRange').val()) || '').trim();
+        const type = String($('#typeFilter').val() || '').trim();
+
+        // 4. Query parameters
+        const params = new URLSearchParams();
+        params.set('lat', center.lat.toFixed(5));
+        params.set('lng', center.lng.toFixed(5));
+        params.set('zoom', zoom);
+        params.set('basemap', basemap);
+        if (activeOverlays.length > 0) {
+            params.set('layers', activeOverlays.join(','));
+        }
+        params.set('tab', activeTab);
+        if (search) params.set('search', search);
+        if (district && district !== 'all') params.set('district', district);
+        if (industry && industry !== 'all') params.set('industry', industry);
+        if (price && parseInt(price) > 0) params.set('price', price);
+        if (type && type !== 'all') params.set('type', type);
+
+        const shareUrl = window.location.origin + window.location.pathname + '?' + params.toString();
+
+        // 5. Tóm tắt thông tin chia sẻ
+        let summaryHtml = `<div>• <b>Vị trí:</b> ${center.lat.toFixed(4)}, ${center.lng.toFixed(4)} (Mức phóng to ${zoom})</div>`;
+        summaryHtml += `<div>• <b>Bản đồ nền:</b> ${basemapLabel}</div>`;
+        summaryHtml += `<div>• <b>Lớp dữ liệu đang bật:</b> ${activeOverlays.length > 0 ? activeOverlays.map(o => '<span class="badge bg-primary text-white mr-1" style="font-size:11px;padding:3px 6px;">' + o + '</span>').join(' ') : '<em>(Chưa bật lớp nào)</em>'}</div>`;
+        
+        const filterDetails = [];
+        if (search) filterDetails.push(`Từ khóa: "<b>${search}</b>"`);
+        if (district && district !== 'all') filterDetails.push(`Quận/huyện: <b>${district}</b>`);
+        if (industry && industry !== 'all') filterDetails.push(`Ngành: <b>${industry}</b>`);
+        if (type && type !== 'all') filterDetails.push(`Loại: <b>${type}</b>`);
+        summaryHtml += `<div>• <b>Bộ lọc áp dụng:</b> ${filterDetails.length > 0 ? filterDetails.join(' | ') : '<em>(Bộ lọc mặc định)</em>'}</div>`;
+
+        openShareModal(shareUrl, summaryHtml);
+    } catch (err) {
+        console.error('Lỗi khi chuẩn bị liên kết chia sẻ bản đồ:', err);
+        const fallbackUrl = window.location.href;
+        openShareModal(fallbackUrl, '<div>• <b>Liên kết hiện tại</b></div>');
+    }
+}
+
+function openShareModal(shareUrl, summaryHtml) {
+    $('#shareMapUrlInput').val(shareUrl);
+    $('#shareStateSummary').html(summaryHtml);
+    $('#shareCopySuccessMsg').removeClass('d-flex').addClass('d-none');
+    $('#btnCopyShareUrl').removeClass('btn-success').addClass('btn-primary')
+        .css({ 'background-color': '#1169ff', 'border-color': '#1169ff', 'color': '#ffffff' });
+    $('#btnCopyShareUrlText').text('Sao chép');
+
+    // Mở modal thông qua Bootstrap hoặc jQuery
+    try {
+        const modalEl = document.getElementById('shareMapModal');
+        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modalInstance.show();
+        } else if (typeof $ !== 'undefined' && $.fn.modal) {
+            $('#shareMapModal').modal('show');
+        } else {
+            $(modalEl).show();
+        }
+    } catch (e) {
+        if (typeof $ !== 'undefined' && $.fn.modal) {
+            $('#shareMapModal').modal('show');
+        }
+    }
+
+    // Chỉ focus và bôi đen sẵn liên kết để người dùng tiện xem/sao chép khi muốn
+    setTimeout(() => {
+        const input = document.getElementById('shareMapUrlInput');
+        if (input) {
+            input.focus();
+            input.select();
+        }
+    }, 250);
+}
+
+function copyShareUrlToClipboard() {
+    const input = document.getElementById('shareMapUrlInput');
+    if (!input) return;
+    const url = input.value;
+    input.focus();
+    input.select();
+
+    const onSuccess = function() {
+        $('#shareCopySuccessMsg').removeClass('d-none').addClass('d-flex');
+        $('#btnCopyShareUrl').removeClass('btn-primary').addClass('btn-success')
+            .css({ 'background-color': '#16a34a', 'border-color': '#16a34a', 'color': '#ffffff' });
+        $('#btnCopyShareUrlText').text('Đã sao chép');
+        showMapToast('Đã sao chép liên kết chia sẻ vào bộ nhớ tạm!', 'success');
+
+        setTimeout(() => {
+            $('#btnCopyShareUrl').removeClass('btn-success').addClass('btn-primary')
+                .css({ 'background-color': '#1169ff', 'border-color': '#1169ff', 'color': '#ffffff' });
+            $('#btnCopyShareUrlText').text('Sao chép');
+        }, 3000);
+    };
+
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(url).then(onSuccess).catch(() => {
+            try {
+                document.execCommand('copy');
+                onSuccess();
+            } catch (err) {
+                // Giữ text được select để người dùng bấm Ctrl+C
+            }
+        });
+    } else {
+        try {
+            document.execCommand('copy');
+            onSuccess();
+        } catch (err) {
+            // Giữ text được select
+        }
+    }
+}
+
+// Lắng nghe sự kiện click nút Sao chép trong modal và nút Chia sẻ trên bản đồ
+$(document).on('click', '#btnCopyShareUrl', function(e) {
+    e.preventDefault();
+    copyShareUrlToClipboard();
+});
+
+$(document).on('click', '#mapShareBtn', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    shareCurrentMapState();
+});
+
+// ========================================================
+// MODULE G-05: XUẤT DỮ LIỆU KHÔNG GIAN BẢN ĐỒ (GEOJSON / CSV)
+// ========================================================
+function openExportModal() {
+    try {
+        const isIndustrial = $('#projectTabContent').length > 0 && $('#projectTabContent').css('display') === 'none';
+        const activeTab = isIndustrial ? 'industrial' : 'project';
+        const search = String((isIndustrial ? $('#searchInputSp').val() : $('#searchInput').val()) || '').trim();
+        const district = String((isIndustrial ? $('#districtFilterSp').val() : $('#districtFilter').val()) || '').trim();
+        const industry = String($('#industryFilter').val() || '').trim();
+        const price = String((isIndustrial ? $('#priceRangeSp').val() : $('#priceRange').val()) || '').trim();
+        const type = String($('#typeFilter').val() || '').trim();
+
+        const params = new URLSearchParams();
+        params.set('tab', activeTab);
+        if (search) params.set('search', search);
+        if (district && district !== 'all') params.set('district', district);
+        if (industry && industry !== 'all') params.set('industry', industry);
+        if (price && parseInt(price) > 0) params.set('price', price);
+        if (type && type !== 'all') params.set('type', type);
+
+        // Lấy toạ độ bounds hiện tại của bản đồ nếu đang zoom vào khu vực cụ thể
+        if (typeof map !== 'undefined' && map) {
+            const b = map.getBounds();
+            params.set('minLat', b.getSouth().toFixed(5));
+            params.set('maxLat', b.getNorth().toFixed(5));
+            params.set('minLng', b.getWest().toFixed(5));
+            params.set('maxLng', b.getEast().toFixed(5));
+        }
+
+        const filterDetails = [];
+        filterDetails.push(`Dữ liệu: <b>${activeTab === 'industrial' ? 'Sản phẩm KCN' : 'Dự án đầu tư'}</b>`);
+        if (search) filterDetails.push(`Từ khóa: "<b>${search}</b>"`);
+        if (district && district !== 'all') filterDetails.push(`Quận/huyện: <b>${district}</b>`);
+        if (industry && industry !== 'all') filterDetails.push(`Ngành: <b>${industry}</b>`);
+        if (type && type !== 'all') filterDetails.push(`Loại: <b>${type}</b>`);
+        if (price && parseInt(price) > 0) filterDetails.push(`Mức giá: <b>${price}</b>`);
+
+        const summaryHtml = `<div>• ${filterDetails.length > 0 ? filterDetails.join(' | ') : '<em>(Toàn bộ dự án trong vùng nhìn)</em>'}</div>`;
+        $('#exportFilterSummary').html(summaryHtml);
+
+        const kmlParams = new URLSearchParams(params);
+        kmlParams.set('format', 'kml');
+        $('#btnDownloadKml').attr('href', '/api/map/export?' + kmlParams.toString());
+
+        const geoParams = new URLSearchParams(params);
+        geoParams.set('format', 'geojson');
+        $('#btnDownloadGeoJson').attr('href', '/api/map/export?' + geoParams.toString());
+
+        const csvParams = new URLSearchParams(params);
+        csvParams.set('format', 'csv');
+        $('#btnDownloadCsv').attr('href', '/api/map/export?' + csvParams.toString());
+
+        const modalEl = document.getElementById('exportMapModal');
+        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            bootstrap.Modal.getOrCreateInstance(modalEl).show();
+        } else if (typeof $ !== 'undefined' && $.fn.modal) {
+            $('#exportMapModal').modal('show');
+        } else {
+            $(modalEl).show();
+        }
+    } catch (err) {
+        console.error('Lỗi khi mở modal xuất dữ liệu:', err);
+    }
+}
+
+$(document).on('click', '#mapExportBtn', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    openExportModal();
+});
+
+$(document).on('click', '#btnDownloadGeoJson, #btnDownloadCsv, #btnDownloadKml', function() {
+    showMapToast('Đang tạo và tải file dữ liệu bản đồ...', 'info');
+    setTimeout(() => {
+        try {
+            const modalEl = document.getElementById('exportMapModal');
+            if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+            } else if (typeof $ !== 'undefined' && $.fn.modal) {
+                $('#exportMapModal').modal('hide');
+            }
+        } catch(e){}
+    }, 1000);
+});
+
+// Hàm nạp động danh mục Layer bản đồ từ CMS (Module g - Bản đồ số đa lớp)
+function loadDynamicMapLayers() {
+    fetch('/api/layers?t=' + Date.now())
+        .then(res => res.json())
+        .then(res => {
+            if (res.status === 'success' && Array.isArray(res.data)) {
+                // Gỡ bỏ các overlay cũ đã add trước đó vào layerControl nếu có
+                if (window.dynamicMapOverlays && window.dynamicMapOverlays.length > 0) {
+                    window.dynamicMapOverlays.forEach(item => {
+                        layerControl.removeLayer(item.layer);
+                    });
+                }
+                window.dynamicMapOverlays = [];
+                window.isBoundaryLayerActive = false;
+                window.isRailwayLayerActive = false;
+
+                // res.data được sắp xếp từ backend theo đúng display_order
+                res.data.forEach(item => {
+                    const normName = (item.name || '').toLowerCase();
+                    const url = item.url_endpoint || '';
+                    const isBoundary = normName.includes('ranh giới') || url.includes('/api/layers/data/boundary');
+                    const isRailway = normName.includes('đường sắt') || url.includes('/api/layers/data/railway');
+
+                    let targetLayer = null;
+
+                    if (isBoundary) {
+                        targetLayer = boundaryOverlayGroup;
+                        window.isBoundaryLayerActive = true;
+                        window.boundaryLayerName = item.name;
+
+                        // Mặc định bật nếu chưa có lưu session hoặc không phải link chia sẻ
+                        const _hasUrlLayers = (new URLSearchParams(window.location.search)).has('layers');
+                        if (!_hasUrlLayers && map.hasLayer(satellite) && !map.hasLayer(boundaryOverlayGroup)) {
+                            boundaryOverlayGroup.addTo(map);
+                        }
+                    } else if (isRailway) {
+                        targetLayer = railwayOverlayGroup;
+                        window.isRailwayLayerActive = true;
+                        window.railwayLayerName = item.name;
+                    } else {
+                        targetLayer = L.layerGroup();
+                        targetLayer._layerConfig = item;
+                        targetLayer._isLoaded = false;
+                    }
+
+                    // Thêm vào layer control theo đúng thứ tự của CMS
+                    layerControl.addOverlay(targetLayer, item.name);
+                    window.dynamicMapOverlays.push({ layer: targetLayer, name: item.name });
+                });
+
+                // Nếu layer Ranh giới bị Ẩn (is_active=false), gỡ khỏi map
+                if (!window.isBoundaryLayerActive && map.hasLayer(boundaryOverlayGroup)) {
+                    map.removeLayer(boundaryOverlayGroup);
+                }
+
+                // Nếu layer Đường sắt bị Ẩn (is_active=false), gỡ khỏi map & ẩn legend
+                if (!window.isRailwayLayerActive && map.hasLayer(railwayOverlayGroup)) {
+                    map.removeLayer(railwayOverlayGroup);
+                    hideRailwayLegend();
+                }
+
+                syncLayerControlCheckboxes();
+
+                // Khôi phục trạng thái từ URL parameters hoặc sessionStorage
+                restoreLayersAndFilterState();
+            }
+        })
+        .catch(e => {
+            console.warn('Không thể nạp danh mục dynamic map layers:', e);
+            restoreLayersAndFilterState();
+        });
+}
+
+// Tự động đồng bộ lại lớp bản đồ khi người dùng chuyển tab quay lại trang
+window.addEventListener('focus', function() {
+    loadDynamicMapLayers();
+});
+
+// Khởi tạo nạp layer động
+loadDynamicMapLayers();
 
 let markersLayer = L.markerClusterGroup();
 let allDistricts = [];
