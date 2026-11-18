@@ -262,9 +262,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         document.getElementById('guestNotiTime').textContent = item.time_ago || 'Vừa xong';
         
-        // Nút xem chi tiết
+        // Nút xem chi tiết / VR Tour
         const btnDetail = document.getElementById('btnGuestNotiDetail');
         btnDetail.href = item.url || '#';
+        btnDetail.target = '_blank';
         document.getElementById('btnGuestNotiDetailText').textContent = item.btn_detail_text || 'Chi tiết';
 
         // Nút bản đồ
@@ -282,24 +283,23 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function flyToProject(item) {
-        if (typeof map !== 'undefined' && map && item.lat && item.lng) {
-            if (typeof window.handleStartProjectIntro === 'function') window.handleStartProjectIntro();
-            if (typeof window.unlockMap === 'function') window.unlockMap();
-            const introLayer = document.getElementById('mapIntroLayer');
-            if (introLayer) introLayer.classList.add('is-hidden');
-            const homePage = document.querySelector('.home-page');
-            if (homePage) homePage.classList.remove('home-map-locked');
+        if (!item || !item.lat || !item.lng) {
+            if (item.url) window.location.href = item.url;
+            return;
+        }
 
+        // 1. Nếu đang ở Trang chủ có sẵn hàm portalFlyToProject
+        if (typeof window.portalFlyToProject === 'function') {
+            window.portalFlyToProject(item);
+        } else if (typeof window.map !== 'undefined' && window.map) {
+            window.map.flyTo([item.lat, item.lng], 16, { animate: true, duration: 1.0 });
+        } else {
+            // 2. Nếu đang ở trang con khác: lưu vào sessionStorage và điều hướng về trang chủ
             try {
-                map.flyTo([item.lat, item.lng], 16, { animate: true, duration: 1.2 });
-                if (typeof showProjectBoundary === 'function') {
-                    showProjectBoundary(item);
-                }
-            } catch(err) {
-                console.log('Lỗi flyTo:', err);
-            }
-        } else if (item.url) {
-            window.location.href = item.url;
+                sessionStorage.setItem('pending_focus_project', JSON.stringify(item));
+            } catch(e){}
+            const targetMapUrl = item.map_url || ("{{ url('/') }}?lat=" + item.lat + "&lng=" + item.lng + "&zoom=16");
+            window.location.href = targetMapUrl;
         }
     }
 
