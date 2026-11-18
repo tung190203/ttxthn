@@ -393,7 +393,12 @@
             <div class="container" style="text-align: center;">
                 <div style="background: rgba(255, 255, 255, 0.349);border-radius:8px;padding:10px 20px;display: inline-block;">
                     <div class="pj-banner__subtitle">{{ __('app.projects') }}</div>
-                    <div class="pj-banner__title">{{ $project->name }}</div>
+                    <div class="pj-banner__title d-flex align-items-center justify-content-center" style="gap: 10px;">
+                        {{ $project->name }}
+                        <button class="btn btn-sm btn-light btn-bookmark" data-id="{{ $project->id }}" style="border-radius: 50%; width: 36px; height: 36px; padding: 0;">
+                            <i class="{{ $isBookmarked ? 'fas' : 'far' }} fa-bookmark text-warning" style="font-size: 1.2rem;"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="pj-banner__separator"></div>
                 <div class="pj-banner__desc" style="background: white;border-radius:8px;padding:10px 20px;opacity: 0.9; text-align: justify;">{{ $project->short_desc ?? '' }}</div>
@@ -416,7 +421,12 @@
             <div class="container" style="text-align: right;">
                 <div style="background: rgba(255, 255, 255, 0.349);border-radius:8px;padding:10px 20px;display: inline-block;text-align: right;">
                     <div class="pj-banner__subtitle text-end">{{ __('app.projects') }}</div>
-                    <div class="pj-banner__title text-end">{{ $project->name }}</div>
+                    <div class="pj-banner__title text-end d-flex align-items-center justify-content-end" style="gap: 10px;">
+                        <button class="btn btn-sm btn-light btn-bookmark" data-id="{{ $project->id }}" style="border-radius: 50%; width: 36px; height: 36px; padding: 0;">
+                            <i class="{{ $isBookmarked ? 'fas' : 'far' }} fa-bookmark text-warning" style="font-size: 1.2rem;"></i>
+                        </button>
+                        {{ $project->name }}
+                    </div>
                 </div>
                 <div class="custom_desc" style="text-align:start">{{ $project->short_desc ?? '' }}</div>
             </div>
@@ -438,7 +448,12 @@
             <div class="container">
                 <div style="background: rgba(255, 255, 255, 0.349);border-radius:8px;padding:10px 20px;display: inline-block;text-align: left;">
                     <div class="pj-banner__subtitle text-start">{{ __('app.projects') }}</div>
-                    <div class="pj-banner__title text-start">{{ $project->name }}</div>
+                    <div class="pj-banner__title text-start d-flex align-items-center" style="gap: 10px;">
+                        {{ $project->name }}
+                        <button class="btn btn-sm btn-light btn-bookmark" data-id="{{ $project->id }}" style="border-radius: 50%; width: 36px; height: 36px; padding: 0;">
+                            <i class="{{ $isBookmarked ? 'fas' : 'far' }} fa-bookmark text-warning" style="font-size: 1.2rem;"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="d-flex justify-content-end">
                     <div class="custom_desc">{{ $project->short_desc ?? '' }}</div>
@@ -723,8 +738,28 @@
                     
                     @if(count($legal_files) > 0)
                     @foreach ($legal_files as $index => $file)
+                    @php
+                        $access = $project->checkLegalFileAccess($index);
+                    @endphp
                     <div class="swiper-slide" style="height: auto;">
-                        <div class="legal-card" style="height: 100%; background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); overflow: hidden; display: flex; flex-direction: column; padding: 24px;">
+                        <div class="legal-card" style="height: 100%; background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); overflow: hidden; display: flex; flex-direction: column; padding: 24px; position: relative;">
+                            {{-- Access Level Badge --}}
+                            <div style="margin-bottom: 12px;">
+                                @if($access['level'] === 'public')
+                                    <span class="badge" style="background: #E6F4EA; color: #137333; font-weight: 600; padding: 4px 10px; border-radius: 20px; font-size: 11px;">
+                                        <i class="fas fa-globe-americas me-1"></i>{{ __('app.access_public') }}
+                                    </span>
+                                @elseif($access['level'] === 'login_required')
+                                    <span class="badge" style="background: #FEF7E0; color: #B06000; font-weight: 600; padding: 4px 10px; border-radius: 20px; font-size: 11px;">
+                                        <i class="fas fa-user-lock me-1"></i>{{ __('app.access_login_required') }}
+                                    </span>
+                                @else
+                                    <span class="badge" style="background: #FCE8E6; color: #C5221F; font-weight: 600; padding: 4px 10px; border-radius: 20px; font-size: 11px;">
+                                        <i class="fas fa-shield-alt me-1"></i>{{ __('app.access_internal') }}
+                                    </span>
+                                @endif
+                            </div>
+
                             {{-- Icon + Title --}}
                             <div style="display: flex; align-items: flex-start; gap: 14px; flex: 1;">
                                 <div style="flex-shrink: 0;">
@@ -736,11 +771,21 @@
                                     {{ $legal_descs[$index] ?? '' }}
                                 </div>
                             </div>
-                            {{-- Link --}}
+                            {{-- Link / Action --}}
                             <div style="margin-top: 20px; margin-left: -24px; margin-right: -24px; margin-bottom: -24px; padding: 14px 24px; background: #EEF3FF; text-align: center;">
-                                <a href="{{ asset($file) }}" target="_blank" rel="noopener noreferrer" style="color: #1A73E8; font-weight: 600; font-size: 14px; text-decoration: none;">
-                                    Xem chi tiết &nbsp;<i class="far fa-arrow-right"></i>
-                                </a>
+                                @if($access['can_access'])
+                                    <a href="{{ asset($file) }}" target="_blank" rel="noopener noreferrer" style="color: #1A73E8; font-weight: 600; font-size: 14px; text-decoration: none;">
+                                        {{ __('app.view_detail') }} &nbsp;<i class="far fa-arrow-right"></i>
+                                    </a>
+                                @elseif($access['reason'] === 'login')
+                                    <a href="#" onclick="promptLoginForDoc(); return false;" style="color: #B06000; font-weight: 600; font-size: 14px; text-decoration: none;">
+                                        <i class="far fa-lock me-1"></i>{{ __('app.sign_in_to_view') }}
+                                    </a>
+                                @else
+                                    <a href="#" onclick="Swal.fire('{{ __('app.access_denied') }}', '{{ __('app.internal_doc_warning') }}', 'warning'); return false;" style="color: #999; font-weight: 600; font-size: 14px; text-decoration: none; cursor: not-allowed;">
+                                        <i class="far fa-lock me-1"></i>{{ __('app.access_internal') }}
+                                    </a>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -1108,7 +1153,63 @@
         updateNavBottom();
         updateScrollSpy();
 
-        // ===== KHỞI TẠO SWIPER CHO LỢI THẾ NỔI BẬT =====
+        // ===== Modal Bookmark Note =====
+        var $bookmarkModal = $(
+            '<div class="modal fade" id="bookmarkNoteModal" tabindex="-1" role="dialog">' +
+                '<div class="modal-dialog" role="document">' +
+                    '<div class="modal-content">' +
+                        '<div class="modal-header">' +
+                            '<h5 class="modal-title">Ghi chú & Phân loại Dự án</h5>' +
+                            '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>' +
+                        '</div>' +
+                        '<div class="modal-body">' +
+                            '<form id="bookmarkNoteForm">' +
+                                '<input type="hidden" name="bookmark_id" id="modal_bookmark_id">' +
+                                '<div class="form-group mb-3">' +
+                                    '<label>Ghi chú cá nhân (tuỳ chọn)</label>' +
+                                    '<textarea name="notes" id="modal_bookmark_notes" class="form-control" rows="3" placeholder="Ví dụ: Cần hỏi thêm về pháp lý..."></textarea>' +
+                                '</div>' +
+                                '<div class="form-group mb-3">' +
+                                    '<label>Nhãn (tuỳ chọn)</label>' +
+                                    '<input type="text" name="tag" id="modal_bookmark_tag" class="form-control" placeholder="Ví dụ: Quan trọng, Ưu tiên...">' +
+                                '</div>' +
+                            '</form>' +
+                        '</div>' +
+                        '<div class="modal-footer">' +
+                            '<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Để sau</button>' +
+                            '<button type="button" class="btn btn-primary" id="btnSaveBookmarkNote">Lưu Ghi chú</button>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
+            '</div>'
+        );
+        $('body').append($bookmarkModal);
+
+        $('#btnSaveBookmarkNote').on('click', function() {
+            var bookmarkId = $('#modal_bookmark_id').val();
+            var notes = $('#modal_bookmark_notes').val();
+            var tag = $('#modal_bookmark_tag').val();
+            
+            $.ajax({
+                url: `{{ url('/interest') }}/${bookmarkId}`,
+                method: 'PUT',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    notes: notes,
+                    tag: tag
+                },
+                dataType: 'json',
+                success: function(res) {
+                    if (res.success) {
+                        toastr.success(res.message);
+                        $('#bookmarkNoteModal').modal('hide');
+                    } else {
+                        toastr.error(res.message);
+                    }
+                }
+            });
+        });
+
         if ($('.advantage-slider__container').length) {
             new Swiper('.advantage-slider__container', {
                 slidesPerView: 1,
@@ -1155,6 +1256,71 @@
     }
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') closeDesignLightbox();
+    });
+
+    function promptLoginForDoc() {
+        Swal.fire({
+            title: '{{ __('app.access_login_required') }}',
+            text: '{{ __('app.login_to_view_doc') }}',
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonText: '{{ __('app.login') }}',
+            cancelButtonText: '{{ __('app.cancel') }}'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                    var myModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('md-sign-in'));
+                    if (myModal) myModal.show();
+                } else {
+                    $('#md-sign-in').modal('show');
+                }
+            }
+        });
+    }
+
+    $(document).on('click', '.btn-bookmark', function(e) {
+        e.preventDefault();
+        var $btn = $(this);
+        var projectId = $btn.data('id');
+        
+        $.ajax({
+            url: '{{ route('interest') }}',
+            method: 'POST',
+            data: { 
+                _token: '{{ csrf_token() }}',
+                interestable_id: projectId,
+                interestable_type: 'App\\Models\\Project'
+            },
+            dataType: 'json',
+            success: function(res) {
+                if (res.success) {
+                    var $icon = $btn.find('i');
+                    if (res.bookmarked) {
+                        $icon.removeClass('far').addClass('fas');
+                        toastr.success(res.message);
+                        // Mở modal nếu response trả về bookmark_id (cần update API trả về id)
+                        if (res.bookmark_id) {
+                            $('#modal_bookmark_id').val(res.bookmark_id);
+                            $('#modal_bookmark_notes').val('');
+                            $('#modal_bookmark_tag').val('');
+                            $('#bookmarkNoteModal').modal('show');
+                        }
+                    } else {
+                        $icon.removeClass('fas').addClass('far');
+                        toastr.success(res.message);
+                    }
+                } else {
+                    toastr.error(res.message);
+                }
+            },
+            error: function(xhr) {
+                if (xhr.status === 401) {
+                    toastr.error('Bạn cần đăng nhập để sử dụng tính năng này.');
+                } else {
+                    toastr.error('Có lỗi xảy ra, vui lòng thử lại.');
+                }
+            }
+        });
     });
 </script>
 @endpush

@@ -261,6 +261,7 @@ class ProjectController extends Controller
                     'advantage_images' => 'Ảnh thế mạnh',
                     'design_images' => 'Ảnh thiết kế',
                     'legal_file' => 'Tệp đính kèm văn bản pháp quy',
+                    'legal_access_levels' => 'Cấp độ quyền tài liệu pháp lý',
                     'pdf_file' => 'Tệp PDF',
                 ];
                 foreach ($trailingFields as $field => $label) {
@@ -375,6 +376,8 @@ class ProjectController extends Controller
             'design_images.*' => 'nullable|max:2048',
             'files_images' => 'nullable|array',
             'files_images.*' => 'nullable|max:10240',
+            'files_access_levels' => 'nullable|array',
+            'files_access_levels.*' => 'nullable|in:public,login_required,internal',
             'link_vrtour' => 'nullable|url',
             'link_sand_table' => 'nullable|url',
             'layout_id' => 'required|integer|min:1|max:3',
@@ -433,6 +436,17 @@ class ProjectController extends Controller
             $validated['files_images'] = null;
         }
 
+        // Xử lý files_access_levels
+        if ($request->has('files_access_levels') && is_array($request->files_access_levels)) {
+            $levels = array_map(function($lvl) {
+                return in_array($lvl, ['public', 'login_required', 'internal'], true) ? $lvl : 'public';
+            }, $request->files_access_levels);
+            $validated['files_access_levels'] = implode(';', $levels);
+        } else {
+            $fileCount = $request->has('files_images') && is_array($request->files_images) ? count(array_filter($request->files_images)) : 0;
+            $validated['files_access_levels'] = $fileCount > 0 ? implode(';', array_fill(0, $fileCount, 'public')) : null;
+        }
+
         // ✅ FIXED: Chuẩn bị data đa ngôn ngữ
         $translatableData = [];
 
@@ -475,6 +489,7 @@ class ProjectController extends Controller
                 // 🟩 Tạo bản chính mới
                 $project->fill($validated);
                 $project->legal_file = $validated['files_images'] ?? null;
+                $project->legal_access_levels = $validated['files_access_levels'] ?? null;
 
                 // Gán các trường đa ngôn ngữ
                 foreach ($translatableData as $key => $values) {
@@ -523,6 +538,7 @@ class ProjectController extends Controller
                     // Merge dữ liệu đơn ngữ
                     $mainProject->fill($validated);
                     $mainProject->legal_file = $validated['files_images'];
+                    $mainProject->legal_access_levels = $validated['files_access_levels'] ?? null;
 
                     // Gán các trường đa ngôn ngữ
                     foreach ($translatableData as $key => $values) {
@@ -550,9 +566,14 @@ class ProjectController extends Controller
                     $mainProject->setTranslations('slug', $mainProjectSlugTranslations);
                     $firstLocaleSlug = $mainProjectSlugTranslations[$firstLocale];
                     $mainProject->link = $request->input('link') ?? url("/project-detail/$firstLocaleSlug");
+                    
+                    $wasChanged = $mainProject->isDirty(['status', 'legal_file', 'legal_access_levels']);
                     $mainProject->save();
                     $this->writeDocumentFile($mainProject);
     
+                    if ($wasChanged) {
+                        $this->notifyInterestedGuests($mainProject, 'vừa có cập nhật pháp lý hoặc thay đổi trạng thái');
+                    }
                     // Đồng bộ districts
                     if (isset($validated['districts'])) {
                         $mainProject->districts()->sync($validated['districts']);
@@ -584,6 +605,7 @@ class ProjectController extends Controller
                         // Cập nhật nháp với dữ liệu mới từ request
                         $draft->fill($validated);
                         $draft->legal_file = $validated['files_images'];
+                        $draft->legal_access_levels = $validated['files_access_levels'] ?? null;
                         $draft->status = 'pending';
                         $draft->approval_level = $user->is_approve ? 1 : 0;
 
@@ -627,6 +649,7 @@ class ProjectController extends Controller
                         // Cập nhật bản hiện tại (nháp/chưa duyệt)
                         $project->fill($validated);
                         $project->legal_file = $validated['files_images'];
+                        $project->legal_access_levels = $validated['files_access_levels'] ?? null;
 
                         foreach ($translatableData as $key => $values) {
                             if ($key === 'slug') {
@@ -738,6 +761,7 @@ class ProjectController extends Controller
                     $parent->setTranslations('slug', $parentSlugTranslations);
 
                     $parent->save();
+                    $this->notifyInterestedGuests($parent, 'vừa được cập nhật thông tin mới');
 
                     $parent->districts()->sync($draftDistricts);
 
@@ -945,5 +969,17 @@ class ProjectController extends Controller
 
         createFile('vrtour/' . $project->vrtour_code, 'document.js');
         file_put_contents('vrtour/' . $project->vrtour_code . '/document.js',json_encode($documents));
+    }
+
+    protected function notifyInterestedGuests(Project $project, $message = 'đã có cập nhật mới')
+    {
+        $interestedGuestIds = \App\Models\Interest::where('interestable_type', Project::class)
+            ->where('interestable_id', $project->id)
+            ->pluck('guest_id');
+            
+        $guests = \App\Models\Guest::whereIn('id', $interestedGuestIds)->get();
+        foreach ($guests as $guest) {
+            $guest->notify(new \App\Notifications\ProjectUpdatedNotification($project, $message));
+        }
     }
 }

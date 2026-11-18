@@ -1380,7 +1380,18 @@
                 appendMessage('bot', data.response, { stage: data.stage, entities: data.entities, related_items: data.related_items }, data.message_id);
                 if (data.suggested_actions) renderSuggestedActions(data.suggested_actions);
             } else {
-                appendErrorMessage(msg, chatbotLang.errorConnection);
+                try {
+                    const errorData = await res.json();
+                    if (errorData.limit_reached) {
+                        appendMessage('bot', errorData.message);
+                    } else if (errorData.message) {
+                        appendErrorMessage(msg, errorData.message);
+                    } else {
+                        appendErrorMessage(msg, chatbotLang.errorConnection);
+                    }
+                } catch(err) {
+                    appendErrorMessage(msg, chatbotLang.errorConnection);
+                }
             }
         } catch (e) { removeTypingIndicator(); btn.disabled = false; appendErrorMessage(msg, chatbotLang.errorNetwork); }
     }

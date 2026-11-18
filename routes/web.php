@@ -9,6 +9,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\InvestMentGuideController;
 use App\Http\Controllers\TtxtWebhookController;
+use App\Http\Controllers\Api\MapLayerApiController;
 use Illuminate\Support\Facades\Route;
 
 require __DIR__ . '/auth.php';
@@ -16,7 +17,36 @@ require __DIR__ . '/backend.php';
 
 Route::post('/ttxt/webhook', TtxtWebhookController::class)->name('ttxt_webhook');
 
+// Public Layers API (Dynamic Map Layers - Module g)
+Route::get('/api/layers', [MapLayerApiController::class, 'index'])->name('api_layers');
+Route::get('/layers', [MapLayerApiController::class, 'index']);
+Route::get('/api/layers/data/boundary', [MapLayerApiController::class, 'getBoundaryGeoJson'])->name('api_layers_data_boundary');
+Route::get('/api/layers/data/railway', [MapLayerApiController::class, 'getRailwayGeoJson'])->name('api_layers_data_railway');
+Route::post('/layers/test-connection', [MapLayerApiController::class, 'testConnection'])->name('api_layers_test_connection');
+Route::post('/api/layers/test-connection', [MapLayerApiController::class, 'testConnection']);
+Route::get('/api/public/recent-updates', [HomeController::class, 'getRecentProjectUpdates'])->name('api_public_recent_updates_direct');
+
 Route::localized(function () {
+    Route::get('/api/layers', [MapLayerApiController::class, 'index']);
+    Route::get('/layers', [MapLayerApiController::class, 'index']);
+    Route::get('/api/layers/data/boundary', [MapLayerApiController::class, 'getBoundaryGeoJson']);
+    Route::get('/api/layers/data/railway', [MapLayerApiController::class, 'getRailwayGeoJson']);
+    Route::post('/layers/test-connection', [MapLayerApiController::class, 'testConnection']);
+    Route::post('/api/layers/test-connection', [MapLayerApiController::class, 'testConnection']);
+    Route::group(['prefix' => 'auth'], function () {
+        Route::post('/register', [AuthController::class, 'register'])->name('auth_register');
+        Route::post('/login', [AuthController::class, 'login'])->name('auth_login');
+        Route::post('/verify-email', [AuthController::class, 'verifyEmailApi'])->name('auth_verify_email_api');
+        Route::get('/verify-email/{id}/{token}', [AuthController::class, 'verifyEmail'])->name('auth_verify_email');
+        Route::post('/resend-verification', [AuthController::class, 'resendVerificationEmail'])->name('auth_resend_verification');
+        Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->name('auth_forgot_password');
+        Route::get('/reset-password/{token}', [AuthController::class, 'showResetPasswordForm'])->name('auth_reset_password_form');
+        Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('auth_reset_password');
+        Route::get('/logout', [AuthController::class, 'logout'])->name('auth_logout');
+        Route::get('/google', [AuthController::class, 'redirectToGoogle'])->name('auth_google');
+        Route::get('/google/callback', [AuthController::class, 'handleGoogleCallback'])->name('auth_google_callback');
+    });
+
     Route::group(['prefix' => 'guest'], function () {
         Route::post('/register', [AuthController::class, 'register'])->name('guest_register');
         Route::post('/login', [AuthController::class, 'login'])->name('guest_login');
@@ -27,14 +57,29 @@ Route::localized(function () {
         Route::post('/update-info', [AuthController::class, 'updateAccount'])->name('guest_update_account');
         Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('google_login');
         Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
+        
+        Route::get('/dashboard', [\App\Http\Controllers\GuestDashboardController::class, 'index'])->name('guest.dashboard');
+        Route::get('/dashboard/export', [\App\Http\Controllers\GuestDashboardController::class, 'exportBookmarks'])->name('guest.dashboard.export');
+        Route::post('/dashboard/layout', [\App\Http\Controllers\GuestDashboardController::class, 'updateLayout'])->name('guest.dashboard.layout');
+        
+        // Compare feature routes
+        Route::post('/compare', [\App\Http\Controllers\GuestDashboardController::class, 'createCompareSession'])->name('guest.compare.create');
+        Route::get('/compare/{id}', [\App\Http\Controllers\GuestDashboardController::class, 'showCompareSession'])->name('guest.compare.show');
+        Route::post('/compare/{id}/notes', [\App\Http\Controllers\GuestDashboardController::class, 'saveCompareNotes'])->name('guest.compare.notes.save');
+        Route::get('/compare/{id}/export-pdf', [\App\Http\Controllers\GuestDashboardController::class, 'exportComparePdf'])->name('guest.compare.export_pdf');
+        Route::get("/notifications/{id}", [\App\Http\Controllers\GuestNotificationController::class, "read"])->name("guest.notifications.read");
+        Route::post("/notifications/read-all", [\App\Http\Controllers\GuestNotificationController::class, "markAllAsRead"])->name("guest.notifications.read_all");
     });
 
     Route::get('/', [HomeController::class, 'index'])->name('home_page');
     Route::get('/home', [HomeController::class, 'index']);
     Route::get('/map/filter', [MapController::class, 'filter']);
     Route::get('/map/bounds', [MapController::class, 'getProjectsInBounds']);
+    Route::get('/api/map/export', [MapController::class, 'export'])->name('api_map_export');
+    Route::get('/public/map/export', [MapController::class, 'export'])->name('public_map_export');
     Route::get('/api/districts', [MapController::class, 'getDistricts'])->name('api_districts');
     Route::get('/api/railway-projects', [MapController::class, 'getRailwayProjects'])->name('api_railway_projects');
+    Route::get('/api/public/recent-updates', [HomeController::class, 'getRecentProjectUpdates'])->name('api_public_recent_updates');
     Route::get('/projects', [HomeController::class, 'projects'])->name('projects');
     Route::get('/industrial-projects', [HomeController::class, 'industrialProjects'])->name('industrial_projects');
     Route::get('/project-detail/{slug}', [HomeController::class, 'projectDetail'])->name('project_detail');
@@ -44,6 +89,7 @@ Route::localized(function () {
     Route::match(['get', 'post'], '/lien-he', [HomeController::class, 'contact'])->name('contact');
     Route::match(['get', 'post'], '/contact', [HomeController::class, 'contact'])->name('contact');
     Route::post('/interest', [InterestController::class, 'toggleInterest'])->name('interest');
+    Route::put('/interest/{id}', [InterestController::class, 'updateInterest'])->name('interest_update');
     Route::get('/search', [HomeController::class, 'search'])->name('search');
     Route::get('/ajax-project-suggestions', [HomeController::class, 'ajaxSuggestions'])->name('ajax_project_suggestions');
     Route::get('/huongdansudungbando', function () {

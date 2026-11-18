@@ -334,11 +334,12 @@ class DashboardController extends Controller
             $activitySearch = $request->get('search_log');
             $activityEvent = $request->get('event_log');
 
-            $activities = Activity::with('causer')
+            $activities = Activity::with(['causer', 'subject'])
                 ->whereNotNull('causer_id')
                 ->latest()
                 ->when($activitySearch, function ($query) use ($activitySearch) {
                     return $query->where('description', 'like', "%{$activitySearch}%")
+                        ->orWhere('properties', 'like', "%{$activitySearch}%")
                         ->orWhereHasMorph('causer', [User::class], function ($q) use ($activitySearch) {
                             $q->where('name', 'like', "%{$activitySearch}%");
                         });

@@ -1,8 +1,9 @@
-@props(['name', 'locale' => null, 'value' => [], 'label' => '', 'messages' => [], 'help' => '', 'editor' => false])
+@props(['name', 'locale' => null, 'value' => [], 'label' => '', 'messages' => [], 'help' => '', 'editor' => false, 'hasAccessLevel' => false])
 
 @php
     $hasTitles = array_key_exists('titles', $value);
     $hasDescs = array_key_exists('descs', $value);
+    $hasAccessLevel = $hasAccessLevel || array_key_exists('access_levels', $value);
 
     $items = collect($value['files'] ?? ($value['images'] ?? []))
         ->filter()
@@ -10,9 +11,11 @@
         ->all();
     $titles = $value['titles'] ?? [];
     $descs = $value['descs'] ?? [];
+    $accessLevels = $value['access_levels'] ?? [];
     
     // ✅ Tạo tên field với locale nếu có
     $imageFieldName = $name . '_images';
+    $accessLevelFieldName = $name . '_access_levels';
     $titleFieldName = $name . '_titles' . ($locale ? "[{$locale}]" : '');
     $descFieldName = $name . '_descs' . ($locale ? "[{$locale}]" : '');
 @endphp
@@ -59,6 +62,20 @@
                             @endif
                         </div>
 
+                        @if ($hasAccessLevel && (!$locale || $locale === $firstLocale))
+                            @php
+                                $curLevel = $accessLevels[$index] ?? 'public';
+                            @endphp
+                            <div class="mt-2 mb-2 d-flex align-items-center">
+                                <label class="mb-0 mr-2 text-sm font-weight-bold text-muted"><i class="fas fa-shield-alt mr-1"></i>Quyền xem/tải:</label>
+                                <select name="{{ $accessLevelFieldName }}[]" class="form-control form-control-sm" style="max-width: 280px; display: inline-block;">
+                                    <option value="public" {{ $curLevel === 'public' ? 'selected' : '' }}>Công khai (Tất cả mọi người)</option>
+                                    <option value="login_required" {{ $curLevel === 'login_required' ? 'selected' : '' }}>Yêu cầu đăng nhập (Cá nhân, Tổ chức, FDI)</option>
+                                    <option value="internal" {{ $curLevel === 'internal' ? 'selected' : '' }}>Nội bộ (Chỉ Tổ chức & FDI)</option>
+                                </select>
+                            </div>
+                        @endif
+
                         @if ($hasTitles)
                             <input type="text" name="{{ $titleFieldName }}[]" class="form-control mt-2 mb-2" placeholder="Tiêu đề"
                                 value="{{ $titles[$index] ?? '' }}">
@@ -82,7 +99,7 @@
             <!-- Nút thêm file/ảnh -->
             <div class="d-flex justify-content-start">
                 <div id="{{ $name }}_{{ $locale }}_add" class="upload-combo-add text-muted"
-                    onclick="selectFilesWithCKFinder('{{ $name }}', '{{ $locale }}', {{ $hasTitles ? 'true' : 'false' }}, {{ $hasDescs ? 'true' : 'false' }}, {{ $editor ? 'true' : 'false' }})">
+                    onclick="selectFilesWithCKFinder('{{ $name }}', '{{ $locale }}', {{ $hasTitles ? 'true' : 'false' }}, {{ $hasDescs ? 'true' : 'false' }}, {{ $editor ? 'true' : 'false' }}, {{ $hasAccessLevel ? 'true' : 'false' }})">
                     +
                 </div>
             </div>
@@ -159,7 +176,7 @@
 </style>
 
 <script>
-    function selectFilesWithCKFinder(name, locale = null, hasTitles = true, hasDescs = true, useEditor = false) {
+    function selectFilesWithCKFinder(name, locale = null, hasTitles = true, hasDescs = true, useEditor = false, hasAccessLevel = false) {
         CKFinder.modal({
             chooseFiles: true,
             width: 800,
@@ -172,6 +189,7 @@
 
                     // ✅ Xác định tên field với locale
                     const imageFieldName = name + '_images';
+                    const accessLevelFieldName = name + '_access_levels';
                     const titleFieldName = name + '_titles' + (locale ? `[${locale}]` : '');
                     const descFieldName = name + '_descs' + (locale ? `[${locale}]` : '');
                     
@@ -214,6 +232,19 @@
                                     <input type="hidden" name="${imageFieldName}[]" value="${url}">
                                 </div>
                             `;
+
+                            if (hasAccessLevel) {
+                                html += `
+                                    <div class="mt-2 mb-2 d-flex align-items-center">
+                                        <label class="mb-0 mr-2 text-sm font-weight-bold text-muted"><i class="fas fa-shield-alt mr-1"></i>Quyền xem/tải:</label>
+                                        <select name="${accessLevelFieldName}[]" class="form-control form-control-sm" style="max-width: 280px; display: inline-block;">
+                                            <option value="public" selected>Công khai (Tất cả mọi người)</option>
+                                            <option value="login_required">Yêu cầu đăng nhập (Cá nhân, Tổ chức, FDI)</option>
+                                            <option value="internal">Nội bộ (Chỉ Tổ chức & FDI)</option>
+                                        </select>
+                                    </div>
+                                `;
+                            }
                         }
 
                         if (hasTitles) {

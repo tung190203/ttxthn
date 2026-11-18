@@ -30,6 +30,10 @@ class UpdateRequest extends FormRequest
             'phone' => 'nullable|numeric',
             'address' => 'nullable|string|max:255',
             'avatar' => 'nullable|string',
+            'organization_name' => 'nullable|string|max:255',
+            'tax_code' => 'nullable|string|max:50',
+            'interested_sectors' => 'nullable|array',
+            'interested_sectors.*' => 'exists:project_industries,id',
         ];
     }
 

@@ -68,6 +68,7 @@ class Project extends Model
         'legal_short_desc',
         'location_in_tour',
         'legal_file',
+        'legal_access_levels',
         'legal_description',
         'layout_id',
         'is_invest',
@@ -208,6 +209,11 @@ class Project extends Model
     public function parent()
     {
         return $this->belongsTo(Project::class, 'parent_id');
+    }
+
+    public function mapLayers()
+    {
+        return $this->belongsToMany(MapLayer::class, 'project_map_layer', 'project_id', 'map_layer_id');
     }
 
     public static function makeListProject($selected_id = '')
@@ -492,5 +498,67 @@ class Project extends Model
         $dir = 'vrtour/' . $this->vrtour_code;
         createFile($dir, 'hotspot.js');
         file_put_contents($dir . '/hotspot.js', $data->toJson());
+    }
+
+    public function getLegalAccessLevels(): array
+    {
+        if (empty($this->legal_access_levels)) {
+            $files = $this->legal_file ? explode(';', $this->legal_file) : [];
+            return array_fill(0, count($files), 'public');
+        }
+        return explode(';', $this->legal_access_levels);
+    }
+
+    public function checkLegalFileAccess(int $index, $user = null): array
+    {
+        $levels = $this->getLegalAccessLevels();
+        $level = $levels[$index] ?? 'public';
+
+        $guest = $user ?: auth('guest')->user();
+        $isLoggedIn = $guest !== null;
+        $invType = $guest ? $guest->investor_type : null;
+
+        if ($level === 'public') {
+            return [
+                'can_access' => true,
+                'level' => 'public',
+                'level_label' => __('app.access_public'),
+                'reason' => null,
+            ];
+        }
+
+        if ($level === 'login_required') {
+            if ($isLoggedIn) {
+                return [
+                    'can_access' => true,
+                    'level' => 'login_required',
+                    'level_label' => __('app.access_login_required'),
+                    'reason' => null,
+                ];
+            }
+            return [
+                'can_access' => false,
+                'level' => 'login_required',
+                'level_label' => __('app.access_login_required'),
+                'reason' => 'login',
+            ];
+        }
+
+        // internal level
+        if ($isLoggedIn && in_array($invType, ['organization', 'fdi'])) {
+            return [
+                'can_access' => true,
+                'level' => 'internal',
+                'level_label' => __('app.access_internal'),
+                'reason' => null,
+            ];
+        }
+
+        return [
+            'can_access' => false,
+            'level' => 'internal',
+            'level_label' => __('app.access_internal'),
+            'reason' => $isLoggedIn ? 'role' : 'login',
+        ];
     }
 }
