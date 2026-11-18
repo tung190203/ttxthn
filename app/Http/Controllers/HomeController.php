@@ -956,14 +956,16 @@ class HomeController extends Controller
 
     /**
      * Lấy danh sách thông báo cập nhật cho cả khách vãng lai và người dùng đã đăng nhập:
-     * - Dự án có cập nhật thông tin (thay đổi thông tin, thay đổi trạng thái chủ đầu tư, có VRTour...)
-     * - Có Cẩm nang đầu tư mới đăng tải
-     * - Nếu đã đăng nhập: cá nhân hóa theo các dự án đã quan tâm (Interests)
+     * - Dự án có cập nhật thông tin thực tế từ ActivityLog (thay đổi thông tin, đổi trạng thái chủ đầu tư, ranh giới quy hoạch, VR Tour...)
+     * - Dự án có VR Tour 360° để khám phá
+     * - Cẩm nang đầu tư mới đăng tải
+     * - Ưu tiên các dự án người dùng đã bấm theo dõi (Interests) nếu đã đăng nhập
      */
     public function getRecentProjectUpdates(Request $request)
     {
         $guest = Auth::guard('guest')->user();
         $items = collect();
+        $addedProjectIds = [];
 
         // 1. NẾU ĐÃ ĐĂNG NHẬP: Lấy thông báo theo các dự án người đó đã bấm quan tâm
         if ($guest) {
@@ -981,26 +983,20 @@ class HomeController extends Controller
                     ->get();
 
                 foreach ($interestedProjects as $p) {
+                    $addedProjectIds[] = $p->id;
                     $district = $p->districts->pluck('name')->first() ?? 'TP. Hà Nội';
-                    $hasVr = (!empty($p->link_vrtour) && empty($p->hide_vrtour));
-                    
-                    $badgeText = $hasVr ? 'VR Tour 360° • Dự án quan tâm' : 'Dự án quan tâm có cập nhật';
-                    $badgeIcon = $hasVr ? 'fa-vr-cardboard' : 'fa-star';
-                    $badgeColor = $hasVr ? '#8b5cf6' : '#f59e0b';
-                    $summary = $hasVr 
-                        ? 'Dự án bạn theo dõi vừa cập nhật chuyến tham quan thực tế ảo VR Tour 360°' 
-                        : 'Dự án trong danh sách theo dõi của bạn vừa có cập nhật thông tin mới';
+                    $info = $this->resolveProjectEventInfo($p, true);
 
                     $items->push([
                         'id' => 'interested_' . $p->id,
                         'type' => 'interested_project',
-                        'badge_text' => $badgeText,
-                        'badge_icon' => $badgeIcon,
-                        'badge_color' => $badgeColor,
+                        'badge_text' => $info['badge'],
+                        'badge_icon' => $info['icon'],
+                        'badge_color' => $info['color'],
                         'name' => $p->name,
                         'district' => $district . ($p->industry ? ' • ' . $p->industry->name : ''),
-                        'summary' => $summary,
-                        'time_ago' => $p->updated_at ? $p->updated_at->diffForHumans() : 'Vừa xong',
+                        'summary' => $info['summary'],
+                        'time_ago' => $info['time_ago'],
                         'image' => $p->banner_image ? asset($p->banner_image) : ($p->detail_image ? asset($p->detail_image) : asset('images/project-1.jpg')),
                         'lat' => $p->lat ? (float) $p->lat : null,
                         'lng' => $p->lng ? (float) $p->lng : null,
@@ -1012,7 +1008,41 @@ class HomeController extends Controller
             }
         }
 
-        // 2. Dự án có VR Tour 360° mới nhất
+        // 2. Dự án có cập nhật thực tế gần đây (dựa vào ActivityLog / updated_at)
+        $recentProjects = Project::with(['industry', 'districts'])
+            ->whereNull('parent_id')
+            ->where('status', 'approved')
+            ->where('is_hidden', 0)
+            ->whereNotIn('id', $addedProjectIds)
+            ->orderBy('updated_at', 'desc')
+            ->take(3)
+            ->get();
+
+        foreach ($recentProjects as $p) {
+            $addedProjectIds[] = $p->id;
+            $district = $p->districts->pluck('name')->first() ?? 'TP. Hà Nội';
+            $info = $this->resolveProjectEventInfo($p, false);
+
+            $items->push([
+                'id' => 'pj_' . $p->id,
+                'type' => 'project_info',
+                'badge_text' => $info['badge'],
+                'badge_icon' => $info['icon'],
+                'badge_color' => $info['color'],
+                'name' => $p->name,
+                'district' => $district . ($p->industry ? ' • ' . $p->industry->name : ''),
+                'summary' => $info['summary'],
+                'time_ago' => $info['time_ago'],
+                'image' => $p->banner_image ? asset($p->banner_image) : ($p->detail_image ? asset($p->detail_image) : asset('images/project-1.jpg')),
+                'lat' => $p->lat ? (float) $p->lat : null,
+                'lng' => $p->lng ? (float) $p->lng : null,
+                'url' => url('/project-detail/' . ($p->slug ?? 'untitled')),
+                'btn_action_text' => 'Xem trên bản đồ',
+                'btn_detail_text' => 'Chi tiết dự án',
+            ]);
+        }
+
+        // 3. Dự án tiêu biểu có VR Tour 360°
         $vrProjects = Project::with(['industry', 'districts'])
             ->whereNull('parent_id')
             ->where('status', 'approved')
@@ -1020,21 +1050,24 @@ class HomeController extends Controller
             ->whereNotNull('link_vrtour')
             ->where('link_vrtour', '!=', '')
             ->where('hide_vrtour', 0)
+            ->whereNotIn('id', $addedProjectIds)
             ->orderBy('updated_at', 'desc')
             ->take(2)
             ->get();
 
         foreach ($vrProjects as $p) {
+            $addedProjectIds[] = $p->id;
             $district = $p->districts->pluck('name')->first() ?? 'TP. Hà Nội';
+
             $items->push([
                 'id' => 'vr_' . $p->id,
                 'type' => 'project_vrtour',
-                'badge_text' => 'VR Tour 360° mới',
+                'badge_text' => 'Khám phá VR Tour 360°',
                 'badge_icon' => 'fa-vr-cardboard',
                 'badge_color' => '#8b5cf6',
                 'name' => $p->name,
                 'district' => $district . ($p->industry ? ' • ' . $p->industry->name : ''),
-                'summary' => 'Đã có chuyến tham quan thực tế ảo VR Tour 360° sinh động',
+                'summary' => 'Trải nghiệm không gian thực tế ảo 360° sinh động của dự án',
                 'time_ago' => $p->updated_at ? $p->updated_at->diffForHumans() : 'Mới cập nhật',
                 'image' => $p->banner_image ? asset($p->banner_image) : ($p->detail_image ? asset($p->detail_image) : asset('images/project-1.jpg')),
                 'lat' => $p->lat ? (float) $p->lat : null,
@@ -1042,42 +1075,6 @@ class HomeController extends Controller
                 'url' => url('/project-detail/' . ($p->slug ?? 'untitled')),
                 'btn_action_text' => 'Xem trên bản đồ',
                 'btn_detail_text' => 'Khám phá VR Tour',
-            ]);
-        }
-
-        // 3. Dự án cập nhật thông tin & thay đổi trạng thái chủ đầu tư
-        $recentProjects = Project::with(['industry', 'districts'])
-            ->whereNull('parent_id')
-            ->where('status', 'approved')
-            ->where('is_hidden', 0)
-            ->orderBy('updated_at', 'desc')
-            ->take(4)
-            ->get();
-
-        foreach ($recentProjects as $p) {
-            $district = $p->districts->pluck('name')->first() ?? 'TP. Hà Nội';
-            $investText = match((int)$p->is_invest) {
-                1 => 'Đã có chủ đầu tư',
-                2 => 'Dự án đề xuất / chủ trương',
-                default => 'Đang thu hút đầu tư'
-            };
-
-            $items->push([
-                'id' => 'pj_info_' . $p->id,
-                'type' => 'project_info',
-                'badge_text' => 'Cập nhật dự án',
-                'badge_icon' => 'fa-city',
-                'badge_color' => '#1169ff',
-                'name' => $p->name,
-                'district' => $district . ' • Trạng thái: ' . $investText,
-                'summary' => 'Vừa cập nhật thông tin quy hoạch & tiến độ xúc tiến đầu tư',
-                'time_ago' => $p->updated_at ? $p->updated_at->diffForHumans() : 'Mới cập nhật',
-                'image' => $p->banner_image ? asset($p->banner_image) : ($p->detail_image ? asset($p->detail_image) : asset('images/project-1.jpg')),
-                'lat' => $p->lat ? (float) $p->lat : null,
-                'lng' => $p->lng ? (float) $p->lng : null,
-                'url' => url('/project-detail/' . ($p->slug ?? 'untitled')),
-                'btn_action_text' => 'Xem trên bản đồ',
-                'btn_detail_text' => 'Chi tiết dự án',
             ]);
         }
 
@@ -1089,7 +1086,7 @@ class HomeController extends Controller
                 })
                 ->whereNull('parent_id')
                 ->orderBy('created_at', 'desc')
-                ->take(3)
+                ->take(2)
                 ->get();
 
             foreach ($guides as $g) {
@@ -1105,7 +1102,7 @@ class HomeController extends Controller
                     'badge_icon' => 'fa-book-open',
                     'badge_color' => '#10b981',
                     'name' => $guideName,
-                    'district' => 'Văn bản & Hướng dẫn thủ tục đầu tư mới ban hành',
+                    'district' => 'Văn bản & Quy trình hướng dẫn xúc tiến đầu tư',
                     'summary' => 'Tài liệu hướng dẫn quy trình, thủ tục dành cho nhà đầu tư',
                     'time_ago' => $g->created_at ? $g->created_at->diffForHumans() : 'Mới đăng tải',
                     'image' => $g->image ? asset($g->image) : asset('images/intro.png'),
@@ -1127,5 +1124,122 @@ class HomeController extends Controller
             'guest_name' => $guest ? $guest->name : null,
             'items' => $unique
         ]);
+    }
+
+    /**
+     * Phân tích sự kiện cập nhật thực tế của dự án từ ActivityLog hoặc dữ liệu model
+     */
+    private function resolveProjectEventInfo($p, bool $isInterested = false): array
+    {
+        $investStatus = match((int)$p->is_invest) {
+            1 => 'Đã có chủ đầu tư',
+            2 => 'Dự án đề xuất / chủ trương',
+            default => 'Đang thu hút đầu tư'
+        };
+
+        // Tìm log cập nhật gần nhất của dự án trong Spatie Activitylog
+        $latestLog = null;
+        try {
+            if (class_exists(\Spatie\Activitylog\Models\Activity::class)) {
+                $latestLog = \Spatie\Activitylog\Models\Activity::where('subject_type', Project::class)
+                    ->where('subject_id', $p->id)
+                    ->where('event', 'updated')
+                    ->orderBy('id', 'desc')
+                    ->first();
+            }
+        } catch (\Exception $e) {}
+
+        $prefix = $isInterested ? 'Dự án quan tâm • ' : '';
+
+        if ($latestLog) {
+            $props = $latestLog->properties ? $latestLog->properties->toArray() : [];
+            $attrs = array_keys($props['attributes'] ?? []);
+            $timeAgo = $latestLog->created_at ? $latestLog->created_at->diffForHumans() : ($p->updated_at ? $p->updated_at->diffForHumans() : 'Mới cập nhật');
+
+            // 1. Thay đổi trạng thái chủ đầu tư
+            if (in_array('is_invest', $attrs)) {
+                return [
+                    'badge' => $prefix . 'Cập nhật trạng thái CĐT',
+                    'icon' => 'fa-user-tie',
+                    'color' => '#3b82f6',
+                    'summary' => 'Trạng thái dự án chuyển sang: ' . $investStatus,
+                    'time_ago' => $timeAgo,
+                ];
+            }
+
+            // 2. Mới thêm hoặc cập nhật VR Tour 360°
+            if (in_array('link_vrtour', $attrs) || in_array('vrtour_code', $attrs)) {
+                return [
+                    'badge' => $prefix . 'Ra mắt VR Tour 360°',
+                    'icon' => 'fa-vr-cardboard',
+                    'color' => '#8b5cf6',
+                    'summary' => 'Dự án vừa tích hợp chuyến tham quan thực tế ảo VR Tour 360°',
+                    'time_ago' => $timeAgo,
+                ];
+            }
+
+            // 3. Cập nhật bản đồ, ranh giới, tuyến giao thông kết nối
+            if (in_array('boundary', $attrs) || in_array('railway_lines', $attrs) || in_array('layout_id', $attrs)) {
+                return [
+                    'badge' => $prefix . 'Cập nhật bản đồ & quy hoạch',
+                    'icon' => 'fa-map-marked-alt',
+                    'color' => '#06b6d4',
+                    'summary' => 'Vừa cập nhật ranh giới tọa độ và hạ tầng kết nối dự án',
+                    'time_ago' => $timeAgo,
+                ];
+            }
+
+            // 4. Cập nhật hồ sơ pháp lý
+            if (in_array('legal_description', $attrs) || in_array('legal_file', $attrs) || in_array('legal_access_levels', $attrs)) {
+                return [
+                    'badge' => $prefix . 'Cập nhật hồ sơ pháp lý',
+                    'icon' => 'fa-file-certificate',
+                    'color' => '#6366f1',
+                    'summary' => 'Hồ sơ tài liệu pháp lý của dự án vừa được bổ sung, cập nhật',
+                    'time_ago' => $timeAgo,
+                ];
+            }
+
+            // 5. Cập nhật thông tin chi tiết / giá / mô tả
+            return [
+                'badge' => $prefix . 'Cập nhật thông tin dự án',
+                'icon' => $isInterested ? 'fa-star' : 'fa-info-circle',
+                'color' => $isInterested ? '#f59e0b' : '#10b981',
+                'summary' => 'Thông tin giới thiệu và tiến độ dự án vừa được cập nhật',
+                'time_ago' => $timeAgo,
+            ];
+        }
+
+        // Trường hợp không có log: hiển thị trung thực theo dữ liệu hiện tại của dự án
+        $timeAgo = $p->updated_at ? $p->updated_at->diffForHumans() : 'Mới cập nhật';
+        $district = $p->districts->pluck('name')->first() ?? 'TP. Hà Nội';
+
+        if ($isInterested) {
+            return [
+                'badge' => 'Dự án đang theo dõi',
+                'icon' => 'fa-star',
+                'color' => '#f59e0b',
+                'summary' => 'Dự án trong danh mục quan tâm của bạn (' . $investStatus . ')',
+                'time_ago' => $timeAgo,
+            ];
+        }
+
+        if (!empty($p->link_vrtour) && empty($p->hide_vrtour)) {
+            return [
+                'badge' => 'Khám phá VR Tour 360°',
+                'icon' => 'fa-vr-cardboard',
+                'color' => '#8b5cf6',
+                'summary' => 'Trải nghiệm không gian thực tế ảo 360° sinh động của dự án',
+                'time_ago' => $timeAgo,
+            ];
+        }
+
+        return [
+            'badge' => 'Dự án ' . $investStatus,
+            'icon' => 'fa-city',
+            'color' => '#1169ff',
+            'summary' => 'Dự án xúc tiến đầu tư trọng điểm tại ' . $district,
+            'time_ago' => $timeAgo,
+        ];
     }
 }
