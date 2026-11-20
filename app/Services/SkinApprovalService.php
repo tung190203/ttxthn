@@ -87,10 +87,8 @@ class SkinApprovalService
     ];
 
     private const MODEL3D_FIELDS = [
-        'title_3d'    => 'Tiêu đề',
-        'title_3d_en' => 'Tiêu đề EN',
-        'file_3d'     => 'Link mô hình 3d',
-        'show'        => 'Hiển thị',
+    'show_3dmodel'     => 'Hiển thị mô hình 3D',
+
     ];
 
     private const DIFF_CONFIG = [
@@ -366,6 +364,9 @@ class SkinApprovalService
         $result = [];
         foreach ($fields as $field => $label) {
             $value = data_get($source, $field, '');
+            if (is_bool($value)) {
+                $value = (int) $value;
+            }
             if (is_array($value) || is_object($value)) {
                 $value = json_encode(
                     $value,

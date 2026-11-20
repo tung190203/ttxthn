@@ -15,11 +15,9 @@ class Vrtour3dmodel extends Model
     protected $fillable = [
         'vrtour_id',
         'user_id',
-        'title_3d',
-        'title_3d_en',
-        'file_3d',
-        'show',
+        'show_3dmodel',
     ];
+    protected $casts = ['show_3dmodel' => 'boolean'];
 
     public function project()
     {

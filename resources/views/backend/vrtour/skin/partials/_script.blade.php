@@ -7,7 +7,7 @@
     $('.skin_div').hide();
     $('#update_all').hide();
     $('#skin_investor #investor_status').bootstrapSwitch();
-    $('#skin_model3d #model3d_show').bootstrapSwitch();
+    $('#skin_model3d #model3d_show_3dmodel').bootstrapSwitch();
     $('#skin_screen #investor').bootstrapSwitch();
     $('#skin_plan #status').bootstrapSwitch();
     $("#approvalToolbar").hide();
@@ -204,10 +204,7 @@
                         level: "#model3dApprovalLevel"
                     }) || hasPending;
                     $('#skin_model3d #model3d_id').val(model3d != null ? model3d['id'] : '');
-                    $('#skin_model3d #title_3d').val(model3d != null ? model3d['title_3d'] : 'Mô hình 3d');
-                    $('#skin_model3d #title_3d_en').val(model3d != null ? model3d['title_3d_en'] : '3d model');
-                    $('#skin_model3d #file_3d').val(model3d != null ? model3d['file_3d'] : '');
-                    $('#skin_model3d #model3d_show').bootstrapSwitch('state', model3d != null ? (model3d['show'] == 1) : false);
+                    $('#skin_model3d #model3d_show_3dmodel').bootstrapSwitch('state', model3d != null ? (model3d['show_3dmodel'] == 1) : false);
 
                     if (hasPending) {
                         enableApprovalToolbar();
@@ -314,11 +311,8 @@
                 content3_en : CKEDITOR.instances['pcontent3_en'].getData()
             },
             model3d: {
-                id          : $('#skin_model3d #model3d_id').val(),
-                title_3d    : $('#skin_model3d #title_3d').val(),
-                title_3d_en : $('#skin_model3d #title_3d_en').val(),
-                file_3d     : $('#skin_model3d #file_3d').val(),
-                show        : $('#skin_model3d #model3d_show').bootstrapSwitch('state')
+                id               : $('#skin_model3d #model3d_id').val(),
+                show_3dmodel     : $('#skin_model3d #model3d_show_3dmodel').bootstrapSwitch('state'),
             }
         };
 
