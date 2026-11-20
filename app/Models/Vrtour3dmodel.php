@@ -17,7 +17,7 @@ class Vrtour3dmodel extends Model
         'user_id',
         'show_3dmodel',
     ];
-    protected $casts = ['show_3dmodel' => 'boolean', 'show_detail_plan' => 'boolean'];
+    protected $casts = ['show_3dmodel' => 'boolean'];
 
     public function project()
     {

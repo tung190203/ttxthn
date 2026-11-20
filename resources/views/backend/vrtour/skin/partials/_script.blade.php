@@ -8,7 +8,6 @@
     $('#update_all').hide();
     $('#skin_investor #investor_status').bootstrapSwitch();
     $('#skin_model3d #model3d_show_3dmodel').bootstrapSwitch();
-    // $('#skin_model3d #model3d_show_detail_plan').bootstrapSwitch();
     $('#skin_screen #investor').bootstrapSwitch();
     $('#skin_plan #status').bootstrapSwitch();
     $("#approvalToolbar").hide();
@@ -206,7 +205,6 @@
                     }) || hasPending;
                     $('#skin_model3d #model3d_id').val(model3d != null ? model3d['id'] : '');
                     $('#skin_model3d #model3d_show_3dmodel').bootstrapSwitch('state', model3d != null ? (model3d['show_3dmodel'] == 1) : false);
-                    // $('#skin_model3d #model3d_show_detail_plan').bootstrapSwitch('state', model3d != null ? (model3d['show_detail_plan'] == 1) : false);
 
                     if (hasPending) {
                         enableApprovalToolbar();
@@ -315,7 +313,6 @@
             model3d: {
                 id               : $('#skin_model3d #model3d_id').val(),
                 show_3dmodel     : $('#skin_model3d #model3d_show_3dmodel').bootstrapSwitch('state'),
-                // show_detail_plan : $('#skin_model3d #model3d_show_detail_plan').bootstrapSwitch('state')
             }
         };
 
