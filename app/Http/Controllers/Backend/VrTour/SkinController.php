@@ -181,7 +181,7 @@ class SkinController extends Controller
     }
 
     /** Payload của từng phần, lấy từ dữ liệu request của phần đó */
-    private function buildPayload(int $type, array $d, Project $vrtour): array
+    private function buildPayload(int $type, array $d, Project $vrtour)
     {
         $base = ['vrtour_id' => $vrtour->id];
 
@@ -212,41 +212,9 @@ class SkinController extends Controller
                     'website','sologan','sologan_en',
                 ]),
             SkinApproval::TYPE_MODEL3D => $base + [
-                'title_3d'    => $d['title_3d'] ?? null,
-                'title_3d_en' => !empty($d['title_3d_en']) ? $d['title_3d_en'] : '3d model',
-                'file_3d'     => $this->embedLink($d['file_3d'] ?? null),
-                'show'        => !empty($d['show']) ? 1 : 0,
+                'show_3dmodel'     => !empty($d['show_3dmodel']) ? 1 : 0,
             ],
         };
-    }
-
-    /** File 3d chỉ nhận .glb, rỗng thì trả null */
-    /** Chỉ nhận link Sketchfab, chuẩn hóa về dạng https://sketchfab.com/models/{id}/embed */
-    private function embedLink(?string $input): ?string
-    {
-        $input = trim((string) $input);
-        if ($input === '') {
-            return null;
-        }
-
-        // Cho phép dán cả mã <iframe ... src="...">
-        if (preg_match('/src=["\']([^"\']+)["\']/i', $input, $m)) {
-            $input = html_entity_decode($m[1]);
-        }
-
-        $parts = parse_url($input);
-        $host  = strtolower($parts['host'] ?? '');
-
-        if (($parts['scheme'] ?? '') !== 'https' || !in_array($host, ['sketchfab.com', 'www.sketchfab.com'], true)) {
-            throw new \Exception('Chỉ chấp nhận link https của sketchfab.com');
-        }
-
-        // ID model là chuỗi 32 ký tự hex trong đường dẫn
-        if (!preg_match('/([0-9a-f]{32})/i', $parts['path'] ?? '', $m)) {
-            throw new \Exception('Không tìm thấy ID mô hình trong link Sketchfab');
-        }
-
-        return 'https://sketchfab.com/models/' . strtolower($m[1]) . '/embed';
     }
 
     /** Lấy các key cần dùng, thiếu thì null */
