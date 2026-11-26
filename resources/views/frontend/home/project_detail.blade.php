@@ -369,7 +369,63 @@
             font-size: 13px;
         }
     }
+    .pj-invest-status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 14px;
+        border-radius: 999px;
+        font-size: 13.5px;
+        font-weight: 600;
+        line-height: 1.3;
+        background: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+        border: 1.5px solid currentColor;
+        margin-top: 10px;
+    }
+    .pj-invest-status-bar {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding-bottom: 16px;
+        margin-bottom: 18px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    .pj-invest-status-bar__label {
+        font-weight: 700;
+        color: #334155;
+        font-size: 14.5px;
+    }
+    .pj-invest-status-bar__pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 5px 14px;
+        border-radius: 999px;
+        font-size: 13.5px;
+        font-weight: 600;
+    }
 </style>
+@php
+    $investStatusInt = (int) ($project->is_invest ?? 0);
+    if ($investStatusInt === 1) {
+        $investStatusLabel = __('app.projects_with_investors');
+        $investStatusColor = '#d9534f';
+        $investStatusBg = 'rgba(217, 83, 79, 0.12)';
+        $investStatusIcon = 'fa-check-circle';
+    } elseif ($investStatusInt === 2) {
+        $investStatusLabel = __('app.projects_proposed');
+        $investStatusColor = '#d97706';
+        $investStatusBg = 'rgba(217, 119, 6, 0.12)';
+        $investStatusIcon = 'fa-handshake';
+    } else {
+        $investStatusLabel = __('app.projects_calling_for_investment');
+        $investStatusColor = '#16a34a';
+        $investStatusBg = 'rgba(22, 163, 74, 0.12)';
+        $investStatusIcon = 'fa-bullhorn';
+    }
+@endphp
 <div class="page__content">
     <!-- main content-->
     @if ($project->layout_id == 1)
@@ -399,6 +455,12 @@
                             <i class="{{ $isBookmarked ? 'fas' : 'far' }} fa-bookmark text-warning" style="font-size: 1.2rem;"></i>
                         </button>
                     </div>
+                    <div class="mt-2">
+                        <span class="pj-invest-status-badge" style="color: {{ $investStatusColor }};">
+                            <i class="fas {{ $investStatusIcon }}"></i>
+                            <span>{{ $investStatusLabel }}</span>
+                        </span>
+                    </div>
                 </div>
                 <div class="pj-banner__separator"></div>
                 <div class="pj-banner__desc" style="background: white;border-radius:8px;padding:10px 20px;opacity: 0.9; text-align: justify;">{{ $project->short_desc ?? '' }}</div>
@@ -427,6 +489,12 @@
                         </button>
                         {{ $project->name }}
                     </div>
+                    <div class="mt-2 text-end">
+                        <span class="pj-invest-status-badge" style="color: {{ $investStatusColor }};">
+                            <i class="fas {{ $investStatusIcon }}"></i>
+                            <span>{{ $investStatusLabel }}</span>
+                        </span>
+                    </div>
                 </div>
                 <div class="custom_desc" style="text-align:start">{{ $project->short_desc ?? '' }}</div>
             </div>
@@ -453,6 +521,12 @@
                         <button class="btn btn-sm btn-light btn-bookmark" data-id="{{ $project->id }}" style="border-radius: 50%; width: 36px; height: 36px; padding: 0;">
                             <i class="{{ $isBookmarked ? 'fas' : 'far' }} fa-bookmark text-warning" style="font-size: 1.2rem;"></i>
                         </button>
+                    </div>
+                    <div class="mt-2 text-start">
+                        <span class="pj-invest-status-badge" style="color: {{ $investStatusColor }};">
+                            <i class="fas {{ $investStatusIcon }}"></i>
+                            <span>{{ $investStatusLabel }}</span>
+                        </span>
                     </div>
                 </div>
                 <div class="d-flex justify-content-end">
@@ -522,6 +596,13 @@
         <div class="container" style="flex: 1; display: flex; flex-direction: column; min-height: 0; position: relative; z-index: 1;">
             <h2 class="section__title" style="flex-shrink: 0;">{{ __('app.general_info') }}</h2>
             <div class="mx-auto" style="background: #fff; border-radius: 8px; padding: 30px; max-width: 1000px; flex: 1; min-height: 0; display: flex; flex-direction: column; width: 100%; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                <div class="pj-invest-status-bar">
+                    <span class="pj-invest-status-bar__label">{{ __('app.status') }}:</span>
+                    <span class="pj-invest-status-bar__pill" style="color: {{ $investStatusColor }}; background: {{ $investStatusBg }}; border: 1px solid {{ $investStatusColor }};">
+                        <i class="fas {{ $investStatusIcon }}"></i>
+                        <span>{{ $investStatusLabel }}</span>
+                    </span>
+                </div>
                 <div class="custom-scrollbar" style="flex: 1; min-height: 0; overflow-y: auto; padding-right: 20px; width: 100%;">
                     {!! $project->description !!}
                 </div>
