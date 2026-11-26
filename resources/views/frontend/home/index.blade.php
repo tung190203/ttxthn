@@ -4044,14 +4044,14 @@ window.addEventListener('resize', () => {
         if (!isUserOutsideHanoi) {
             currentLocation.addTo(map);
         }
-        exportControl.addTo(map);
+        // // exportControl.addTo(map); // Tạm ẩn nút xuất dữ liệu trên bản đồ // Tạm ẩn nút xuất dữ liệu
         shareControl.addTo(map);
         resetControl.addTo(map);
     } else {
         // Muốn A -> B -> C trên web
         resetControl.addTo(map);
         shareControl.addTo(map);
-        exportControl.addTo(map);
+        // // exportControl.addTo(map); // Tạm ẩn nút xuất dữ liệu trên bản đồ // Tạm ẩn nút xuất dữ liệu
         if (!isUserOutsideHanoi) {
             currentLocation.addTo(map);
         }
@@ -4399,7 +4399,7 @@ exportControl.onAdd = function(map) {
     return btn;
 };
 
-exportControl.addTo(map);
+// exportControl.addTo(map); // Tạm ẩn nút xuất dữ liệu trên bản đồ
 
 function resetMap() {
     resetProjectTab();
