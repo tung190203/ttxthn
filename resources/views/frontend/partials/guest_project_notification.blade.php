@@ -184,27 +184,27 @@
     <div class="portal-toast-header">
         <div class="portal-toast-badge" id="guestNotiBadge">
             <i class="fas fa-bell" id="guestNotiBadgeIcon"></i>
-            <span id="guestNotiBadgeText">Thông báo mới</span>
+            <span id="guestNotiBadgeText">{{ __('app.noti_new_notification') }}</span>
         </div>
         <div style="display: flex; align-items: center;">
-            <span class="portal-toast-time" id="guestNotiTime">Vừa xong</span>
-            <button type="button" class="portal-toast-close" id="btnCloseGuestNoti" aria-label="Đóng thông báo">&times;</button>
+            <span class="portal-toast-time" id="guestNotiTime">{{ __('app.noti_just_now') }}</span>
+            <button type="button" class="portal-toast-close" id="btnCloseGuestNoti" aria-label="{{ __('app.noti_close') }}">&times;</button>
         </div>
     </div>
     
-    <div class="portal-toast-title" id="guestNotiName">Đang tải thông tin...</div>
+    <div class="portal-toast-title" id="guestNotiName">{{ __('app.noti_loading') }}</div>
     <div class="portal-toast-summary" id="guestNotiSummary" style="display: none;"></div>
     
     <div class="portal-toast-meta">
-        <span id="guestNotiDistrict">TP. Hà Nội</span>
+        <span id="guestNotiDistrict">{{ __('app.noti_hanoi_city') }}</span>
     </div>
 
     <div class="portal-toast-actions">
         <button type="button" id="btnGuestNotiMap" class="portal-toast-btn-primary" style="display: none;">
-            <span id="btnGuestNotiMapText">Xem trên bản đồ</span>
+            <span id="btnGuestNotiMapText">{{ __('app.noti_view_on_map') }}</span>
         </button>
         <a href="#" id="btnGuestNotiDetail" class="portal-toast-btn-subtle" target="_blank">
-            <span id="btnGuestNotiDetailText">Chi tiết</span>
+            <span id="btnGuestNotiDetailText">{{ __('app.noti_detail') }}</span>
         </a>
     </div>
 </div>
@@ -238,7 +238,7 @@ document.addEventListener('DOMContentLoaded', function() {
         badgeEl.style.color = themeColor;
         
         // Loại bỏ emoji nếu có trong text
-        let cleanBadge = (item.badge_text || 'Cập nhật')
+        let cleanBadge = (item.badge_text || @json(__('app.noti_update_default')))
             .replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '')
             .trim();
         document.getElementById('guestNotiBadgeText').textContent = cleanBadge;
@@ -258,21 +258,22 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Meta (Địa điểm, trạng thái...) - Không dùng icon lòe loẹt
-        document.getElementById('guestNotiDistrict').textContent = item.district || 'TP. Hà Nội';
+        document.getElementById('guestNotiDistrict').textContent = item.district || @json(__('app.noti_hanoi_city'));
 
-        document.getElementById('guestNotiTime').textContent = item.time_ago || 'Vừa xong';
+        document.getElementById('guestNotiTime').textContent = item.time_ago || @json(__('app.noti_just_now'));
         
         // Nút xem chi tiết / VR Tour
         const btnDetail = document.getElementById('btnGuestNotiDetail');
         btnDetail.href = item.url || '#';
         btnDetail.target = '_blank';
-        document.getElementById('btnGuestNotiDetailText').textContent = item.btn_detail_text || 'Chi tiết';
+        btnDetail.rel = 'noopener noreferrer';
+        document.getElementById('btnGuestNotiDetailText').textContent = item.btn_detail_text || @json(__('app.noti_explore_vr'));
 
         // Nút bản đồ
         const btnMap = document.getElementById('btnGuestNotiMap');
         if (item.lat && item.lng) {
             btnMap.style.display = 'inline-flex';
-            document.getElementById('btnGuestNotiMapText').textContent = item.btn_action_text || 'Xem trên bản đồ';
+            document.getElementById('btnGuestNotiMapText').textContent = item.btn_action_text || @json(__('app.noti_view_on_map'));
             btnMap.onclick = function(e) {
                 e.preventDefault();
                 flyToProject(item);
@@ -288,17 +289,48 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // 1. Nếu đang ở Trang chủ có sẵn hàm portalFlyToProject
-        if (typeof window.portalFlyToProject === 'function') {
-            window.portalFlyToProject(item);
-        } else if (typeof window.map !== 'undefined' && window.map) {
-            window.map.flyTo([item.lat, item.lng], 16, { animate: true, duration: 1.0 });
+        const isMapPresent = !!document.getElementById('map');
+
+        // 1. Nếu đang ở Trang chủ có sẵn bản đồ: không lưu pending_focus_project để tránh lặp lại khi F5
+        if (isMapPresent) {
+            try {
+                sessionStorage.removeItem('pending_focus_project');
+            } catch(e){}
+
+            // Mở khóa bản đồ và ẩn video intro ngay lập tức
+            if (typeof window.unlockMap === 'function') {
+                window.unlockMap(true);
+            }
+            const vContainer = document.getElementById('video-loader-container');
+            if (vContainer) {
+                vContainer.style.setProperty('display', 'none', 'important');
+                vContainer.classList.remove('is-playing', 'video-fade-out');
+            }
+            const introLayer = document.getElementById('mapIntroLayer');
+            if (introLayer) {
+                introLayer.style.setProperty('display', 'none', 'important');
+                introLayer.classList.add('is-hidden');
+            }
+            const homePage = document.querySelector('.home-page');
+            if (homePage) {
+                homePage.classList.remove('home-map-locked');
+            }
+            const lVideo = document.getElementById('loader-video');
+            if (lVideo) {
+                try { lVideo.pause(); lVideo.currentTime = 0; } catch(e){}
+            }
+
+            if (typeof window.portalFlyToProject === 'function') {
+                window.portalFlyToProject(item);
+            } else if (typeof window.map !== 'undefined' && window.map) {
+                window.map.flyTo([item.lat, item.lng], 16, { animate: true, duration: 1.0 });
+            }
         } else {
-            // 2. Nếu đang ở trang con khác: lưu vào sessionStorage và điều hướng về trang chủ
+            // 2. Nếu đang ở trang con khác: lưu vào sessionStorage và chuyển hướng về trang chủ kèm cờ bỏ qua video intro
             try {
                 sessionStorage.setItem('pending_focus_project', JSON.stringify(item));
             } catch(e){}
-            const targetMapUrl = item.map_url || ("{{ url('/') }}?lat=" + item.lat + "&lng=" + item.lng + "&zoom=16");
+            const targetMapUrl = item.map_url || ("{{ route('home_page') }}?lat=" + item.lat + "&lng=" + item.lng + "&zoom=16&skip_intro=1&project_id=" + (item.project_id || item.id));
             window.location.href = targetMapUrl;
         }
     }
@@ -350,9 +382,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (btnClose) btnClose.addEventListener('click', closeNoti);
     }
 
-    // Tải dữ liệu API
+    // Tải dữ liệu API theo đúng ngôn ngữ hiện tại
     setTimeout(function() {
-        const apiUrl = "{{ url('/api/public/recent-updates') }}?t=" + Date.now();
+        const apiUrl = "{{ route('api_public_recent_updates') }}?lang={{ app()->getLocale() }}&t=" + Date.now();
         fetch(apiUrl)
             .then(function(res) { return res.json(); })
             .then(function(data) {

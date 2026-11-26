@@ -498,6 +498,12 @@ class HomeController extends Controller
         }
 
         $link_vrtour = $project->link_vrtour;
+
+        // Đi thẳng vào link VR Tour luôn
+        if (str_starts_with($link_vrtour, 'http://') || str_starts_with($link_vrtour, 'https://')) {
+            return redirect()->away($link_vrtour);
+        }
+
         return view('frontend.home.tour', compact('link_vrtour'));
     }
 
@@ -963,9 +969,17 @@ class HomeController extends Controller
      */
     public function getRecentProjectUpdates(Request $request)
     {
+        $reqLocale = $request->get('lang');
+        if ($reqLocale && in_array($reqLocale, ['vi', 'en'])) {
+            app()->setLocale($reqLocale);
+        }
+        $locale = app()->getLocale() === 'vn' ? 'vi' : app()->getLocale();
+        Carbon::setLocale($locale);
+
         $guest = Auth::guard('guest')->user();
         $items = collect();
         $addedProjectIds = [];
+        $homeMapBaseUrl = route('home_page');
 
         // Chỉ lấy các dữ liệu thực sự có biến động trong vòng 30 ngày gần đây
         $since = now()->subDays(30);
@@ -988,12 +1002,12 @@ class HomeController extends Controller
 
                 foreach ($interestedProjects as $p) {
                     $addedProjectIds[] = $p->id;
-                    $district = $p->districts->pluck('name')->first() ?? 'TP. Hà Nội';
+                    $district = $p->districts->pluck('name')->first() ?? __('app.noti_hanoi_city');
                     $info = $this->resolveProjectEventInfo($p, true);
                     $hasVr = (!empty($p->link_vrtour) && empty($p->hide_vrtour));
-                    $vrUrl = $hasVr ? route('show_Vrtour', ['slug' => $p->slug]) : null;
-                    $detailUrl = url('/project-detail/' . ($p->slug ?? 'untitled'));
-                    $mapUrl = ($p->lat && $p->lng) ? (url('/') . '?lat=' . $p->lat . '&lng=' . $p->lng . '&zoom=16') : null;
+                    $vrUrl = $hasVr ? ($p->link_vrtour ?: route('show_Vrtour', ['slug' => $p->slug])) : null;
+                    $detailUrl = route('project_detail', ['slug' => $p->slug ?? 'untitled']);
+                    $mapUrl = ($p->lat && $p->lng) ? ($homeMapBaseUrl . '?lat=' . $p->lat . '&lng=' . $p->lng . '&zoom=16&skip_intro=1&project_id=' . $p->id) : null;
                     $isVrType = str_contains(mb_strtolower($info['badge'] ?? ''), 'vr');
 
                     $items->push([
@@ -1026,8 +1040,8 @@ class HomeController extends Controller
                         'detail_url' => $detailUrl,
                         'map_url' => $mapUrl,
                         'url' => ($isVrType && $vrUrl) ? $vrUrl : $detailUrl,
-                        'btn_action_text' => ($p->lat && $p->lng) ? 'Xem trên bản đồ' : null,
-                        'btn_detail_text' => ($isVrType && $vrUrl) ? 'Xem VR Tour' : 'Chi tiết dự án',
+                        'btn_action_text' => ($p->lat && $p->lng) ? __('app.noti_view_on_map') : null,
+                        'btn_detail_text' => ($isVrType && $vrUrl) ? __('app.noti_explore_vr') : __('app.noti_project_detail'),
                     ]);
                 }
             }
@@ -1046,12 +1060,12 @@ class HomeController extends Controller
 
         foreach ($recentProjects as $p) {
             $addedProjectIds[] = $p->id;
-            $district = $p->districts->pluck('name')->first() ?? 'TP. Hà Nội';
+            $district = $p->districts->pluck('name')->first() ?? __('app.noti_hanoi_city');
             $info = $this->resolveProjectEventInfo($p, false);
             $hasVr = (!empty($p->link_vrtour) && empty($p->hide_vrtour));
-            $vrUrl = $hasVr ? route('show_Vrtour', ['slug' => $p->slug]) : null;
-            $detailUrl = url('/project-detail/' . ($p->slug ?? 'untitled'));
-            $mapUrl = ($p->lat && $p->lng) ? (url('/') . '?lat=' . $p->lat . '&lng=' . $p->lng . '&zoom=16') : null;
+            $vrUrl = $hasVr ? ($p->link_vrtour ?: route('show_Vrtour', ['slug' => $p->slug])) : null;
+            $detailUrl = route('project_detail', ['slug' => $p->slug ?? 'untitled']);
+            $mapUrl = ($p->lat && $p->lng) ? ($homeMapBaseUrl . '?lat=' . $p->lat . '&lng=' . $p->lng . '&zoom=16&skip_intro=1&project_id=' . $p->id) : null;
             $isVrType = str_contains(mb_strtolower($info['badge'] ?? ''), 'vr');
 
             $items->push([
@@ -1084,8 +1098,8 @@ class HomeController extends Controller
                 'detail_url' => $detailUrl,
                 'map_url' => $mapUrl,
                 'url' => ($isVrType && $vrUrl) ? $vrUrl : $detailUrl,
-                'btn_action_text' => ($p->lat && $p->lng) ? 'Xem trên bản đồ' : null,
-                'btn_detail_text' => ($isVrType && $vrUrl) ? 'Xem VR Tour' : 'Chi tiết dự án',
+                'btn_action_text' => ($p->lat && $p->lng) ? __('app.noti_view_on_map') : null,
+                'btn_detail_text' => ($isVrType && $vrUrl) ? __('app.noti_explore_vr') : __('app.noti_project_detail'),
             ]);
         }
 
@@ -1105,22 +1119,22 @@ class HomeController extends Controller
 
         foreach ($vrProjects as $p) {
             $addedProjectIds[] = $p->id;
-            $district = $p->districts->pluck('name')->first() ?? 'TP. Hà Nội';
-            $vrUrl = route('show_Vrtour', ['slug' => $p->slug]);
-            $detailUrl = url('/project-detail/' . ($p->slug ?? 'untitled'));
-            $mapUrl = ($p->lat && $p->lng) ? (url('/') . '?lat=' . $p->lat . '&lng=' . $p->lng . '&zoom=16') : null;
+            $district = $p->districts->pluck('name')->first() ?? __('app.noti_hanoi_city');
+            $vrUrl = $p->link_vrtour ?: route('show_Vrtour', ['slug' => $p->slug]);
+            $detailUrl = route('project_detail', ['slug' => $p->slug ?? 'untitled']);
+            $mapUrl = ($p->lat && $p->lng) ? ($homeMapBaseUrl . '?lat=' . $p->lat . '&lng=' . $p->lng . '&zoom=16&skip_intro=1&project_id=' . $p->id) : null;
 
             $items->push([
                 'id' => 'vr_' . $p->id,
                 'project_id' => $p->id,
                 'type' => 'project_vrtour',
-                'badge_text' => 'Khám phá VR Tour 360°',
+                'badge_text' => __('app.noti_badge_vr_new'),
                 'badge_icon' => 'fa-vr-cardboard',
                 'badge_color' => '#8b5cf6',
                 'name' => $p->name,
                 'district' => $district . ($p->industry ? ' • ' . $p->industry->name : ''),
-                'summary' => 'Trải nghiệm không gian thực tế ảo 360° sinh động của dự án',
-                'time_ago' => $p->updated_at ? $p->updated_at->diffForHumans() : 'Mới cập nhật',
+                'summary' => __('app.noti_summary_vr_new'),
+                'time_ago' => $p->updated_at ? $p->updated_at->diffForHumans() : __('app.noti_just_updated'),
                 'image' => $p->banner_image ? asset($p->banner_image) : ($p->detail_image ? asset($p->detail_image) : asset('images/project-1.jpg')),
                 'detail_image' => $p->detail_image,
                 'lat' => $p->lat ? (float) $p->lat : null,
@@ -1140,8 +1154,8 @@ class HomeController extends Controller
                 'detail_url' => $detailUrl,
                 'map_url' => $mapUrl,
                 'url' => $vrUrl,
-                'btn_action_text' => ($p->lat && $p->lng) ? 'Xem trên bản đồ' : null,
-                'btn_detail_text' => 'Xem VR Tour',
+                'btn_action_text' => ($p->lat && $p->lng) ? __('app.noti_view_on_map') : null,
+                'btn_detail_text' => __('app.noti_explore_vr'),
             ]);
         }
 
@@ -1160,25 +1174,25 @@ class HomeController extends Controller
             foreach ($guides as $g) {
                 $guideName = $g->name;
                 if (is_array($guideName)) {
-                    $guideName = $guideName['vi'] ?? reset($guideName);
+                    $guideName = $guideName[$locale] ?? $guideName['vi'] ?? reset($guideName);
                 }
 
                 $items->push([
                     'id' => 'guide_' . $g->id,
                     'type' => 'investment_guide',
-                    'badge_text' => 'Cẩm nang đầu tư mới',
+                    'badge_text' => __('app.noti_badge_guide_new'),
                     'badge_icon' => 'fa-book-open',
                     'badge_color' => '#10b981',
                     'name' => $guideName,
-                    'district' => 'Văn bản & Quy trình hướng dẫn xúc tiến đầu tư',
-                    'summary' => 'Tài liệu hướng dẫn quy trình, thủ tục dành cho nhà đầu tư',
-                    'time_ago' => $g->created_at ? $g->created_at->diffForHumans() : 'Mới đăng tải',
+                    'district' => __('app.noti_guide_subtitle'),
+                    'summary' => __('app.noti_guide_summary'),
+                    'time_ago' => $g->created_at ? $g->created_at->diffForHumans() : __('app.noti_newly_published'),
                     'image' => $g->image ? asset($g->image) : asset('images/intro.png'),
                     'lat' => null,
                     'lng' => null,
-                    'url' => url('/' . ($g->slug ?? 'cam-nang') . '-p' . $g->id . '.html'),
+                    'url' => route('investment_guide_detail', ['slug' => $g->slug ?? 'cam-nang', 'id' => $g->id]),
                     'btn_action_text' => null,
-                    'btn_detail_text' => 'Đọc cẩm nang',
+                    'btn_detail_text' => __('app.noti_read_guide'),
                 ]);
             }
         } catch (\Exception $e) {
@@ -1200,9 +1214,9 @@ class HomeController extends Controller
     private function resolveProjectEventInfo($p, bool $isInterested = false): array
     {
         $investStatus = match((int)$p->is_invest) {
-            1 => 'Đã có chủ đầu tư',
-            2 => 'Dự án đề xuất / chủ trương',
-            default => 'Đang thu hút đầu tư'
+            1 => __('app.noti_status_has_investor'),
+            2 => __('app.noti_status_proposed'),
+            default => __('app.noti_status_attracting')
         };
 
         // Tìm log cập nhật gần nhất của dự án trong Spatie Activitylog
@@ -1217,20 +1231,20 @@ class HomeController extends Controller
             }
         } catch (\Exception $e) {}
 
-        $prefix = $isInterested ? 'Dự án quan tâm • ' : '';
+        $prefix = $isInterested ? __('app.noti_interested_prefix') : '';
 
         if ($latestLog) {
             $props = $latestLog->properties ? $latestLog->properties->toArray() : [];
             $attrs = array_keys($props['attributes'] ?? []);
-            $timeAgo = $latestLog->created_at ? $latestLog->created_at->diffForHumans() : ($p->updated_at ? $p->updated_at->diffForHumans() : 'Mới cập nhật');
+            $timeAgo = $latestLog->created_at ? $latestLog->created_at->diffForHumans() : ($p->updated_at ? $p->updated_at->diffForHumans() : __('app.noti_just_updated'));
 
             // 1. Thay đổi trạng thái chủ đầu tư
             if (in_array('is_invest', $attrs)) {
                 return [
-                    'badge' => $prefix . 'Cập nhật trạng thái CĐT',
+                    'badge' => $prefix . __('app.noti_badge_investor_status'),
                     'icon' => 'fa-user-tie',
                     'color' => '#3b82f6',
-                    'summary' => 'Trạng thái dự án chuyển sang: ' . $investStatus,
+                    'summary' => __('app.noti_summary_investor_status', ['status' => $investStatus]),
                     'time_ago' => $timeAgo,
                 ];
             }
@@ -1238,10 +1252,10 @@ class HomeController extends Controller
             // 2. Mới thêm hoặc cập nhật VR Tour 360°
             if (in_array('link_vrtour', $attrs) || in_array('vrtour_code', $attrs)) {
                 return [
-                    'badge' => $prefix . 'Ra mắt VR Tour 360°',
+                    'badge' => $prefix . __('app.noti_badge_vr_new'),
                     'icon' => 'fa-vr-cardboard',
                     'color' => '#8b5cf6',
-                    'summary' => 'Dự án vừa tích hợp chuyến tham quan thực tế ảo VR Tour 360°',
+                    'summary' => __('app.noti_summary_vr_new'),
                     'time_ago' => $timeAgo,
                 ];
             }
@@ -1249,10 +1263,10 @@ class HomeController extends Controller
             // 3. Cập nhật bản đồ, ranh giới, tuyến giao thông kết nối
             if (in_array('boundary', $attrs) || in_array('railway_lines', $attrs) || in_array('layout_id', $attrs)) {
                 return [
-                    'badge' => $prefix . 'Cập nhật bản đồ & quy hoạch',
+                    'badge' => $prefix . __('app.noti_badge_map_planning'),
                     'icon' => 'fa-map-marked-alt',
                     'color' => '#06b6d4',
-                    'summary' => 'Vừa cập nhật ranh giới tọa độ và hạ tầng kết nối dự án',
+                    'summary' => __('app.noti_summary_map_planning'),
                     'time_ago' => $timeAgo,
                 ];
             }
@@ -1260,53 +1274,53 @@ class HomeController extends Controller
             // 4. Cập nhật hồ sơ pháp lý
             if (in_array('legal_description', $attrs) || in_array('legal_file', $attrs) || in_array('legal_access_levels', $attrs)) {
                 return [
-                    'badge' => $prefix . 'Cập nhật hồ sơ pháp lý',
+                    'badge' => $prefix . __('app.noti_badge_legal'),
                     'icon' => 'fa-file-certificate',
                     'color' => '#6366f1',
-                    'summary' => 'Hồ sơ tài liệu pháp lý của dự án vừa được bổ sung, cập nhật',
+                    'summary' => __('app.noti_summary_legal'),
                     'time_ago' => $timeAgo,
                 ];
             }
 
             // 5. Cập nhật thông tin chi tiết / giá / mô tả
             return [
-                'badge' => $prefix . 'Cập nhật thông tin dự án',
+                'badge' => $prefix . __('app.noti_badge_project_info'),
                 'icon' => $isInterested ? 'fa-star' : 'fa-info-circle',
                 'color' => $isInterested ? '#f59e0b' : '#10b981',
-                'summary' => 'Thông tin giới thiệu và tiến độ dự án vừa được cập nhật',
+                'summary' => __('app.noti_summary_project_info'),
                 'time_ago' => $timeAgo,
             ];
         }
 
         // Trường hợp không có log: hiển thị trung thực theo dữ liệu hiện tại của dự án
-        $timeAgo = $p->updated_at ? $p->updated_at->diffForHumans() : 'Mới cập nhật';
-        $district = $p->districts->pluck('name')->first() ?? 'TP. Hà Nội';
+        $timeAgo = $p->updated_at ? $p->updated_at->diffForHumans() : __('app.noti_just_updated');
+        $district = $p->districts->pluck('name')->first() ?? __('app.noti_hanoi_city');
 
         if ($isInterested) {
             return [
-                'badge' => 'Dự án đang theo dõi',
+                'badge' => __('app.noti_badge_following'),
                 'icon' => 'fa-star',
                 'color' => '#f59e0b',
-                'summary' => 'Dự án trong danh mục quan tâm của bạn (' . $investStatus . ')',
+                'summary' => __('app.noti_summary_following', ['status' => $investStatus]),
                 'time_ago' => $timeAgo,
             ];
         }
 
         if (!empty($p->link_vrtour) && empty($p->hide_vrtour)) {
             return [
-                'badge' => 'Khám phá VR Tour 360°',
+                'badge' => __('app.noti_badge_vr_new'),
                 'icon' => 'fa-vr-cardboard',
                 'color' => '#8b5cf6',
-                'summary' => 'Trải nghiệm không gian thực tế ảo 360° sinh động của dự án',
+                'summary' => __('app.noti_summary_vr_new'),
                 'time_ago' => $timeAgo,
             ];
         }
 
         return [
-            'badge' => 'Dự án ' . $investStatus,
+            'badge' => __('app.noti_badge_project_prefix', ['status' => $investStatus]),
             'icon' => 'fa-city',
             'color' => '#1169ff',
-            'summary' => 'Dự án xúc tiến đầu tư trọng điểm tại ' . $district,
+            'summary' => __('app.noti_summary_key_project', ['district' => $district]),
             'time_ago' => $timeAgo,
         ];
     }

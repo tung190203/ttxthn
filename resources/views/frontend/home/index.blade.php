@@ -2,14 +2,31 @@
 @php
 $countAllProject = App\Models\Project::count();
 $countAllIndustrial = App\Models\ProjectIndustries::count();
+$isDirectMap = request()->has('skip_intro') || request()->get('skip_intro') === '1' || (request()->has('lat') && request()->has('lng')) || request()->has('project_id');
 @endphp
 @section('content')
-<div class="page__content home-page home-map-locked">
+<script>
+(function() {
+    try {
+        var sp = new URLSearchParams(window.location.search);
+        var hasCoords = sp.has('lat') && sp.has('lng');
+        var skipIntro = sp.has('skip_intro') || sp.get('skip_intro') === '1' || hasCoords;
+        var hasPending = sessionStorage.getItem('pending_focus_project');
+        if (skipIntro || hasPending) {
+            var st = document.createElement('style');
+            st.id = 'skip-intro-immediate-css';
+            st.innerHTML = '#video-loader-container, #mapIntroLayer { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; } .home-page.home-map-locked { overflow: visible !important; } .home-map-locked #pjSearchFull, .home-map-locked #pjSearchMini { opacity: 1 !important; pointer-events: auto !important; visibility: visible !important; }';
+            document.head.appendChild(st);
+        }
+    } catch(e) {}
+})();
+</script>
+<div class="page__content home-page {{ $isDirectMap ? '' : 'home-map-locked' }}">
     <div class="page__sections">
         <!-- main content-->
         <section class="banner-home home-map-stage" id="home-map-stage" style="position: relative;">
             @if(!file_exists(public_path('videos/intro.mov')))
-            <div class="home-map-intro" id="mapIntroLayer">
+            <div class="home-map-intro" id="mapIntroLayer" style="{{ $isDirectMap ? 'display: none !important;' : '' }}">
                 <div class="home-map-intro__bg"></div>
                 <div class="container home-map-intro__inner">
                     <div class="home-map-intro__content">
@@ -49,7 +66,7 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                 </div>
             </div>
             @else
-            <div id="video-loader-container" class="home-video-intro">
+            <div id="video-loader-container" class="home-video-intro" style="{{ $isDirectMap ? 'display: none !important;' : '' }}">
                 <picture id="intro-poster" onclick="window.handleStartProjectIntro(event)" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; transition: opacity 0.5s ease, visibility 0.5s ease; display: block; cursor: pointer;">
                     <source media="(max-width: 576px)" srcset="{{ asset('images/KV-phone.jpg') }}">
                     <source media="(max-width: 992px)" srcset="{{ asset('images/KV-ipad.jpg') }}">
@@ -130,7 +147,7 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                 }
             };
 
-            window.unlockMap = function() {
+            window.unlockMap = function(immediate) {
                 var lVideo = document.getElementById('loader-video');
                 var vContainer = document.getElementById('video-loader-container');
                 var introLayer = document.getElementById('mapIntroLayer');
@@ -140,10 +157,20 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                     try { lVideo.pause(); lVideo.currentTime = 0; } catch(e){}
                 }
                 if (vContainer) {
-                    vContainer.classList.add('video-fade-out');
+                    if (immediate) {
+                        vContainer.style.setProperty('display', 'none', 'important');
+                        vContainer.classList.remove('is-playing', 'video-fade-out');
+                    } else {
+                        vContainer.classList.add('video-fade-out');
+                    }
                 }
                 if (introLayer) {
-                    introLayer.classList.add('is-hidden');
+                    if (immediate) {
+                        introLayer.style.setProperty('display', 'none', 'important');
+                        introLayer.classList.add('is-hidden');
+                    } else {
+                        introLayer.classList.add('is-hidden');
+                    }
                 }
                 if (homePage) {
                     homePage.classList.remove('home-map-locked');
@@ -151,8 +178,16 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
 
                 var pjSearchFull = document.getElementById('pjSearchFull');
                 var pjSearchMini = document.getElementById('pjSearchMini');
-                if (pjSearchFull) pjSearchFull.style.visibility = '';
-                if (pjSearchMini) pjSearchMini.style.visibility = '';
+                if (pjSearchFull) {
+                    pjSearchFull.style.visibility = '';
+                    pjSearchFull.style.opacity = '1';
+                    pjSearchFull.style.pointerEvents = 'auto';
+                }
+                if (pjSearchMini) {
+                    pjSearchMini.style.visibility = '';
+                    pjSearchMini.style.opacity = '1';
+                    pjSearchMini.style.pointerEvents = 'auto';
+                }
 
                 var header = document.querySelector('.header');
                 if (header) {
@@ -166,13 +201,13 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                     }
                 }
 
-                setTimeout(function() {
+                var finalize = function() {
                     if (vContainer) {
-                        vContainer.style.display = 'none';
+                        vContainer.style.setProperty('display', 'none', 'important');
                         vContainer.classList.remove('is-playing', 'video-fade-out');
                     }
                     if (introLayer) {
-                        introLayer.style.display = 'none';
+                        introLayer.style.setProperty('display', 'none', 'important');
                     }
                     if (typeof map !== 'undefined' && map) {
                         map.invalidateSize();
@@ -192,8 +227,23 @@ $countAllIndustrial = App\Models\ProjectIndustries::count();
                         }
                         window.dispatchEvent(new Event('resize'));
                     }
-                }, 650);
+                };
+
+                if (immediate) {
+                    finalize();
+                } else {
+                    setTimeout(finalize, 650);
+                }
             };
+
+            // Tự động mở khóa bản đồ ngay nếu có yêu cầu xem map hoặc focus dự án
+            try {
+                var urlParamsCheck = new URLSearchParams(window.location.search);
+                var isDirect = urlParamsCheck.has('skip_intro') || urlParamsCheck.get('skip_intro') === '1' || (urlParamsCheck.has('lat') && urlParamsCheck.has('lng')) || !!sessionStorage.getItem('pending_focus_project');
+                if (isDirect) {
+                    window.unlockMap(true);
+                }
+            } catch(e){}
             </script>
             <div class="w-full">
                 <div id="map">
@@ -2371,7 +2421,7 @@ html {
 </style>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
 <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
 <script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.0.21/leaflet-maplibre-gl.js"></script>
@@ -2442,23 +2492,35 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const _urlParamsCheck = new URLSearchParams(window.location.search);
     const _isSharedMapDetected = _urlParamsCheck.has('lat') && _urlParamsCheck.has('lng');
+    const _shouldSkipIntro = _urlParamsCheck.has('skip_intro') || _urlParamsCheck.get('skip_intro') === '1' || _isSharedMapDetected || !!sessionStorage.getItem('pending_focus_project');
 
     if (loaderVideo) {
         loaderVideo.pause();
         loaderVideo.currentTime = 0;
     }
 
-    function unlockMap() {
+    function unlockMap(immediate) {
+        const isImmediate = (immediate === true);
         if (loaderVideo) {
             loaderVideo.pause();
             loaderVideo.currentTime = 0;
         }
 
         if (videoContainer) {
-            videoContainer.classList.add('video-fade-out');
+            if (isImmediate) {
+                videoContainer.style.setProperty('display', 'none', 'important');
+                videoContainer.classList.remove('is-playing', 'video-fade-out');
+            } else {
+                videoContainer.classList.add('video-fade-out');
+            }
         }
         if (introLayer) {
-            introLayer.classList.add('is-hidden');
+            if (isImmediate) {
+                introLayer.style.setProperty('display', 'none', 'important');
+                introLayer.classList.add('is-hidden');
+            } else {
+                introLayer.classList.add('is-hidden');
+            }
         }
         const homePage = document.querySelector('.home-page');
         if (homePage) homePage.classList.remove('home-map-locked');
@@ -2466,8 +2528,16 @@ document.addEventListener('DOMContentLoaded', function() {
         // Xoá inline visibility:hidden đã đặt sẵn để hiển thị các cụm tìm kiếm
         const pjSearchFull = document.getElementById('pjSearchFull');
         const pjSearchMini = document.getElementById('pjSearchMini');
-        if (pjSearchFull) pjSearchFull.style.visibility = '';
-        if (pjSearchMini) pjSearchMini.style.visibility = '';
+        if (pjSearchFull) {
+            pjSearchFull.style.visibility = '';
+            pjSearchFull.style.opacity = '1';
+            pjSearchFull.style.pointerEvents = 'auto';
+        }
+        if (pjSearchMini) {
+            pjSearchMini.style.visibility = '';
+            pjSearchMini.style.opacity = '1';
+            pjSearchMini.style.pointerEvents = 'auto';
+        }
 
         // Bật nền header khi map được mở khóa (video xong hoặc bỏ qua)
         const $header = document.querySelector('.header');
@@ -2482,10 +2552,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        setTimeout(() => {
+        const finalizeUnlock = () => {
             if (videoContainer) {
-                videoContainer.style.display = 'none';
+                videoContainer.style.setProperty('display', 'none', 'important');
                 videoContainer.classList.remove('is-playing', 'video-fade-out');
+            }
+            if (introLayer) {
+                introLayer.style.setProperty('display', 'none', 'important');
             }
             if (typeof map !== 'undefined' && map) {
                 map.invalidateSize();
@@ -2497,14 +2570,27 @@ document.addEventListener('DOMContentLoaded', function() {
                     isInitialStateRestored = false;
                     restoreLayersAndFilterState();
                 }
-            } else {
-                // Link thông thường: nạp bản đồ vệ tinh và ranh giới mặc định
-                if (typeof window.loadDefaultMap === 'function') {
-                    window.loadDefaultMap();
-                }
-                window.dispatchEvent(new Event('resize'));
             }
-        }, 650);
+            // Luôn đảm bảo có lớp bản đồ nền (nếu chưa có) và nạp lại marker
+            if (typeof window.loadDefaultMap === 'function') {
+                window.loadDefaultMap();
+            }
+            if (typeof window.refreshMapMarkers === 'function') {
+                window.refreshMapMarkers();
+            }
+            window.dispatchEvent(new Event('resize'));
+        };
+
+        if (isImmediate) {
+            finalizeUnlock();
+        } else {
+            setTimeout(finalizeUnlock, 650);
+        }
+    }
+    window.unlockMap = unlockMap;
+
+    if (_shouldSkipIntro) {
+        unlockMap(true);
     }
 
     // Hàm kích hoạt phát video intro khi bấm nút Tìm hiểu dự án hoặc bấm Poster
@@ -3525,18 +3611,22 @@ let _portalTargetBoundary = null;
 window.portalFlyToProject = function(item) {
     if (!item || !item.lat || !item.lng) return;
 
-    // 1. Mở khóa bản đồ ngay lập tức
-    if (typeof unlockMap === 'function') unlockMap();
+    // 1. Mở khóa bản đồ ngay lập tức và ẩn video intro
+    if (typeof window.unlockMap === 'function') {
+        window.unlockMap(true);
+    } else if (typeof unlockMap === 'function') {
+        unlockMap(true);
+    }
     const introLayer = document.getElementById('mapIntroLayer');
     if (introLayer) {
+        introLayer.style.setProperty('display', 'none', 'important');
         introLayer.classList.add('is-hidden');
-        introLayer.style.display = 'none';
     }
     const homePage = document.querySelector('.home-page');
     if (homePage) homePage.classList.remove('home-map-locked');
     const vContainer = document.getElementById('video-loader-container');
     if (vContainer) {
-        vContainer.style.display = 'none';
+        vContainer.style.setProperty('display', 'none', 'important');
         vContainer.classList.remove('is-playing', 'video-fade-out');
     }
     const lVideo = document.getElementById('loader-video');
@@ -3546,8 +3636,16 @@ window.portalFlyToProject = function(item) {
 
     const pjSearchFull = document.getElementById('pjSearchFull');
     const pjSearchMini = document.getElementById('pjSearchMini');
-    if (pjSearchFull) pjSearchFull.style.visibility = '';
-    if (pjSearchMini) pjSearchMini.style.visibility = '';
+    if (pjSearchFull) {
+        pjSearchFull.style.visibility = '';
+        pjSearchFull.style.opacity = '1';
+        pjSearchFull.style.pointerEvents = 'auto';
+    }
+    if (pjSearchMini) {
+        pjSearchMini.style.visibility = '';
+        pjSearchMini.style.opacity = '1';
+        pjSearchMini.style.pointerEvents = 'auto';
+    }
 
     if (typeof window.loadDefaultMap === 'function') {
         window.loadDefaultMap();
@@ -3567,7 +3665,7 @@ window.portalFlyToProject = function(item) {
         lat: parseFloat(item.lat),
         lng: parseFloat(item.lng),
         link: item.detail_url || item.url,
-        link_vrtour: item.vr_url || item.link_vrtour,
+        link_vrtour: item.link_vrtour || item.vr_url,
         districts: item.districts || (item.district ? [item.district] : ['TP. Hà Nội']),
         district: item.district,
         price: item.price || 0,
@@ -3583,18 +3681,12 @@ window.portalFlyToProject = function(item) {
         boundary: item.boundary || null
     };
 
-    // 4. Tìm xem Marker dự án này đã có trên map (trong markersLayer) chưa
-    let activeMarker = null;
-    if (typeof markersLayer !== 'undefined' && markersLayer) {
-        markersLayer.eachLayer(function(layer) {
-            if (layer.getLatLng) {
-                const ll = layer.getLatLng();
-                if (Math.abs(ll.lat - loc.lat) < 0.0001 && Math.abs(ll.lng - loc.lng) < 0.0001) {
-                    activeMarker = layer;
-                }
-            }
-        });
-    }
+    // 4. Đánh dấu đang focus dự án từ thông báo để tránh fitBounds kéo lệch camera
+    window._portalFocusingProject = true;
+    clearTimeout(window._portalFocusResetTimer);
+    window._portalFocusResetTimer = setTimeout(function() {
+        window._portalFocusingProject = false;
+    }, 2500);
 
     // Xóa marker tạm của lần click trước nếu có
     if (_portalTargetMarker) {
@@ -3602,12 +3694,10 @@ window.portalFlyToProject = function(item) {
         _portalTargetMarker = null;
     }
 
-    // Nếu chưa có trên markersLayer, tạo đúng Marker chuẩn bằng createMarker(loc)
-    if (!activeMarker) {
-        activeMarker = createMarker(loc);
-        activeMarker.addTo(map);
-        _portalTargetMarker = activeMarker;
-    }
+    // Tạo Marker chuẩn riêng biệt trên map để không bị mất popup khi markersLayer refresh theo bounds mới
+    const activeMarker = createMarker(loc);
+    activeMarker.addTo(map);
+    _portalTargetMarker = activeMarker;
 
     // 5. Vẽ đúng đường ranh giới boundary polygon của dự án
     if (typeof showProjectBoundary === 'function') {
@@ -3622,7 +3712,7 @@ window.portalFlyToProject = function(item) {
         if (activeMarker) {
             activeMarker.openPopup();
         }
-    }, 600);
+    }, 500);
 };
 
 // Kiểm tra nếu có dự án chờ focus từ trang khác chuyển sang
@@ -3635,7 +3725,7 @@ try {
             if (typeof window.portalFlyToProject === 'function') {
                 window.portalFlyToProject(pItem);
             }
-        }, 800);
+        }, 250);
     }
 } catch(e){}
 
@@ -3774,8 +3864,8 @@ function syncLayerControlCheckboxes() {
 // Hàm lazy load bản đồ mặc định – mặc định nạp bản đồ Vệ tinh và tự động bật ranh giới (nếu layer đang Hiện)
 window.loadDefaultMap = function() {
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('lat') && urlParams.has('lng')) {
-        return; // Không nạp mặc định đè lên link chia sẻ
+    if (urlParams.has('lat') && urlParams.has('lng') && urlParams.has('basemap')) {
+        return; // Không nạp mặc định đè lên link chia sẻ đã chỉ định basemap
     }
 
     if (typeof map !== 'undefined' && typeof satellite !== 'undefined') {
@@ -5211,7 +5301,7 @@ function loadMarkers(data, triggeredBySearch = false) {
     markersLayer.clearLayers();
 
     const filtered = data.filter(loc => {
-        if (!loc.lat || !loc.lng || !Array.isArray(loc.districts) || loc.districts.length === 0) return false;
+        if (!loc.lat || !loc.lng) return false;
         const lat = parseFloat(loc.lat);
         const lng = parseFloat(loc.lng);
         if (isNaN(lat) || isNaN(lng)) return false;
@@ -5222,8 +5312,10 @@ function loadMarkers(data, triggeredBySearch = false) {
     if (markers.length === 0) return;
 
     markersLayer.addLayers(markers);
-    map.addLayer(markersLayer);
-    if (!triggeredBySearch) return;
+    if (!map.hasLayer(markersLayer)) {
+        map.addLayer(markersLayer);
+    }
+    if (!triggeredBySearch || window._portalFocusingProject) return;
 
     if (markers.length === 1) {
         const latLng = markers[0].getLatLng();
@@ -5595,6 +5687,18 @@ $(document).on('click', function(e) {
     }
 });
 
+
+// Hàm hỗ trợ gọi lại nạp marker an toàn sau khi mở khóa bản đồ
+window.refreshMapMarkers = function() {
+    if (typeof map === 'undefined' || !map) return;
+    if (typeof markersLayer !== 'undefined' && markersLayer && !map.hasLayer(markersLayer)) {
+        map.addLayer(markersLayer);
+    }
+    if (typeof applyFiltersWithBounds === 'function') {
+        isMapTriggered = true;
+        applyFiltersWithBounds();
+    }
+};
 
 // MAP MOVE
 let mapMoveTimeout = null;
